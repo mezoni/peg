@@ -158,36 +158,9 @@ class ExpressionOptimizer extends ExpressionVisitor<Expression> {
     return _initialize(node, result);
   }
 
-  SequenceExpression? _getSequence(Expression? node) {
-    node = _skipGroup(node);
-    if (node is! OrderedChoiceExpression) {
-      return null;
-    }
-
-    final children = node.expressions;
-    if (children.length == 1) {
-      final child = children[0];
-      if (child case final SequenceExpression child) {
-        return child;
-      }
-    }
-
-    return null;
-  }
-
   Expression _initialize(Expression oldNode, Expression newNode) {
     newNode.semanticVariable = oldNode.semanticVariable;
     return newNode;
-  }
-
-  Expression? _skipGroup(Expression? node) {
-    while (true) {
-      if (node is! GroupExpression) {
-        return node;
-      }
-
-      node = node.expression;
-    }
   }
 
   Expression _visitChild(SingleExpression parent) {

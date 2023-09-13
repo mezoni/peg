@@ -4,10 +4,8 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
-import 'package:peg/src/expression_optimizers/expression_optimizer.dart';
 import 'package:peg/src/grammar/grammar.dart';
 import 'package:peg/src/grammar_generators/library_generator.dart';
-import 'package:peg/src/peg_parser.dart' as peg_parser;
 import 'package:strings/strings.dart';
 
 import 'peg_parser.dart';
@@ -51,19 +49,10 @@ Future<void> main(List<String> args) async {
   }
 
   final input = file.readAsStringSync();
-  final grammar = _parse2(input);
+  final grammar = _parse(input);
   if (grammar == null) {
     exit(-1);
   }
-
-  final optimizer = ExpressionOptimizer();
-  final rules = grammar.rules;
-  optimizer.optimize(rules);
-  final grammar2 = Grammar(
-    globals: grammar.globals,
-    members: grammar.members,
-    rules: rules,
-  );
 
   final errors = grammar.errors;
   if (errors.isNotEmpty) {
@@ -86,20 +75,6 @@ Future<void> main(List<String> args) async {
 }
 
 Grammar? _parse(String input) {
-  final state = peg_parser.State(input);
-  final result = peg_parser.parser(state);
-  if (!state.ok) {
-    final message = peg_parser.ParseError.errorMessage(
-        input, state.failPos, state.getErrors());
-    print('Errors were found while parsing the grammar:');
-    print(message);
-    return null;
-  }
-
-  return result!;
-}
-
-Grammar? _parse2(String input) {
   final parser = PegParser();
   final result = tryParse(parser.parseStart, StringReader(input));
   if (!result.ok) {
