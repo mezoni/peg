@@ -1,0 +1,93 @@
+%{
+void main(List<String> args) {
+  const source = '1 + 2 * 3';
+  final parser = CalcParser();
+  final result = parseString(parser.parseStart, source);
+  print(result);
+}
+}%
+
+%%
+  num _build(num h, List<(String, num)> t) {
+    var left = h;
+    for (var i = 0; i < t.length; i++) {
+      final element = t[i];
+      final op = element.$1;
+      final right = element.$2;
+      switch (op) {
+        case '+':
+          left += right;
+          break;
+        case '-':
+          left -= right;
+          break;
+        case '/':
+          left /= right;
+          break;
+        case '*':
+          left *= right;
+          break;
+        default:
+          throw StateError('Unknown operator: $op');
+      }
+    }
+
+    return left;
+  }
+
+  num _prefix(String? operator, num operand) {
+    if (operator == null) {
+      return operand;
+    }
+
+    switch (operator) {
+      case '+':
+        return -operand;
+      default:
+        throw StateError('Unknown operator: $operator');
+    }
+  }
+%%
+
+Start = Spaces v:Expression Eof ;
+
+Expression = Add ;
+
+num
+Add = h:Mul t:(AddOp Mul)* { $$ = _build(h, t); } ;
+
+AddOp = v:('-' / '+') Spaces ;
+
+num
+Mul = h:Prefix t:(MulOp Prefix)* { $$ = _build(h, t); } ;
+
+MulOp = v:('/' / '*') Spaces ;
+
+num
+Prefix = o:'-'? e:Primary { $$ = _prefix(o, e); } ;
+
+Primary =
+    Number
+  / OpenParenthesis v:Number CloseParenthesis ;
+
+Number = NumberRaw
+  ~{
+    if (state.failPos != state.pos) {
+      state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Malformed number'));
+    } else {
+      removeLastErrors();
+      state.failAt(state.failPos, const ErrorExpectedTags(['number']));
+    }
+  } ;
+
+num
+NumberRaw = v:$('-'?  '0' / ([1-9][0-9]*) ('.' [0-9]+)?  ([eE] [+-] [0-9]+)?) Spaces { $$ = num.parse(v); } ;
+
+CloseParenthesis = ')' Spaces ;
+
+@inline
+Eof = !. ;
+
+OpenParenthesis = '(' Spaces ;
+
+Spaces = [ \n\r\t]* ;

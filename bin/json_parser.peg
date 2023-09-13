@@ -1,0 +1,143 @@
+%{
+
+void main() {
+  final r = parseString(JsonParser().parseJson, _source);
+  print(r);
+}
+
+const _source = r'''
+"abc"
+''';
+
+}%
+
+%%
+
+  String _escape(int charCode) {
+    switch (charCode) {
+      case 0x22:
+        return '"';
+      case 0x2f:
+        return '/';
+      case 0x5c:
+        return '\\';
+      case 0x62:
+        return '\b';
+      case 0x66:
+        return '\f';
+      case 0x6e:
+        return '\n';
+      case 0x72:
+        return '\r';
+      case 0x74:
+        return '\t';
+      default:
+        throw StateError('Unable to escape charCode: $charCode');
+    }
+  }
+
+%%
+
+Json = Spaces v:Value !. ;
+
+List<Object?>
+@event
+Array = OpenBracket v:Values? CloseBracket { $$ = v ?? const []; } ;
+
+@inline
+CloseBrace = v:'}' Spaces ;
+
+@inline
+CloseBracket = v:']' Spaces ;
+
+@inline
+Colon = v:':' Spaces ;
+
+@inline
+Comma = v:',' Spaces ;
+
+String
+@inline
+EscapeChar = c:["/bfnrt\\] { $$ = _escape(c); } ;
+
+String
+@inline
+EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
+
+HexNumber = HexNumberRaw
+  ~{
+    removeLastErrors();
+    state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number'));
+  } ;
+
+int
+@inline
+HexNumberRaw = v:$([0-9A-Za-z]{4}) { $$ = int.parse(v, radix: 16); } ;
+
+bool
+@inline
+False = 'false' Spaces { $$ = false; } ;
+
+@inline
+@event Key = String ;
+
+MapEntry<String, Object?>
+@event
+KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
+
+List<MapEntry<String, Object?>>
+@event
+KeyValues = h:KeyValue t:(Comma v:KeyValue)* { $$ = [h, ...t]; };
+
+Object?
+@inline
+Null = 'null' Spaces { $$ = null; } ;
+
+@event
+Number = v:$(
+  [-]?
+  ([0] / [1-9][0-9]*)
+  ([.] [0-9]+)?
+  ([eE] [-+]? [0-9]+)?
+  ) Spaces { $$ = num.parse(v); } ;
+
+Map<String, Object?>
+@event
+Object = OpenBrace kv:KeyValues? CloseBrace { $$ = Map.fromEntries(kv ?? const {}); };
+
+@inline
+OpenBrace = v:'{' Spaces ;
+
+@inline
+OpenBracket = v:'[' Spaces ;
+
+@inline
+Quote = v:'"' Spaces ;
+
+Spaces = [ \n\r\t]* ;
+
+String
+@inline
+StringChars =
+    $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+
+  / '\\' v:(EscapeChar / EscapeHex);
+
+String
+String = '"' v:StringChars* Quote { $$ = v.join(); } ;
+
+bool
+@inline
+True = 'true' Spaces { $$ = true; } ;
+
+@event
+Value = Array
+  / String
+  / Object
+  / Array
+  / Number
+  / True
+  / False
+  / Null ;
+
+List<Object?>
+Values = h:Value t:(Comma v:Value)* { $$ = [h, ...t]; };

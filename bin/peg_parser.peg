@@ -1,0 +1,266 @@
+%{
+import 'dart:io';
+
+import 'package:peg/src/expressions/expressions.dart';
+import 'package:peg/src/grammar/grammar.dart';
+
+void main() {
+  final source = File('bin/peg_parser.peg').readAsStringSync();
+  final r = parseString(PegParser().parseStart, source);
+  print(r);
+}
+
+}%
+
+%%
+
+Expression _buildPrefix(String? prefix, Expression expression) {
+    if (prefix == null) {
+      return expression;
+    }
+
+    switch (prefix) {
+      case '&':
+        return AndPredicateExpression(expression: expression);
+      case '!':
+        return NotPredicateExpression(expression: expression);
+      case '\$':
+        return SliceExpression(expression: expression);
+      default:
+        throw StateError('Unknown prefix: $prefix');
+    }
+  }
+
+  Expression _buildSuffix(Object? suffix, Expression expression) {
+  if (suffix == null) {
+    return expression;
+  }
+
+  if (suffix is (int?, int?)) {
+    return RepetitionExpression(
+        expression: expression, min: suffix.$1, max: suffix.$2);
+  }
+
+  switch (suffix) {
+    case '+':
+      return OneOrMoreExpression(expression: expression);
+    case '?':
+      return OptionalExpression(expression: expression);
+    case '*':
+      return ZeroOrMoreExpression(expression: expression);
+    default:
+      throw StateError('Unknown suffix: $suffix');
+  }
+}
+
+int _escape(int charCode) {
+  switch (charCode) {
+    case 0x6e:
+      return 0xa;
+    case 0x72:
+      return 0xd;
+    case 0x74:
+      return 0x9;
+    case 0x22:
+      return 0x22;
+    case 0x27:
+      return 0x27;
+    case 0x5c:
+      return 0x5c;
+    case 0x5d:
+      return 0x5d;
+    default:
+      return charCode;
+  }
+}
+
+%%
+
+Grammar
+Start = Spaces g:Globals? m:Members? d:Definition* !. { $$ = Grammar(rules: d, globals: g, members: m); } ;
+
+Globals = '%{' v:$(!'}%' v:. )* '}%' Spaces ;
+
+Members = '%%' v:$(!'%%' v:. )* '%%' Spaces ;
+
+Block = '{' v:$BlockBody* CloseBrace ;
+
+BlockBody =
+    '{' v:BlockBody* '}'
+  / !'}' . ;
+
+ProductionRule
+Definition =
+    t:Type? m:Metadata? i:Identifier Equal e:Expression Semicolon
+      { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, resultType: t, metadata: m); }
+  / m:Metadata? i:Identifier Equal e:Expression Semicolon
+      { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, metadata: m); } ;
+
+ResultType
+Type = t:(GenericType / RecordType) q:Question? { $$ = q == null ? t : t.getNullableType(); } ;
+
+ResultType
+GenericType =
+   i:Identifier Less p:TypeArguments Greater { $$ = GenericType(name: i, arguments: p); }
+  / i:Identifier { $$ = GenericType(name: i); } ;
+
+List<ResultType>
+TypeArguments = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
+
+ResultType
+RecordType =
+  OpenParenthesis
+  v:(
+      n:NamedFields <RecordType>{ $$ = RecordType(named: n); }
+    / p:PositionalFields Comma n:NamedFields <RecordType>{ $$ = RecordType(positional: p, named: n); }
+    / h:Type Comma t:PositionalFields <RecordType>{ $$ = RecordType(positional: [h, ...t]); }
+    / t:Type Comma <RecordType>{ $$ = RecordType(positional: [t]); }
+  )
+  CloseParenthesis ;
+
+List<(ResultType, String)>
+NamedFields = h:NamedField t:(Comma v:NamedField)* { $$ = [h, ...t];  } ;
+
+(ResultType, String)
+NamedField = t:Type i:Identifier { $$ = (t, i); } ;
+
+List<ResultType>
+PositionalFields = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
+
+List<String>
+Metadata = h:MetadataElement t:(Spaces v:MetadataElement)* { $$ = [h, ...t]; } ;
+
+String
+MetadataElement = AtSign i:Identifier { $$ = '@$i'; } ;
+
+Expression = OrderedChoice ;
+
+Expression
+OrderedChoice = h:ErrorHandler t:(Slash v:ErrorHandler)* { $$ = OrderedChoiceExpression(expressions: [h, ...t]); } ;
+
+Expression
+ErrorHandler = e:Sequence a:ErrorAction? { $$ = a == null ? e : ErrorHandlerExpression(expression: e, handler: a); } ;
+
+Expression
+Sequence = e:SequenceElement+ a:Action? { $$ = SequenceExpression(expressions: e, action: a); } ;
+
+SequenceElement =
+    i:Identifier Colon p:Prefix <Expression>{ $$ = p..semanticVariable = i; }
+  / Prefix ;
+
+SemanticAction
+Action = t:(Less v:Type Greater)? b:Block { $$ = SemanticAction(source: b, resultType: t); } ;
+
+String
+ErrorAction = '~' b:Block  ;
+
+Expression
+Prefix = p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
+
+Expression
+Suffix = p:Primary s:(
+  Asterisk
+  / Question
+  / Plus/
+  OpenBrace v:MinMax CloseBrace
+  )? { $$ = _buildSuffix(s, p); } ;
+
+Primary =
+    Symbol
+  / CharacterClass
+  / Literal
+  / CharacterClass
+  / AnyCharacter
+  / Group ;
+
+Expression
+AnyCharacter = Dot { $$ = AnyCharacterExpression(); };
+
+Expression
+CharacterClass =
+     '[^' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r, negate: true); }
+   / '[' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r); } ;
+
+Expression
+Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(expression: e); } ;
+
+Expression
+Literal =
+    '\'' cs:(!'\'' c:Char)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); }
+  / '"' cs:(!'"' c:Char)* '"' Spaces  { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
+
+Expression
+Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
+
+(int, int)
+Range =
+    s:Char '-' e:Char { $$ = (s, e); }
+  / s:Char { $$ = (s, s); } ;
+
+int
+Char =
+    '\\'
+    v:(
+        c:[-rnt'"\]\\] <int>{ $$ = _escape(c); }
+      / 'u{' v:$[a-zA-Z0-9]+ '}' <int>{ $$ = int.parse(v, radix: 16); }
+    )
+  / !'\\' c:.;
+
+String
+Identifier = i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces { $$ = i; } ;
+
+(int?, int?)
+MinMax =
+    m:Integer Comma n:Integer { $$ = (m, n); }
+  / Comma n:Integer { $$ = (null, n); }
+  / m:Integer Comma { $$ = (m, null); }
+  / n:Integer { $$ = (n, n); } ;
+
+int
+Integer = v:$[0-9]+ { $$ = int.parse(v); } ;
+
+Ampersand = v:'&' Spaces ;
+
+Asterisk = v:'*' Spaces ;
+
+AtSign = v:'@' Spaces ;
+
+CloseBrace = v:'}' Spaces ;
+
+CloseBracket = v:']' Spaces ;
+
+CloseParenthesis = v:')' Spaces ;
+
+Colon = v:':' Spaces ;
+
+Comma = v:',' Spaces ;
+
+Dot = v:'.' Spaces ;
+
+Dollar = v:'$' Spaces ;
+
+Equal = v:'=' Spaces ;
+
+Exclamation = v:'!' Spaces ;
+
+Greater = v:'>' Spaces ;
+
+Less = v:'<' Spaces ;
+
+OpenBrace = v:'{' Spaces ;
+
+OpenParenthesis = v:'(' Spaces ;
+
+Plus = v:'+' Spaces ;
+
+Question = v:'?' Spaces ;
+
+Semicolon = v:';' Spaces ;
+
+Slash = v:'/' Spaces ;
+
+Spaces =  (WhiteSpace / Comment)* ;
+
+WhiteSpace = [ \n\r\t];
+
+Comment = '#' (![\n\r] .)* ;

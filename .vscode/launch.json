@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "bin/peg.dart",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "bin/peg_parser.peg"
+            ]
+        },
+        {
+            "name": "peg json",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "bin/json_parser.peg"
+            ]
+        },
+        {
+            "name": "peg calc",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "example/calc_parser.peg"
+            ]
+        },
+    ]
+}
