@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.0
+Version: 1.0.1
 
 # Об этом программном обеспечении
 
@@ -472,3 +472,15 @@ TakeWhile1 = $[0-9]+ ;
 ```
 SeparatedPair = k:Key Sep v:Value { $$ = (k, v); } ;
 ```
+
+## Примеры парсеров
+
+Список примеров парсеров:  
+CSV парсер
+https://github.com/mezoni/peg/blob/main/example/csv_parser.peg  
+
+Calc парсер
+https://github.com/mezoni/peg/blob/main/example/calc_parser.peg  
+
+JSON парсер
+https://github.com/mezoni/peg/blob/main/example/json_parser.peg  

@@ -1,16 +1,3 @@
-%{
-
-void main() {
-  final r = parseString(JsonParser().parseJson, _source);
-  print(r);
-}
-
-const _source = r'''
-"abc"
-''';
-
-}%
-
 %%
 
   String _escape(int charCode) {

@@ -1,0 +1,34 @@
+%%
+
+const CsvParser();
+
+%%
+
+Start = v:Rows Eof ;
+
+Chars = ([^"] / '""' <int>{ $$ = 0x22; })*  ;
+
+CloseQuote = '"' Spaces ;
+
+Eof = !. ;
+
+Eol = [\n\r] / '\r\n';
+
+Field = String / Text ;
+
+OpenQuote = Spaces '"' ;
+
+RowEnding = Eol !Eof ;
+
+List<String>
+Row = h:Field t:(',' v:Field)* { $$ = [h, ...t]; } ;
+
+List<List<String>>
+Rows = h:Row t:(RowEnding v:Row)* Eol? { $$ = [h,...t]; } ;
+
+Spaces = [ \t]* ;
+
+String
+String = OpenQuote v:Chars CloseQuote { $$ = String.fromCharCodes(v); } ;
+
+Text = $[^,"\n\t]* ;
