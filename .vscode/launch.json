@@ -15,7 +15,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
-                "bin/json_parser.peg"
+                "example/json_parser.peg"
             ]
         },
         {

@@ -1,13 +1,5 @@
-import 'dart:io';
-
 import 'package:peg/src/expressions/expressions.dart';
 import 'package:peg/src/grammar/grammar.dart';
-
-void main() {
-  final source = File('bin/peg_parser.peg').readAsStringSync();
-  final r = parseString(PegParser().parseStart, source);
-  print(r);
-}
 
 class PegParser {
   Expression _buildPrefix(String? prefix, Expression expression) {
