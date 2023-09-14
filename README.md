@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.3
+Version: 1.0.4
 
 # Об этом программном обеспечении
 
@@ -484,3 +484,70 @@ https://github.com/mezoni/peg/blob/main/example/calc_parser.peg
 
 JSON парсер
 https://github.com/mezoni/peg/blob/main/example/json_parser.peg
+
+## Как осуществлять разбор?
+
+Сгенерированные классы парсеров не содержат ничего лишнего кроме правил и членов класса, определенных разработчиком.  
+Для удобства работы с классами парсеров предлагается использовать функции для разбора данных.  
+Эти функции верхнего уровня и они также находятся в файле библиотеки парсера.  
+Это не сгенерированные функции, но они являются универсальными функциями.  
+Ниже представлен перечень этих функций.
+
+Имя: `parseString`
+Назначение: Вызывает указанную функцию разбора для указанной строки и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения разбора возвращает результат.
+
+Пример использования:
+
+```dart
+  const source = '1 + 2 * 3';
+  final parser = CalcParser();
+  final result = parseString(parser.parseStart, source);
+  print(result);
+```
+
+Имя: `fastParseString`  
+Назначение: Вызывает указанную функцию разбора для указанной строки и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения не возвращает никакого результата.
+
+Пример использования:
+
+```dart
+  const source = '1 + 2 * 3';
+  final parser = CalcParser();
+  fastParseString(parser.fastParseSpaces, source);
+```
+
+Имя: `parseInput`  
+Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения разбора возвращает результат.
+
+Пример использования:
+
+```dart
+  const source = '1 + 2 * 3';
+  final input = StringReader(source);
+  final parser = CalcParser();
+  parseInput(parser.parseStart, input);
+```
+
+Имя: `tryParse`  
+Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и возвращает значение `ParseResult`.
+
+Пример использования:
+
+```dart
+  const source = '1 + 2 * 3';
+  final input = StringReader(source);
+  final parser = CalcParser();
+  final result = tryParse(parser.parseSpaces, input);
+```
+
+Имя: `tryFastParse`  
+Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и возвращает значение `ParseResult`.
+
+Пример использования:
+
+```dart
+  const source = '1 + 2 * 3';
+  final input = StringReader(source);
+  final parser = CalcParser();
+  final result = tryFastParse(parser.fastParseSpaces, input);
+```
