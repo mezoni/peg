@@ -139,13 +139,13 @@ class CsvParser {
 
   String? parseText(State<StringReader> state) {
     String? $0;
-    // $[^,"\n\t]*
+    // $[^,"\n\r]*
     final $2 = state.pos;
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
         final $3 = state.input.readChar(state.pos);
-        state.ok = !($3 == 34 || $3 >= 9 && $3 <= 10 || $3 == 44);
+        state.ok = !($3 == 13 || $3 == 10 || $3 == 34 || $3 == 44);
         if (state.ok) {
           state.pos += state.input.count;
         }

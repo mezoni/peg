@@ -27,5 +27,14 @@
                 "example/calc_parser.peg"
             ]
         },
+        {
+            "name": "peg csv",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "example/csv_parser.peg"
+            ]
+        }
     ]
 }

@@ -31,4 +31,4 @@ Spaces = [ \t]* ;
 String
 String = OpenQuote v:Chars CloseQuote { $$ = String.fromCharCodes(v); } ;
 
-Text = $[^,"\n\t]* ;
+Text = $[^,"\n\r]* ;
