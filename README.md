@@ -477,10 +477,10 @@ SeparatedPair = k:Key Sep v:Value { $$ = (k, v); } ;
 
 Список примеров парсеров:  
 CSV парсер
-https://github.com/mezoni/peg/blob/main/example/csv_parser.peg  
+https://github.com/mezoni/peg/blob/main/example/csv_parser.peg
 
 Calc парсер
-https://github.com/mezoni/peg/blob/main/example/calc_parser.peg  
+https://github.com/mezoni/peg/blob/main/example/calc_parser.peg
 
 JSON парсер
-https://github.com/mezoni/peg/blob/main/example/json_parser.peg  
+https://github.com/mezoni/peg/blob/main/example/json_parser.peg
