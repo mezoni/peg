@@ -57,6 +57,8 @@ class PegParser {
         return 0x5c;
       case 0x5d:
         return 0x5d;
+      case 0x5e:
+        return 0x5e;
       default:
         return charCode;
     }
@@ -1095,16 +1097,16 @@ class PegParser {
 
   (int, int)? parseRange(State<StringReader> state) {
     (int, int)? $0;
-    // s:Char '-' e:Char
+    // s:RangeChar '-' e:RangeChar
     final $3 = state.pos;
     int? $4;
-    $4 = parseChar(state);
+    $4 = parseRangeChar(state);
     if (state.ok) {
       const $6 = '-';
       matchLiteral1(state, 45, $6, const ErrorExpectedTags([$6]));
       if (state.ok) {
         int? $5;
-        $5 = parseChar(state);
+        $5 = parseRangeChar(state);
         if (state.ok) {
           (int, int)? $$;
           final s = $4!;
@@ -1118,9 +1120,9 @@ class PegParser {
       state.pos = $3;
     }
     if (!state.ok) {
-      // s:Char
+      // s:RangeChar
       int? $2;
-      $2 = parseChar(state);
+      $2 = parseRangeChar(state);
       if (state.ok) {
         (int, int)? $$;
         final s = $2!;
@@ -1131,25 +1133,25 @@ class PegParser {
     return $0;
   }
 
-  int? parseChar(State<StringReader> state) {
+  int? parseRangeChar(State<StringReader> state) {
     int? $0;
-    // '\\' v:(c:[\-rnt'"\]\\] / 'u{' v:$[a-zA-Z0-9]+ '}')
+    // '\\' v:(c:[\-rnt'"^\]\\] / HexChar)
     final $5 = state.pos;
     const $7 = '\\';
     matchLiteral1(state, 92, $7, const ErrorExpectedTags([$7]));
     if (state.ok) {
       int? $6;
-      // c:[\-rnt'"\]\\]
-      int? $16;
+      // c:[\-rnt'"^\]\\]
+      int? $10;
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $17 = state.input.readChar(state.pos);
-        state.ok = $17 <= 93
-            ? $17 == 39 || $17 == 34 || $17 == 45 || $17 >= 92
-            : $17 == 114 || ($17 < 114 ? $17 == 110 : $17 == 116);
+        final $11 = state.input.readChar(state.pos);
+        state.ok = $11 <= 94
+            ? $11 == 39 || $11 == 34 || $11 == 45 || $11 >= 92
+            : $11 == 114 || ($11 < 114 ? $11 == 110 : $11 == 116);
         if (state.ok) {
           state.pos += state.input.count;
-          $16 = $17;
+          $10 = $11;
         }
       }
       if (!state.ok) {
@@ -1157,55 +1159,15 @@ class PegParser {
       }
       if (state.ok) {
         int? $$;
-        final c = $16!;
+        final c = $10!;
         $$ = _escape(c);
         $6 = $$;
       }
       if (!state.ok) {
-        // 'u{' v:$[a-zA-Z0-9]+ '}'
-        final $8 = state.pos;
-        const $10 = 'u{';
-        matchLiteral(state, $10, const ErrorExpectedTags([$10]));
+        // HexChar
+        $6 = parseHexChar(state);
         if (state.ok) {
-          String? $9;
-          final $11 = state.pos;
-          var $12 = false;
-          while (true) {
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $13 = state.input.readChar(state.pos);
-              state.ok = $13 <= 90
-                  ? $13 >= 48 && $13 <= 57 || $13 >= 65
-                  : $13 >= 97 && $13 <= 122;
-              if (state.ok) {
-                state.pos += state.input.count;
-              }
-            }
-            if (!state.ok) {
-              state.fail(const ErrorUnexpectedCharacter());
-            }
-            if (!state.ok) {
-              break;
-            }
-            $12 = true;
-          }
-          state.ok = $12;
-          if (state.ok) {
-            $9 = state.input.substring($11, state.pos);
-          }
-          if (state.ok) {
-            const $14 = '}';
-            matchLiteral1(state, 125, $14, const ErrorExpectedTags([$14]));
-            if (state.ok) {
-              int? $$;
-              final v = $9!;
-              $$ = int.parse(v, radix: 16);
-              $6 = $$;
-            }
-          }
-        }
-        if (!state.ok) {
-          state.pos = $8;
+          $6 = $6;
         }
       }
       if (state.ok) {
@@ -1245,6 +1207,56 @@ class PegParser {
     return $0;
   }
 
+  int? parseHexChar(State<StringReader> state) {
+    int? $0;
+    // 'u{' v:$[a-zA-Z0-9]+ '}'
+    final $1 = state.pos;
+    const $3 = 'u{';
+    matchLiteral(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      var $5 = false;
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.readChar(state.pos);
+          state.ok = $6 <= 90
+              ? $6 >= 48 && $6 <= 57 || $6 >= 65
+              : $6 >= 97 && $6 <= 122;
+          if (state.ok) {
+            state.pos += state.input.count;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (!state.ok) {
+          break;
+        }
+        $5 = true;
+      }
+      state.ok = $5;
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        const $7 = '}';
+        matchLiteral1(state, 125, $7, const ErrorExpectedTags([$7]));
+        if (state.ok) {
+          int? $$;
+          final v = $2!;
+          $$ = int.parse(v, radix: 16);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
   void fastParseCloseBracket(State<StringReader> state) {
     // v:']' Spaces
     final $0 = state.pos;
@@ -1260,7 +1272,7 @@ class PegParser {
 
   Expression? parseLiteral(State<StringReader> state) {
     Expression? $0;
-    // '\'' cs:(!'\'' c:Char)* '\'' Spaces
+    // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
     final $11 = state.pos;
     const $13 = '\'';
     matchLiteral1(state, 39, $13, const ErrorExpectedTags([$13]));
@@ -1269,7 +1281,7 @@ class PegParser {
       final $14 = <int>[];
       while (true) {
         int? $15;
-        // !'\'' c:Char
+        // !'\'' c:StringChar
         final $16 = state.pos;
         final $18 = state.pos;
         const $19 = '\'';
@@ -1280,7 +1292,7 @@ class PegParser {
         }
         if (state.ok) {
           int? $17;
-          $17 = parseChar(state);
+          $17 = parseStringChar(state);
           if (state.ok) {
             $15 = $17;
           }
@@ -1315,7 +1327,7 @@ class PegParser {
       state.pos = $11;
     }
     if (!state.ok) {
-      // '"' cs:(!'"' c:Char)* '"' Spaces
+      // '"' cs:(!'"' c:StringChar)* '"' Spaces
       final $1 = state.pos;
       const $3 = '"';
       matchLiteral1(state, 34, $3, const ErrorExpectedTags([$3]));
@@ -1324,7 +1336,7 @@ class PegParser {
         final $4 = <int>[];
         while (true) {
           int? $5;
-          // !'"' c:Char
+          // !'"' c:StringChar
           final $6 = state.pos;
           final $8 = state.pos;
           const $9 = '"';
@@ -1335,7 +1347,7 @@ class PegParser {
           }
           if (state.ok) {
             int? $7;
-            $7 = parseChar(state);
+            $7 = parseStringChar(state);
             if (state.ok) {
               $5 = $7;
             }
@@ -1364,6 +1376,81 @@ class PegParser {
               $0 = $$;
             }
           }
+        }
+      }
+      if (!state.ok) {
+        state.pos = $1;
+      }
+    }
+    return $0;
+  }
+
+  int? parseStringChar(State<StringReader> state) {
+    int? $0;
+    // '\\' v:(c:[rnt'"\\] / HexChar)
+    final $5 = state.pos;
+    const $7 = '\\';
+    matchLiteral1(state, 92, $7, const ErrorExpectedTags([$7]));
+    if (state.ok) {
+      int? $6;
+      // c:[rnt'"\\]
+      int? $10;
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $11 = state.input.readChar(state.pos);
+        state.ok = $11 == 92 ||
+            ($11 < 92
+                ? $11 == 39 || $11 == 34
+                : $11 == 114 || ($11 < 114 ? $11 == 110 : $11 == 116));
+        if (state.ok) {
+          state.pos += state.input.count;
+          $10 = $11;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        int? $$;
+        final c = $10!;
+        $$ = _escape(c);
+        $6 = $$;
+      }
+      if (!state.ok) {
+        // HexChar
+        $6 = parseHexChar(state);
+        if (state.ok) {
+          $6 = $6;
+        }
+      }
+      if (state.ok) {
+        $0 = $6;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $5;
+    }
+    if (!state.ok) {
+      // !'\\' c:.
+      final $1 = state.pos;
+      final $3 = state.pos;
+      const $4 = '\\';
+      matchLiteral1(state, 92, $4, const ErrorExpectedTags([$4]));
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $3;
+      }
+      if (state.ok) {
+        int? $2;
+        if (state.pos < state.input.length) {
+          $2 = state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $0 = $2;
         }
       }
       if (!state.ok) {

@@ -61,6 +61,8 @@ int _escape(int charCode) {
       return 0x5c;
     case 0x5d:
       return 0x5d;
+    case 0x5e:
+      return 0x5e;
     default:
       return charCode;
   }
@@ -178,23 +180,35 @@ Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(exp
 
 Expression
 Literal =
-    '\'' cs:(!'\'' c:Char)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); }
-  / '"' cs:(!'"' c:Char)* '"' Spaces  { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
+    '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); }
+  / '"' cs:(!'"' c:StringChar)* '"' Spaces  { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
 
 Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
 
 (int, int)
 Range =
-    s:Char '-' e:Char { $$ = (s, e); }
-  / s:Char { $$ = (s, s); } ;
+    s:RangeChar '-' e:RangeChar { $$ = (s, e); }
+  / s:RangeChar { $$ = (s, s); } ;
 
 int
-Char =
+HexChar = 'u{' v:$[a-zA-Z0-9]+ '}' <int>{ $$ = int.parse(v, radix: 16); } ;
+
+int
+StringChar =
     '\\'
     v:(
-        c:[-rnt'"\]\\] <int>{ $$ = _escape(c); }
-      / 'u{' v:$[a-zA-Z0-9]+ '}' <int>{ $$ = int.parse(v, radix: 16); }
+        c:[rnt'"\\] <int>{ $$ = _escape(c); }
+      / HexChar
+    )
+  / !'\\' c:.;
+
+int
+RangeChar =
+    '\\'
+    v:(
+        c:[-rnt'"^\]\\] <int>{ $$ = _escape(c); }
+      / HexChar
     )
   / !'\\' c:.;
 
