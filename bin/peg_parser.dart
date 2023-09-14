@@ -72,15 +72,11 @@ class PegParser {
     if (state.ok) {
       String? $2;
       $2 = parseGlobals(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         String? $3;
         $3 = parseMembers(state);
-        if (!state.ok) {
-          state.ok = true;
-        }
+        state.ok = true;
         if (state.ok) {
           List<ProductionRule>? $4;
           final $5 = <ProductionRule>[];
@@ -316,15 +312,11 @@ class PegParser {
     final $5 = state.pos;
     ResultType? $6;
     $6 = parseType(state);
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       List<String>? $7;
       $7 = parseMetadata(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         String? $8;
         $8 = parseIdentifier(state);
@@ -361,9 +353,7 @@ class PegParser {
       final $1 = state.pos;
       List<String>? $2;
       $2 = parseMetadata(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         String? $3;
         $3 = parseIdentifier(state);
@@ -617,9 +607,7 @@ class PegParser {
     if (state.ok) {
       String? $3;
       $3 = parseErrorAction(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         Expression? $$;
         final e = $2!;
@@ -655,9 +643,7 @@ class PegParser {
     if (state.ok) {
       SemanticAction? $3;
       $3 = parseAction(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         Expression? $$;
         final e = $2!;
@@ -729,9 +715,7 @@ class PegParser {
         }
       }
     }
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       Expression? $3;
       $3 = parseSuffix(state);
@@ -851,9 +835,7 @@ class PegParser {
           }
         }
       }
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         Expression? $$;
         final p = $2!;
@@ -1713,9 +1695,7 @@ class PegParser {
     if (!state.ok) {
       state.pos = $4;
     }
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       String? $3;
       $3 = parseBlock(state);
@@ -1766,9 +1746,7 @@ class PegParser {
     if (state.ok) {
       String? $3;
       $3 = parseQuestion(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         ResultType? $$;
         final t = $2!;

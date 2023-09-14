@@ -4,9 +4,7 @@ import 'expression_generator.dart';
 class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
   static const _template = '''
 {{p}}
-if (!state.ok) {
-  state.ok = true;
-}''';
+state.ok = true;''';
 
   OptionalGenerator({
     required super.expression,

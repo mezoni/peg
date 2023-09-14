@@ -205,9 +205,7 @@ class CalcParser {
     String? $2;
     const $4 = '-';
     $2 = matchLiteral1(state, 45, $4, const ErrorExpectedTags([$4]));
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       num? $3;
       $3 = parsePrimary(state);
@@ -301,9 +299,7 @@ class CalcParser {
     final $16 = state.pos;
     const $17 = '-';
     matchLiteral1(state, 45, $17, const ErrorExpectedTags([$17]));
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       const $18 = '0';
       matchLiteral1(state, 48, $18, const ErrorExpectedTags([$18]));
@@ -378,9 +374,7 @@ class CalcParser {
         if (!state.ok) {
           state.pos = $8;
         }
-        if (!state.ok) {
-          state.ok = true;
-        }
+        state.ok = true;
         if (state.ok) {
           // [eE] [+-\] [0-9]+
           final $12 = state.pos;
@@ -419,9 +413,7 @@ class CalcParser {
           if (!state.ok) {
             state.pos = $12;
           }
-          if (!state.ok) {
-            state.ok = true;
-          }
+          state.ok = true;
         }
       }
       if (!state.ok) {

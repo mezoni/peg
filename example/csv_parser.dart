@@ -54,9 +54,7 @@ class CsvParser {
       }
       if (state.ok) {
         fastParseEol(state);
-        if (!state.ok) {
-          state.ok = true;
-        }
+        state.ok = true;
         if (state.ok) {
           List<List<String>>? $$;
           final h = $2!;

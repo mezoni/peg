@@ -193,9 +193,7 @@ class JsonParser {
     } else {
       state.fail(const ErrorExpectedCharacter(45));
     }
-    if (!state.ok) {
-      state.ok = true;
-    }
+    state.ok = true;
     if (state.ok) {
       // [0]
       state.ok = state.input.matchChar(48, state.pos);
@@ -274,9 +272,7 @@ class JsonParser {
         if (!state.ok) {
           state.pos = $9;
         }
-        if (!state.ok) {
-          state.ok = true;
-        }
+        state.ok = true;
         if (state.ok) {
           // [eE] [\-+]? [0-9]+
           final $12 = state.pos;
@@ -303,9 +299,7 @@ class JsonParser {
             if (!state.ok) {
               state.fail(const ErrorUnexpectedCharacter());
             }
-            if (!state.ok) {
-              state.ok = true;
-            }
+            state.ok = true;
             if (state.ok) {
               var $15 = false;
               while (true) {
@@ -331,9 +325,7 @@ class JsonParser {
           if (!state.ok) {
             state.pos = $12;
           }
-          if (!state.ok) {
-            state.ok = true;
-          }
+          state.ok = true;
         }
       }
     }
@@ -377,9 +369,7 @@ class JsonParser {
     if (state.ok) {
       List<Object?>? $2;
       $2 = parseValues(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         // v:']' Spaces
         final $5 = state.pos;
@@ -480,9 +470,7 @@ class JsonParser {
     if (state.ok) {
       List<MapEntry<String, Object?>>? $2;
       $2 = parseKeyValues(state);
-      if (!state.ok) {
-        state.ok = true;
-      }
+      state.ok = true;
       if (state.ok) {
         // v:'}' Spaces
         final $5 = state.pos;
