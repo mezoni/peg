@@ -1,0 +1,8 @@
+Start =
+     (v:SkipUntil SkipUntil)
+  / (v:SkipTil SkipTil)
+  ;
+
+SkipUntil =  (!'END'  v:.)* ;
+
+SkipTil =  (![E]  v:.)* ;

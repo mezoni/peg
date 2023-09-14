@@ -35,6 +35,15 @@
             "args": [
                 "example/csv_parser.peg"
             ]
+        },
+        {
+            "name": "peg test",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "test/test_parser.peg"
+            ]
         }
     ]
 }

@@ -203,39 +203,19 @@ class PegParser {
     if (state.ok) {
       String? $2;
       final $4 = state.pos;
-      while (true) {
-        // !'}%' v:.
-        final $5 = state.pos;
-        final $6 = state.pos;
-        const $7 = '}%';
-        matchLiteral(state, $7, const ErrorExpectedTags([$7]));
-        state.ok = !state.ok;
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (state.ok) {
-          if (state.pos < state.input.length) {
-            state.input.readChar(state.pos);
-            state.pos += state.input.count;
-            state.ok = true;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        }
-        if (!state.ok) {
-          state.pos = $5;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
+      const $6 = '}%';
+      final $5 = state.input.indexOf($6, state.pos);
+      if ($5 != -1) {
+        state.pos = $5;
+      } else {
+        state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
         $2 = state.input.substring($4, state.pos);
       }
       if (state.ok) {
-        const $8 = '}%';
-        matchLiteral(state, $8, const ErrorExpectedTags([$8]));
+        const $7 = '}%';
+        matchLiteral(state, $7, const ErrorExpectedTags([$7]));
         if (state.ok) {
           fastParseSpaces(state);
           if (state.ok) {
@@ -259,39 +239,19 @@ class PegParser {
     if (state.ok) {
       String? $2;
       final $4 = state.pos;
-      while (true) {
-        // !'%%' v:.
-        final $5 = state.pos;
-        final $6 = state.pos;
-        const $7 = '%%';
-        matchLiteral(state, $7, const ErrorExpectedTags([$7]));
-        state.ok = !state.ok;
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (state.ok) {
-          if (state.pos < state.input.length) {
-            state.input.readChar(state.pos);
-            state.pos += state.input.count;
-            state.ok = true;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        }
-        if (!state.ok) {
-          state.pos = $5;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
+      const $6 = '%%';
+      final $5 = state.input.indexOf($6, state.pos);
+      if ($5 != -1) {
+        state.pos = $5;
+      } else {
+        state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
         $2 = state.input.substring($4, state.pos);
       }
       if (state.ok) {
-        const $8 = '%%';
-        matchLiteral(state, $8, const ErrorExpectedTags([$8]));
+        const $7 = '%%';
+        matchLiteral(state, $7, const ErrorExpectedTags([$7]));
         if (state.ok) {
           fastParseSpaces(state);
           if (state.ok) {
@@ -2984,6 +2944,8 @@ abstract interface class StringReader {
 
   String get source;
 
+  int indexOf(String string, int start);
+
   bool matchChar(int char, int offset);
 
   int readChar(int offset);
@@ -3019,6 +2981,11 @@ class _StringReader implements StringReader {
   final String source;
 
   _StringReader(this.source) : length = source.length;
+
+  @override
+  int indexOf(String string, int start) {
+    return source.indexOf(string, start);
+  }
 
   @override
   @pragma('vm:prefer-inline')

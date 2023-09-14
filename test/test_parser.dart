@@ -1,5 +1,137 @@
-class RuntimeGenerator {
-  static const _template = r'''
+class TestParser {
+  List<int>? parseStart(State<StringReader> state) {
+    List<int>? $0;
+    // (v:SkipUntil SkipUntil)
+    // v:SkipUntil SkipUntil
+    final $5 = state.pos;
+    List<int>? $6;
+    $6 = parseSkipUntil(state);
+    if (state.ok) {
+      fastParseSkipUntil(state);
+      if (state.ok) {
+        $0 = $6;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $5;
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    if (!state.ok) {
+      // (v:SkipTil SkipTil)
+      // v:SkipTil SkipTil
+      final $2 = state.pos;
+      List<int>? $3;
+      $3 = parseSkipTil(state);
+      if (state.ok) {
+        fastParseSkipTil(state);
+        if (state.ok) {
+          $0 = $3;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $2;
+      }
+      if (state.ok) {
+        $0 = $0;
+      }
+    }
+    return $0;
+  }
+
+  List<int>? parseSkipTil(State<StringReader> state) {
+    List<int>? $0;
+    // (![E] v:.)*
+    const $3 = 'E';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      final $4 = state.input.substring(state.pos, $2);
+      state.pos = $2;
+      $0 = $4.codeUnits.toList();
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseSkipTil(State<StringReader> state) {
+    // (![E] v:.)*
+    const $2 = 'E';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+  }
+
+  List<int>? parseSkipUntil(State<StringReader> state) {
+    List<int>? $0;
+    // (!'END' v:.)*
+    const $3 = 'END';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      final $4 = state.input.substring(state.pos, $2);
+      state.pos = $2;
+      $0 = $4.codeUnits.toList();
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseSkipUntil(State<StringReader> state) {
+    // (!'END' v:.)*
+    const $2 = 'END';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+  }
+
+  @pragma('vm:prefer-inline')
+  String? matchLiteral(
+      State<StringReader> state, String string, ParseError error) {
+    state.ok = state.input.startsWith(string, state.pos);
+    if (state.ok) {
+      state.pos += state.input.count;
+      return string;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  String? matchLiteral1(
+      State<StringReader> state, int char, String string, ParseError error) {
+    final input = state.input;
+    if (state.pos < input.length) {
+      final c = input.readChar(state.pos);
+      if (c == char) {
+        state.pos += state.input.count;
+        state.ok = true;
+        return string;
+      }
+    }
+    state.fail(error);
+    return null;
+  }
+}
+
 void fastParseString(
   void Function(State<StringReader> state) fastParse,
   String source, {
@@ -865,10 +997,5 @@ extension on String {
       throw FormatException('Invalid UTF-16 character', this, index - 1);
     }
     return w1;
-  }
-}''';
-
-  String generate() {
-    return _template;
   }
 }
