@@ -1,6 +1,7 @@
 ## 1.0.5
 
 - Оптимизация кода, генерируемого генератором `OptionalGenerator`
+- Изменения в файле примера грамматики `json_parser.peg` 
 
 ## 1.0.4
 
@@ -30,8 +31,8 @@
 
 ## 0.0.53
 
-- Added grammar analyser `PredicatesWithEmptyExpressionsFinder`
-- Added grammar analyser `PredicatesWithOptionalExpressionsFinder`
+- Added grammar analyzer `PredicatesWithOptionalExpressionsFinder`
+- Added grammar analyzer `PredicatesWithEmptyExpressionsFinder`
 
 ## 0.0.52
 
@@ -53,7 +54,7 @@
 
 - Added "How to write a good PEG grammar" recommendation 'how_to_write_a_good_peg_grammar.md'
 - Added a trace statistic about how and why the generator determines the kind of the production rules. Can help a lot for writing good grammar. Command line `peg stat -d high grammar.peg`
-- Significant improvements in the recognition of the production rule kinds: sentences (nonterminals), lexemes (tokens) and morphemes (100% recognition)
+- Significant improvements in the recognition of the production rule kinds: sentences (non-terminals), lexemes (tokens) and morphemes (100% recognition)
 
 ## 0.0.47
 
@@ -74,7 +75,7 @@
 
 ## 0.0.43
 
-- Added missign option values `lower_case` for formatter command `stylize`
+- Added missing option values `lower_case` for formatter command `stylize`
 
 ## 0.0.42
 
@@ -149,7 +150,7 @@
 
 - Added recognition and error reporting of the `malformed tokens` (eg, number's)
 - Added recognition and error reporting of the `unterminated tokens` (eg, string's)
-- Added statistic information in the command `stat` about the `expected lexemes` in the nonterminals. Can be used for visual analysing of the quality of the developed grammar and the proposed error messages on the failures
+- Added statistic information in the command `stat` about the `expected lexemes` in the non-terminals. Can be used for visual analyzing of the quality of the developed grammar and the proposed error messages on the failures
 - Fixed bugs in the grammar `example/json.peg` (thanks to the newly added recognition and error reporting of the `malformed tokens`) 
 
 ## 0.0.23
@@ -162,7 +163,7 @@
 ## 0.0.21
 
 - Fixed bug in `_matchString`
-- Removed convention on a naming terminals and nonterminals in favor to the possibility of analyzing (and control) the grammar on the subject of the auto generated representation names of terminals
+- Removed convention on a naming terminals and non-terminals in favor to the possibility of analyzing (and control) the grammar on the subject of the auto generated representation names of terminals
 
 ## 0.0.20
 
@@ -180,13 +181,13 @@
 
 ## 0.0.16
 
-- Added initial support of the tokens for improving the errors messages and support of the upcomming AST generator
+- Added initial support of the tokens for improving the errors messages and support of the upcoming AST generator
 - Was improved the basic ("expectation") error messages
 
 ## 0.0.15
 
 - Added instruction optimizer in the interpreter parser
-- Added the subordination of terminals (master, slave, master/slave). In some cases this can helps developers to writing (after the analysing) grammar better and, also, this helps for the generator to better optimize the grammar and helps to improve error messages
+- Added the subordination of terminals (master, slave, master/slave). In some cases this can helps developers to writing (after the analyzing) grammar better and, also, this helps for the generator to better optimize the grammar and helps to improve error messages
 - Breaking change: All methods, except the starting rules, are now private methods in all parsers. This is done for the interoperability of the generated parsers, better error messaging and performance improvement of parsing processes
 
 ## 0.0.12

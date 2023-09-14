@@ -485,7 +485,7 @@ class JsonParser {
         if (state.ok) {
           Map<String, Object?>? $$;
           final kv = $2;
-          $$ = Map.fromEntries(kv ?? const {});
+          $$ = kv == null ? const {} : Map.fromEntries(kv);
           $0 = $$;
         }
       }

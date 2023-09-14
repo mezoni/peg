@@ -90,7 +90,7 @@ Number = v:$(
 
 Map<String, Object?>
 @event
-Object = OpenBrace kv:KeyValues? CloseBrace { $$ = Map.fromEntries(kv ?? const {}); };
+Object = OpenBrace kv:KeyValues? CloseBrace { $$ = kv == null ? const {} : Map.fromEntries(kv); };
 
 @inline
 OpenBrace = v:'{' Spaces ;
