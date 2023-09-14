@@ -51,5 +51,29 @@ void _testZeroOrMore() {
         source: source,
       );
     }
+
+    {
+      // Optimized version
+      const source = 'abcEND';
+      await _testSuccess(
+        fastParse: _parser.fastParseTakeUntil,
+        parse: _parser.parseTakeUntil,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'abcE';
+      await _testSuccess(
+        fastParse: _parser.fastParseTakeTil,
+        parse: _parser.parseTakeTil,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
   });
 }

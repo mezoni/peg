@@ -1,19 +1,19 @@
 class TestParser {
-  List<int>? parseStart(State<StringReader> state) {
-    List<int>? $0;
+  Object? parseStart(State<StringReader> state) {
+    Object? $0;
     // (v:SkipUntil SkipUntil)
     // v:SkipUntil SkipUntil
-    final $5 = state.pos;
-    List<int>? $6;
-    $6 = parseSkipUntil(state);
+    final $11 = state.pos;
+    List<int>? $12;
+    $12 = parseSkipUntil(state);
     if (state.ok) {
       fastParseSkipUntil(state);
       if (state.ok) {
-        $0 = $6;
+        $0 = $12;
       }
     }
     if (!state.ok) {
-      state.pos = $5;
+      state.pos = $11;
     }
     if (state.ok) {
       $0 = $0;
@@ -21,23 +21,123 @@ class TestParser {
     if (!state.ok) {
       // (v:SkipTil SkipTil)
       // v:SkipTil SkipTil
-      final $2 = state.pos;
-      List<int>? $3;
-      $3 = parseSkipTil(state);
+      final $8 = state.pos;
+      List<int>? $9;
+      $9 = parseSkipTil(state);
       if (state.ok) {
         fastParseSkipTil(state);
         if (state.ok) {
-          $0 = $3;
+          $0 = $9;
         }
       }
       if (!state.ok) {
-        state.pos = $2;
+        state.pos = $8;
       }
       if (state.ok) {
         $0 = $0;
       }
+      if (!state.ok) {
+        // (v:TakeUntil TakeUntil)
+        // v:TakeUntil TakeUntil
+        final $5 = state.pos;
+        String? $6;
+        $6 = parseTakeUntil(state);
+        if (state.ok) {
+          fastParseTakeUntil(state);
+          if (state.ok) {
+            $0 = $6;
+          }
+        }
+        if (!state.ok) {
+          state.pos = $5;
+        }
+        if (state.ok) {
+          $0 = $0;
+        }
+        if (!state.ok) {
+          // (v:TakeTil TakeTil)
+          // v:TakeTil TakeTil
+          final $2 = state.pos;
+          String? $3;
+          $3 = parseTakeTil(state);
+          if (state.ok) {
+            fastParseTakeTil(state);
+            if (state.ok) {
+              $0 = $3;
+            }
+          }
+          if (!state.ok) {
+            state.pos = $2;
+          }
+          if (state.ok) {
+            $0 = $0;
+          }
+        }
+      }
     }
     return $0;
+  }
+
+  String? parseTakeTil(State<StringReader> state) {
+    String? $0;
+    // $(![E] v:.)*
+    const $3 = 'E';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      final $4 = state.input.substring(state.pos, $2);
+      state.pos = $2;
+      $0 = $4;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseTakeTil(State<StringReader> state) {
+    // $(![E] v:.)*
+    const $2 = 'E';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+  }
+
+  String? parseTakeUntil(State<StringReader> state) {
+    String? $0;
+    // $(!'END' v:.)*
+    const $3 = 'END';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      final $4 = state.input.substring(state.pos, $2);
+      state.pos = $2;
+      $0 = $4;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseTakeUntil(State<StringReader> state) {
+    // $(!'END' v:.)*
+    const $2 = 'END';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
   }
 
   List<int>? parseSkipTil(State<StringReader> state) {

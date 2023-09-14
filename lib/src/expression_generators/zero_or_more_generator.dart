@@ -26,7 +26,7 @@ while (true) {
   }
 }''';
 
-  static const _templateSkipUntil = '''
+  static const _templateUntil = '''
 const {{text}} = {{string}};
 final {{index}} = state.input.indexOf({{text}}, state.pos);
 state.ok = {{index}} != -1;
@@ -38,7 +38,7 @@ if (state.ok) {
   state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
 }''';
 
-  static const _templateSkipUntilNoResult = '''
+  static const _templateUntilNoResult = '''
 const {{text}} = {{string}};
 final {{index}} = state.input.indexOf({{text}}, state.pos);
 state.ok = {{index}} != -1;
@@ -121,7 +121,7 @@ if (state.ok) {
     final terminal = not.expression;
     if (child2 is AnyCharacterExpression) {
       if (terminal is LiteralExpression) {
-        return _optimizeToManyOrSkipUntil(variable, terminal.string);
+        return _optimizeToUntil(variable, terminal.string);
       } else if (terminal is CharacterClassExpression) {
         final ranges = terminal.ranges;
         if (ranges.length == 1) {
@@ -130,7 +130,7 @@ if (state.ok) {
           final end = range.$2;
           if (start == end) {
             final string = String.fromCharCode(start);
-            return _optimizeToManyOrSkipUntil(variable, string);
+            return _optimizeToUntil(variable, string);
           }
         }
       }
@@ -139,7 +139,7 @@ if (state.ok) {
     return null;
   }
 
-  String? _optimizeToManyOrSkipUntil(String? variable, String string) {
+  String? _optimizeToUntil(String? variable, String string) {
     final values = <String, String>{};
     values['index'] = allocateName();
     values['text'] = allocateName();
@@ -148,9 +148,9 @@ if (state.ok) {
     if (variable != null) {
       values['substring'] = allocateName();
       values['r'] = variable;
-      template = _templateSkipUntil;
+      template = _templateUntil;
     } else {
-      template = _templateSkipUntilNoResult;
+      template = _templateUntilNoResult;
     }
 
     return render(template, values);

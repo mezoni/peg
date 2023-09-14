@@ -1,8 +1,14 @@
 Start =
      (v:SkipUntil SkipUntil)
   / (v:SkipTil SkipTil)
+  / (v:TakeUntil TakeUntil)
+  / (v:TakeTil TakeTil)
   ;
 
 SkipUntil =  (!'END'  v:.)* ;
 
 SkipTil =  (![E]  v:.)* ;
+
+TakeUntil =  $(!'END'  v:.)* ;
+
+TakeTil =  $(![E]  v:.)* ;
