@@ -1,19 +1,21 @@
 class TestParser {
+  bool flag = false;
+
   Object? parseStart(State<StringReader> state) {
     Object? $0;
     // (v:SkipUntil SkipUntil)
     // v:SkipUntil SkipUntil
-    final $11 = state.pos;
-    List<int>? $12;
-    $12 = parseSkipUntil(state);
+    final $14 = state.pos;
+    List<int>? $15;
+    $15 = parseSkipUntil(state);
     if (state.ok) {
       fastParseSkipUntil(state);
       if (state.ok) {
-        $0 = $12;
+        $0 = $15;
       }
     }
     if (!state.ok) {
-      state.pos = $11;
+      state.pos = $14;
     }
     if (state.ok) {
       $0 = $0;
@@ -21,17 +23,17 @@ class TestParser {
     if (!state.ok) {
       // (v:SkipTil SkipTil)
       // v:SkipTil SkipTil
-      final $8 = state.pos;
-      List<int>? $9;
-      $9 = parseSkipTil(state);
+      final $11 = state.pos;
+      List<int>? $12;
+      $12 = parseSkipTil(state);
       if (state.ok) {
         fastParseSkipTil(state);
         if (state.ok) {
-          $0 = $9;
+          $0 = $12;
         }
       }
       if (!state.ok) {
-        state.pos = $8;
+        state.pos = $11;
       }
       if (state.ok) {
         $0 = $0;
@@ -39,17 +41,17 @@ class TestParser {
       if (!state.ok) {
         // (v:TakeUntil TakeUntil)
         // v:TakeUntil TakeUntil
-        final $5 = state.pos;
-        String? $6;
-        $6 = parseTakeUntil(state);
+        final $8 = state.pos;
+        String? $9;
+        $9 = parseTakeUntil(state);
         if (state.ok) {
           fastParseTakeUntil(state);
           if (state.ok) {
-            $0 = $6;
+            $0 = $9;
           }
         }
         if (!state.ok) {
-          state.pos = $5;
+          state.pos = $8;
         }
         if (state.ok) {
           $0 = $0;
@@ -57,25 +59,154 @@ class TestParser {
         if (!state.ok) {
           // (v:TakeTil TakeTil)
           // v:TakeTil TakeTil
-          final $2 = state.pos;
-          String? $3;
-          $3 = parseTakeTil(state);
+          final $5 = state.pos;
+          String? $6;
+          $6 = parseTakeTil(state);
           if (state.ok) {
             fastParseTakeTil(state);
             if (state.ok) {
-              $0 = $3;
+              $0 = $6;
             }
           }
           if (!state.ok) {
-            state.pos = $2;
+            state.pos = $5;
           }
           if (state.ok) {
             $0 = $0;
+          }
+          if (!state.ok) {
+            // (v:AndPredicateAction AndPredicateAction)
+            // v:AndPredicateAction AndPredicateAction
+            final $2 = state.pos;
+            int? $3;
+            $3 = parseAndPredicateAction(state);
+            if (state.ok) {
+              fastParseAndPredicateAction(state);
+              if (state.ok) {
+                $0 = $3;
+              }
+            }
+            if (!state.ok) {
+              state.pos = $2;
+            }
+            if (state.ok) {
+              $0 = $0;
+            }
           }
         }
       }
     }
     return $0;
+  }
+
+  int? parseAndPredicateAction(State<StringReader> state) {
+    int? $0;
+    // &{ flag ? true : state.fail(const ErrorMessage(0, 'error')) } v:Integer
+    final $1 = state.pos;
+    final $3 = state.pos;
+    state.ok = true;
+    if (state.ok) {
+      state.ok = flag ? true : state.fail(const ErrorMessage(0, 'error'));
+      state.pos = $3;
+    }
+    if (state.ok) {
+      int? $2;
+      $2 = parseInteger(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
+  int? parseInteger(State<StringReader> state) {
+    int? $0;
+    // v:$[0-9]+
+    String? $2;
+    final $3 = state.pos;
+    var $4 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $5 = state.input.readChar(state.pos);
+        state.ok = $5 >= 48 && $5 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $4 = true;
+    }
+    state.ok = $4;
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      int? $$;
+      final v = $2!;
+      $$ = int.parse(v);
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  void fastParseAndPredicateAction(State<StringReader> state) {
+    // &{ flag ? true : state.fail(const ErrorMessage(0, 'error')) } v:Integer
+    final $0 = state.pos;
+    final $1 = state.pos;
+    state.ok = true;
+    if (state.ok) {
+      state.ok = flag ? true : state.fail(const ErrorMessage(0, 'error'));
+      state.pos = $1;
+    }
+    if (state.ok) {
+      fastParseInteger(state);
+    }
+    if (!state.ok) {
+      state.pos = $0;
+    }
+  }
+
+  void fastParseInteger(State<StringReader> state) {
+    // v:$[0-9]+
+    String? $1;
+    final $2 = state.pos;
+    var $3 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.readChar(state.pos);
+        state.ok = $4 >= 48 && $4 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $3 = true;
+    }
+    state.ok = $3;
+    if (state.ok) {
+      $1 = state.input.substring($2, state.pos);
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      int? $$;
+      final v = $1!;
+      $$ = int.parse(v);
+    }
   }
 
   String? parseTakeTil(State<StringReader> state) {
@@ -635,7 +766,7 @@ class ErrorExpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, offset) {
-    return ErrorMessage(0, ErrorExpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -673,7 +804,7 @@ class ErrorExpectedTag extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorExpectedTag.message);
+    return const ErrorMessage(0, ErrorExpectedTag.message);
   }
 }
 
@@ -758,7 +889,7 @@ class ErrorUnexpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
   }
 }
 
@@ -783,7 +914,7 @@ class ErrorUnknownError extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnknownError.message);
+    return const ErrorMessage(0, ErrorUnknownError.message);
   }
 }
 
@@ -883,7 +1014,7 @@ class State<T> {
   State(this.input);
 
   @pragma('vm:prefer-inline')
-  void fail(ParseError error) {
+  bool fail(ParseError error) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -894,10 +1025,11 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAll(List<ParseError> errors) {
+  bool failAll(List<ParseError> errors) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -910,10 +1042,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAllAt(int offset, List<ParseError> errors) {
+  bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -926,10 +1059,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAt(int offset, ParseError error) {
+  bool failAt(int offset, ParseError error) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -940,6 +1074,7 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   List<ParseError> getErrors() {

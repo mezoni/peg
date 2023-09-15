@@ -22,6 +22,11 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitAndPredicateAction(AndPredicateActionExpression node) {
+    _setIsOptional(node, false);
+  }
+
+  @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     _setIsOptional(node, false);
   }

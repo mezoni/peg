@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "bin/peg.dart",
+            "name": "peg peg",
             "type": "dart",
             "request": "launch",
             "program": "bin/peg.dart",

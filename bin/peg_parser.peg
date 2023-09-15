@@ -149,7 +149,9 @@ String
 ErrorAction = '~' b:Block  ;
 
 Expression
-Prefix = p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
+Prefix =
+    AndPredicateAction
+  / p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
 
 Expression
 Suffix = p:Primary s:(
@@ -166,6 +168,9 @@ Primary =
   / CharacterClass
   / AnyCharacter
   / Group ;
+
+Expression
+AndPredicateAction = '&{' a:$BlockBody* CloseBrace  { $$ = AndPredicateActionExpression(action: a); } ;
 
 Expression
 AnyCharacter = Dot { $$ = AnyCharacterExpression(); };

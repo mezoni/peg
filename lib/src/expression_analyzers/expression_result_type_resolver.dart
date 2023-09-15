@@ -34,6 +34,12 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitAndPredicateAction(AndPredicateActionExpression node) {
+    node.visitChildren(this);
+    _setResultType(node, _nullableObjectType);
+  }
+
+  @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     node.visitChildren(this);
     _setResultType(node, GenericType(name: 'int'));

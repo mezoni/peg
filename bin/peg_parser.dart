@@ -205,7 +205,8 @@ class PegParser {
       final $4 = state.pos;
       const $6 = '}%';
       final $5 = state.input.indexOf($6, state.pos);
-      if ($5 != -1) {
+      state.ok = $5 != -1;
+      if (state.ok) {
         state.pos = $5;
       } else {
         state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
@@ -241,7 +242,8 @@ class PegParser {
       final $4 = state.pos;
       const $6 = '%%';
       final $5 = state.input.indexOf($6, state.pos);
-      if ($5 != -1) {
+      state.ok = $5 != -1;
+      if (state.ok) {
         state.pos = $5;
       } else {
         state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
@@ -653,42 +655,49 @@ class PegParser {
 
   Expression? parsePrefix(State<StringReader> state) {
     Expression? $0;
-    // p:(Dollar / Ampersand / Exclamation)? s:Suffix
-    final $1 = state.pos;
-    String? $2;
-    // Dollar
-    $2 = parseDollar(state);
+    // AndPredicateAction
+    $0 = parseAndPredicateAction(state);
     if (state.ok) {
-      $2 = $2;
+      $0 = $0;
     }
     if (!state.ok) {
-      // Ampersand
-      $2 = parseAmpersand(state);
+      // p:(Dollar / Ampersand / Exclamation)? s:Suffix
+      final $1 = state.pos;
+      String? $2;
+      // Dollar
+      $2 = parseDollar(state);
       if (state.ok) {
         $2 = $2;
       }
       if (!state.ok) {
-        // Exclamation
-        $2 = parseExclamation(state);
+        // Ampersand
+        $2 = parseAmpersand(state);
         if (state.ok) {
           $2 = $2;
         }
+        if (!state.ok) {
+          // Exclamation
+          $2 = parseExclamation(state);
+          if (state.ok) {
+            $2 = $2;
+          }
+        }
       }
-    }
-    state.ok = true;
-    if (state.ok) {
-      Expression? $3;
-      $3 = parseSuffix(state);
+      state.ok = true;
       if (state.ok) {
-        Expression? $$;
-        final p = $2;
-        final s = $3!;
-        $$ = _buildPrefix(p, s);
-        $0 = $$;
+        Expression? $3;
+        $3 = parseSuffix(state);
+        if (state.ok) {
+          Expression? $$;
+          final p = $2;
+          final s = $3!;
+          $$ = _buildPrefix(p, s);
+          $0 = $$;
+        }
       }
-    }
-    if (!state.ok) {
-      state.pos = $1;
+      if (!state.ok) {
+        state.pos = $1;
+      }
     }
     return $0;
   }
@@ -1621,6 +1630,87 @@ class PegParser {
     return $0;
   }
 
+  Expression? parseAndPredicateAction(State<StringReader> state) {
+    Expression? $0;
+    // '&{' a:$BlockBody* CloseBrace
+    final $1 = state.pos;
+    const $3 = '&{';
+    matchLiteral(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      while (true) {
+        fastParseBlockBody(state);
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+      }
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        fastParseCloseBrace(state);
+        if (state.ok) {
+          Expression? $$;
+          final a = $2!;
+          $$ = AndPredicateActionExpression(action: a);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
+  void fastParseBlockBody(State<StringReader> state) {
+    // '{' v:BlockBody* '}'
+    final $3 = state.pos;
+    const $4 = '{';
+    matchLiteral1(state, 123, $4, const ErrorExpectedTags([$4]));
+    if (state.ok) {
+      while (true) {
+        fastParseBlockBody(state);
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+      }
+      if (state.ok) {
+        const $5 = '}';
+        matchLiteral1(state, 125, $5, const ErrorExpectedTags([$5]));
+      }
+    }
+    if (!state.ok) {
+      state.pos = $3;
+    }
+    if (!state.ok) {
+      // !'}' .
+      final $0 = state.pos;
+      final $1 = state.pos;
+      const $2 = '}';
+      matchLiteral1(state, 125, $2, const ErrorExpectedTags([$2]));
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $1;
+      }
+      if (state.ok) {
+        if (state.pos < state.input.length) {
+          state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      }
+      if (!state.ok) {
+        state.pos = $0;
+      }
+    }
+  }
+
   void fastParseColon(State<StringReader> state) {
     // v:':' Spaces
     final $0 = state.pos;
@@ -2061,52 +2151,6 @@ class PegParser {
       state.pos = $1;
     }
     return $0;
-  }
-
-  void fastParseBlockBody(State<StringReader> state) {
-    // '{' v:BlockBody* '}'
-    final $3 = state.pos;
-    const $4 = '{';
-    matchLiteral1(state, 123, $4, const ErrorExpectedTags([$4]));
-    if (state.ok) {
-      while (true) {
-        fastParseBlockBody(state);
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-      }
-      if (state.ok) {
-        const $5 = '}';
-        matchLiteral1(state, 125, $5, const ErrorExpectedTags([$5]));
-      }
-    }
-    if (!state.ok) {
-      state.pos = $3;
-    }
-    if (!state.ok) {
-      // !'}' .
-      final $0 = state.pos;
-      final $1 = state.pos;
-      const $2 = '}';
-      matchLiteral1(state, 125, $2, const ErrorExpectedTags([$2]));
-      state.ok = !state.ok;
-      if (!state.ok) {
-        state.pos = $1;
-      }
-      if (state.ok) {
-        if (state.pos < state.input.length) {
-          state.input.readChar(state.pos);
-          state.pos += state.input.count;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      }
-      if (!state.ok) {
-        state.pos = $0;
-      }
-    }
   }
 
   String? parseErrorAction(State<StringReader> state) {
@@ -2583,7 +2627,7 @@ class ErrorExpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, offset) {
-    return ErrorMessage(0, ErrorExpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -2621,7 +2665,7 @@ class ErrorExpectedTag extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorExpectedTag.message);
+    return const ErrorMessage(0, ErrorExpectedTag.message);
   }
 }
 
@@ -2706,7 +2750,7 @@ class ErrorUnexpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
   }
 }
 
@@ -2731,7 +2775,7 @@ class ErrorUnknownError extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnknownError.message);
+    return const ErrorMessage(0, ErrorUnknownError.message);
   }
 }
 
@@ -2831,7 +2875,7 @@ class State<T> {
   State(this.input);
 
   @pragma('vm:prefer-inline')
-  void fail(ParseError error) {
+  bool fail(ParseError error) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -2842,10 +2886,11 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAll(List<ParseError> errors) {
+  bool failAll(List<ParseError> errors) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -2858,10 +2903,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAllAt(int offset, List<ParseError> errors) {
+  bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -2874,10 +2920,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAt(int offset, ParseError error) {
+  bool failAt(int offset, ParseError error) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -2888,6 +2935,7 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   List<ParseError> getErrors() {

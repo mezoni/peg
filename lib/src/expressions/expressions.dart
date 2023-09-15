@@ -1,3 +1,4 @@
+export 'and_predicate_action_expression.dart';
 export 'and_predicate_expression.dart';
 export 'any_character_expression.dart';
 export 'character_class_expression.dart';

@@ -933,7 +933,7 @@ class ErrorExpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, offset) {
-    return ErrorMessage(0, ErrorExpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -971,7 +971,7 @@ class ErrorExpectedTag extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorExpectedTag.message);
+    return const ErrorMessage(0, ErrorExpectedTag.message);
   }
 }
 
@@ -1056,7 +1056,7 @@ class ErrorUnexpectedEndOfInput extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
+    return const ErrorMessage(0, ErrorUnexpectedEndOfInput.message);
   }
 }
 
@@ -1081,7 +1081,7 @@ class ErrorUnknownError extends ParseError {
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorUnknownError.message);
+    return const ErrorMessage(0, ErrorUnknownError.message);
   }
 }
 
@@ -1181,7 +1181,7 @@ class State<T> {
   State(this.input);
 
   @pragma('vm:prefer-inline')
-  void fail(ParseError error) {
+  bool fail(ParseError error) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -1192,10 +1192,11 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAll(List<ParseError> errors) {
+  bool failAll(List<ParseError> errors) {
     ok = false;
     if (pos >= failPos) {
       if (failPos < pos) {
@@ -1208,10 +1209,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAllAt(int offset, List<ParseError> errors) {
+  bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -1224,10 +1226,11 @@ class State<T> {
         }
       }
     }
+    return false;
   }
 
   @pragma('vm:prefer-inline')
-  void failAt(int offset, ParseError error) {
+  bool failAt(int offset, ParseError error) {
     ok = false;
     if (offset >= failPos) {
       if (failPos < offset) {
@@ -1238,6 +1241,7 @@ class State<T> {
         errors[errorCount++] = error;
       }
     }
+    return false;
   }
 
   List<ParseError> getErrors() {
