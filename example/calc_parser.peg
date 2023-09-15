@@ -8,31 +8,22 @@ void main(List<String> args) {
 }%
 
 %%
-  num _build(num h, List<(String, num)> t) {
-    var left = h;
-    for (var i = 0; i < t.length; i++) {
-      final element = t[i];
-      final op = element.$1;
-      final right = element.$2;
-      switch (op) {
-        case '+':
-          left += right;
-          break;
-        case '-':
-          left -= right;
-          break;
-        case '/':
-          left /= right;
-          break;
-        case '*':
-          left *= right;
-          break;
-        default:
-          throw StateError('Unknown operator: $op');
-      }
+  num _calcBinary(num? left, (String, num) next) {
+    final op = next.$1;
+    final right = next.$2;
+    left = left!;
+    switch (op) {
+      case '+':
+        return left += right;
+      case '-':
+        return left -= right;
+      case '/':
+        return left /= right;
+      case '*':
+        return left *= right;
+      default:
+        throw StateError('Unknown operator: $op');
     }
-
-    return left;
   }
 
   num _prefix(String? operator, num operand) {
@@ -54,12 +45,12 @@ Start = Spaces v:Expression Eof ;
 Expression = Add ;
 
 num
-Add = h:Mul t:(AddOp Mul)* { $$ = _build(h, t); } ;
+Add = h:Mul t:(AddOp Mul)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
 
 AddOp = v:('-' / '+') Spaces ;
 
 num
-Mul = h:Prefix t:(MulOp Prefix)* { $$ = _build(h, t); } ;
+Mul = h:Prefix t:(MulOp Prefix)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
 
 MulOp = v:('/' / '*') Spaces ;
 

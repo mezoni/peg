@@ -6,31 +6,22 @@ void main(List<String> args) {
 }
 
 class CalcParser {
-  num _build(num h, List<(String, num)> t) {
-    var left = h;
-    for (var i = 0; i < t.length; i++) {
-      final element = t[i];
-      final op = element.$1;
-      final right = element.$2;
-      switch (op) {
-        case '+':
-          left += right;
-          break;
-        case '-':
-          left -= right;
-          break;
-        case '/':
-          left /= right;
-          break;
-        case '*':
-          left *= right;
-          break;
-        default:
-          throw StateError('Unknown operator: $op');
-      }
+  num _calcBinary(num? left, (String, num) next) {
+    final op = next.$1;
+    final right = next.$2;
+    left = left!;
+    switch (op) {
+      case '+':
+        return left += right;
+      case '-':
+        return left -= right;
+      case '/':
+        return left /= right;
+      case '*':
+        return left *= right;
+      default:
+        throw StateError('Unknown operator: $op');
     }
-
-    return left;
   }
 
   num _prefix(String? operator, num operand) {
@@ -140,7 +131,7 @@ class CalcParser {
         num? $$;
         final h = $2!;
         final t = $3!;
-        $$ = _build(h, t);
+        $$ = t.isEmpty ? h : t.fold(h, _calcBinary);
         $0 = $$;
       }
     }
@@ -188,7 +179,7 @@ class CalcParser {
         num? $$;
         final h = $2!;
         final t = $3!;
-        $$ = _build(h, t);
+        $$ = t.isEmpty ? h : t.fold(h, _calcBinary);
         $0 = $$;
       }
     }
@@ -1303,6 +1294,8 @@ abstract interface class StringReader {
 
   String get source;
 
+  int indexOf(String string, int start);
+
   bool matchChar(int char, int offset);
 
   int readChar(int offset);
@@ -1338,6 +1331,11 @@ class _StringReader implements StringReader {
   final String source;
 
   _StringReader(this.source) : length = source.length;
+
+  @override
+  int indexOf(String string, int start) {
+    return source.indexOf(string, start);
+  }
 
   @override
   @pragma('vm:prefer-inline')
