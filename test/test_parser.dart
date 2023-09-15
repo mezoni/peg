@@ -81,15 +81,17 @@ class TestParser {
   String? parseTakeTil(State<StringReader> state) {
     String? $0;
     // $(![E] v:.)*
-    const $3 = 'E';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
+    final $2 = state.pos;
+    const $4 = 'E';
+    final $3 = state.input.indexOf($4, state.pos);
+    state.ok = $3 != -1;
     if (state.ok) {
-      final $4 = state.input.substring(state.pos, $2);
-      state.pos = $2;
-      $0 = $4;
+      state.pos = $3;
     } else {
       state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = state.input.substring($2, state.pos);
     }
     if (state.ok) {
       $0 = $0;
@@ -99,11 +101,11 @@ class TestParser {
 
   void fastParseTakeTil(State<StringReader> state) {
     // $(![E] v:.)*
-    const $2 = 'E';
-    final $1 = state.input.indexOf($2, state.pos);
-    state.ok = $1 != -1;
+    const $3 = 'E';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
     if (state.ok) {
-      state.pos = $1;
+      state.pos = $2;
     } else {
       state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
     }
@@ -112,15 +114,17 @@ class TestParser {
   String? parseTakeUntil(State<StringReader> state) {
     String? $0;
     // $(!'END' v:.)*
-    const $3 = 'END';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
+    final $2 = state.pos;
+    const $4 = 'END';
+    final $3 = state.input.indexOf($4, state.pos);
+    state.ok = $3 != -1;
     if (state.ok) {
-      final $4 = state.input.substring(state.pos, $2);
-      state.pos = $2;
-      $0 = $4;
+      state.pos = $3;
     } else {
       state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      $0 = state.input.substring($2, state.pos);
     }
     if (state.ok) {
       $0 = $0;
@@ -130,11 +134,11 @@ class TestParser {
 
   void fastParseTakeUntil(State<StringReader> state) {
     // $(!'END' v:.)*
-    const $2 = 'END';
-    final $1 = state.input.indexOf($2, state.pos);
-    state.ok = $1 != -1;
+    const $3 = 'END';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
     if (state.ok) {
-      state.pos = $1;
+      state.pos = $2;
     } else {
       state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
     }
