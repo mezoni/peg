@@ -65,8 +65,8 @@ Number = @errorHandler(NumberRaw, {
     if (state.failPos != state.pos) {
       state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Malformed number'));
     } else {
-      removeLastErrors();
-      state.failAt(state.failPos, const ErrorExpectedTags(['number']));
+      const errors = [ErrorExpectedTags(['number'])];
+      replaceLastErrors(errors);
     }
   }) ;
 

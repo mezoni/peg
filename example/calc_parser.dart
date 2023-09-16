@@ -266,16 +266,18 @@ class CalcParser {
       $0 = $0;
     }
     if (!state.ok && state._canHandleError($2, $3)) {
-      void removeLastErrors() {
-        state._removeLastErrors($2, $3);
+      void replaceLastErrors(List<ParseError> errors) {
+        state._replaceLastErrors($2, $3, errors);
       }
 
       if (state.failPos != state.pos) {
         state.failAt(state.failPos,
             ErrorMessage(state.pos - state.failPos, 'Malformed number'));
       } else {
-        removeLastErrors();
-        state.failAt(state.failPos, const ErrorExpectedTags(['number']));
+        const errors = [
+          ErrorExpectedTags(['number'])
+        ];
+        replaceLastErrors(errors);
       }
     }
     if (state.ok) {
@@ -1280,11 +1282,20 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   // ignore: unused_element
-  void _removeLastErrors(int failPos, int errorCount) {
+  void _replaceLastErrors(
+      int failPos, int errorCount, List<ParseError> errors) {
     if (this.failPos == failPos) {
       this.errorCount = errorCount;
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
+    }
+    final length = errors.length;
+    if (length == 0) {
+      failAt(this.failPos, const ErrorUnknownError());
+    } else if (length == 1) {
+      failAt(this.failPos, errors[0]);
+    } else {
+      failAllAt(this.failPos, errors);
     }
   }
 }

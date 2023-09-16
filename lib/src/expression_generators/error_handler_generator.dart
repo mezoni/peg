@@ -8,8 +8,8 @@ final {{failPos}} = state.failPos;
 final {{errorCount}} = state.errorCount;
 {{p}}
 if (!state.ok && state._canHandleError({{failPos}}, {{errorCount}})) {
-  void removeLastErrors() {
-    state._removeLastErrors({{failPos}}, {{errorCount}});
+  void replaceLastErrors(List<ParseError> errors) {
+    state._replaceLastErrors({{failPos}}, {{errorCount}}, errors);
   }
   {{handler}}
 }''';
