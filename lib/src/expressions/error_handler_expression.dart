@@ -15,6 +15,6 @@ class ErrorHandlerExpression extends SingleExpression {
 
   @override
   String toString() {
-    return '@errorHandler($expression) {$handler}';
+    return '@errorHandler($expression)';
   }
 }

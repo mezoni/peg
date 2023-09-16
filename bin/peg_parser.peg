@@ -121,19 +121,24 @@ NamedField = t:Type i:Identifier { $$ = (t, i); } ;
 List<ResultType>
 PositionalFields = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
 
-List<String>
+List<(String name, List<Object?> arguments)>
 Metadata = h:MetadataElement t:(Spaces v:MetadataElement)* { $$ = [h, ...t]; } ;
 
-String
-MetadataElement = AtSign i:Identifier { $$ = '@$i'; } ;
+(String name, List<Object?> arguments)
+MetadataElement = AtSign i:Identifier a:MetadataArguments? { $$ = (name: '@$i', arguments: a ?? const []); } ;
+
+List<Object?>
+MetadataArguments = OpenParenthesis v:MetadataArgumentList? CloseParenthesis { $$ = v ?? const []; } ;
+
+List<Object?>
+MetadataArgumentList =  h:MetadataArgument t:(Comma v:MetadataArgument)* { $$ = [h, ...t]; } ;
+
+MetadataArgument = '\'' v:StringChar* SingleQuote { $$ = String.fromCharCodes(v); } ;
 
 Expression = OrderedChoice ;
 
 Expression
-OrderedChoice = h:ErrorHandler t:(Slash v:ErrorHandler)* { $$ = OrderedChoiceExpression(expressions: [h, ...t]); } ;
-
-Expression
-ErrorHandler = e:Sequence a:ErrorAction? { $$ = a == null ? e : ErrorHandlerExpression(expression: e, handler: a); } ;
+OrderedChoice = h:Sequence t:(Slash v:Sequence)* { $$ = OrderedChoiceExpression(expressions: [h, ...t]); } ;
 
 Expression
 Sequence = e:SequenceElement+ a:Action? { $$ = SequenceExpression(expressions: e, action: a); } ;
@@ -144,9 +149,6 @@ SequenceElement =
 
 SemanticAction
 Action = t:(Less v:Type Greater)? b:Block { $$ = SemanticAction(source: b, resultType: t); } ;
-
-String
-ErrorAction = '~' b:Block  ;
 
 Expression
 Prefix =
@@ -167,7 +169,8 @@ Primary =
   / Literal
   / CharacterClass
   / AnyCharacter
-  / Group ;
+  / Group
+  / ErrorHandler ;
 
 Expression
 AndPredicateAction = '&{' a:$BlockBody* CloseBrace  { $$ = AndPredicateActionExpression(action: a); } ;
@@ -179,6 +182,9 @@ Expression
 CharacterClass =
      '[^' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r, negate: true); }
    / '[' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r); } ;
+
+Expression
+ErrorHandler = '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
 
 Expression
 Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(expression: e); } ;
@@ -267,6 +273,8 @@ Plus = v:'+' Spaces ;
 Question = v:'?' Spaces ;
 
 Semicolon = v:';' Spaces ;
+
+SingleQuote = v:'\'' Spaces ;
 
 Slash = v:'/' Spaces ;
 

@@ -257,16 +257,17 @@ class CalcParser {
 
   num? parseNumber(State<StringReader> state) {
     num? $0;
-    final $1 = state.failPos;
-    final $2 = state.errorCount;
+    // @errorHandler(NumberRaw)
+    final $2 = state.failPos;
+    final $3 = state.errorCount;
     // NumberRaw
     $0 = parseNumberRaw(state);
     if (state.ok) {
       $0 = $0;
     }
-    if (!state.ok && state._canHandleError($1, $2)) {
+    if (!state.ok && state._canHandleError($2, $3)) {
       void removeLastErrors() {
-        state._removeLastErrors($1, $2);
+        state._removeLastErrors($2, $3);
       }
 
       if (state.failPos != state.pos) {
@@ -276,6 +277,9 @@ class CalcParser {
         removeLastErrors();
         state.failAt(state.failPos, const ErrorExpectedTags(['number']));
       }
+    }
+    if (state.ok) {
+      $0 = $0;
     }
     return $0;
   }

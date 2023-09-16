@@ -20,7 +20,8 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
   String generate() {
     final reference = expression.reference!;
     if (reference.metadata case final metadata?) {
-      if (metadata.contains('@inline')) {
+      final isInline = metadata.any((e) => e.name == '@inline');
+      if (isInline) {
         return _generateInline(reference);
       }
     }

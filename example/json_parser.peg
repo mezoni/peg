@@ -51,11 +51,10 @@ String
 @inline
 EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
 
-HexNumber = HexNumberRaw
-  ~{
+HexNumber = @errorHandler(HexNumberRaw, {
     removeLastErrors();
     state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number'));
-  } ;
+  }) ;
 
 int
 @inline

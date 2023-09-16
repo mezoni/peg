@@ -66,7 +66,7 @@ void {{name}}(State<StringReader> state) {
     final expression = rule.expression;
     var hasEvent = false;
     if (rule.metadata case final metadata?) {
-      hasEvent = metadata.contains('@event');
+      hasEvent = metadata.any((e) => e.name == '@event');
       if (hasEvent) {
         values['event'] = helper.escapeString(rule.name);
       }

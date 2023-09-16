@@ -39,7 +39,7 @@ class {{className}} {
     }
     state.fail(error);
     return null;
-  }  
+  }
 }''';
 
   static const _templateEvents = '''
@@ -79,7 +79,7 @@ R? endEvent<R>(String event, R? result, bool ok) {
     values['methods'] = generatedRules.values.join('\n\n');
     final hasEvents = grammar.rules.any((e) {
       if (e.metadata case final metadata?) {
-        return metadata.contains('@event');
+        return metadata.any((e) => e.name == '@event');
       }
 
       return false;

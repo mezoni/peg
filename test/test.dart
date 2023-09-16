@@ -4,6 +4,7 @@ import 'test_parser.dart';
 
 void main() {
   _testAndPredicateAction();
+  _testOneOrMore();
   _testZeroOrMore();
 }
 
@@ -129,6 +130,22 @@ void _testZeroOrMore() {
         parse: _parser.parseTakeTil,
         pos: 3,
         result: 'abc',
+        source: source,
+      );
+    }
+  });
+}
+
+void _testOneOrMore() {
+  test('OneOrMore', () async {
+    {
+      // Optimized version
+      const source = '123abc';
+      await _testSuccess(
+        fastParse: _parser.fastParseOneOrMoreCharacters,
+        parse: _parser.parseOneOrMoreCharacters,
+        pos: 3,
+        result: '123'.codeUnits,
         source: source,
       );
     }

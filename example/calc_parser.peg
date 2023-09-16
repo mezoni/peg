@@ -61,15 +61,14 @@ Primary =
     Number
   / OpenParenthesis v:Number CloseParenthesis ;
 
-Number = NumberRaw
-  ~{
+Number = @errorHandler(NumberRaw, {
     if (state.failPos != state.pos) {
       state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Malformed number'));
     } else {
       removeLastErrors();
       state.failAt(state.failPos, const ErrorExpectedTags(['number']));
     }
-  } ;
+  }) ;
 
 num
 NumberRaw = v:$('-'?  '0' / ([1-9][0-9]*) ('.' [0-9]+)?  ([eE] [+-] [0-9]+)?) Spaces { $$ = num.parse(v); } ;

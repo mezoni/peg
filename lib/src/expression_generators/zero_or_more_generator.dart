@@ -99,6 +99,10 @@ if (state.ok) {
       return null;
     }
 
+    if (sequence.action != null) {
+      return null;
+    }
+
     final children = sequence.expressions;
     if (children.length != 2) {
       return null;

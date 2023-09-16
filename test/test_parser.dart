@@ -5,17 +5,17 @@ class TestParser {
     Object? $0;
     // (v:SkipUntil SkipUntil)
     // v:SkipUntil SkipUntil
-    final $14 = state.pos;
-    List<int>? $15;
-    $15 = parseSkipUntil(state);
+    final $17 = state.pos;
+    List<int>? $18;
+    $18 = parseSkipUntil(state);
     if (state.ok) {
       fastParseSkipUntil(state);
       if (state.ok) {
-        $0 = $15;
+        $0 = $18;
       }
     }
     if (!state.ok) {
-      state.pos = $14;
+      state.pos = $17;
     }
     if (state.ok) {
       $0 = $0;
@@ -23,17 +23,17 @@ class TestParser {
     if (!state.ok) {
       // (v:SkipTil SkipTil)
       // v:SkipTil SkipTil
-      final $11 = state.pos;
-      List<int>? $12;
-      $12 = parseSkipTil(state);
+      final $14 = state.pos;
+      List<int>? $15;
+      $15 = parseSkipTil(state);
       if (state.ok) {
         fastParseSkipTil(state);
         if (state.ok) {
-          $0 = $12;
+          $0 = $15;
         }
       }
       if (!state.ok) {
-        state.pos = $11;
+        state.pos = $14;
       }
       if (state.ok) {
         $0 = $0;
@@ -41,17 +41,17 @@ class TestParser {
       if (!state.ok) {
         // (v:TakeUntil TakeUntil)
         // v:TakeUntil TakeUntil
-        final $8 = state.pos;
-        String? $9;
-        $9 = parseTakeUntil(state);
+        final $11 = state.pos;
+        String? $12;
+        $12 = parseTakeUntil(state);
         if (state.ok) {
           fastParseTakeUntil(state);
           if (state.ok) {
-            $0 = $9;
+            $0 = $12;
           }
         }
         if (!state.ok) {
-          state.pos = $8;
+          state.pos = $11;
         }
         if (state.ok) {
           $0 = $0;
@@ -59,17 +59,17 @@ class TestParser {
         if (!state.ok) {
           // (v:TakeTil TakeTil)
           // v:TakeTil TakeTil
-          final $5 = state.pos;
-          String? $6;
-          $6 = parseTakeTil(state);
+          final $8 = state.pos;
+          String? $9;
+          $9 = parseTakeTil(state);
           if (state.ok) {
             fastParseTakeTil(state);
             if (state.ok) {
-              $0 = $6;
+              $0 = $9;
             }
           }
           if (!state.ok) {
-            state.pos = $5;
+            state.pos = $8;
           }
           if (state.ok) {
             $0 = $0;
@@ -77,26 +77,87 @@ class TestParser {
           if (!state.ok) {
             // (v:AndPredicateAction AndPredicateAction)
             // v:AndPredicateAction AndPredicateAction
-            final $2 = state.pos;
-            int? $3;
-            $3 = parseAndPredicateAction(state);
+            final $5 = state.pos;
+            int? $6;
+            $6 = parseAndPredicateAction(state);
             if (state.ok) {
               fastParseAndPredicateAction(state);
               if (state.ok) {
-                $0 = $3;
+                $0 = $6;
               }
             }
             if (!state.ok) {
-              state.pos = $2;
+              state.pos = $5;
             }
             if (state.ok) {
               $0 = $0;
+            }
+            if (!state.ok) {
+              // (v:OneOrMoreCharacters OneOrMoreCharacters)
+              // v:OneOrMoreCharacters OneOrMoreCharacters
+              final $2 = state.pos;
+              List<int>? $3;
+              $3 = parseOneOrMoreCharacters(state);
+              if (state.ok) {
+                fastParseOneOrMoreCharacters(state);
+                if (state.ok) {
+                  $0 = $3;
+                }
+              }
+              if (!state.ok) {
+                state.pos = $2;
+              }
+              if (state.ok) {
+                $0 = $0;
+              }
             }
           }
         }
       }
     }
     return $0;
+  }
+
+  List<int>? parseOneOrMoreCharacters(State<StringReader> state) {
+    List<int>? $0;
+    // [0-9]*
+    final $4 = <int>[];
+    while (state.pos < state.input.length) {
+      final $2 = state.input.readChar(state.pos);
+      final $3 = $2 >= 48 && $2 <= 57;
+      if (!$3) {
+        break;
+      }
+      state.pos += state.input.count;
+      $4.add($2);
+    }
+    state.ok = $4.isNotEmpty;
+    if (state.ok) {
+      $0 = $4;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseOneOrMoreCharacters(State<StringReader> state) {
+    // [0-9]*
+    state.ok = false;
+    while (state.pos < state.input.length) {
+      final $1 = state.input.readChar(state.pos);
+      final $3 = $1 >= 48 && $1 <= 57;
+      if (!$3) {
+        break;
+      }
+      state.pos += state.input.count;
+      state.ok = true;
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
   }
 
   int? parseAndPredicateAction(State<StringReader> state) {

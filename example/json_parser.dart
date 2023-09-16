@@ -738,22 +738,23 @@ class JsonParser {
 
   int? parseHexNumber(State<StringReader> state) {
     int? $0;
-    final $1 = state.failPos;
-    final $2 = state.errorCount;
+    // @errorHandler(HexNumberRaw)
+    final $2 = state.failPos;
+    final $3 = state.errorCount;
     // HexNumberRaw
     // v:$([0-9A-Za-z]{4,4})
-    String? $5;
-    final $6 = state.pos;
+    String? $6;
+    final $7 = state.pos;
     // [0-9A-Za-z]{4,4}
-    final $9 = state.pos;
-    var $10 = 0;
-    while ($10 < 4) {
+    final $10 = state.pos;
+    var $11 = 0;
+    while ($11 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $11 = state.input.readChar(state.pos);
-        state.ok = $11 <= 90
-            ? $11 >= 48 && $11 <= 57 || $11 >= 65
-            : $11 >= 97 && $11 <= 122;
+        final $12 = state.input.readChar(state.pos);
+        state.ok = $12 <= 90
+            ? $12 >= 48 && $12 <= 57 || $12 >= 65
+            : $12 >= 97 && $12 <= 122;
         if (state.ok) {
           state.pos += state.input.count;
         }
@@ -764,27 +765,27 @@ class JsonParser {
       if (!state.ok) {
         break;
       }
-      $10++;
+      $11++;
     }
-    state.ok = $10 == 4;
+    state.ok = $11 == 4;
     if (!state.ok) {
-      state.pos = $9;
+      state.pos = $10;
     }
     if (state.ok) {
-      $5 = state.input.substring($6, state.pos);
+      $6 = state.input.substring($7, state.pos);
     }
     if (state.ok) {
       int? $$;
-      final v = $5!;
+      final v = $6!;
       $$ = int.parse(v, radix: 16);
       $0 = $$;
     }
     if (state.ok) {
       $0 = $0;
     }
-    if (!state.ok && state._canHandleError($1, $2)) {
+    if (!state.ok && state._canHandleError($2, $3)) {
       void removeLastErrors() {
-        state._removeLastErrors($1, $2);
+        state._removeLastErrors($2, $3);
       }
 
       removeLastErrors();
@@ -792,6 +793,9 @@ class JsonParser {
           state.failPos,
           ErrorMessage(
               state.pos - state.failPos, 'Expected 4 digit hex number'));
+    }
+    if (state.ok) {
+      $0 = $0;
     }
     return $0;
   }

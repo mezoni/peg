@@ -11,7 +11,7 @@ class ProductionRule {
 
   final OrderedChoiceExpression expression;
 
-  final List<String>? metadata;
+  final List<({String name, List<Object?> arguments})>? metadata;
 
   final List<String>? parameters;
 
@@ -26,22 +26,6 @@ class ProductionRule {
     this.parameters,
     this.resultType,
   });
-
-  bool get isFast {
-    if (metadata == null) {
-      return false;
-    }
-
-    return metadata!.contains('@fast');
-  }
-
-  bool get isInline {
-    if (metadata == null) {
-      return false;
-    }
-
-    return metadata!.contains('@inline');
-  }
 
   bool get isMacro => parameters != null;
 

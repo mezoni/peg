@@ -21,6 +21,6 @@ SkipUntil =  (!'END'  v:.)* ;
 
 SkipTil =  (![E]  v:.)* ;
 
-TakeUntil =  $(!'END'  v:.)* ;
-
 TakeTil =  $(![E]  v:.)* ;
+
+TakeUntil =  $(!'END'  v:.)* ;
