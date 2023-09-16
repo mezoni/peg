@@ -453,19 +453,26 @@ class CalcParser {
     // v:('/' / '*') Spaces
     final $1 = state.pos;
     String? $2;
-    // '/'
-    const $6 = '/';
-    $2 = matchLiteral1(state, 47, $6, const ErrorExpectedTags([$6]));
-    if (state.ok) {
-      $2 = $2;
+    state.ok = false;
+    final $5 = state.input;
+    if (state.pos < $5.length) {
+      final $3 = $5.readChar(state.pos);
+      final $4 = $5.count;
+      switch ($3) {
+        case 47:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '/';
+          break;
+        case 42:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '*';
+          break;
+      }
     }
     if (!state.ok) {
-      // '*'
-      const $4 = '*';
-      $2 = matchLiteral1(state, 42, $4, const ErrorExpectedTags([$4]));
-      if (state.ok) {
-        $2 = $2;
-      }
+      state.fail(const ErrorExpectedTags(['/', '*']));
     }
     if (state.ok) {
       fastParseSpaces(state);
@@ -484,19 +491,26 @@ class CalcParser {
     // v:('-' / '+') Spaces
     final $1 = state.pos;
     String? $2;
-    // '-'
-    const $6 = '-';
-    $2 = matchLiteral1(state, 45, $6, const ErrorExpectedTags([$6]));
-    if (state.ok) {
-      $2 = $2;
+    state.ok = false;
+    final $5 = state.input;
+    if (state.pos < $5.length) {
+      final $3 = $5.readChar(state.pos);
+      final $4 = $5.count;
+      switch ($3) {
+        case 45:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '-';
+          break;
+        case 43:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '+';
+          break;
+      }
     }
     if (!state.ok) {
-      // '+'
-      const $4 = '+';
-      $2 = matchLiteral1(state, 43, $4, const ErrorExpectedTags([$4]));
-      if (state.ok) {
-        $2 = $2;
-      }
+      state.fail(const ErrorExpectedTags(['-', '+']));
     }
     if (state.ok) {
       fastParseSpaces(state);
