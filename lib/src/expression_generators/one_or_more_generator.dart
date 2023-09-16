@@ -27,6 +27,46 @@ while (true) {
 }
 state.ok = {{ok}};''';
 
+  // ignore: unused_field
+  static const _templateAsync = '''
+final result = AsyncResult<List<{{O}}>>();
+final input = state.input;
+final list = <{{O}}>[];
+late AsyncResult<{{O}}> r;
+var s = 0;
+void parse() {
+  while (true) {
+    switch (s) {
+      case 0:
+        s = 1;
+        r = {{p}}(state);
+        if (r.result != null) {
+          break;
+        }
+        r.handle = parse;
+        break;
+      case 1:
+        if (!state.ok) {
+          s = -1;
+          if (list.isNotEmpty) {
+            state.ok = true;
+            result.value = Result(list);
+          }
+          return;
+        }
+        final value = result.value!.value;
+        list.add(value);
+        s = 0;
+        break;
+      default:
+        throw StateError('Invalid state: \$s');
+    }
+  }
+}
+
+parse();
+return result;''';
+
   OneOrMoreGenerator({
     required super.expression,
     required super.ruleGenerator,

@@ -21,6 +21,10 @@ abstract class ExpressionGenerator<T extends Expression> {
 
   String generate();
 
+  String generateAsync() {
+    throw UnimplementedError('generateAsync()');
+  }
+
   String generateExpression(Expression expression, bool declareVariable) {
     final values = <String, String>{};
     final buffer = StringBuffer();

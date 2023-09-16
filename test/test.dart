@@ -4,7 +4,7 @@ import 'test_parser.dart';
 
 void main() {
   _testAndPredicateAction();
-  _testOneOrMore();
+  _testOrderedChoiceWithLiterals();
   _testZeroOrMore();
 }
 
@@ -64,6 +64,94 @@ Future<void> _testFailure({
       reason: 'fastParse, errors != $errors, source: "$source"');
   expect(errors.map((e) => '$e').toSet(), errors2,
       reason: 'parse, errors != $errors, source: "$source"');
+}
+
+void _testOrderedChoiceWithLiterals() {
+  test('OrderedChoiceWithLiterals', () async {
+    {
+      // Optimized version
+      const source = 'abc';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'ab';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'ab',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'a';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 1,
+        result: 'a',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'def';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 3,
+        result: 'def',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'de';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'de',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'd';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 1,
+        result: 'd',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'gh';
+      await _testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'gh',
+        source: source,
+      );
+    }
+  });
 }
 
 Future<void> _testSuccess({
@@ -130,22 +218,6 @@ void _testZeroOrMore() {
         parse: _parser.parseTakeTil,
         pos: 3,
         result: 'abc',
-        source: source,
-      );
-    }
-  });
-}
-
-void _testOneOrMore() {
-  test('OneOrMore', () async {
-    {
-      // Optimized version
-      const source = '123abc';
-      await _testSuccess(
-        fastParse: _parser.fastParseOneOrMoreCharacters,
-        parse: _parser.parseOneOrMoreCharacters,
-        pos: 3,
-        result: '123'.codeUnits,
         source: source,
       );
     }

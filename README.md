@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.8
+Version: 1.0.9
 
 # Об этом программном обеспечении
 

@@ -93,13 +93,13 @@ class TestParser {
               $0 = $0;
             }
             if (!state.ok) {
-              // (v:OneOrMoreCharacters OneOrMoreCharacters)
-              // v:OneOrMoreCharacters OneOrMoreCharacters
+              // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+              // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
               final $2 = state.pos;
-              List<int>? $3;
-              $3 = parseOneOrMoreCharacters(state);
+              String? $3;
+              $3 = parseOrderedChoiceWithLiterals(state);
               if (state.ok) {
-                fastParseOneOrMoreCharacters(state);
+                fastParseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
                   $0 = $3;
                 }
@@ -118,45 +118,120 @@ class TestParser {
     return $0;
   }
 
-  List<int>? parseOneOrMoreCharacters(State<StringReader> state) {
-    List<int>? $0;
-    // [0-9]*
-    final $4 = <int>[];
-    while (state.pos < state.input.length) {
-      final $2 = state.input.readChar(state.pos);
-      final $3 = $2 >= 48 && $2 <= 57;
-      if (!$3) {
-        break;
+  String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
+    String? $0;
+    state.ok = false;
+    final $3 = state.input;
+    if (state.pos < $3.length) {
+      final $1 = $3.readChar(state.pos);
+      final $2 = $3.count;
+      switch ($1) {
+        case 97:
+          const $4 = 'abc';
+          state.ok = $3.startsWith($4, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $4;
+          } else {
+            const $5 = 'ab';
+            state.ok = $3.startsWith($5, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $5;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'a';
+            }
+          }
+          break;
+        case 100:
+          const $7 = 'def';
+          state.ok = $3.startsWith($7, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $7;
+          } else {
+            const $8 = 'de';
+            state.ok = $3.startsWith($8, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $8;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'd';
+            }
+          }
+          break;
+        case 103:
+          const $10 = 'gh';
+          state.ok = $3.startsWith($10, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $10;
+          }
+          break;
       }
-      state.pos += state.input.count;
-      $4.add($2);
     }
-    state.ok = $4.isNotEmpty;
-    if (state.ok) {
-      $0 = $4;
-    } else {
-      state.fail(const ErrorUnexpectedCharacter());
-    }
-    if (state.ok) {
-      $0 = $0;
+    if (!state.ok) {
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
     return $0;
   }
 
-  void fastParseOneOrMoreCharacters(State<StringReader> state) {
-    // [0-9]*
+  void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
     state.ok = false;
-    while (state.pos < state.input.length) {
-      final $1 = state.input.readChar(state.pos);
-      final $3 = $1 >= 48 && $1 <= 57;
-      if (!$3) {
-        break;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $0 = $2.readChar(state.pos);
+      final $1 = $2.count;
+      switch ($0) {
+        case 97:
+          const $3 = 'abc';
+          state.ok = $2.startsWith($3, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $4 = 'ab';
+            state.ok = $2.startsWith($4, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
+            }
+          }
+          break;
+        case 100:
+          const $6 = 'def';
+          state.ok = $2.startsWith($6, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $7 = 'de';
+            state.ok = $2.startsWith($7, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
+            }
+          }
+          break;
+        case 103:
+          const $9 = 'gh';
+          state.ok = $2.startsWith($9, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          }
+          break;
       }
-      state.pos += state.input.count;
-      state.ok = true;
     }
     if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
   }
 
@@ -1170,11 +1245,20 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   // ignore: unused_element
-  void _removeLastErrors(int failPos, int errorCount) {
+  void _replaceLastErrors(
+      int failPos, int errorCount, List<ParseError> errors) {
     if (this.failPos == failPos) {
       this.errorCount = errorCount;
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
+    }
+    final length = errors.length;
+    if (length == 0) {
+      failAt(this.failPos, const ErrorUnknownError());
+    } else if (length == 1) {
+      failAt(this.failPos, errors[0]);
+    } else {
+      failAllAt(this.failPos, errors);
     }
   }
 }

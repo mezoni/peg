@@ -10,12 +10,23 @@ Start =
   / (v:TakeUntil TakeUntil)
   / (v:TakeTil TakeTil)
   / (v:AndPredicateAction AndPredicateAction)
+  / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
   ;
 
 AndPredicateAction = &{ flag ? true : state.fail(const ErrorMessage(0, 'error')) }  v:Integer ;
 
 int
 Integer = v:$[0-9]+ <int>{ $$ = int.parse(v); } ;
+
+OrderedChoiceWithLiterals =
+    'abc'
+  / 'ab'
+  / 'a'
+  / 'def'
+  / 'de'
+  / 'd'
+  / 'gh'
+  ;
 
 SkipUntil =  (!'END'  v:.)* ;
 
