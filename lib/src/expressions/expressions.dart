@@ -14,4 +14,5 @@ export 'repetition_expression.dart';
 export 'sequence_expression.dart';
 export 'slice_expression.dart';
 export 'symbol_expression.dart';
+export 'verify_expression.dart';
 export 'zero_or_more_expression.dart';

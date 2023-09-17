@@ -11,6 +11,9 @@ Start =
   / (v:TakeTil TakeTil)
   / (v:AndPredicateAction AndPredicateAction)
   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+  / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+  / (v:Verify41 Verify41)
+  / (v:VerifyFlag VerifyFlag)
   ;
 
 AndPredicateAction = &{ flag ? true : state.fail(const ErrorMessage(0, 'error')) }  v:Integer ;
@@ -35,3 +38,11 @@ SkipTil =  (![E]  v:.)* ;
 TakeTil =  $(![E]  v:.)* ;
 
 TakeUntil =  $(!'END'  v:.)* ;
+
+Verify41 = @verify(Integer, {
+    if ($$ != 41) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+  }) ;
+
+VerifyFlag = @verify('', {
+    if (!flag) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+  }) ;

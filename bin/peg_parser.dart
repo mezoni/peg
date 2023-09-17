@@ -1132,6 +1132,13 @@ class PegParser {
                 if (state.ok) {
                   $0 = $0;
                 }
+                if (!state.ok) {
+                  // Verify
+                  $0 = parseVerify(state);
+                  if (state.ok) {
+                    $0 = $0;
+                  }
+                }
               }
             }
           }
@@ -1141,11 +1148,11 @@ class PegParser {
     return $0;
   }
 
-  Expression? parseErrorHandler(State<StringReader> state) {
+  Expression? parseVerify(State<StringReader> state) {
     Expression? $0;
-    // '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
+    // '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
     final $1 = state.pos;
-    const $4 = '@errorHandler';
+    const $4 = '@verify';
     matchLiteral(state, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
       fastParseOpenParenthesis(state);
@@ -1163,7 +1170,7 @@ class PegParser {
                 Expression? $$;
                 final e = $2!;
                 final a = $3!;
-                $$ = ErrorHandlerExpression(expression: e, handler: a);
+                $$ = VerifyExpression(expression: e, handler: a);
                 $0 = $$;
               }
             }
@@ -1266,6 +1273,42 @@ class PegParser {
     if (!state.ok) {
       state.pos = $0;
     }
+  }
+
+  Expression? parseErrorHandler(State<StringReader> state) {
+    Expression? $0;
+    // '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
+    final $1 = state.pos;
+    const $4 = '@errorHandler';
+    matchLiteral(state, $4, const ErrorExpectedTags([$4]));
+    if (state.ok) {
+      fastParseOpenParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        $2 = parseExpression(state);
+        if (state.ok) {
+          fastParseComma(state);
+          if (state.ok) {
+            String? $3;
+            $3 = parseBlock(state);
+            if (state.ok) {
+              fastParseCloseParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final a = $3!;
+                $$ = ErrorHandlerExpression(expression: e, handler: a);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
   }
 
   Expression? parseGroup(State<StringReader> state) {

@@ -23,7 +23,7 @@ matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}
 state.ok = true;
 if (state.ok) {
   {{r}} = '';
-''';
+}''';
 
   static const _templateEmptyStringNoResult = '''
 state.ok = true;''';

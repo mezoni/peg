@@ -33,6 +33,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitSymbol(SymbolExpression node);
 
+  T visitVerify(VerifyExpression node);
+
   T visitZeroOrMore(ZeroOrMoreExpression node);
 }
 
@@ -111,6 +113,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitSymbol(SymbolExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitVerify(VerifyExpression node) {
     return visitNode(node);
   }
 

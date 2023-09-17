@@ -14,4 +14,5 @@ export 'repetition_generator.dart';
 export 'sequence_generator.dart';
 export 'slice_generator.dart';
 export 'symbol_generator.dart';
+export 'verify_generator.dart';
 export 'zero_or_more_generator.dart';

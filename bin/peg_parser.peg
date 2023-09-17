@@ -170,7 +170,8 @@ Primary =
   / CharacterClass
   / AnyCharacter
   / Group
-  / ErrorHandler ;
+  / ErrorHandler
+  / Verify ;
 
 Expression
 AndPredicateAction = '&{' a:$BlockBody* CloseBrace  { $$ = AndPredicateActionExpression(action: a); } ;
@@ -184,9 +185,6 @@ CharacterClass =
    / '[' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r); } ;
 
 Expression
-ErrorHandler = '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
-
-Expression
 Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(expression: e); } ;
 
 Expression
@@ -196,6 +194,12 @@ Literal =
 
 Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
+
+Expression
+ErrorHandler = '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
+
+Expression
+Verify = '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = VerifyExpression(expression: e, handler: a); } ;
 
 (int, int)
 Range =

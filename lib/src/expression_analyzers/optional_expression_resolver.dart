@@ -124,6 +124,13 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitVerify(VerifyExpression node) {
+    final child = node.expression;
+    child.accept(this);
+    _setIsOptional(node, child.isOptional);
+  }
+
+  @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
     child.accept(this);

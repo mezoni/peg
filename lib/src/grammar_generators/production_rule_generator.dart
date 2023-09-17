@@ -217,6 +217,12 @@ void {{name}}(State<StringReader> state) {
   }
 
   @override
+  String visitVerify(VerifyExpression node) {
+    final generator = VerifyGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitZeroOrMore(ZeroOrMoreExpression node) {
     final generator =
         ZeroOrMoreGenerator(expression: node, ruleGenerator: this);

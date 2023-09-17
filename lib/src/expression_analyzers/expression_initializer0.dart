@@ -125,6 +125,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitVerify(VerifyExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     _initializeNode(node);
   }

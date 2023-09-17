@@ -3,41 +3,12 @@ import 'package:test/test.dart';
 import 'test_parser.dart';
 
 void main() {
-  _testAndPredicateAction();
   _testOrderedChoiceWithLiterals();
+  _testVerify();
   _testZeroOrMore();
 }
 
 final _parser = TestParser();
-
-void _testAndPredicateAction() {
-  test('AndPredicateAction', () async {
-    {
-      const source = '41';
-      _parser.flag = true;
-      await _testSuccess(
-        fastParse: _parser.fastParseAndPredicateAction,
-        parse: _parser.parseAndPredicateAction,
-        pos: 2,
-        result: 41,
-        source: source,
-      );
-    }
-
-    {
-      const source = '41';
-      _parser.flag = false;
-      await _testFailure(
-        errors: {ErrorMessage(0, 'error')},
-        failPos: 0,
-        fastParse: _parser.fastParseAndPredicateAction,
-        parse: _parser.parseAndPredicateAction,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
 
 Future<void> _testFailure({
   required Set<ErrorMessage> errors,
@@ -170,6 +141,64 @@ Future<void> _testSuccess({
   expect(r2.pos, pos, reason: 'parse, pos != $pos, source: "$source"');
   expect(r2.result, result,
       reason: 'parse, result != $result, source: "$source"');
+}
+
+void _testVerify() {
+  test('Verify', () async {
+    {
+      const source = '41abc';
+      await _testSuccess(
+        fastParse: _parser.fastParseVerify41,
+        parse: _parser.parseVerify41,
+        pos: 2,
+        result: 41,
+        source: source,
+      );
+    }
+
+    {
+      const source = '40abc';
+      await _testFailure(
+        errors: {
+          ErrorMessage(0, 'error'),
+          ErrorMessage(0, "Unexpected character 'a' (0x61)"),
+        },
+        failPos: 2,
+        fastParse: _parser.fastParseVerify41,
+        parse: _parser.parseVerify41,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'abc';
+      _parser.flag = true;
+      await _testSuccess(
+        fastParse: _parser.fastParseVerifyFlag,
+        parse: _parser.parseVerifyFlag,
+        pos: 0,
+        result: '',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'abc';
+      _parser.flag = false;
+      await _testFailure(
+        errors: {
+          ErrorMessage(0, 'error'),
+          ErrorMessage(0, "Unexpected character 'a' (0x61)"),
+        },
+        failPos: 2,
+        fastParse: _parser.fastParseVerifyFlag,
+        parse: _parser.parseVerifyFlag,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
 }
 
 void _testZeroOrMore() {
