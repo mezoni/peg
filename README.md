@@ -2,59 +2,58 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.12
+Version: 1.0.14
 
-# Об этом программном обеспечении
+# About this software
 
-Данное программное обеспечение не содержит публичного API поскольку оно является консольным приложением (средством командной строки).  
-Это средство предназначено для генерации исходного кода PEG парсеров.  
-Перед началом использования данного средства необходимо произвести его активацию при помощи пакетного менеджера `pud`.
+This software does not contain a public API because it is a console application (command line tool).  
+This tool is intended to generate the source code of PEG parsers.  
+Before using this tool, it is necessary to activate it using the package manager `pub`.
 
-# Активация и использование
+# Activation and usage
 
-Для активации данного средства командной строки необходимо выполнить следующую команду:
+To activate this command line tool, run the following command:
 
 ```bash
 dart pub global activate peg
 ```
 
-После активации, для использования средства командной строки можно пользоваться следующей командой:
+After activation, you can use the following command to use the command line tool:
 
 ```bash
 dart pub global run peg
 ```
 
-## Что из себя представляет исходный код сгенерированного парсера?
+## What is the source code of the generated parser?
 
-Исходный код сгенерированного парсера состоит из следующих частей:
-- Исходный код класса парсера (генерируется из правил грамматики)
-- Исходный код членов класса парсера (определяется грамматикой)
-- Исходный код членов библиотеки (определяется грамматикой)
-- Исходный код среды выполнения
+The source code of the generated parser consists of the following parts:
+- Source code of the parser class (generated from grammar rules)
+- Source code of the parser class members (defined by the grammar)
+- Source code of library members (defined by grammar)
+- Runtime source code
 
-Исходный код членов класса парсера и членов библиотеки указываются непосредственно в грамматике и используются для двух целей:
-- Обеспечение работоспособности парсера (например, директивы импорта)
-- Расширение возможностей и оптимизация парсера за счет расширения возможностей экземпляра класса парсера
+The source code of the parser class members and library members are specified directly in the grammar and are used for two purposes:
+- Ensuring the operability of the parser (for example, import directives)
+- Extending the capabilities and optimization of the parser by extending the capabilities of the instance of the parser class
 
+## How to declare grammar?
 
-## Как объявить грамматику?
+To declare expressions, a syntax is used that is basically similar to the generally accepted syntax of PEG expressions and, at the same time, additional syntax is used to expand the capabilities of PEG expressions.  
+A modified syntax is used to declare production rules.  
+The grammar declaration uses its own syntax.  
 
-Для объявления выражений используется синтаксис, в основном, схожий с общепринятым синтаксисом PEG выражений и, при этом, используется дополнительный синтаксис для расширения возможностей PEG выражений.  
-Для объявления правил используется модифицированный синтаксис.  
-Для объявления грамматики используется собственный синтаксис.
-
-Данный генератор генерирует сам себя из грамматики написанной с использованием собственного синтаксиса.  
-Для более детального ознакомления с синтаксисом рекомендуется ознакомится с синтаксисом грамматики, используемой для генерации данного парсера PEG.  
+This generator generates itself from a grammar written using its own syntax.  
+For a more detailed acquaintance with the syntax, it is recommended to familiarize yourself with the syntax of the grammar used to generate this PEG parser.  
 https://github.com/mezoni/peg/blob/main/bin/peg_parser.peg
 
-Объявление грамматики производится с использованием секций, наподобие секций для препроцессора, но, в тоже время, необходимо отметить, что предварительная обработка не производится и обработка (разбор) грамматики происходит в один этап.
+Grammar declaration is made using sections, like sections for a preprocessor, but at the same time, it should be noted that preprocessing is not performed and grammar processing (parsing) occurs in one stage.  
 
-Для объявление грамматики используются 3 секции:
-- Секция для объявления директив и глобальных членов
-- Секция для объявления членов экземпляров класса парсера
-- Секция для объявления правил грамматики
+3 sections are used to declare the grammar:
+- Section for declaring directives and global members
+- Section for declaring members of instances of the parser class
+- Section for declaring grammar rules
 
-Пример объявления грамматики:
+Example of a grammar declaration:
 
 ```
 %{
@@ -73,24 +72,23 @@ A = [A-Za-z] * ;
 
 ```
 
-Грамматика должна содержать хотя бы одно правило, из чего следует, что использование секции для объявления правил грамматики является обязательным. Использование других секции не является обязательных и определяется реальными потребностями исходя из выбранного способа объявления грамматики.
+The grammar must contain at least one production rule, which means that using a section to declare grammar rules is mandatory. The use of other sections is optional and is determined by the actual needs based on the chosen method of declaring the grammar.
 
+## How do I declare the rules?
 
-## Как объявить правила?
+The declaration of a production rule consists in specifying (in a certain sequence) the attributes of the rule and its body and consists of the following elements:
+- Type of the returned result
+- Metadata
+- Name of the production rule
+- Symbol `=`
+- Expression
+- The symbol `;`
 
-Объявление правила заключается в указании (в определенной последовательности) атрибутов правила и его тела и состоит из следующих элементов:
-- Тип возвращаемого результата
-- Метаданные
-- Имя правила
-- Символ `=`
-- Выражение
-- Символ `;`
+The type of the returned result and metadata are optional.  
+To specify the type of the returned result of the production rule, you must use the syntax of the Dart language.  
+The concept of metadata differs from that used in the Dart language and is used exclusively as instructions for the parser generator.
 
-Тип возвращаемого результата и метаданные являются необязательными.  
-Для указания типа возвращаемого результата правила необходимо использовать синтаксис языка Dart.  
-Концепция метаданных отличается от принятой в языке Dart и используется исключительно в качестве инструкций для генератора парсера.
-
-Пример объявления правила с типом результата и метаданными:
+Example of a production rule declaration with result type and metadata:
 
 ```
 bool
@@ -102,178 +100,177 @@ MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 ```
 
-## Выражения
+## Expressions
 
-Ниже представлен перечень доступных выражений.
+Below is a list of available expressions.
 
-Наименование: `Orderer choice`  
-Оператор: `/`  
-Число операндов: 2 и более
+Name: `Orderer choice`  
+Operator: `/`  
+Number of operands: 2 or more
 
-Выполняет, в указанном порядке, операнды и в случае, если выполнение очередного операнда завершается успешно, то возвращается этот результат. Если выполнение очередного операнда завершается неуспешно, то выполняется следующий операнд и так происходит до тех пор, пока выполнение одного из операндов не завершится успешно. Если все операнды завершатся неуспешно, то данное выражение завершается неспешно.
+Executes operands in the specified order, and if the execution of the next operand succeeds, this result is returned. If the execution of the next operand fails, then the next operand is executed and this happens until the execution of one of the operands succeeds. If all operands fail, then this expression fails.
 
-Пример:
+Example:
 
 ```
 'abc' / 'def'
 ```
 ___
 
-Наименование: `Sequence`  
-Оператор:  не используется  
-Число операндов: 2 и более
+Name: `Sequence`  
+Operator: not used  
+Number of operands: 2 or more
 
-Выполняет, в указанном порядке, все операнды и в случае, если выполнение любого операнда завершается неуспешно, то выражение немедленно завершается неуспешно. Если выполнение всех операндов завершается успешно, то возвращается результат, значение и тип которого зависят от того были ли использованы семантические переменные и/или семантическая акция (более подробно об этом указано в отельном разделе).
+Executes, in the specified order, all operands, and if the execution of any operand fails, the expression immediately fails. If the execution of all operands succeeds, the result is returned, the value and type of which depend on whether semantic variables and/or semantic action were used .
 
-Пример:
+Example:
 
 ```
 'abc' 'def'
 ```
 ___
 
-Наименование: `Optional`  
-Оператор:  `?`  
-Число операндов: 1
+Name: `Optional`  
+Operator: `?`  
+Number of operands: 1
 
-Выполняет операнд и в случае, если выполнение операнда завершается успешно, то возвращается этот результат. Если выполнение операнда завершается неуспешно, то данное выражение завершается успешно и возвращается `null`.
+Executes the operand and if the execution of the operand succeeds, this result is returned. If the operand execution fails, then this expression succeeds and returns `null'.
 
 ```
 'abc'?
 ```
 ___
 
-Наименование: `Zero or more`  
-Оператор:  `*`  
-Число операндов: 1
+Name: `Zero or more`  
+Operator: `*`  
+Number of operands: 1
 
-Циклически выполняет операнд до тех пор, пока выполнение операнда не завершится неуспешно. Во время выполнения помещает результаты выполнения операнда в список. После завершения выполнения цикла выражение завершается успешно и возвращается список результатов.
+Cyclically executes the operand until the execution of the operand fails. During execution, adds the results of the operand execution in a list. After the loop is completed, the expression succeeds and a list of results is returned.
 
 ```
 'abc'*
 ```
 ___
 
-Наименование: `One or more`  
-Оператор:  `+`  
-Число операндов: 1
+Name: `One or more`  
+Operator: `+`  
+Number of operands: 1
 
-Циклически выполняет операнд до тех пор, пока выполнение операнда не завершится неуспешно. Во время выполнения помещает результаты выполнения операнда в список. Если количество элементов в списке результатов не менее 1, то возвращается список результатов.
+Cyclically executes the operand until the execution of the operand fails. During execution, puts the results of the operand execution in a list. If the number of items in the list of results is at least 1, then the list of results is returned.
 
 ```
 'abc'+
 ```
 ___
 
-Наименование: `Repetition`  
-Операторы:  `{min,max}` или `{min,}` или `{,max}` или `{n}`  
-Число операндов: 1
+Name: `Repetition`  
+Operators: `{min,max}` or `{min,}` or `{,max}` or `{n}`  
+Number of operands: 1
 
-Примечание: Использование пробелов в теле оператора (то есть, между `{` и `}`) не допускается и будет приводить к синтаксическим ошибкам.
+Note: The use of spaces in the operator body (i.e., between `{` and `}`) is not allowed and will lead to syntax error.
 
-Пример неправильного использования:
+Example of misuse:
 
 ```
 [0-9A-Zza-Z]{1, 4}
 ```
 
-Оператор `{min,max}`:
+Operator `{min,max}`:
 
-Циклически выполняет операнд не менее `min` и не более `max` раз. Во время выполнения помещает результаты выполнения операнда в список. Если (после завершения цикла) количество элементов в списке результатов не менее `min`, то возвращается список результатов.
+Cyclically executes the operand at least `min` and no more than `max` times. During execution, puts the results of the operand execution in a list. If (after the end of the loop) the number of items in the list of results is at least `min`, then the list of results is returned.
 
 ```
 [0-9A-Zza-Z]{1,4}
 ```
 
-Оператор `{min,}`:
+Operator `{min,}`:
 
-Циклически выполняет операнд не менее `min` раз. Во время выполнения помещает результаты выполнения операнда в список. Если (после завершения цикла) количество элементов в списке результатов не менее `min`, то возвращается список результатов.
+Cyclically executes the operand at least `min` times. During execution, puts the results of the operand execution in a list. If (after the end of the loop) the number of items in the list of results is at least `min`, then the list of results is returned.
 
 ```
 [0-9A-Zza-Z]{2,}
 ```
 
-Оператор `{,max}`:
+Operator `{,max}`:
 
-Циклически выполняет операнд не более `max` раз. Во время выполнения помещает результаты выполнения операнда в список. После завершения выполнения цикла возвращается список результатов.
+Cyclically executes the operand no more than `max` times. During execution, puts the results of the operand execution in a list. After completing the execution of the loop, a list of results is returned.
 
 ```
 [0-9A-Zza-Z]{,4}
 ```
 
-Оператор `{n}`:
+Operator `{n}`:
 
-Циклически выполняет операнд `n` раз. Во время выполнения помещает результаты выполнения операнда в список. Если (после завершения цикла) количество элементов в списке результатов равно `n`, то возвращается список результатов.
+Cyclically executes the operand `n` times. During execution, puts the results of the operand execution in a list. If (after the loop is completed) the number of items in the result list is `n`, then the result list is returned.
 
 ```
 [0-9A-Zza-Z]{4}
 ```
 ___
 
-Наименование: `Literal`  
-Оператор: не используется  
-Операнды: строковое значение, заключенное в одиночные кавычки
+Name: `Literal`  
+Operator: not used  
+Operands: string value enclosed in single quotes
 
-Примечание: Допускается использование пустой строки в качестве операнда. В этом случае выражение всегда завершается успешно, без изменения текущей позиции.
+Note: It is allowed to use an empty string as an operand. In this case, the expression always succeeds, without changing the current position.
 
-Сопоставляет входные данные в текущей позиции со строковым значением. Если сопоставление приходит успешно, то текущая позиция увеличивается на значение длины строкового значения и возвращается это строковое значение.
+Matches the input data at the current position with a string value. If the matching is successful, then the current position is incremented by the length of the string value and this string value is returned.
 
 ```
 'abc'
 ```
 ___
 
-Наименование: `Character class`  
-Оператор: не используется  
-Операнды: диапазоны символов, заключенный между `[` и `]` или `[^` и `]`
+Name: `Character class`  
+Operator: not used  
+Operands is a character ranges enclosed between `[` and `]` or `[^` and `]`
 
-Примечание: Не допускается использование пустого диапазона в качестве операнда.
+Note: It is not allowed to use an empty range as an operand.
 
-Операнд  диапазоны символов, заключенный между `[` и `]`
+Operand: character ranges enclosed between `[` and `]`
 
-Проверяет символ из входных данных в текущей позиции на предмет вхождения в один из указанных диапазонов. Если проверка приходит успешно, то текущая позиция увеличивается на значение длины текущего символа и возвращается текущий символ.
+Checks the character from the input data at the current position for occurrence in one of the specified ranges. If the check is successful, the current position is increased by the length of the current character and the current character is returned.
 
 ```
 [0-9A-Za-z]
 ```
 
-Операнд  диапазоны символов, заключенный между `[^` и `]`
+Operand is a character ranges enclosed between `[^` and `]`
 
-Проверяет символ из входных данных в текущей позиции на предмет невхождения в один из указанных диапазонов. Если проверка приходит успешно, то текущая позиция увеличивается на значение длины текущего символа и возвращается текущий символ.
+Checks the character from the input data at the current position for non-occurrence in one of the specified ranges. If the check is successful, the current position is increased by the length of the current character and the current character is returned.
 
 ```
 [^0-9A-Za-z]
 ```
 ___
 
-Наименование: `Slice`  
-Оператор:  `$`  
-Число операндов: 1
+Name: `Slice`  
+Operator: `$`  
+Number of operands: 1
 
-Выполняет операнд и в случае, если выполнение операнда завершается успешно то возвращается текст, соответствующий начальной и конечной позиции операнда.
+Executes the operand and if the execution of the operand succeeds, the text corresponding to the start and end positions of the operand is returned.
 
 ```
 $([a-z])*
 ```
 ___
 
-Наименование: `Symbol`  
-Оператор:  не используется  
-Операнд: Имя правила
+Name: `Symbol`  
+Operator: not used  
+Operand: Name of the rule
 
-Выполняет операнд (правило, с указанным именем) и возвращает результат выполнения операнда.
+Executes an operand (a rule with the specified name) and returns the result of executing the operand.
 
 ```
 $([a-z])*
 ```
-
 ___
 
-Наименование: `AndPredicate`  
-Оператор:  `&`  
-Число операндов: 1
+Name: `AndPredicate`  
+Operator: `&`  
+Number of operands: 1
 
-Выполняет операнд и, если выполнение операнда завершается успешно, то возвращает результат выполнения операнда. По завершении выполнения операнда данное выражение восстанавливает текущую позицию входных данных (те есть, входные данные не потребляются).
+Executes the operand and, if the execution of the operand succeeds, returns the result of the execution of the operand. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
 
 ```
 &[a-z]+
@@ -281,200 +278,195 @@ ___
 
 ___
 
-Наименование: `NotPredicate`  
-Оператор:  `!`  
-Число операндов: 1
+Name: `NotPredicate`  
+Operator: `!`  
+Number of operands: 1
 
-Выполняет операнд и, если выполнение операнда завершается неуспешно, то возвращает `null`. По завершении выполнения операнда данное выражение восстанавливает текущую позицию входных данных (те есть, входные данные не потребляются).
+Executes the operand and, if the execution of the operand fails, returns `null'. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
 
-```
-![a-z]+
-```
+## Meta expressions
 
-## Мета-выражения
+Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta-expressions extend the grammar with capabilities that are not present in it.  
+From the point of view of grammar, meta-expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
 
-Грамматика разбирающая выражения имеет достаточно обширный набор выражений, которого вполне достаточно для создания сложных грамматик. Но, учитывая тот факт, что грамматика является основой для генерации top-down парсера, существующего набора выражений недостаточно для описания сложного парсера. Мета-выражения, в данном случае, является средством для описания поведения сгенерированного парсера. Мета-выражения дополняют грамматику возможностями, которые  в ней отсутствуют.  
-С точки зрения грамматики, мета-выражения следует рассматривать, как встроенные правила разбора с определенным поведением, которое невозможно реализовать существующими выражениями.
-
-В текущей версии существуют следующие мета-правила.
+The following meta rules exist in the current version.
 - `@errorHandler`
 - `@verify`
 
-Наименование: `@errorHandler`  
-Параметры:
-- Обрабатываемое выражение
-- Исходный код обработчика
+Name: `@ErrorHandler`  
+Parameters:
+- Processed expression
+- Source code of the handler
 
-Мета-выражение `@errorHandler` предназначено для генерации ошибок, определенных разработчиком.  
-Возможности обработчика ошибок позволяют добавлять новые ошибки и/или замещать последние ошибки (то есть, сгенерированные обрабатываемым выражением) другими, более информативными ошибками.  
-Для замещения последних ошибок в теле обработчика доступна локальная функции `replaceLastErrors(List(ParseError) errors)`.  
-Вызов данной функции приводит к тому, что последние ошибки удаляются и одновременно вместо них добавляются указанные ошибки.
+The meta expression `@ErrorHandler` is intended to generate errors defined by the developer.  
+The capabilities of the error handler allow you to add new errors and/or replace the last errors (that is, generated by the processed expression) with other, more informative errors.  
+To replace the last errors in the handler body, a local function `replaceLastErrors(List(ParseError) errors)` is available.  
+Calling this function causes the last errors to be removed and at the same time the specified errors are added instead of them.
 
-**Предупреждение:**
-Код обработчика ошибок не вызывается, если позиция ошибка является неактуальной (то есть, меньше текущей позиции `failPos`, установленной в экземпляре класса `State`).
+**Warning:**  
+The error handler code is not executed if the error position is not actual (that is, less than the current `failPos` position set in an instance of the `State` class).
 
-Пример:
+Example:
 
 ```dart
 HexNumber = @errorHandler(HexNumberRaw, {
-    final errors = [ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number')];
-    replaceLastErrors(errors);
-  }) ;
+final errors = [ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number')];
+replaceLastErrors(errors);
+}) ;
 ```
 
-Наименование: `@verify`  
-Параметры:
-- Обрабатываемое выражение
-- Исходный код обработчика
+Name: `@verify`  
+Parameters:
+- Processed expression
+- Source code of the handler
 
-Мета-выражение `@verify` предназначено для реализации определенных возможностей контекстно-зависимых грамматик.  
-Не смотря на то, что это мета-выражение с первого взгляда выглядит, как зависимое от обрабатываемого выражения, тем не менее оно может быть использовано и как самостоятельное выражение, в случае использование обрабатываемого выражения, которое всегда завершается успешно.  
-В чем смысл вышеуказанного утверждения?
-Как следует из наименования указанного мета-выражения, оно верифицирует результат обрабатываемого выражения.  
-В случае, если обрабатываемое выражение завершается неуспешно, то обработчик-верификатор не выполняется.  
-Если обрабатываемое выражение завершается успешно, то обработчик-верификатор выполняет две функции:
-- Верифицирует значение результата обрабатываемого выражения
-- Либо ничего не делает, либо генерирует ошибку, исходя из результатов верификации
+The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
+Despite the fact that this meta-expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
+What is the meaning of the above statement?  
+As follows from the name of the specified meta-expression, it verifies the result of the processed expression.  
+If the processed expression fails, the verifier handler is not executed.  
+If the processed expression succeeds, then the verifier handler performs two functions:  
+- Verifies the value of the result of the processed expression
+- Either does nothing, or generates an error based on the verification results
 
-Данное мета-выражение позволяет достаточно просто решать задачи, возникающие пр создании контекстно-зависимых грамматик.  
-В качестве выражения, которое всегда завершается успешно рекомендуется использовать пустой `Literal`.  
-При это в качестве данных для верификации можно использовать любые доступные данные (например, пользовательские настройки парсера, реализованные разработчиком).
+This meta-expression allows you to simply solve the problems that arise when creating context-dependent grammars.  
+It is recommended to use an empty `Literal` as an expression that always succeeds.  
+At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).  
 
-Пример верификации результата:
+Example of result verification:
 
 ```
 Verify41 = @verify(Integer, {
-    if ($$ != 41) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
-  }) ;
+if ($$ != 41) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+}) ;
 ```
 
-Пример верификации конфигурации парсера:
+Example of parser configuration verification:
 
 ```
 VerifyFlag = @verify('', {
-    if (!flag) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
-  }) ;
+if (!flag) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+}) ;
 ```
 
-## Семантические переменные и акции
+## Semantic variables and actions
 
-В данной реализации генератора парсеров PEG наиболее сложным выражением (для генерации) принято считать выражение `Sequence`.
+In this implementation of the PEG parser generator, the most complex expression (for generation) is considered to be the expression `Sequence`.
 
-Данное выражение (условно) разделяются на два типа:
-- Последовательности выражений с одним выражением
-- Последовательности выражений с более чем одним выражением
+This expression is (conditionally) divided into two types:
+- Sequences of expressions with one expression
+- Sequences of expressions with more than one expression
 
-Возникает вполне закономерный вопрос: "Почему последовательность выражений с одним выражением является последовательностью?".  
-Краткий ответ на этот вопрос может звучать примерно так: "Потому что в текущей реализации только последовательность может иметь семантическую акцию".  
+A quite natural question arises: "Why is a sequence of expressions with one expression a sequence?".  
+The short answer to this question may sound something like this: "Because in the current implementation, only a sequence can have a semantic action."
 
-И, поскольку, семантическая акция, в этом случае, не рассматривается, как самостоятельное выражение, то это позволяет сделать семантические акции полноценным аналогом функции `map`, с указанием типа возвращаемого результата.  
-Одновременно это позволяет реализовать вложенные выражения проще, за счет простого `mapping`.
+And, since the semantic action, in this case, is not considered as an independent expression, this allows us to make semantic actions a full-fledged analogue of the `map` function, indicating the type of the returned result if required.  
+At the same time, this makes it easier to implement nested expressions, due to simple `mapping`.
 
-Прежде чем объяснить принципы работы семантических переменных и акций, хотелось бы, объяснить принципы формирования результатов выполнения выражений `Sequence`.
+Before explaining the principles of semantic variables and actions, it is necessary to explain to explain the principles of forming the results of executing `Sequence` expressions.
 
-В случае, если последовательность состоит из одного элемента, то в качестве результата возвращается результат выполнения этого элемента.  
+If the sequence consists of one element, then the result of executing this element is returned as a result.
 
-Пример:
+Example:
 
 ```
 A = 'abc';
 ```
 
-Тип возвращаемого значения `String`, значение - 'abc'.
+The type of the returned value is `String`, the value is 'abc'.
 
-В случае, если последовательность состоит из более чем одного элемента, то в качестве результата возвращается значение с типом `Record`, в котором в качестве (безымянных) полей используется результаты элементов.
+If the sequence consists of more than one element, then a value with the `Record` type is returned as a result, in which the results of the elements are used as (unnamed) fields.
 
-Пример:
+Example:
 
 ```
 A = 'abc' 'def';
 ```
 
-Тип возвращаемого значения `(String, String)`, значение - ('abc', 'def').
+The return value type is `(String, String)`, the value is ('abc', 'def').
 
-Семантические переменные позволяют обозначить используемые результаты и назначить им имена.
+Semantic variables allow you to designate the results used and assign names to them.
 
-Пример:
+Example:
 
 ```
 A = a:'abc';
 ```
 
-Тип возвращаемого значения `String`, значение - 'abc'.  
-Использование семантической переменной, в данном случае, не влияет не тип результата, потому что последовательность, для формирования результата, содержит один элемент.
+The type of the returned value is `String`, the value is 'abc'.  
+The use of a semantic variable, in this case, does not affect the type of result, because the sequence for forming the result contains one element.
 
-Пример:
+Example:
 
 ```
 A = a:'abc' b:'def';
 ```
 
-Тип возвращаемого значения `(String a, String b)`, значение - (a: 'abc', b: 'def').
+The return value type is `(String a, String b)`, the value is (a: 'abc', b: 'def').
 
 ```
 A = OpenBrace v:Value CloseBrace';
 ```
 
-Тип возвращаемого значения определяется типом возвращаемого значения выражением `Value`.  
-Использование одной семантической переменной, в данном случае, указывает на то, что последовательность, для формирования результата, содержит один элемент.
+The type of the returned value is determined by the type of the returned value by the expression `Value`.  
+The use of one semantic variable, in this case, indicates that the sequence, for the formation of the result, contains one element.
 
-Семантические акции, как было указно выше, играют роль функций `map` и используется для формирования результата из последовательности выражений. Использование семантических переменных,в данном случае, определяется реализуемой логикой работы последовательности.   
+Semantic actions, as mentioned above, play the role of `map` functions and are used to form a result from a sequence of expressions. The use of semantic variables, in this case, is determined by the implemented logic of the sequence.
 
-Пример использования семантической акции без переменных:
+Example of using a semantic action without variables:
 
 ```
 bool
 False = 'false' Spaces { $$ = false; } ;
 ```
 
-Поскольку в вышеуказанном примере нет необходимости в использовании переменных, то они и не используются.
+Since there is no need to use variables in the above example, they are not used.
 
-Пример использования семантической акции с переменных:
+Example of using a semantic action with variables:
 
 ```
 MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 ```
 
-В вышеуказанном примере, в семантической акции используются переменные для формирования конечного результата, что, по своей сути, работает аналогично функции функции `map(KeyType k, ValueType v)`.
+In the above example, the semantic action uses variables to form the final result, which, in essence, works similarly to the function of the function `map(KeyType k, ValueType v)`.
 
-Также, при использовании семантических акций, можно использовать тип результата значения семантических акций.
+Also, when using semantic shares, you can use the result type of the semantic shares value.
 
-Пример использования семантической акции с указанием типа результата:
+Example of using a semantic action with an indication of the type of result:
 
 ```
 KeyValue = k:Key Colon v:Value <MapEntry<String, Object?>>{ $$ = MapEntry(k, v); };
 ```
 
-## Метаданные
+## Metadata
 
-Метаданные - это инструкции для генератора. Метаданные не являются обязательными.  
-Метаданные можно указывать при объявлении правил, указывая их перед наименование правила.  
+Metadata is instructions for the generator. Metadata is optional.  
+Metadata can be specified when declaring rules by specifying them before the name of the rule.
 
-
-Примеры указания метаданных.
+Examples of specifying metadata.
 
 ```
 @inline
 Foo = 'foo' ;
 ```
 
-В текущей версии поддерживаются следующие инструкции:
+The following instructions are supported in the current version:
 - @event
 - @inline
 - @memoize
 
-Инструкция `@event` позволяет указать генератору о том, что для данного правила, при разборе данных, необходимо осуществлять вывоз методов `beginEvent` и `endEvent.` Вызов этих методов фактически позволяет осуществить `Event-based parsing`.
+The `@event` instruction indicates to the generator that for this rule, when parsing data, it is necessary to call the `beginEvent` and `endEvent` methods. Calling these methods actually allows for `Event-based parsing`.
 
-Инструкция `@inline` позволяет указать генератору о том, что исходный код данного правила не должен создавать отдельный метод в классе парсера и должен быть сгенерирован в виде кода, встроенного в метод, который вызывает данное правило.
+The `@inline` instruction indicates to the generator that the source code of this production rule should not create a separate method in the parser class and should be generated as code embedded in the method that calls this rule.
 
-Инструкция `@memoize` в текущей версии не реализована.
+The `@memoize` instruction is not implemented in the current version.
 
-## Оптимизация генерируемого кода
+## Optimization of generated code
 
-Генератор парсера распознает определенные шаблоны выражений и способен генерировать более эффективный код для данных шаблонов выражение.
+The parser generator recognizes certain expression patterns and is able to generate more efficient code for these expression patterns.
 
-Ниже представлены список шаблонов.
+Below is a list of patterns.
 
 ```
 (!'some literal' .)*
@@ -485,13 +477,13 @@ ___
 ('foo' / 'bar' / 'baz' )
 ```
 
-## Фрагменты кода (code snippets)
+## Code snippets
 
 `CheckCondition`
 
 ```
 CheckCondition = @verify('', {
-    if (!condition) { state.failAt(state.failPos, ErrorMessage(0, 'Some error message')); }
+if (!condition) { state.failAt(state.failPos, ErrorMessage(0, 'Some error message')); }
 });
 ```
 ___
@@ -514,7 +506,7 @@ ___
 
 ```
 List<ElemType>
-SeparatedList =  v:(h:Elem t:(Sep v:Elem)* { $$ = [h, ...t]; })? { $$ = v ?? []; } ;
+SeparatedList = v:(h:Elem t:(Sep v:Elem)* { $$ = [h, ...t]; })? { $$ = v ?? []; } ;
 ```
 ___
 
@@ -551,85 +543,81 @@ ___
 
 ```
 Verify = @verify(Integer, {
-    if ($$ > 0xff) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'Some error message')); }
+if ($$ > 0xff) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'Some error message')); }
 });
 ```
 
-## Примеры парсеров
+## Examples of parsers
 
-Список примеров парсеров:  
-CSV парсер
-https://github.com/mezoni/peg/blob/main/example/csv_parser.peg
+List of parser examples:
+[CSV parser](https://github.com/mezoni/peg/blob/main/example/csv_parser.peg)  
+[Calc parser](https://github.com/mezoni/peg/blob/main/example/calc_parser.peg)  
+[JSON parser](https://github.com/mezoni/peg/blob/main/example/json_parser.peg)  
 
-Calc парсер
-https://github.com/mezoni/peg/blob/main/example/calc_parser.peg
+## How to parse?
 
-JSON парсер
-https://github.com/mezoni/peg/blob/main/example/json_parser.peg
+The generated parser classes do not contain anything superfluous except the rules and class members defined by the developer.  
+For the convenience of working with parser classes, it is proposed to use functions for data parsing.  
+These are top-level functions and they are also in the parser library file.  
+These are not generated functions, but they are universal functions.  
 
-## Как осуществлять разбор?
+Below is a list of these functions.
 
-Сгенерированные классы парсеров не содержат ничего лишнего кроме правил и членов класса, определенных разработчиком.  
-Для удобства работы с классами парсеров предлагается использовать функции для разбора данных.  
-Эти функции верхнего уровня и они также находятся в файле библиотеки парсера.  
-Это не сгенерированные функции, но они являются универсальными функциями.  
-Ниже представлен перечень этих функций.
+Name: `parseString`  
+Purpose: Calls the specified parsing function for the specified string and throws a `FormatException` if parsing fails. If parsing is successful, returns the result.  
 
-Имя: `parseString`
-Назначение: Вызывает указанную функцию разбора для указанной строки и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения разбора возвращает результат.
-
-Пример использования:
+Usage example:
 
 ```dart
-  const source = '1 + 2 * 3';
-  final parser = CalcParser();
-  final result = parseString(parser.parseStart, source);
-  print(result);
+   const source = '1 + 2 * 3';
+   final parser = CalcParser();
+   final result = parseString(parser.parseStart, source);
+   print(result);
 ```
 
-Имя: `fastParseString`  
-Назначение: Вызывает указанную функцию разбора для указанной строки и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения не возвращает никакого результата.
+Name: `fastParseString`  
+Purpose: Calls the specified fast parsing function for the specified string and throws a `FormatException` if parsing fails. If successful, returns no result.
 
-Пример использования:
+Usage example:
 
 ```dart
-  const source = '1 + 2 * 3';
-  final parser = CalcParser();
-  fastParseString(parser.fastParseSpaces, source);
+   const source = '1 + 2 * 3';
+   final parser = CalcParser();
+   fastParseString(parser.fastParseSpaces, source);
 ```
 
-Имя: `parseInput`  
-Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и в случае неудачного завершения разбора выбрасывает исключение `FormatException`. В случае удачного завершения разбора возвращает результат.
+Name: `parseInput`  
+Purpose: Calls the specified parsing function on the specified input source and throws a `FormatException` if parsing fails. If parsing is successful, returns the result.
 
-Пример использования:
+Usage example:
 
 ```dart
-  const source = '1 + 2 * 3';
-  final input = StringReader(source);
-  final parser = CalcParser();
-  parseInput(parser.parseStart, input);
+   const source = '1 + 2 * 3';
+   final input = StringReader(source);
+   final parser = CalcParser();
+   parseInput(parser.parseStart, input);
 ```
 
-Имя: `tryParse`  
-Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и возвращает значение `ParseResult`.
+Name: `tryParse`  
+Purpose: Calls the specified parse function on the specified input source and returns a `ParseResult` value.
 
-Пример использования:
+Usage example:
 
 ```dart
-  const source = '1 + 2 * 3';
-  final input = StringReader(source);
-  final parser = CalcParser();
-  final result = tryParse(parser.parseSpaces, input);
+   const source = '1 + 2 * 3';
+   final input = StringReader(source);
+   final parser = CalcParser();
+   final result = tryParse(parser.parseSpaces, input);
 ```
 
-Имя: `tryFastParse`  
-Назначение: Вызывает указанную функцию разбора для указанного источника входных данных и возвращает значение `ParseResult`.
+Name: `tryFastParse`  
+Purpose: Calls the specified parse function on the specified input source and returns a `ParseResult` value.
 
-Пример использования:
+Usage example:
 
 ```dart
-  const source = '1 + 2 * 3';
-  final input = StringReader(source);
-  final parser = CalcParser();
-  final result = tryFastParse(parser.fastParseSpaces, input);
+   const source = '1 + 2 * 3';
+   final input = StringReader(source);
+   final parser = CalcParser();
+   final result = tryFastParse(parser.fastParseSpaces, input);
 ```
