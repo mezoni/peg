@@ -2,7 +2,8 @@ import '../expressions/expression.dart';
 import 'expression_generator.dart';
 
 class VerifyGenerator extends ExpressionGenerator<VerifyExpression> {
-  static const _template = r'''
+  static const _template =
+      r'''
 final {{pos}} = state.pos;
 {{p}}
 if (state.ok) {

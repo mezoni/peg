@@ -17,10 +17,10 @@ if (!state.ok) {
 
   @override
   String generate() {
-    final expressions = expression.expressions;
-    if (expressions.isEmpty) {
+    final children = expression.expressions;
+    if (children.isEmpty) {
       throw StateError(
-          'Sequence expression must not be empty\n$expression\n$rule');
+          'List of expressions must not be empty\n$expression\n$rule');
     }
 
     final optimized = _optimize();
@@ -30,15 +30,15 @@ if (!state.ok) {
 
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
-      for (final child in expressions) {
+      for (final child in children) {
         ruleGenerator.setExpressionVariable(child, variable);
       }
     }
 
     String plunge(int i) {
       final values = <String, String>{};
-      final child = expressions[i];
-      if (i < expressions.length - 1) {
+      final child = children[i];
+      if (i < children.length - 1) {
         values['next'] = plunge(i + 1);
         values['p'] = generateExpression(child, false);
         return render(_templateNext, values);

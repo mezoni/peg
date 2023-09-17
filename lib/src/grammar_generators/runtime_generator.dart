@@ -290,6 +290,12 @@ ParseResult<I, O> _parse<I, O>(
   );
 }
 
+abstract interface class ByteReader {
+  int get length;
+
+  int readByte(int offset);
+}
+
 abstract class ChunkedData<T> implements Sink<T> {
   void Function()? handler;
 
@@ -879,7 +885,9 @@ extension on String {
     }
     return w1;
   }
-}''';
+}
+
+''';
 
   String generate() {
     return _template;

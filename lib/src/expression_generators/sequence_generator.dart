@@ -41,8 +41,13 @@ if (state.ok) {
 
   @override
   String generate() {
-    final values = <String, String>{};
     final children = expression.expressions;
+    if (children.isEmpty) {
+      throw StateError(
+          'List of expressions must not be empty\n$expression\n$rule');
+    }
+
+    final values = <String, String>{};
     values['pos'] = allocateName();
     final variable = ruleGenerator.getExpressionVariable(expression);
     final action = expression.action;

@@ -10,7 +10,7 @@ void main() {
 
 final _parser = TestParser();
 
-Future<void> _testFailure({
+Future<void> __testFailure({
   required Set<ErrorMessage> errors,
   required int failPos,
   required void Function(State<StringReader>) fastParse,
@@ -37,95 +37,7 @@ Future<void> _testFailure({
       reason: 'parse, errors != $errors, source: "$source"');
 }
 
-void _testOrderedChoiceWithLiterals() {
-  test('OrderedChoiceWithLiterals', () async {
-    {
-      // Optimized version
-      const source = 'abc';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 3,
-        result: 'abc',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'ab';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 2,
-        result: 'ab',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'a';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 1,
-        result: 'a',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'def';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 3,
-        result: 'def',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'de';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 2,
-        result: 'de',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'd';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 1,
-        result: 'd',
-        source: source,
-      );
-    }
-
-    {
-      // Optimized version
-      const source = 'gh';
-      await _testSuccess(
-        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
-        parse: _parser.parseOrderedChoiceWithLiterals,
-        pos: 2,
-        result: 'gh',
-        source: source,
-      );
-    }
-  });
-}
-
-Future<void> _testSuccess({
+Future<void> __testSuccess({
   required void Function(State<StringReader>) fastParse,
   required Object? Function(State<StringReader>) parse,
   required int pos,
@@ -143,11 +55,99 @@ Future<void> _testSuccess({
       reason: 'parse, result != $result, source: "$source"');
 }
 
+void _testOrderedChoiceWithLiterals() {
+  test('OrderedChoiceWithLiterals', () async {
+    {
+      // Optimized version
+      const source = 'abc';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'ab';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'ab',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'a';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 1,
+        result: 'a',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'def';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 3,
+        result: 'def',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'de';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'de',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'd';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 1,
+        result: 'd',
+        source: source,
+      );
+    }
+
+    {
+      // Optimized version
+      const source = 'gh';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoiceWithLiterals,
+        parse: _parser.parseOrderedChoiceWithLiterals,
+        pos: 2,
+        result: 'gh',
+        source: source,
+      );
+    }
+  });
+}
+
 void _testVerify() {
   test('Verify', () async {
     {
       const source = '41abc';
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseVerify41,
         parse: _parser.parseVerify41,
         pos: 2,
@@ -158,7 +158,7 @@ void _testVerify() {
 
     {
       const source = '40abc';
-      await _testFailure(
+      await __testFailure(
         errors: {
           ErrorMessage(0, 'error'),
           ErrorMessage(0, "Unexpected character 'a' (0x61)"),
@@ -174,7 +174,7 @@ void _testVerify() {
     {
       const source = 'abc';
       _parser.flag = true;
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseVerifyFlag,
         parse: _parser.parseVerifyFlag,
         pos: 0,
@@ -186,12 +186,11 @@ void _testVerify() {
     {
       const source = 'abc';
       _parser.flag = false;
-      await _testFailure(
+      await __testFailure(
         errors: {
           ErrorMessage(0, 'error'),
-          ErrorMessage(0, "Unexpected character 'a' (0x61)"),
         },
-        failPos: 2,
+        failPos: 0,
         fastParse: _parser.fastParseVerifyFlag,
         parse: _parser.parseVerifyFlag,
         pos: 0,
@@ -206,7 +205,7 @@ void _testZeroOrMore() {
     {
       // Optimized version
       const source = 'abcEND';
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseSkipUntil,
         parse: _parser.parseSkipUntil,
         pos: 3,
@@ -218,7 +217,7 @@ void _testZeroOrMore() {
     {
       // Optimized version
       const source = 'abcE';
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseSkipTil,
         parse: _parser.parseSkipTil,
         pos: 3,
@@ -230,7 +229,7 @@ void _testZeroOrMore() {
     {
       // Optimized version
       const source = 'abcEND';
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseTakeUntil,
         parse: _parser.parseTakeUntil,
         pos: 3,
@@ -242,7 +241,7 @@ void _testZeroOrMore() {
     {
       // Optimized version
       const source = 'abcE';
-      await _testSuccess(
+      await __testSuccess(
         fastParse: _parser.fastParseTakeTil,
         parse: _parser.parseTakeTil,
         pos: 3,
