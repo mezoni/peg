@@ -73,6 +73,10 @@ if (!state.ok) {
         return null;
       }
 
+      if (!literal.caseSensitive) {
+        return null;
+      }
+
       final string = literal.string;
       if (string.isEmpty) {
         return null;
