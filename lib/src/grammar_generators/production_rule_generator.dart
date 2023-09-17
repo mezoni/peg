@@ -126,13 +126,6 @@ void {{name}}(State<StringReader> state) {
   }
 
   @override
-  String visitAndPredicateAction(AndPredicateActionExpression node) {
-    final generator =
-        AndPredicateActionGenerator(expression: node, ruleGenerator: this);
-    return _generate(generator);
-  }
-
-  @override
   String visitAnyCharacter(AnyCharacterExpression node) {
     final generator =
         AnyCharacterGenerator(expression: node, ruleGenerator: this);

@@ -5,8 +5,6 @@ export '../expressions/expressions.dart';
 abstract class ExpressionVisitor<T> {
   T visitAndPredicate(AndPredicateExpression node);
 
-  T visitAndPredicateAction(AndPredicateActionExpression node);
-
   T visitAnyCharacter(AnyCharacterExpression node);
 
   T visitCharacterClass(CharacterClassExpression node);
@@ -41,11 +39,6 @@ abstract class ExpressionVisitor<T> {
 mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
   @override
   T visitAndPredicate(AndPredicateExpression node) {
-    return visitNode(node);
-  }
-
-  @override
-  T visitAndPredicateAction(AndPredicateActionExpression node) {
     return visitNode(node);
   }
 

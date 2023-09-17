@@ -151,9 +151,7 @@ SemanticAction
 Action = t:(Less v:Type Greater)? b:Block { $$ = SemanticAction(source: b, resultType: t); } ;
 
 Expression
-Prefix =
-    AndPredicateAction
-  / p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
+Prefix = p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
 
 Expression
 Suffix = p:Primary s:(
@@ -172,9 +170,6 @@ Primary =
   / Group
   / ErrorHandler
   / Verify ;
-
-Expression
-AndPredicateAction = '&{' a:$BlockBody* CloseBrace  { $$ = AndPredicateActionExpression(action: a); } ;
 
 Expression
 AnyCharacter = Dot { $$ = AnyCharacterExpression(); };

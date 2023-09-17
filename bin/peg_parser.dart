@@ -925,49 +925,42 @@ class PegParser {
 
   Expression? parsePrefix(State<StringReader> state) {
     Expression? $0;
-    // AndPredicateAction
-    $0 = parseAndPredicateAction(state);
+    // p:(Dollar / Ampersand / Exclamation)? s:Suffix
+    final $1 = state.pos;
+    String? $2;
+    // Dollar
+    $2 = parseDollar(state);
     if (state.ok) {
-      $0 = $0;
+      $2 = $2;
     }
     if (!state.ok) {
-      // p:(Dollar / Ampersand / Exclamation)? s:Suffix
-      final $1 = state.pos;
-      String? $2;
-      // Dollar
-      $2 = parseDollar(state);
+      // Ampersand
+      $2 = parseAmpersand(state);
       if (state.ok) {
         $2 = $2;
       }
       if (!state.ok) {
-        // Ampersand
-        $2 = parseAmpersand(state);
+        // Exclamation
+        $2 = parseExclamation(state);
         if (state.ok) {
           $2 = $2;
         }
-        if (!state.ok) {
-          // Exclamation
-          $2 = parseExclamation(state);
-          if (state.ok) {
-            $2 = $2;
-          }
-        }
       }
-      state.ok = true;
+    }
+    state.ok = true;
+    if (state.ok) {
+      Expression? $3;
+      $3 = parseSuffix(state);
       if (state.ok) {
-        Expression? $3;
-        $3 = parseSuffix(state);
-        if (state.ok) {
-          Expression? $$;
-          final p = $2;
-          final s = $3!;
-          $$ = _buildPrefix(p, s);
-          $0 = $$;
-        }
+        Expression? $$;
+        final p = $2;
+        final s = $3!;
+        $$ = _buildPrefix(p, s);
+        $0 = $$;
       }
-      if (!state.ok) {
-        state.pos = $1;
-      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
     }
     return $0;
   }
@@ -1892,41 +1885,6 @@ class PegParser {
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  Expression? parseAndPredicateAction(State<StringReader> state) {
-    Expression? $0;
-    // '&{' a:$BlockBody* CloseBrace
-    final $1 = state.pos;
-    const $3 = '&{';
-    matchLiteral(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      String? $2;
-      final $4 = state.pos;
-      while (true) {
-        fastParseBlockBody(state);
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-      }
-      if (state.ok) {
-        $2 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        fastParseCloseBrace(state);
-        if (state.ok) {
-          Expression? $$;
-          final a = $2!;
-          $$ = AndPredicateActionExpression(action: a);
-          $0 = $$;
-        }
       }
     }
     if (!state.ok) {

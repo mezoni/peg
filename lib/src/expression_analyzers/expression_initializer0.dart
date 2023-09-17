@@ -39,11 +39,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitAndPredicateAction(AndPredicateActionExpression node) {
-    _initializeNode(node);
-  }
-
-  @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     _initializeNode(node);
   }
