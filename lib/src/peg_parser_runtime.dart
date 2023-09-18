@@ -867,7 +867,7 @@ class _StringReader implements StringReader {
   }
 }
 
-extension on String {
+extension StringExt on String {
   @pragma('vm:prefer-inline')
   // ignore: unused_element
   int runeAt(int index) {

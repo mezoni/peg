@@ -41,7 +41,7 @@ class Utf8Reader implements StringReader {
       return start;
     }
 
-    final first = string.codeUnitAt(0);
+    final first = string.runeAt(0);
     var readDataSize = 0;
     var index = start;
     while (index < length) {

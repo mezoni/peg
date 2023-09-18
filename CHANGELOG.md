@@ -1,3 +1,7 @@
+## 1.0.15
+
+- Fixed a bug in the implementation of `Utf8Reader.indexOf()`.
+
 ## 1.0.14
 
 - The files `README.md` and `CHANGELOG.md` have been translated into English.
