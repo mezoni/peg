@@ -64,6 +64,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitMatchString(MatchStringExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitNotPredicate(NotPredicateExpression node) {
     _initializeNode(node);
   }

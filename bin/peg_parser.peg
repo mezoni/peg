@@ -169,6 +169,7 @@ Primary =
   / AnyCharacter
   / Group
   / ErrorHandler
+  / MatchString
   / Verify ;
 
 Expression
@@ -189,6 +190,9 @@ Literal =
 
 Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
+
+Expression
+MatchString = '@matchString' OpenParenthesis b:Block CloseParenthesis { $$ = MatchStringExpression(string: b); } ;
 
 Expression
 ErrorHandler = '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;

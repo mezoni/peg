@@ -66,6 +66,12 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitMatchString(MatchStringExpression node) {
+    node.visitChildren(this);
+    _setResultType(node, GenericType(name: 'String'));
+  }
+
+  @override
   void visitNotPredicate(NotPredicateExpression node) {
     node.visitChildren(this);
     _setResultType(node, _nullableObjectType);

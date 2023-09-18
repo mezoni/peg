@@ -2,10 +2,13 @@
 
 bool flag = false;
 
+String text = '';
+
 %%
 
 Start =
-    (v:SkipUntil SkipUntil)
+    (v:MatchString MatchString)
+  / (v:SkipUntil SkipUntil)
   / (v:SkipTil SkipTil)
   / (v:TakeUntil TakeUntil)
   / (v:TakeTil TakeTil)
@@ -17,6 +20,8 @@ Start =
 
 int
 Integer = v:$[0-9]+ <int>{ $$ = int.parse(v); } ;
+
+MatchString = @matchString({ text });
 
 OrderedChoiceWithLiterals =
     'abc'

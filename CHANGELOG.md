@@ -1,6 +1,7 @@
 ## 1.0.15
 
 - Fixed a bug in the implementation of `Utf8Reader.indexOf()`.
+- Added `@matchString` meta expression.
 
 ## 1.0.14
 

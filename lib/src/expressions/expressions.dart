@@ -5,6 +5,7 @@ export 'error_handler_expression.dart';
 export 'expression.dart';
 export 'group_expression.dart';
 export 'literal_expression.dart';
+export 'match_string_expression.dart';
 export 'not_predicate_expression.dart';
 export 'one_or_more_expression.dart';
 export 'optional_expression.dart';

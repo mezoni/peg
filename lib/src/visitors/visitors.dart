@@ -15,6 +15,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitLiteral(LiteralExpression node);
 
+  T visitMatchString(MatchStringExpression node);
+
   T visitNotPredicate(NotPredicateExpression node);
 
   T visitOneOrMore(OneOrMoreExpression node);
@@ -64,6 +66,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitLiteral(LiteralExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitMatchString(MatchStringExpression node) {
     return visitNode(node);
   }
 

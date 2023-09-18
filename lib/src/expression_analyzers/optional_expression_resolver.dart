@@ -51,6 +51,11 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitMatchString(MatchStringExpression node) {
+    _setIsOptional(node, false);
+  }
+
+  @override
   void visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     child.accept(this);

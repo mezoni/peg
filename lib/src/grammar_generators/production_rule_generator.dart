@@ -5,22 +5,19 @@ import '../helper.dart' as helper;
 import '../visitors/visitors.dart';
 
 class ProductionRuleGenerator extends ExpressionVisitor<String> {
-  static const _template =
-      '''
+  static const _template = '''
 {{type}} {{name}}(State<StringReader> state) {
   {{type}} {{r}};
   {{expression}}
   return {{r}};
 }''';
 
-  static const _templateNoResult =
-      '''
+  static const _templateNoResult = '''
 void {{name}}(State<StringReader> state) {
   {{expression}}
 }''';
 
-  static const _templateWithEvent =
-      '''
+  static const _templateWithEvent = '''
 {{type}} {{name}}(State<StringReader> state) {
   beginEvent({{event}});
   {{type}} {{r}};
@@ -29,8 +26,7 @@ void {{name}}(State<StringReader> state) {
   return {{r}};
 }''';
 
-  static const _templateWithEventNoResult =
-      '''
+  static const _templateWithEventNoResult = '''
 void {{name}}(State<StringReader> state) {
   beginEvent({{event}});
   {{expression}}
@@ -232,5 +228,12 @@ void {{name}}(State<StringReader> state) {
 
   String _generate(ExpressionGenerator generator) {
     return generator.generate();
+  }
+
+  @override
+  String visitMatchString(MatchStringExpression node) {
+    final generator =
+        MatchStringGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
   }
 }

@@ -1126,10 +1126,17 @@ class PegParser {
                   $0 = $0;
                 }
                 if (!state.ok) {
-                  // Verify
-                  $0 = parseVerify(state);
+                  // MatchString
+                  $0 = parseMatchString(state);
                   if (state.ok) {
                     $0 = $0;
+                  }
+                  if (!state.ok) {
+                    // Verify
+                    $0 = parseVerify(state);
+                    if (state.ok) {
+                      $0 = $0;
+                    }
                   }
                 }
               }
@@ -1266,6 +1273,34 @@ class PegParser {
     if (!state.ok) {
       state.pos = $0;
     }
+  }
+
+  Expression? parseMatchString(State<StringReader> state) {
+    Expression? $0;
+    // '@matchString' OpenParenthesis b:Block CloseParenthesis
+    final $1 = state.pos;
+    const $3 = '@matchString';
+    matchLiteral(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      fastParseOpenParenthesis(state);
+      if (state.ok) {
+        String? $2;
+        $2 = parseBlock(state);
+        if (state.ok) {
+          fastParseCloseParenthesis(state);
+          if (state.ok) {
+            Expression? $$;
+            final b = $2!;
+            $$ = MatchStringExpression(string: b);
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
   }
 
   Expression? parseErrorHandler(State<StringReader> state) {
@@ -2649,6 +2684,12 @@ ParseResult<I, O> _parse<I, O>(
   );
 }
 
+abstract interface class ByteReader {
+  int get length;
+
+  int readByte(int offset);
+}
+
 abstract class ChunkedData<T> implements Sink<T> {
   void Function()? handler;
 
@@ -3222,7 +3263,7 @@ class _StringReader implements StringReader {
   }
 }
 
-extension on String {
+extension StringExt on String {
   @pragma('vm:prefer-inline')
   // ignore: unused_element
   int runeAt(int index) {

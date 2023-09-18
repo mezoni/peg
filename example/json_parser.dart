@@ -1119,6 +1119,12 @@ ParseResult<I, O> _parse<I, O>(
   );
 }
 
+abstract interface class ByteReader {
+  int get length;
+
+  int readByte(int offset);
+}
+
 abstract class ChunkedData<T> implements Sink<T> {
   void Function()? handler;
 
@@ -1692,7 +1698,7 @@ class _StringReader implements StringReader {
   }
 }
 
-extension on String {
+extension StringExt on String {
   @pragma('vm:prefer-inline')
   // ignore: unused_element
   int runeAt(int index) {

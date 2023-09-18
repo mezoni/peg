@@ -5,6 +5,7 @@ export 'error_handler_generator.dart';
 export 'expression_generator.dart';
 export 'group_generator.dart';
 export 'literal_generator.dart';
+export 'match_string_generator.dart';
 export 'not_predicate_generator.dart';
 export 'one_or_more_generator.dart';
 export 'optional_generator.dart';

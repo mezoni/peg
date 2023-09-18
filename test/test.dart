@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 import 'test_parser.dart';
 
 void main() {
+  _testMatchString();
   _testOrderedChoiceWithLiterals();
   _testVerify();
   _testZeroOrMore();
@@ -53,6 +54,61 @@ Future<void> __testSuccess({
   expect(r2.pos, pos, reason: 'parse, pos != $pos, source: "$source"');
   expect(r2.result, result,
       reason: 'parse, result != $result, source: "$source"');
+}
+
+void _testMatchString() {
+  test('MatchString', () async {
+    {
+      const source = 'abc123';
+      _parser.text = 'abc';
+      await __testSuccess(
+        fastParse: _parser.fastParseMatchString,
+        parse: _parser.parseMatchString,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'abc123';
+      _parser.text = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseMatchString,
+        parse: _parser.parseMatchString,
+        pos: 0,
+        result: '',
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      _parser.text = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseMatchString,
+        parse: _parser.parseMatchString,
+        pos: 0,
+        result: '',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'abc';
+      _parser.text = '123';
+      await __testFailure(
+        errors: {
+          ErrorMessage(0, "Expected: '123'"),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseMatchString,
+        parse: _parser.parseMatchString,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
 }
 
 void _testOrderedChoiceWithLiterals() {

@@ -7,7 +7,7 @@ class LiteralExpression extends Expression {
   final String string;
 
   LiteralExpression({
-    this.caseSensitive = false,
+    this.caseSensitive = true,
     required this.string,
   });
 

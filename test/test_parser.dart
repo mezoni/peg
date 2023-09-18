@@ -1,93 +1,95 @@
 class TestParser {
   bool flag = false;
 
+  String text = '';
+
   Object? parseStart(State<StringReader> state) {
     Object? $0;
-    // (v:SkipUntil SkipUntil)
-    // v:SkipUntil SkipUntil
-    final $23 = state.pos;
-    List<int>? $24;
-    $24 = parseSkipUntil(state);
+    // (v:MatchString MatchString)
+    // v:MatchString MatchString
+    final $26 = state.pos;
+    String? $27;
+    $27 = parseMatchString(state);
     if (state.ok) {
-      fastParseSkipUntil(state);
+      fastParseMatchString(state);
       if (state.ok) {
-        $0 = $24;
+        $0 = $27;
       }
     }
     if (!state.ok) {
-      state.pos = $23;
+      state.pos = $26;
     }
     if (state.ok) {
       $0 = $0;
     }
     if (!state.ok) {
-      // (v:SkipTil SkipTil)
-      // v:SkipTil SkipTil
-      final $20 = state.pos;
-      List<int>? $21;
-      $21 = parseSkipTil(state);
+      // (v:SkipUntil SkipUntil)
+      // v:SkipUntil SkipUntil
+      final $23 = state.pos;
+      List<int>? $24;
+      $24 = parseSkipUntil(state);
       if (state.ok) {
-        fastParseSkipTil(state);
+        fastParseSkipUntil(state);
         if (state.ok) {
-          $0 = $21;
+          $0 = $24;
         }
       }
       if (!state.ok) {
-        state.pos = $20;
+        state.pos = $23;
       }
       if (state.ok) {
         $0 = $0;
       }
       if (!state.ok) {
-        // (v:TakeUntil TakeUntil)
-        // v:TakeUntil TakeUntil
-        final $17 = state.pos;
-        String? $18;
-        $18 = parseTakeUntil(state);
+        // (v:SkipTil SkipTil)
+        // v:SkipTil SkipTil
+        final $20 = state.pos;
+        List<int>? $21;
+        $21 = parseSkipTil(state);
         if (state.ok) {
-          fastParseTakeUntil(state);
+          fastParseSkipTil(state);
           if (state.ok) {
-            $0 = $18;
+            $0 = $21;
           }
         }
         if (!state.ok) {
-          state.pos = $17;
+          state.pos = $20;
         }
         if (state.ok) {
           $0 = $0;
         }
         if (!state.ok) {
-          // (v:TakeTil TakeTil)
-          // v:TakeTil TakeTil
-          final $14 = state.pos;
-          String? $15;
-          $15 = parseTakeTil(state);
+          // (v:TakeUntil TakeUntil)
+          // v:TakeUntil TakeUntil
+          final $17 = state.pos;
+          String? $18;
+          $18 = parseTakeUntil(state);
           if (state.ok) {
-            fastParseTakeTil(state);
+            fastParseTakeUntil(state);
             if (state.ok) {
-              $0 = $15;
+              $0 = $18;
             }
           }
           if (!state.ok) {
-            state.pos = $14;
+            state.pos = $17;
           }
           if (state.ok) {
             $0 = $0;
           }
           if (!state.ok) {
-            // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
-            // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-            final $11 = state.pos;
-            String? $12;
-            $12 = parseOrderedChoiceWithLiterals(state);
+            // (v:TakeTil TakeTil)
+            // v:TakeTil TakeTil
+            final $14 = state.pos;
+            String? $15;
+            $15 = parseTakeTil(state);
             if (state.ok) {
-              fastParseOrderedChoiceWithLiterals(state);
+              fastParseTakeTil(state);
               if (state.ok) {
-                $0 = $12;
+                $0 = $15;
               }
             }
             if (!state.ok) {
-              state.pos = $11;
+              state.pos = $14;
             }
             if (state.ok) {
               $0 = $0;
@@ -95,56 +97,75 @@ class TestParser {
             if (!state.ok) {
               // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-              final $8 = state.pos;
-              String? $9;
-              $9 = parseOrderedChoiceWithLiterals(state);
+              final $11 = state.pos;
+              String? $12;
+              $12 = parseOrderedChoiceWithLiterals(state);
               if (state.ok) {
                 fastParseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
-                  $0 = $9;
+                  $0 = $12;
                 }
               }
               if (!state.ok) {
-                state.pos = $8;
+                state.pos = $11;
               }
               if (state.ok) {
                 $0 = $0;
               }
               if (!state.ok) {
-                // (v:Verify41 Verify41)
-                // v:Verify41 Verify41
-                final $5 = state.pos;
-                int? $6;
-                $6 = parseVerify41(state);
+                // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+                // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
+                final $8 = state.pos;
+                String? $9;
+                $9 = parseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
-                  fastParseVerify41(state);
+                  fastParseOrderedChoiceWithLiterals(state);
                   if (state.ok) {
-                    $0 = $6;
+                    $0 = $9;
                   }
                 }
                 if (!state.ok) {
-                  state.pos = $5;
+                  state.pos = $8;
                 }
                 if (state.ok) {
                   $0 = $0;
                 }
                 if (!state.ok) {
-                  // (v:VerifyFlag VerifyFlag)
-                  // v:VerifyFlag VerifyFlag
-                  final $2 = state.pos;
-                  String? $3;
-                  $3 = parseVerifyFlag(state);
+                  // (v:Verify41 Verify41)
+                  // v:Verify41 Verify41
+                  final $5 = state.pos;
+                  int? $6;
+                  $6 = parseVerify41(state);
                   if (state.ok) {
-                    fastParseVerifyFlag(state);
+                    fastParseVerify41(state);
                     if (state.ok) {
-                      $0 = $3;
+                      $0 = $6;
                     }
                   }
                   if (!state.ok) {
-                    state.pos = $2;
+                    state.pos = $5;
                   }
                   if (state.ok) {
                     $0 = $0;
+                  }
+                  if (!state.ok) {
+                    // (v:VerifyFlag VerifyFlag)
+                    // v:VerifyFlag VerifyFlag
+                    final $2 = state.pos;
+                    String? $3;
+                    $3 = parseVerifyFlag(state);
+                    if (state.ok) {
+                      fastParseVerifyFlag(state);
+                      if (state.ok) {
+                        $0 = $3;
+                      }
+                    }
+                    if (!state.ok) {
+                      state.pos = $2;
+                    }
+                    if (state.ok) {
+                      $0 = $0;
+                    }
                   }
                 }
               }
@@ -300,96 +321,118 @@ class TestParser {
 
   String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
     String? $0;
-    // 'abc'
-    const $14 = 'abc';
-    $0 = matchLiteral(state, $14, const ErrorExpectedTags([$14]));
-    if (state.ok) {
-      $0 = $0;
+    state.ok = false;
+    final $3 = state.input;
+    if (state.pos < $3.length) {
+      final $1 = $3.readChar(state.pos);
+      final $2 = $3.count;
+      switch ($1) {
+        case 97:
+          const $4 = 'abc';
+          state.ok = $3.startsWith($4, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $4;
+          } else {
+            const $5 = 'ab';
+            state.ok = $3.startsWith($5, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $5;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'a';
+            }
+          }
+          break;
+        case 100:
+          const $7 = 'def';
+          state.ok = $3.startsWith($7, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $7;
+          } else {
+            const $8 = 'de';
+            state.ok = $3.startsWith($8, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $8;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'd';
+            }
+          }
+          break;
+        case 103:
+          const $10 = 'gh';
+          state.ok = $3.startsWith($10, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $10;
+          }
+          break;
+      }
     }
     if (!state.ok) {
-      // 'ab'
-      const $12 = 'ab';
-      $0 = matchLiteral(state, $12, const ErrorExpectedTags([$12]));
-      if (state.ok) {
-        $0 = $0;
-      }
-      if (!state.ok) {
-        // 'a'
-        const $10 = 'a';
-        $0 = matchLiteral1(state, 97, $10, const ErrorExpectedTags([$10]));
-        if (state.ok) {
-          $0 = $0;
-        }
-        if (!state.ok) {
-          // 'def'
-          const $8 = 'def';
-          $0 = matchLiteral(state, $8, const ErrorExpectedTags([$8]));
-          if (state.ok) {
-            $0 = $0;
-          }
-          if (!state.ok) {
-            // 'de'
-            const $6 = 'de';
-            $0 = matchLiteral(state, $6, const ErrorExpectedTags([$6]));
-            if (state.ok) {
-              $0 = $0;
-            }
-            if (!state.ok) {
-              // 'd'
-              const $4 = 'd';
-              $0 = matchLiteral1(state, 100, $4, const ErrorExpectedTags([$4]));
-              if (state.ok) {
-                $0 = $0;
-              }
-              if (!state.ok) {
-                // 'gh'
-                const $2 = 'gh';
-                $0 = matchLiteral(state, $2, const ErrorExpectedTags([$2]));
-                if (state.ok) {
-                  $0 = $0;
-                }
-              }
-            }
-          }
-        }
-      }
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
     return $0;
   }
 
   void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
-    // 'abc'
-    const $13 = 'abc';
-    matchLiteral(state, $13, const ErrorExpectedTags([$13]));
-    if (!state.ok) {
-      // 'ab'
-      const $11 = 'ab';
-      matchLiteral(state, $11, const ErrorExpectedTags([$11]));
-      if (!state.ok) {
-        // 'a'
-        const $9 = 'a';
-        matchLiteral1(state, 97, $9, const ErrorExpectedTags([$9]));
-        if (!state.ok) {
-          // 'def'
-          const $7 = 'def';
-          matchLiteral(state, $7, const ErrorExpectedTags([$7]));
-          if (!state.ok) {
-            // 'de'
-            const $5 = 'de';
-            matchLiteral(state, $5, const ErrorExpectedTags([$5]));
-            if (!state.ok) {
-              // 'd'
-              const $3 = 'd';
-              matchLiteral1(state, 100, $3, const ErrorExpectedTags([$3]));
-              if (!state.ok) {
-                // 'gh'
-                const $1 = 'gh';
-                matchLiteral(state, $1, const ErrorExpectedTags([$1]));
-              }
+    state.ok = false;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $0 = $2.readChar(state.pos);
+      final $1 = $2.count;
+      switch ($0) {
+        case 97:
+          const $3 = 'abc';
+          state.ok = $2.startsWith($3, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $4 = 'ab';
+            state.ok = $2.startsWith($4, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
             }
           }
-        }
+          break;
+        case 100:
+          const $6 = 'def';
+          state.ok = $2.startsWith($6, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $7 = 'de';
+            state.ok = $2.startsWith($7, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
+            }
+          }
+          break;
+        case 103:
+          const $9 = 'gh';
+          state.ok = $2.startsWith($9, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          }
+          break;
       }
+    }
+    if (!state.ok) {
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
   }
 
@@ -518,6 +561,43 @@ class TestParser {
       state.pos = $1;
     } else {
       state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+    }
+  }
+
+  String? parseMatchString(State<StringReader> state) {
+    String? $0;
+    // @matchString()
+    final $2 = text;
+    if ($2.isEmpty) {
+      state.ok = true;
+      $0 = '';
+    } else {
+      state.ok = state.input.startsWith($2, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+        $0 = $2;
+      } else {
+        state.fail(ErrorExpectedTags([$2]));
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseMatchString(State<StringReader> state) {
+    // @matchString()
+    final $1 = text;
+    if ($1.isEmpty) {
+      state.ok = true;
+    } else {
+      state.ok = state.input.startsWith($1, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+      } else {
+        state.fail(ErrorExpectedTags([$1]));
+      }
     }
   }
 
@@ -839,6 +919,12 @@ ParseResult<I, O> _parse<I, O>(
     result,
     errorMessage: errorMessage,
   );
+}
+
+abstract interface class ByteReader {
+  int get length;
+
+  int readByte(int offset);
 }
 
 abstract class ChunkedData<T> implements Sink<T> {
@@ -1414,7 +1500,7 @@ class _StringReader implements StringReader {
   }
 }
 
-extension on String {
+extension StringExt on String {
   @pragma('vm:prefer-inline')
   // ignore: unused_element
   int runeAt(int index) {
