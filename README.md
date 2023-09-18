@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.14
+Version: 1.0.15
 
 # About this software
 
@@ -289,8 +289,9 @@ Executes the operand and, if the execution of the operand fails, returns `null'.
 Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta-expressions extend the grammar with capabilities that are not present in it.  
 From the point of view of grammar, meta-expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
 
-The following meta rules exist in the current version.
+The following meta expression exist in the current version.
 - `@errorHandler`
+- `@matchString`
 - `@verify`
 
 Name: `@ErrorHandler`  
@@ -308,12 +309,26 @@ The error handler code is not executed if the error position is not actual (that
 
 Example:
 
-```dart
+```
 HexNumber = @errorHandler(HexNumberRaw, {
 final errors = [ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number')];
 replaceLastErrors(errors);
 }) ;
 ```
+___
+
+Name: `@matchString`  
+Parameters:
+- Source code for expression to get string value
+
+The meta expression `@matchString` is intended to match a string value that can be obtained directly when the expression is executed (for example, a value obtained from the parser parameters).  
+
+Example:
+
+```
+Sep = @matchString({ separator }) ;
+```
+___
 
 Name: `@verify`  
 Parameters:
@@ -549,7 +564,7 @@ if ($$ > 0xff) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, '
 
 ## Examples of parsers
 
-List of parser examples:
+List of parser examples:  
 [CSV parser](https://github.com/mezoni/peg/blob/main/example/csv_parser.peg)  
 [Calc parser](https://github.com/mezoni/peg/blob/main/example/calc_parser.peg)  
 [JSON parser](https://github.com/mezoni/peg/blob/main/example/json_parser.peg)  
