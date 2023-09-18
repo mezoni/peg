@@ -3,28 +3,23 @@ import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
 class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
-  static const _template =
-      '''
+  static const _template = '''
 const {{literal}} = {{string}};
 {{r}} = matchLiteral(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateNoResult =
-      '''
+  static const _templateNoResult = '''
 const {{literal}} = {{string}};
 matchLiteral(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateOneCharString =
-      '''
+  static const _templateOneCharString = '''
 const {{literal}} = {{string}};
 {{r}} = matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateOneCharStringNoResult =
-      '''
+  static const _templateOneCharStringNoResult = '''
 const {{literal}} = {{string}};
 matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateEmptyString =
-      '''
+  static const _templateEmptyString = '''
 state.ok = true;
 if (state.ok) {
   {{r}} = '';

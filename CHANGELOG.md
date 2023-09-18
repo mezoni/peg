@@ -1,3 +1,7 @@
+## 1.0.16
+
+- Added example file `example.dart`.
+
 ## 1.0.15
 
 - Fixed a bug in the implementation of `Utf8Reader.indexOf()`.
