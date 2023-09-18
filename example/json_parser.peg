@@ -79,6 +79,7 @@ Object?
 @inline
 Null = 'null' Spaces { $$ = null; } ;
 
+num
 @event
 Number = v:$(
   [-]?

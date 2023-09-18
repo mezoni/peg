@@ -178,9 +178,9 @@ class JsonParser {
     return $0;
   }
 
-  Object? parseNumber(State<StringReader> state) {
+  num? parseNumber(State<StringReader> state) {
     beginEvent('Number');
-    Object? $0;
+    num? $0;
     // v:$([\-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [\-+]? [0-9]+)?) Spaces
     final $1 = state.pos;
     String? $2;
@@ -338,7 +338,7 @@ class JsonParser {
     if (state.ok) {
       fastParseSpaces(state);
       if (state.ok) {
-        Object? $$;
+        num? $$;
         final v = $2!;
         $$ = num.parse(v);
         $0 = $$;
@@ -347,7 +347,7 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<Object?>('Number', $0, state.ok);
+    $0 = endEvent<num>('Number', $0, state.ok);
     return $0;
   }
 
