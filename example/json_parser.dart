@@ -802,9 +802,10 @@ class JsonParser {
   @pragma('vm:prefer-inline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
-    state.ok = state.input.startsWith(string, state.pos);
+    final input = state.input;
+    state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += state.input.count;
+      state.pos += input.count;
       return string;
     } else {
       state.fail(error);
@@ -816,13 +817,11 @@ class JsonParser {
   String? matchLiteral1(
       State<StringReader> state, int char, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.length) {
-      final c = input.readChar(state.pos);
-      if (c == char) {
-        state.pos += state.input.count;
-        state.ok = true;
-        return string;
-      }
+    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    if (state.ok) {
+      state.pos += input.count;
+      state.ok = true;
+      return string;
     }
     state.fail(error);
     return null;

@@ -8,7 +8,11 @@ class CsvParser {
     List<List<String>>? $2;
     $2 = parseRows(state);
     if (state.ok) {
-      fastParseEof(state);
+      // !.
+      state.ok = state.pos >= state.input.length;
+      if (!state.ok) {
+        state.fail(const ErrorExpectedEndOfInput());
+      }
       if (state.ok) {
         $0 = $2;
       }
@@ -32,7 +36,48 @@ class CsvParser {
         List<String>? $5;
         // RowEnding v:Row
         final $6 = state.pos;
-        fastParseRowEnding(state);
+        // Eol !Eof
+        final $8 = state.pos;
+        state.ok = false;
+        final $11 = state.input;
+        if (state.pos < $11.length) {
+          final $9 = $11.readChar(state.pos);
+          final $10 = $11.count;
+          switch ($9) {
+            case 10:
+              state.ok = true;
+              state.pos += $10;
+              break;
+            case 13:
+              const $13 = '\r\n';
+              state.ok = $11.startsWith($13, state.pos);
+              if (state.ok) {
+                state.pos += $11.count;
+              } else {
+                state.ok = true;
+                state.pos += $10;
+              }
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
+        }
+        if (state.ok) {
+          final $15 = state.pos;
+          // !.
+          state.ok = state.pos >= state.input.length;
+          if (!state.ok) {
+            state.fail(const ErrorExpectedEndOfInput());
+          }
+          state.ok = !state.ok;
+          if (!state.ok) {
+            state.pos = $15;
+          }
+        }
+        if (!state.ok) {
+          state.pos = $8;
+        }
         if (state.ok) {
           List<String>? $7;
           $7 = parseRow(state);
@@ -53,7 +98,31 @@ class CsvParser {
         $3 = $4;
       }
       if (state.ok) {
-        fastParseEol(state);
+        state.ok = false;
+        final $19 = state.input;
+        if (state.pos < $19.length) {
+          final $17 = $19.readChar(state.pos);
+          final $18 = $19.count;
+          switch ($17) {
+            case 10:
+              state.ok = true;
+              state.pos += $18;
+              break;
+            case 13:
+              const $21 = '\r\n';
+              state.ok = $19.startsWith($21, state.pos);
+              if (state.ok) {
+                state.pos += $19.count;
+              } else {
+                state.ok = true;
+                state.pos += $18;
+              }
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
+        }
         state.ok = true;
         if (state.ok) {
           List<List<String>>? $$;
@@ -75,34 +144,56 @@ class CsvParser {
     // h:Field t:(',' v:Field)*
     final $1 = state.pos;
     String? $2;
-    $2 = parseField(state);
+    // String
+    $2 = parseString(state);
+    if (state.ok) {
+      $2 = $2;
+    }
+    if (!state.ok) {
+      // Text
+      $2 = parseText(state);
+      if (state.ok) {
+        $2 = $2;
+      }
+    }
     if (state.ok) {
       List<String>? $3;
-      final $4 = <String>[];
+      final $6 = <String>[];
       while (true) {
-        String? $5;
+        String? $7;
         // ',' v:Field
-        final $6 = state.pos;
-        const $8 = ',';
-        matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
+        final $8 = state.pos;
+        const $10 = ',';
+        matchLiteral1(state, 44, $10, const ErrorExpectedTags([$10]));
         if (state.ok) {
-          String? $7;
-          $7 = parseField(state);
+          String? $9;
+          // String
+          $9 = parseString(state);
           if (state.ok) {
-            $5 = $7;
+            $9 = $9;
+          }
+          if (!state.ok) {
+            // Text
+            $9 = parseText(state);
+            if (state.ok) {
+              $9 = $9;
+            }
+          }
+          if (state.ok) {
+            $7 = $9;
           }
         }
         if (!state.ok) {
-          state.pos = $6;
+          state.pos = $8;
         }
         if (!state.ok) {
           state.ok = true;
           break;
         }
-        $4.add($5!);
+        $6.add($7!);
       }
       if (state.ok) {
-        $3 = $4;
+        $3 = $6;
       }
       if (state.ok) {
         List<String>? $$;
@@ -114,23 +205,6 @@ class CsvParser {
     }
     if (!state.ok) {
       state.pos = $1;
-    }
-    return $0;
-  }
-
-  String? parseField(State<StringReader> state) {
-    String? $0;
-    // String
-    $0 = parseString(state);
-    if (state.ok) {
-      $0 = $0;
-    }
-    if (!state.ok) {
-      // Text
-      $0 = parseText(state);
-      if (state.ok) {
-        $0 = $0;
-      }
     }
     return $0;
   }
@@ -169,16 +243,86 @@ class CsvParser {
     String? $0;
     // OpenQuote v:Chars CloseQuote
     final $1 = state.pos;
-    fastParseOpenQuote(state);
+    // Spaces '"'
+    final $3 = state.pos;
+    fastParseSpaces(state);
     if (state.ok) {
-      List<int>? $2;
-      $2 = parseChars(state);
+      const $4 = '"';
+      matchLiteral1(state, 34, $4, const ErrorExpectedTags([$4]));
+    }
+    if (!state.ok) {
+      state.pos = $3;
+    }
+    if (state.ok) {
+      List<String>? $2;
+      // ($[^"]+ / '""')*
+      final $6 = <String>[];
+      while (true) {
+        String? $7;
+        // $[^"]+
+        final $11 = state.pos;
+        var $12 = false;
+        while (true) {
+          state.ok = state.pos < state.input.length;
+          if (state.ok) {
+            final $13 = state.input.readChar(state.pos);
+            state.ok = $13 != 34;
+            if (state.ok) {
+              state.pos += state.input.count;
+            }
+          }
+          if (!state.ok) {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+          if (!state.ok) {
+            break;
+          }
+          $12 = true;
+        }
+        state.ok = $12;
+        if (state.ok) {
+          $7 = state.input.substring($11, state.pos);
+        }
+        if (state.ok) {
+          $7 = $7;
+        }
+        if (!state.ok) {
+          // '""'
+          const $9 = '""';
+          matchLiteral(state, $9, const ErrorExpectedTags([$9]));
+          if (state.ok) {
+            String? $$;
+            $$ = '"';
+            $7 = $$;
+          }
+        }
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+        $6.add($7!);
+      }
       if (state.ok) {
-        fastParseCloseQuote(state);
+        $2 = $6;
+      }
+      if (state.ok) {
+        $2 = $2;
+      }
+      if (state.ok) {
+        // '"' Spaces
+        final $14 = state.pos;
+        const $15 = '"';
+        matchLiteral1(state, 34, $15, const ErrorExpectedTags([$15]));
+        if (state.ok) {
+          fastParseSpaces(state);
+        }
+        if (!state.ok) {
+          state.pos = $14;
+        }
         if (state.ok) {
           String? $$;
           final v = $2!;
-          $$ = String.fromCharCodes(v);
+          $$ = v.join();
           $0 = $$;
         }
       }
@@ -187,19 +331,6 @@ class CsvParser {
       state.pos = $1;
     }
     return $0;
-  }
-
-  void fastParseOpenQuote(State<StringReader> state) {
-    // Spaces '"'
-    final $0 = state.pos;
-    fastParseSpaces(state);
-    if (state.ok) {
-      const $1 = '"';
-      matchLiteral1(state, 34, $1, const ErrorExpectedTags([$1]));
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
   }
 
   void fastParseSpaces(State<StringReader> state) {
@@ -223,117 +354,13 @@ class CsvParser {
     }
   }
 
-  List<int>? parseChars(State<StringReader> state) {
-    List<int>? $0;
-    // ([^"] / '""')*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      // [^"]
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $7 = state.input.readChar(state.pos);
-        state.ok = $7 != 34;
-        if (state.ok) {
-          state.pos += state.input.count;
-          $3 = $7;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (state.ok) {
-        $3 = $3;
-      }
-      if (!state.ok) {
-        // '""'
-        const $5 = '""';
-        matchLiteral(state, $5, const ErrorExpectedTags([$5]));
-        if (state.ok) {
-          int? $$;
-          $$ = 0x22;
-          $3 = $$;
-        }
-      }
-      if (!state.ok) {
-        state.ok = true;
-        break;
-      }
-      $2.add($3!);
-    }
-    if (state.ok) {
-      $0 = $2;
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  void fastParseCloseQuote(State<StringReader> state) {
-    // '"' Spaces
-    final $0 = state.pos;
-    const $1 = '"';
-    matchLiteral1(state, 34, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  void fastParseRowEnding(State<StringReader> state) {
-    // Eol !Eof
-    final $0 = state.pos;
-    fastParseEol(state);
-    if (state.ok) {
-      final $1 = state.pos;
-      fastParseEof(state);
-      state.ok = !state.ok;
-      if (!state.ok) {
-        state.pos = $1;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  void fastParseEol(State<StringReader> state) {
-    // [\n\r]
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
-      final $3 = state.input.readChar(state.pos);
-      state.ok = $3 == 10 || $3 == 13;
-      if (state.ok) {
-        state.pos += state.input.count;
-      }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
-    }
-    if (!state.ok) {
-      // '\r\n'
-      const $1 = '\r\n';
-      matchLiteral(state, $1, const ErrorExpectedTags([$1]));
-    }
-  }
-
-  void fastParseEof(State<StringReader> state) {
-    // !.
-    state.ok = state.pos >= state.input.length;
-    if (!state.ok) {
-      state.fail(const ErrorExpectedEndOfInput());
-    }
-  }
-
   @pragma('vm:prefer-inline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
-    state.ok = state.input.startsWith(string, state.pos);
+    final input = state.input;
+    state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += state.input.count;
+      state.pos += input.count;
       return string;
     } else {
       state.fail(error);
@@ -345,13 +372,11 @@ class CsvParser {
   String? matchLiteral1(
       State<StringReader> state, int char, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.length) {
-      final c = input.readChar(state.pos);
-      if (c == char) {
-        state.pos += state.input.count;
-        state.ok = true;
-        return string;
-      }
+    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    if (state.ok) {
+      state.pos += input.count;
+      state.ok = true;
+      return string;
     }
     state.fail(error);
     return null;

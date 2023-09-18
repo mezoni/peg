@@ -446,7 +446,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $3;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
     }
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
@@ -465,7 +465,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $2;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
     }
   }
 
@@ -479,7 +479,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $3;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedTags([$4]));
     }
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
@@ -498,22 +498,53 @@ class TestParser {
     if (state.ok) {
       state.pos = $2;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedTags([$3]));
     }
   }
 
   List<int>? parseSkipTil(State<StringReader> state) {
     List<int>? $0;
     // (![E] v:.)*
-    const $3 = 'E';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      // ![E] v:.
+      final $4 = state.pos;
+      final $6 = state.pos;
+      state.ok = state.input.matchChar(69, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+      } else {
+        state.fail(const ErrorExpectedCharacter(69));
+      }
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $6;
+      }
+      if (state.ok) {
+        int? $5;
+        if (state.pos < state.input.length) {
+          $5 = state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $3 = $5;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $4;
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
     if (state.ok) {
-      final $4 = state.input.substring(state.pos, $2);
-      state.pos = $2;
-      $0 = $4.codeUnits.toList();
-    } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      $0 = $2;
     }
     if (state.ok) {
       $0 = $0;
@@ -529,22 +560,49 @@ class TestParser {
     if (state.ok) {
       state.pos = $1;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
     }
   }
 
   List<int>? parseSkipUntil(State<StringReader> state) {
     List<int>? $0;
     // (!'END' v:.)*
-    const $3 = 'END';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      // !'END' v:.
+      final $4 = state.pos;
+      final $6 = state.pos;
+      const $7 = 'END';
+      matchLiteral(state, $7, const ErrorExpectedTags([$7]));
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $6;
+      }
+      if (state.ok) {
+        int? $5;
+        if (state.pos < state.input.length) {
+          $5 = state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $3 = $5;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $4;
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
     if (state.ok) {
-      final $4 = state.input.substring(state.pos, $2);
-      state.pos = $2;
-      $0 = $4.codeUnits.toList();
-    } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      $0 = $2;
     }
     if (state.ok) {
       $0 = $0;
@@ -560,7 +618,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $1;
     } else {
-      state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+      state.failAt(state.input.length, const ErrorExpectedTags([$2]));
     }
   }
 
@@ -604,9 +662,10 @@ class TestParser {
   @pragma('vm:prefer-inline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
-    state.ok = state.input.startsWith(string, state.pos);
+    final input = state.input;
+    state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += state.input.count;
+      state.pos += input.count;
       return string;
     } else {
       state.fail(error);
@@ -618,13 +677,11 @@ class TestParser {
   String? matchLiteral1(
       State<StringReader> state, int char, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.length) {
-      final c = input.readChar(state.pos);
-      if (c == char) {
-        state.pos += state.input.count;
-        state.ok = true;
-        return string;
-      }
+    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    if (state.ok) {
+      state.pos += input.count;
+      state.ok = true;
+      return string;
     }
     state.fail(error);
     return null;

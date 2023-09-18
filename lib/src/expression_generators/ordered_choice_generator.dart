@@ -173,7 +173,8 @@ state.pos += {{count}};''';
     final map = <int, List<String>>{};
     for (var i = 0; i < strings.length; i++) {
       final string = strings[i];
-      final charCode = string.codeUnitAt(0);
+      final runes = string.runes.toList();
+      final charCode = runes[0];
       (map[charCode] ??= []).add(string);
     }
 

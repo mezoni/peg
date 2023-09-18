@@ -26,18 +26,6 @@ while (true) {
   }
 }''';
 
-  static const _templateUntil = '''
-const {{text}} = {{string}};
-final {{index}} = state.input.indexOf({{text}}, state.pos);
-state.ok = {{index}} != -1;
-if (state.ok) {
-  final {{substring}} = state.input.substring(state.pos, {{index}});
-  state.pos = {{index}};
-  {{r}} = {{substring}}.codeUnits.toList();
-} else {
-  state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
-}''';
-
   static const _templateUntilNoResult = '''
 const {{text}} = {{string}};
 final {{index}} = state.input.indexOf({{text}}, state.pos);
@@ -45,7 +33,17 @@ state.ok = {{index}} != -1;
 if (state.ok) {
   state.pos = {{index}};
 } else {
-  state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+  state.failAt(state.input.length, const ErrorExpectedTags([{{text}}]));
+}''';
+
+  static const _templateTilNoResult = '''
+const {{text}} = {{string}};
+final {{index}} = state.input.indexOf({{text}}, state.pos);
+state.ok = {{index}} != -1;
+if (state.ok) {
+  state.pos = {{index}};
+} else {
+  state.failAt(state.input.length, const ErrorExpectedCharacter({{char}}));
 }''';
 
   ZeroOrMoreGenerator({
@@ -58,9 +56,11 @@ if (state.ok) {
     final values = <String, String>{};
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final optimized = _optimize(variable);
-    if (optimized != null) {
-      return optimized;
+    if (variable == null) {
+      final optimized = _optimize();
+      if (optimized != null) {
+        return optimized;
+      }
     }
 
     var template = '';
@@ -79,7 +79,7 @@ if (state.ok) {
     return render(template, values);
   }
 
-  String? _optimize(String? variable) {
+  String? _optimize() {
     final group = expression.expression;
     if (group is! GroupExpression) {
       return null;
@@ -125,7 +125,7 @@ if (state.ok) {
     final terminal = not.expression;
     if (child2 is AnyCharacterExpression) {
       if (terminal is LiteralExpression) {
-        return _optimizeToUntil(variable, terminal.string);
+        return _optimizeToUntil(terminal.string);
       } else if (terminal is CharacterClassExpression) {
         final ranges = terminal.ranges;
         if (ranges.length == 1) {
@@ -133,8 +133,7 @@ if (state.ok) {
           final start = range.$1;
           final end = range.$2;
           if (start == end) {
-            final string = String.fromCharCode(start);
-            return _optimizeToUntil(variable, string);
+            return _optimizeToTil(start);
           }
         }
       }
@@ -143,20 +142,22 @@ if (state.ok) {
     return null;
   }
 
-  String? _optimizeToUntil(String? variable, String string) {
+  String? _optimizeToTil(int charCode) {
+    final values = <String, String>{};
+    values['index'] = allocateName();
+    values['text'] = allocateName();
+    values['char'] = charCode.toString();
+    values['string'] = helper.escapeString(String.fromCharCode(charCode));
+    const template = _templateTilNoResult;
+    return render(template, values);
+  }
+
+  String? _optimizeToUntil(String string) {
     final values = <String, String>{};
     values['index'] = allocateName();
     values['text'] = allocateName();
     values['string'] = helper.escapeString(string);
-    var template = '';
-    if (variable != null) {
-      values['substring'] = allocateName();
-      values['r'] = variable;
-      template = _templateUntil;
-    } else {
-      template = _templateUntilNoResult;
-    }
-
+    const template = _templateUntilNoResult;
     return render(template, values);
   }
 }

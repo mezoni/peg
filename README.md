@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.15
+Version: 1.0.16
 
 ## About this software
 
@@ -475,21 +475,6 @@ The `@event` instruction indicates to the generator that for this rule, when par
 The `@inline` instruction indicates to the generator that the source code of this production rule should not create a separate method in the parser class and should be generated as code embedded in the method that calls this rule.
 
 The `@memoize` instruction is not implemented in the current version.
-
-## Optimization of generated code
-
-The parser generator recognizes certain expression patterns and is able to generate more efficient code for these expression patterns.
-
-Below is a list of patterns.
-
-```
-(!'some literal' .)*
-```
-___
-
-```
-('foo' / 'bar' / 'baz' )
-```
 
 ## Code snippets
 

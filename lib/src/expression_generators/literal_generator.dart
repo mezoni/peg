@@ -11,21 +11,21 @@ const {{literal}} = {{string}};
 const {{literal}} = {{string}};
 matchLiteral(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateOneCharString = '''
+  static const _template1 = '''
 const {{literal}} = {{string}};
 {{r}} = matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateOneCharStringNoResult = '''
+  static const _template1NoResult = '''
 const {{literal}} = {{string}};
 matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
 
-  static const _templateEmptyString = '''
+  static const _template0String = '''
 state.ok = true;
 if (state.ok) {
   {{r}} = '';
 }''';
 
-  static const _templateEmptyStringNoResult = '''
+  static const _template0NoResult = '''
 state.ok = true;''';
 
   LiteralGenerator({
@@ -44,7 +44,7 @@ state.ok = true;''';
     if (string.isEmpty) {
       return _generateEmptyString(variable);
     } else if (string.length == 1) {
-      return _generateOneCharString(string, variable);
+      return _generateString1(string, variable);
     }
 
     return _generateString(string, variable);
@@ -53,21 +53,7 @@ state.ok = true;''';
   String _generateEmptyString(String? variable) {
     final values = <String, String>{};
     values['r'] = variable ?? '';
-    final template =
-        variable != null ? _templateEmptyString : _templateEmptyStringNoResult;
-    return render(template, values);
-  }
-
-  String _generateOneCharString(String string, String? variable) {
-    final values = <String, String>{};
-    final char = string.codeUnitAt(0);
-    values['char'] = '$char';
-    values['literal'] = allocateName();
-    values['string'] = helper.escapeString(string);
-    values['r'] = variable ?? '';
-    final template = variable != null
-        ? _templateOneCharString
-        : _templateOneCharStringNoResult;
+    final template = variable != null ? _template0String : _template0NoResult;
     return render(template, values);
   }
 
@@ -77,6 +63,17 @@ state.ok = true;''';
     values['string'] = helper.escapeString(string);
     values['r'] = variable ?? '';
     final template = variable != null ? _template : _templateNoResult;
+    return render(template, values);
+  }
+
+  String _generateString1(String string, String? variable) {
+    final values = <String, String>{};
+    final runes = string.runes.toList();
+    values['char'] = runes[0].toString();
+    values['literal'] = allocateName();
+    values['string'] = helper.escapeString(string);
+    values['r'] = variable ?? '';
+    final template = variable != null ? _template1 : _template1NoResult;
     return render(template, values);
   }
 }
