@@ -4,13 +4,13 @@ Command line tool for generating PEG parsers with support for event-based parsin
 
 Version: 1.0.15
 
-# About this software
+## About this software
 
 This software does not contain a public API because it is a console application (command line tool).  
 This tool is intended to generate the source code of PEG parsers.  
 Before using this tool, it is necessary to activate it using the package manager `pub`.
 
-# Activation and usage
+## Activation and usage
 
 To activate this command line tool, run the following command:
 
@@ -24,7 +24,7 @@ After activation, you can use the following command to use the command line tool
 dart pub global run peg
 ```
 
-## What is the source code of the generated parser?
+## Source code of the generated parser
 
 The source code of the generated parser consists of the following parts:
 - Source code of the parser class (generated from grammar rules)
@@ -36,7 +36,7 @@ The source code of the parser class members and library members are specified di
 - Ensuring the operability of the parser (for example, import directives)
 - Extending the capabilities and optimization of the parser by extending the capabilities of the instance of the parser class
 
-## How to declare grammar?
+## Grammar
 
 To declare expressions, a syntax is used that is basically similar to the generally accepted syntax of PEG expressions and, at the same time, additional syntax is used to expand the capabilities of PEG expressions.  
 A modified syntax is used to declare production rules.  
@@ -74,7 +74,7 @@ A = [A-Za-z] * ;
 
 The grammar must contain at least one production rule, which means that using a section to declare grammar rules is mandatory. The use of other sections is optional and is determined by the actual needs based on the chosen method of declaring the grammar.
 
-## How do I declare the rules?
+## Production rules
 
 The declaration of a production rule consists in specifying (in a certain sequence) the attributes of the rule and its body and consists of the following elements:
 - Type of the returned result
@@ -82,7 +82,7 @@ The declaration of a production rule consists in specifying (in a certain sequen
 - Name of the production rule
 - Symbol `=`
 - Expression
-- The symbol `;`
+- Symbol `;`
 
 The type of the returned result and metadata are optional.  
 To specify the type of the returned result of the production rule, you must use the syntax of the Dart language.  
@@ -275,7 +275,6 @@ Executes the operand and, if the execution of the operand succeeds, returns the 
 ```
 &[a-z]+
 ```
-
 ___
 
 Name: `NotPredicate`  
@@ -284,7 +283,7 @@ Number of operands: 1
 
 Executes the operand and, if the execution of the operand fails, returns `null'. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
 
-## Meta expressions
+## Meta-expressions
 
 Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta-expressions extend the grammar with capabilities that are not present in it.  
 From the point of view of grammar, meta-expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
@@ -569,7 +568,7 @@ List of parser examples:
 [Calc parser](https://github.com/mezoni/peg/blob/main/example/calc_parser.peg)  
 [JSON parser](https://github.com/mezoni/peg/blob/main/example/json_parser.peg)  
 
-## How to parse?
+## Parsing
 
 The generated parser classes do not contain anything superfluous except the rules and class members defined by the developer.  
 For the convenience of working with parser classes, it is proposed to use functions for data parsing.  

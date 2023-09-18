@@ -3,6 +3,7 @@
 - Added example file `example.dart`.
 - Added the `tool/build.dart` file for generating grammar example files with the current version of the generator.
 - Added example file `example/build_examples.dart`.
+- Changes in the file `README.md`.
 
 ## 1.0.15
 
