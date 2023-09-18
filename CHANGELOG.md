@@ -1,6 +1,7 @@
 ## 1.0.16
 
 - Added example file `example.dart`.
+- Added the `tool/build.dart` file for generating grammar example files with the current version of the generator.
 
 ## 1.0.15
 
