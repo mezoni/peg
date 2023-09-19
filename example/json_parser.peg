@@ -73,7 +73,6 @@ MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 
 @event
-List<MapEntry<String, Object?>>
 KeyValues = @sepBy(KeyValue, Comma);
 
 @inline
@@ -127,5 +126,4 @@ Value = Array
   / False
   / Null ;
 
-List<Object?>
 Values = @sepBy(Value, Comma);

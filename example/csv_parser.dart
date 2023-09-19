@@ -26,7 +26,6 @@ class CsvParser {
     return $0;
   }
 
-  /// List<List<String>>
   /// Rows =
   ///   v:@sepBy(Row, RowEnding) Eol?
   ///   ;
@@ -145,7 +144,6 @@ class CsvParser {
     return $0;
   }
 
-  /// List<String>
   /// Row =
   ///   @sepBy(Field, ',')
   ///   ;

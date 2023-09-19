@@ -27,10 +27,8 @@ OpenQuote = Spaces '"' ;
 @inline
 RowEnding = Eol !Eof ;
 
-List<String>
 Row = @sepBy(Field, ',') ;
 
-List<List<String>>
 Rows = v:@sepBy(Row, RowEnding) Eol? ;
 
 Spaces = [ \t]* ;

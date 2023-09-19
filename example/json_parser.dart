@@ -419,7 +419,6 @@ class JsonParser {
     return $0;
   }
 
-  /// List<Object?>
   /// Values =
   ///   @sepBy(Value, Comma)
   ///   ;
@@ -523,7 +522,6 @@ class JsonParser {
   }
 
   /// @event
-  /// List<MapEntry<String, Object?>>
   /// KeyValues =
   ///   @sepBy(KeyValue, Comma)
   ///   ;
