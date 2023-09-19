@@ -44,6 +44,15 @@
             "args": [
                 "test/test_parser.peg"
             ]
+        },
+        {
+            "name": "peg x",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "tool/x.peg"
+            ]
         }
     ]
 }

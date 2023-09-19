@@ -1,3 +1,7 @@
+## 1.0.20
+
+- Due to the large number of rules without specifying types, the automatic inference of the result type may hangs for a long time. To resolve this situation, an exception will be thrown with instructions to temporarily specify the types directly in the grammar.
+
 ## 1.0.19
 
 - Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files. For some production rules, the result type descriptions have been removed since the result types is inferred automatically.

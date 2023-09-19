@@ -261,6 +261,20 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
       return;
     }
 
+    if (newPriority > 500) {
+      final messages = <String>[];
+      messages.add(
+          'It is not possible to automatically infer the result type of some production rules');
+      messages.add(
+          'Try temporarily specifying result types for some rules directly in the grammar');
+      messages.add(
+          'As a workaround, set the result type to `Object` for all rules');
+      messages.add(
+          'Due to the large number of rules without specifying types, the last inferred type looks like this');
+      messages.add('$resultType');
+      throw StateError(messages.join('.\n'));
+    }
+
     if (oldResultType != resultType) {
       node.resultType = resultType;
       _hasModifications = true;
