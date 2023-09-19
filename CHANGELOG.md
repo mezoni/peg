@@ -1,3 +1,7 @@
+## 1.0.18
+
+- Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files.
+
 ## 1.0.17
 
 - Changes to the `json_parser.peg` grammar example file.

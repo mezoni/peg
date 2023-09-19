@@ -29,7 +29,7 @@ Start = Spaces v:Value !. ;
 
 List<Object?>
 @event
-Array = OpenBracket v:Values? CloseBracket { $$ = v ?? const []; } ;
+Array = OpenBracket v:Values CloseBracket ;
 
 @inline
 CloseBrace = v:'}' Spaces ;
@@ -90,7 +90,7 @@ Number = v:$(
 
 Map<String, Object?>
 @event
-Object = OpenBrace kv:KeyValues? CloseBrace { $$ = kv == null ? const {} : Map.fromEntries(kv); };
+Object = OpenBrace kv:KeyValues CloseBrace { $$ = kv.isEmpty ? const {} : Map.fromEntries(kv); };
 
 @inline
 OpenBrace = v:'{' Spaces ;

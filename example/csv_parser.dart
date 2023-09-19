@@ -25,17 +25,23 @@ class CsvParser {
 
   List<List<String>>? parseRows(State<StringReader> state) {
     List<List<String>>? $0;
-    // h:Row t:(RowEnding v:Row)* Eol?
+    // v:@sepBy(Row, RowEnding) Eol?
     final $1 = state.pos;
-    List<String>? $2;
-    $2 = parseRow(state);
+    List<List<String>>? $2;
+    List<String>? $5;
+    // Row
+    $5 = parseRow(state);
     if (state.ok) {
-      List<List<String>>? $3;
-      final $4 = <List<String>>[];
+      $5 = $5;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $2 = const [];
+    } else {
+      final $4 = [$5!];
       while (true) {
-        List<String>? $5;
-        // RowEnding v:Row
-        final $6 = state.pos;
+        final $3 = state.pos;
+        // RowEnding
         // Eol !Eof
         final $8 = state.pos;
         state.ok = false;
@@ -78,59 +84,52 @@ class CsvParser {
         if (!state.ok) {
           state.pos = $8;
         }
-        if (state.ok) {
-          List<String>? $7;
-          $7 = parseRow(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
         if (!state.ok) {
           state.ok = true;
+          $2 = $4;
+          break;
+        }
+        // Row
+        $5 = parseRow(state);
+        if (state.ok) {
+          $5 = $5;
+        }
+        if (!state.ok) {
+          state.pos = $3;
           break;
         }
         $4.add($5!);
       }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        state.ok = false;
-        final $19 = state.input;
-        if (state.pos < $19.length) {
-          final $17 = $19.readChar(state.pos);
-          final $18 = $19.count;
-          switch ($17) {
-            case 10:
+    }
+    if (state.ok) {
+      state.ok = false;
+      final $20 = state.input;
+      if (state.pos < $20.length) {
+        final $18 = $20.readChar(state.pos);
+        final $19 = $20.count;
+        switch ($18) {
+          case 10:
+            state.ok = true;
+            state.pos += $19;
+            break;
+          case 13:
+            const $22 = '\r\n';
+            state.ok = $20.startsWith($22, state.pos);
+            if (state.ok) {
+              state.pos += $20.count;
+            } else {
               state.ok = true;
-              state.pos += $18;
-              break;
-            case 13:
-              const $21 = '\r\n';
-              state.ok = $19.startsWith($21, state.pos);
-              if (state.ok) {
-                state.pos += $19.count;
-              } else {
-                state.ok = true;
-                state.pos += $18;
-              }
-              break;
-          }
+              state.pos += $19;
+            }
+            break;
         }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
-        }
-        state.ok = true;
-        if (state.ok) {
-          List<List<String>>? $$;
-          final h = $2!;
-          final t = $3!;
-          $$ = [h, ...t];
-          $0 = $$;
-        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
+      }
+      state.ok = true;
+      if (state.ok) {
+        $0 = $2;
       }
     }
     if (!state.ok) {
@@ -141,70 +140,76 @@ class CsvParser {
 
   List<String>? parseRow(State<StringReader> state) {
     List<String>? $0;
-    // h:Field t:(',' v:Field)*
-    final $1 = state.pos;
-    String? $2;
+    // @sepBy(Field, ',')
+    String? $4;
+    // Field
     // String
-    $2 = parseString(state);
+    $4 = parseString(state);
     if (state.ok) {
-      $2 = $2;
+      $4 = $4;
     }
     if (!state.ok) {
       // Text
-      $2 = parseText(state);
+      $4 = parseText(state);
       if (state.ok) {
-        $2 = $2;
+        $4 = $4;
       }
     }
     if (state.ok) {
-      List<String>? $3;
-      final $6 = <String>[];
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4!];
       while (true) {
-        String? $7;
-        // ',' v:Field
-        final $8 = state.pos;
-        const $10 = ',';
-        matchLiteral1(state, 44, $10, const ErrorExpectedTags([$10]));
-        if (state.ok) {
-          String? $9;
-          // String
-          $9 = parseString(state);
-          if (state.ok) {
-            $9 = $9;
-          }
-          if (!state.ok) {
-            // Text
-            $9 = parseText(state);
-            if (state.ok) {
-              $9 = $9;
-            }
-          }
-          if (state.ok) {
-            $7 = $9;
+        final $2 = state.pos;
+        state.ok = false;
+        final $10 = state.input;
+        if (state.pos < $10.length) {
+          final $8 = $10.readChar(state.pos);
+          final $9 = $10.count;
+          switch ($8) {
+            case 44:
+              state.ok = true;
+              state.pos += $9;
+              break;
           }
         }
         if (!state.ok) {
-          state.pos = $8;
+          state.fail(const ErrorExpectedTags([',']));
         }
         if (!state.ok) {
           state.ok = true;
+          $0 = $3;
           break;
         }
-        $6.add($7!);
-      }
-      if (state.ok) {
-        $3 = $6;
-      }
-      if (state.ok) {
-        List<String>? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
+        // Field
+        // String
+        $4 = parseString(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          // Text
+          $4 = parseText(state);
+          if (state.ok) {
+            $4 = $4;
+          }
+        }
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4!);
       }
     }
-    if (!state.ok) {
-      state.pos = $1;
+    if (state.ok) {
+      $0 = $0;
     }
     return $0;
   }

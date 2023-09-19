@@ -16,7 +16,6 @@ CloseQuote = '"' Spaces ;
 Eof = !. ;
 
 @inline
-#Eol = [\n\r] / '\r\n';
 Eol = '\n' / '\r\n' / '\r' ;
 
 @inline
@@ -29,10 +28,10 @@ OpenQuote = Spaces '"' ;
 RowEnding = Eol !Eof ;
 
 List<String>
-Row = h:Field t:(',' v:Field)* { $$ = [h, ...t]; } ;
+Row = @sepBy(Field, ',') ;
 
 List<List<String>>
-Rows = h:Row t:(RowEnding v:Row)* Eol? { $$ = [h,...t]; } ;
+Rows = v:@sepBy(Row, RowEnding) Eol? ;
 
 Spaces = [ \t]* ;
 

@@ -354,7 +354,7 @@ class JsonParser {
   List<Object?>? parseArray(State<StringReader> state) {
     beginEvent('Array');
     List<Object?>? $0;
-    // OpenBracket v:Values? CloseBracket
+    // OpenBracket v:Values CloseBracket
     final $1 = state.pos;
     // v:'[' Spaces
     final $3 = state.pos;
@@ -369,7 +369,6 @@ class JsonParser {
     if (state.ok) {
       List<Object?>? $2;
       $2 = parseValues(state);
-      state.ok = true;
       if (state.ok) {
         // v:']' Spaces
         final $5 = state.pos;
@@ -382,10 +381,7 @@ class JsonParser {
           state.pos = $5;
         }
         if (state.ok) {
-          List<Object?>? $$;
-          final v = $2;
-          $$ = v ?? const [];
-          $0 = $$;
+          $0 = $2;
         }
       }
     }
@@ -449,7 +445,7 @@ class JsonParser {
   Map<String, Object?>? parseObject(State<StringReader> state) {
     beginEvent('Object');
     Map<String, Object?>? $0;
-    // OpenBrace kv:KeyValues? CloseBrace
+    // OpenBrace kv:KeyValues CloseBrace
     final $1 = state.pos;
     // v:'{' Spaces
     final $3 = state.pos;
@@ -464,7 +460,6 @@ class JsonParser {
     if (state.ok) {
       List<MapEntry<String, Object?>>? $2;
       $2 = parseKeyValues(state);
-      state.ok = true;
       if (state.ok) {
         // v:'}' Spaces
         final $5 = state.pos;
@@ -478,8 +473,8 @@ class JsonParser {
         }
         if (state.ok) {
           Map<String, Object?>? $$;
-          final kv = $2;
-          $$ = kv == null ? const {} : Map.fromEntries(kv);
+          final kv = $2!;
+          $$ = kv.isEmpty ? const {} : Map.fromEntries(kv);
           $0 = $$;
         }
       }
