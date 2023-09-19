@@ -84,6 +84,45 @@ String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
     throw ArgumentError.value(ranges, 'ranges', 'Must not be empty');
   }
 
+  _Expression and(_Expression left, _Expression right) {
+    return _Code('$left && $right');
+  }
+
+  _Expression or(_Expression left, _Expression right) {
+    if ('$left' == 'false' && '$right' == ' false') {
+      return const _Code('false');
+    }
+
+    if ('$left' == 'false') {
+      return right;
+    }
+
+    if ('$right' == 'false') {
+      return left;
+    }
+
+    _Expression group(_Expression expression) {
+      if (expression is! _Triple) {
+        return expression;
+      }
+
+      return _Group(expression);
+    }
+
+    left = group(left);
+    right = group(right);
+    return _Code('$left || $right');
+  }
+
+  _Expression triple(
+      _Expression condition, _Expression left, _Expression right) {
+    if ('$right' == 'false') {
+      //return and(condition, left);
+    }
+
+    return _Triple('$condition ? $left : $right');
+  }
+
   _Expression process(String name, List<(int, int)> ranges, int lo, int hi,
       Set<int> processed) {
     if (lo == hi) {
@@ -113,45 +152,6 @@ String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
 
       processed.add(start);
       return _Code('$name >= $start');
-    }
-
-    _Expression and(_Expression left, _Expression right) {
-      return _Code('$left && $right');
-    }
-
-    _Expression or(_Expression left, _Expression right) {
-      if ('$left' == 'false' && '$right' == ' false') {
-        return const _Code('false');
-      }
-
-      if ('$left' == 'false') {
-        return right;
-      }
-
-      if ('$right' == 'false') {
-        return left;
-      }
-
-      _Expression group(_Expression expression) {
-        if (expression is! _Triple) {
-          return expression;
-        }
-
-        return _Group(expression);
-      }
-
-      left = group(left);
-      right = group(right);
-      return _Code('$left || $right');
-    }
-
-    _Expression triple(
-        _Expression condition, _Expression left, _Expression right) {
-      if ('$right' == 'false') {
-        return and(condition, left);
-      }
-
-      return _Triple('$condition ? $left : $right');
     }
 
     final mid = (lo + hi) >> 1;

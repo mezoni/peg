@@ -1,3 +1,7 @@
+## 1.0.21
+
+- Fixed a bug in the implementation of `rangesToPredicate()`.
+
 ## 1.0.20
 
 - Due to the large number of rules without specifying types, the automatic inference of the result type may hangs for a long time. To resolve this situation, an exception will be thrown with instructions to temporarily specify the types directly in the grammar.

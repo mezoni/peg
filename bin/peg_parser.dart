@@ -1752,7 +1752,9 @@ class PegParser {
         final $11 = state.input.readChar(state.pos);
         state.ok = $11 == 110 ||
             ($11 < 110
-                ? $11 <= 94 && $11 == 45 || $11 >= 92
+                ? $11 <= 94
+                    ? $11 == 45 || $11 >= 92
+                    : false
                 : $11 == 114 || $11 == 116);
         if (state.ok) {
           state.pos += state.input.count;
