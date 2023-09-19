@@ -30,7 +30,6 @@ class CharacterClassExpression extends Expression {
 
   @override
   String toString() {
-    final buffer = StringBuffer();
     String escape(int charCode) {
       switch (charCode) {
         case 9:
@@ -54,22 +53,32 @@ class CharacterClassExpression extends Expression {
       return String.fromCharCode(charCode);
     }
 
+    final list = <String>[];
     for (final range in _ranges) {
       final start = range.$1;
       final end = range.$2;
       if (start == end) {
-        buffer.write(escape(start));
+        list.add(escape(start));
       } else {
-        buffer.write(escape(start));
-        buffer.write('-');
-        buffer.write(escape(end));
+        list.add('${escape(start)}-${escape(end)}');
       }
     }
 
-    if (!negate) {
-      return '[$buffer]';
+    if (list.isNotEmpty) {
+      if (list[0] == r'\-') {
+        list[0] = '-';
+      } else if (negate) {
+        if (list[0] == '^') {
+          list[0] = r'\^';
+        }
+      }
     }
 
-    return '[^$buffer]';
+    final result = list.join();
+    if (!negate) {
+      return '[$result]';
+    }
+
+    return '[^$result]';
   }
 }

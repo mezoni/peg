@@ -1578,20 +1578,21 @@ class PegParser {
 
   int? parseRangeChar(State<StringReader> state) {
     int? $0;
-    // '\\' v:(c:[\-rnt'"^\]\\] / HexChar)
+    // '\\' v:(c:[-nrt\]\\^] / HexChar)
     final $5 = state.pos;
     const $7 = '\\';
     matchLiteral1(state, 92, $7, const ErrorExpectedTags([$7]));
     if (state.ok) {
       int? $6;
-      // c:[\-rnt'"^\]\\]
+      // c:[-nrt\]\\^]
       int? $10;
       state.ok = state.pos < state.input.length;
       if (state.ok) {
         final $11 = state.input.readChar(state.pos);
-        state.ok = $11 <= 94
-            ? $11 == 39 || $11 == 34 || $11 == 45 || $11 >= 92
-            : $11 == 114 || ($11 < 114 ? $11 == 110 : $11 == 116);
+        state.ok = $11 == 110 ||
+            ($11 < 110
+                ? $11 <= 94 && $11 == 45 || $11 >= 92
+                : $11 == 114 || $11 == 116);
         if (state.ok) {
           state.pos += state.input.count;
           $10 = $11;

@@ -225,7 +225,7 @@ int
 RangeChar =
     '\\'
     v:(
-        c:[-rnt'"^\]\\] <int>{ $$ = _escape(c); }
+        c:[-nrt\]\\^] <int>{ $$ = _escape(c); }
       / HexChar
     )
   / !'\\' c:.;

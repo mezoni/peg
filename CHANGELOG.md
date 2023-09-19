@@ -1,6 +1,7 @@
 ## 1.0.18
 
 - Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files.
+- Changes in the implementation of `CharacterClassExpression.toString()`
 
 ## 1.0.17
 

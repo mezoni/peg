@@ -181,11 +181,11 @@ class JsonParser {
   num? parseNumber(State<StringReader> state) {
     beginEvent('Number');
     num? $0;
-    // v:$([\-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [\-+]? [0-9]+)?) Spaces
+    // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
     final $1 = state.pos;
     String? $2;
     final $3 = state.pos;
-    // [\-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [\-+]? [0-9]+)?
+    // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
     final $4 = state.pos;
     state.ok = state.input.matchChar(45, state.pos);
     if (state.ok) {
@@ -274,7 +274,7 @@ class JsonParser {
         }
         state.ok = true;
         if (state.ok) {
-          // [eE] [\-+]? [0-9]+
+          // [eE] [-+]? [0-9]+
           final $12 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
