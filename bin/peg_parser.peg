@@ -185,9 +185,7 @@ Expression
 Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(expression: e); } ;
 
 Expression
-Literal =
-    '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); }
-  / '"' cs:(!'"' c:StringChar)* '"' Spaces  { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
+Literal = '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
 
 Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
@@ -214,20 +212,13 @@ HexChar = 'u{' v:$[a-zA-Z0-9]+ '}' <int>{ $$ = int.parse(v, radix: 16); } ;
 
 int
 StringChar =
-    '\\'
-    v:(
-        c:[rnt'"\\] <int>{ $$ = _escape(c); }
-      / HexChar
-    )
-  / !'\\' c:.;
+    [\u{20}-\u{5b}\u{5d}-\u{10ffff}]
+  / '\\' v:(c:[rnt'"\\] <int>{ $$ = _escape(c); } / HexChar)
+  ;
 
 int
 RangeChar =
-    '\\'
-    v:(
-        c:[-nrt\]\\^] <int>{ $$ = _escape(c); }
-      / HexChar
-    )
+    '\\' v:(c:[-nrt\]\\^] <int>{ $$ = _escape(c); } / HexChar)
   / !'\\' c:.;
 
 String

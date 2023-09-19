@@ -1,6 +1,7 @@
 ## 1.0.19
 
 - Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files. For some production rules, the result type descriptions have been removed since the result types is inferred automatically.
+- Changes to the `peg_parser.peg` grammar files.
 
 ## 1.0.18
 

@@ -675,72 +675,63 @@ class PegParser {
 
   /// int
   /// StringChar =
-  ///     '\\' v:(c:[rnt'"\\] / HexChar)
-  ///   / !'\\' c:.
+  ///     [ -[\]-\u{10ffff}]
+  ///   / '\\' v:(c:[rnt'"\\] / HexChar)
   ///   ;
   int? parseStringChar(State<StringReader> state) {
     int? $0;
-    // '\\' v:(c:[rnt'"\\] / HexChar)
-    final $5 = state.pos;
-    const $7 = '\\';
-    matchLiteral1(state, 92, $7, const ErrorExpectedTags([$7]));
+    // [ -[\]-\u{10ffff}]
+    state.ok = state.pos < state.input.length;
     if (state.ok) {
-      int? $6;
-      // c:[rnt'"\\]
-      int? $10;
-      state.ok = state.pos < state.input.length;
+      final $9 = state.input.readChar(state.pos);
+      state.ok = $9 >= 32 && $9 <= 91 || $9 >= 93 && $9 <= 1114111;
       if (state.ok) {
-        final $11 = state.input.readChar(state.pos);
-        state.ok = $11 == 92 ||
-            ($11 < 92
-                ? $11 == 39 || $11 == 34
-                : $11 == 114 || ($11 < 114 ? $11 == 110 : $11 == 116));
-        if (state.ok) {
-          state.pos += state.input.count;
-          $10 = $11;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (state.ok) {
-        int? $$;
-        final c = $10!;
-        $$ = _escape(c);
-        $6 = $$;
-      }
-      if (!state.ok) {
-        // HexChar
-        $6 = parseHexChar(state);
-        if (state.ok) {
-          $6 = $6;
-        }
-      }
-      if (state.ok) {
-        $0 = $6;
+        state.pos += state.input.count;
+        $0 = $9;
       }
     }
     if (!state.ok) {
-      state.pos = $5;
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      $0 = $0;
     }
     if (!state.ok) {
-      // !'\\' c:.
+      // '\\' v:(c:[rnt'"\\] / HexChar)
       final $1 = state.pos;
-      final $3 = state.pos;
-      const $4 = '\\';
-      matchLiteral1(state, 92, $4, const ErrorExpectedTags([$4]));
-      state.ok = !state.ok;
-      if (!state.ok) {
-        state.pos = $3;
-      }
+      const $3 = '\\';
+      matchLiteral1(state, 92, $3, const ErrorExpectedTags([$3]));
       if (state.ok) {
         int? $2;
-        if (state.pos < state.input.length) {
-          $2 = state.input.readChar(state.pos);
-          state.pos += state.input.count;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+        // c:[rnt'"\\]
+        int? $6;
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $7 = state.input.readChar(state.pos);
+          state.ok = $7 == 92 ||
+              ($7 < 92
+                  ? $7 == 39 || $7 == 34
+                  : $7 == 114 || ($7 < 114 ? $7 == 110 : $7 == 116));
+          if (state.ok) {
+            state.pos += state.input.count;
+            $6 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (state.ok) {
+          int? $$;
+          final c = $6!;
+          $$ = _escape(c);
+          $2 = $$;
+        }
+        if (!state.ok) {
+          // HexChar
+          $2 = parseHexChar(state);
+          if (state.ok) {
+            $2 = $2;
+          }
         }
         if (state.ok) {
           $0 = $2;
@@ -1839,56 +1830,55 @@ class PegParser {
 
   /// Expression
   /// Literal =
-  ///     '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
-  ///   / '"' cs:(!'"' c:StringChar)* '"' Spaces
+  ///   '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
   ///   ;
   Expression? parseLiteral(State<StringReader> state) {
     Expression? $0;
     // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
-    final $11 = state.pos;
-    const $13 = '\'';
-    matchLiteral1(state, 39, $13, const ErrorExpectedTags([$13]));
+    final $1 = state.pos;
+    const $3 = '\'';
+    matchLiteral1(state, 39, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
-      List<int>? $12;
-      final $14 = <int>[];
+      List<int>? $2;
+      final $4 = <int>[];
       while (true) {
-        int? $15;
+        int? $5;
         // !'\'' c:StringChar
-        final $16 = state.pos;
-        final $18 = state.pos;
-        const $19 = '\'';
-        matchLiteral1(state, 39, $19, const ErrorExpectedTags([$19]));
+        final $6 = state.pos;
+        final $8 = state.pos;
+        const $9 = '\'';
+        matchLiteral1(state, 39, $9, const ErrorExpectedTags([$9]));
         state.ok = !state.ok;
         if (!state.ok) {
-          state.pos = $18;
+          state.pos = $8;
         }
         if (state.ok) {
-          int? $17;
-          $17 = parseStringChar(state);
+          int? $7;
+          $7 = parseStringChar(state);
           if (state.ok) {
-            $15 = $17;
+            $5 = $7;
           }
         }
         if (!state.ok) {
-          state.pos = $16;
+          state.pos = $6;
         }
         if (!state.ok) {
           state.ok = true;
           break;
         }
-        $14.add($15!);
+        $4.add($5!);
       }
       if (state.ok) {
-        $12 = $14;
+        $2 = $4;
       }
       if (state.ok) {
-        const $20 = '\'';
-        matchLiteral1(state, 39, $20, const ErrorExpectedTags([$20]));
+        const $10 = '\'';
+        matchLiteral1(state, 39, $10, const ErrorExpectedTags([$10]));
         if (state.ok) {
           fastParseSpaces(state);
           if (state.ok) {
             Expression? $$;
-            final cs = $12!;
+            final cs = $2!;
             $$ = LiteralExpression(string: String.fromCharCodes(cs));
             $0 = $$;
           }
@@ -1896,63 +1886,7 @@ class PegParser {
       }
     }
     if (!state.ok) {
-      state.pos = $11;
-    }
-    if (!state.ok) {
-      // '"' cs:(!'"' c:StringChar)* '"' Spaces
-      final $1 = state.pos;
-      const $3 = '"';
-      matchLiteral1(state, 34, $3, const ErrorExpectedTags([$3]));
-      if (state.ok) {
-        List<int>? $2;
-        final $4 = <int>[];
-        while (true) {
-          int? $5;
-          // !'"' c:StringChar
-          final $6 = state.pos;
-          final $8 = state.pos;
-          const $9 = '"';
-          matchLiteral1(state, 34, $9, const ErrorExpectedTags([$9]));
-          state.ok = !state.ok;
-          if (!state.ok) {
-            state.pos = $8;
-          }
-          if (state.ok) {
-            int? $7;
-            $7 = parseStringChar(state);
-            if (state.ok) {
-              $5 = $7;
-            }
-          }
-          if (!state.ok) {
-            state.pos = $6;
-          }
-          if (!state.ok) {
-            state.ok = true;
-            break;
-          }
-          $4.add($5!);
-        }
-        if (state.ok) {
-          $2 = $4;
-        }
-        if (state.ok) {
-          const $10 = '"';
-          matchLiteral1(state, 34, $10, const ErrorExpectedTags([$10]));
-          if (state.ok) {
-            fastParseSpaces(state);
-            if (state.ok) {
-              Expression? $$;
-              final cs = $2!;
-              $$ = LiteralExpression(string: String.fromCharCodes(cs));
-              $0 = $$;
-            }
-          }
-        }
-      }
-      if (!state.ok) {
-        state.pos = $1;
-      }
+      state.pos = $1;
     }
     return $0;
   }
