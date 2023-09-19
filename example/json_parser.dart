@@ -591,15 +591,15 @@ class JsonParser {
       while (true) {
         String? $5;
         // $[ -!#-[\]-\u{10ffff}]+
-        final $18 = state.pos;
-        var $19 = false;
+        final $15 = state.pos;
+        var $16 = false;
         while (true) {
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $20 = state.input.readChar(state.pos);
-            state.ok = $20 <= 91
-                ? $20 >= 32 && $20 <= 33 || $20 >= 35
-                : $20 >= 93 && $20 <= 1114111;
+            final $17 = state.input.readChar(state.pos);
+            state.ok = $17 <= 91
+                ? $17 >= 32 && $17 <= 33 || $17 >= 35
+                : $17 >= 93 && $17 <= 1114111;
             if (state.ok) {
               state.pos += state.input.count;
             }
@@ -610,11 +610,11 @@ class JsonParser {
           if (!state.ok) {
             break;
           }
-          $19 = true;
+          $16 = true;
         }
-        state.ok = $19;
+        state.ok = $16;
         if (state.ok) {
-          $5 = state.input.substring($18, state.pos);
+          $5 = state.input.substring($15, state.pos);
         }
         if (state.ok) {
           $5 = $5;
@@ -627,30 +627,7 @@ class JsonParser {
           if (state.ok) {
             String? $7;
             // EscapeChar
-            // c:["/bfnrt\\]
-            int? $15;
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $16 = state.input.readChar(state.pos);
-              state.ok = $16 == 98 ||
-                  ($16 < 98
-                      ? $16 == 47 || $16 == 34 || $16 == 92
-                      : $16 == 110 ||
-                          ($16 < 110 ? $16 == 102 : $16 == 114 || $16 == 116));
-              if (state.ok) {
-                state.pos += state.input.count;
-                $15 = $16;
-              }
-            }
-            if (!state.ok) {
-              state.fail(const ErrorUnexpectedCharacter());
-            }
-            if (state.ok) {
-              String? $$;
-              final c = $15!;
-              $$ = _escape(c);
-              $7 = $$;
-            }
+            $7 = parseEscapeChar(state);
             if (state.ok) {
               $7 = $7;
             }
@@ -696,14 +673,14 @@ class JsonParser {
       }
       if (state.ok) {
         // v:'"' Spaces
-        final $21 = state.pos;
-        const $22 = '"';
-        matchLiteral1(state, 34, $22, const ErrorExpectedTags([$22]));
+        final $18 = state.pos;
+        const $19 = '"';
+        matchLiteral1(state, 34, $19, const ErrorExpectedTags([$19]));
         if (state.ok) {
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.pos = $21;
+          state.pos = $18;
         }
         if (state.ok) {
           String? $$;
@@ -779,6 +756,36 @@ class JsonParser {
     if (state.ok) {
       $0 = $0;
     }
+    return $0;
+  }
+
+  String? parseEscapeChar(State<StringReader> state) {
+    beginEvent('EscapeChar');
+    String? $0;
+    // c:["/bfnrt\\]
+    int? $2;
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $3 = state.input.readChar(state.pos);
+      state.ok = $3 == 98 ||
+          ($3 < 98
+              ? $3 == 47 || $3 == 34 || $3 == 92
+              : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
+      if (state.ok) {
+        state.pos += state.input.count;
+        $2 = $3;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      String? $$;
+      final c = $2!;
+      $$ = _escape(c);
+      $0 = $$;
+    }
+    $0 = endEvent<String>('EscapeChar', $0, state.ok);
     return $0;
   }
 

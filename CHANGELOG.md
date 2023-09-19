@@ -3,6 +3,7 @@
 - Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files.
 - Changes in the implementation of `CharacterClassExpression.toString()`
 - Changes in the implementation of `ProductionRule.toString()`
+- Breaking change: The order of the production rule attributes has been changed. Metadata must be specified before specifying the result type.
 
 ## 1.0.17
 

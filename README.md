@@ -77,8 +77,8 @@ The grammar must contain at least one production rule, which means that using a 
 ## Production rules
 
 The declaration of a production rule consists in specifying (in a certain sequence) the attributes of the rule and its body and consists of the following elements:
-- Type of the returned result
 - Metadata
+- Type of the returned result
 - Name of the production rule
 - Symbol `=`
 - Expression
@@ -91,12 +91,12 @@ The concept of metadata differs from that used in the Dart language and is used 
 Example of a production rule declaration with result type and metadata:
 
 ```
+- Metadata
 bool
-@inline
 False = 'false' Spaces { $$ = false; } ;
 
-MapEntry<String, Object?>
 @event
+MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 ```
 

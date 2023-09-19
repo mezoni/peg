@@ -27,8 +27,8 @@
 
 Start = Spaces v:Value !. ;
 
-List<Object?>
 @event
+List<Object?>
 Array = OpenBracket v:Values CloseBracket ;
 
 @inline
@@ -43,12 +43,12 @@ Colon = v:':' Spaces ;
 @inline
 Comma = v:',' Spaces ;
 
+@event
 String
-@inline
 EscapeChar = c:["/bfnrt\\] { $$ = _escape(c); } ;
 
-String
 @inline
+String
 EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
 
 HexNumber = @errorHandler(HexNumberRaw, {
@@ -56,31 +56,32 @@ HexNumber = @errorHandler(HexNumberRaw, {
     replaceLastErrors(errors);
   }) ;
 
-int
 @inline
+int
 HexNumberRaw = v:$([0-9A-Za-z]{4}) { $$ = int.parse(v, radix: 16); } ;
 
-bool
 @inline
+bool
 False = 'false' Spaces { $$ = false; } ;
 
 @inline
-@event Key = String ;
-
-MapEntry<String, Object?>
 @event
+Key = String ;
+
+@event
+MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 
-List<MapEntry<String, Object?>>
 @event
+List<MapEntry<String, Object?>>
 KeyValues = @sepBy(KeyValue, Comma);
 
-Object?
 @inline
+Object?
 Null = 'null' Spaces { $$ = null; } ;
 
-num
 @event
+num
 Number = v:$(
   [-]?
   ([0] / [1-9][0-9]*)
@@ -88,8 +89,8 @@ Number = v:$(
   ([eE] [-+]? [0-9]+)?
   ) Spaces { $$ = num.parse(v); } ;
 
-Map<String, Object?>
 @event
+Map<String, Object?>
 Object = OpenBrace kv:KeyValues CloseBrace { $$ = kv.isEmpty ? const {} : Map.fromEntries(kv); };
 
 @inline
@@ -103,8 +104,8 @@ Quote = v:'"' Spaces ;
 
 Spaces = [ \n\r\t]* ;
 
-String
 @inline
+String
 StringChars =
     $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+
   / '\\' v:(EscapeChar / EscapeHex);
@@ -112,8 +113,8 @@ StringChars =
 String
 String = '"' v:StringChars* Quote { $$ = v.join(); } ;
 
-bool
 @inline
+bool
 True = 'true' Spaces { $$ = true; } ;
 
 @event

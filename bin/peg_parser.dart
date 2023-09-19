@@ -270,14 +270,14 @@ class PegParser {
 
   ProductionRule? parseDefinition(State<StringReader> state) {
     ProductionRule? $0;
-    // t:Type? m:Metadata? i:Identifier Equal e:Expression Semicolon
+    // m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
     final $5 = state.pos;
-    ResultType? $6;
-    $6 = parseType(state);
+    List<({String name, List<Object?> arguments})>? $6;
+    $6 = parseMetadata(state);
     state.ok = true;
     if (state.ok) {
-      List<({String name, List<Object?> arguments})>? $7;
-      $7 = parseMetadata(state);
+      ResultType? $7;
+      $7 = parseType(state);
       state.ok = true;
       if (state.ok) {
         String? $8;
@@ -291,8 +291,8 @@ class PegParser {
               fastParseSemicolon(state);
               if (state.ok) {
                 ProductionRule? $$;
-                final t = $6;
-                final m = $7;
+                final m = $6;
+                final t = $7;
                 final i = $8!;
                 final e = $9!;
                 $$ = ProductionRule(

@@ -85,7 +85,7 @@ BlockBody =
 
 ProductionRule
 Definition =
-    t:Type? m:Metadata? i:Identifier Equal e:Expression Semicolon
+    m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
       { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, resultType: t, metadata: m); }
   / m:Metadata? i:Identifier Equal e:Expression Semicolon
       { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, metadata: m); } ;
