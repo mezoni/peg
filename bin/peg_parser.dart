@@ -64,6 +64,10 @@ class PegParser {
     }
   }
 
+  /// Grammar
+  /// Start =
+  ///   Spaces g:Globals? m:Members? d:Definition* !.
+  ///   ;
   Grammar? parseStart(State<StringReader> state) {
     Grammar? $0;
     // Spaces g:Globals? m:Members? d:Definition* !.
@@ -115,6 +119,9 @@ class PegParser {
     return $0;
   }
 
+  /// Spaces =
+  ///   (WhiteSpace / Comment)*
+  ///   ;
   void fastParseSpaces(State<StringReader> state) {
     // (WhiteSpace / Comment)*
     while (true) {
@@ -131,6 +138,9 @@ class PegParser {
     }
   }
 
+  /// Comment =
+  ///   '#' (![\n\r] .)*
+  ///   ;
   void fastParseComment(State<StringReader> state) {
     // '#' (![\n\r] .)*
     final $0 = state.pos;
@@ -179,6 +189,9 @@ class PegParser {
     }
   }
 
+  /// WhiteSpace =
+  ///   [ \n\r\t]
+  ///   ;
   void fastParseWhiteSpace(State<StringReader> state) {
     // [ \n\r\t]
     state.ok = state.pos < state.input.length;
@@ -194,6 +207,9 @@ class PegParser {
     }
   }
 
+  /// Globals =
+  ///   '%{' v:$(!'}%' v:.)* '}%' Spaces
+  ///   ;
   String? parseGlobals(State<StringReader> state) {
     String? $0;
     // '%{' v:$(!'}%' v:.)* '}%' Spaces
@@ -231,6 +247,9 @@ class PegParser {
     return $0;
   }
 
+  /// Members =
+  ///   '%%' v:$(!'%%' v:.)* '%%' Spaces
+  ///   ;
   String? parseMembers(State<StringReader> state) {
     String? $0;
     // '%%' v:$(!'%%' v:.)* '%%' Spaces
@@ -268,6 +287,11 @@ class PegParser {
     return $0;
   }
 
+  /// ProductionRule
+  /// Definition =
+  ///     m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
+  ///   / m:Metadata? i:Identifier Equal e:Expression Semicolon
+  ///   ;
   ProductionRule? parseDefinition(State<StringReader> state) {
     ProductionRule? $0;
     // m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
@@ -348,6 +372,10 @@ class PegParser {
     return $0;
   }
 
+  /// List<({String name, List<Object?> arguments})>
+  /// Metadata =
+  ///   h:MetadataElement t:(Spaces v:MetadataElement)*
+  ///   ;
   List<({String name, List<Object?> arguments})>? parseMetadata(
       State<StringReader> state) {
     List<({String name, List<Object?> arguments})>? $0;
@@ -396,6 +424,10 @@ class PegParser {
     return $0;
   }
 
+  /// ({String name, List<Object?> arguments})
+  /// MetadataElement =
+  ///   AtSign i:Identifier a:MetadataArguments?
+  ///   ;
   ({String name, List<Object?> arguments})? parseMetadataElement(
       State<StringReader> state) {
     ({String name, List<Object?> arguments})? $0;
@@ -424,6 +456,9 @@ class PegParser {
     return $0;
   }
 
+  /// AtSign =
+  ///   v:'@' Spaces
+  ///   ;
   void fastParseAtSign(State<StringReader> state) {
     // v:'@' Spaces
     final $0 = state.pos;
@@ -437,6 +472,10 @@ class PegParser {
     }
   }
 
+  /// String
+  /// Identifier =
+  ///   i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
+  ///   ;
   String? parseIdentifier(State<StringReader> state) {
     String? $0;
     // i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
@@ -498,6 +537,10 @@ class PegParser {
     return $0;
   }
 
+  /// List<Object?>
+  /// MetadataArguments =
+  ///   OpenParenthesis v:MetadataArgumentList? CloseParenthesis
+  ///   ;
   List<Object?>? parseMetadataArguments(State<StringReader> state) {
     List<Object?>? $0;
     // OpenParenthesis v:MetadataArgumentList? CloseParenthesis
@@ -523,6 +566,9 @@ class PegParser {
     return $0;
   }
 
+  /// OpenParenthesis =
+  ///   v:'(' Spaces
+  ///   ;
   void fastParseOpenParenthesis(State<StringReader> state) {
     // v:'(' Spaces
     final $0 = state.pos;
@@ -536,6 +582,10 @@ class PegParser {
     }
   }
 
+  /// List<Object?>
+  /// MetadataArgumentList =
+  ///   h:MetadataArgument t:(Comma v:MetadataArgument)*
+  ///   ;
   List<Object?>? parseMetadataArgumentList(State<StringReader> state) {
     List<Object?>? $0;
     // h:MetadataArgument t:(Comma v:MetadataArgument)*
@@ -583,6 +633,9 @@ class PegParser {
     return $0;
   }
 
+  /// MetadataArgument =
+  ///   '\'' v:StringChar* SingleQuote
+  ///   ;
   Object? parseMetadataArgument(State<StringReader> state) {
     Object? $0;
     // '\'' v:StringChar* SingleQuote
@@ -620,6 +673,11 @@ class PegParser {
     return $0;
   }
 
+  /// int
+  /// StringChar =
+  ///     '\\' v:(c:[rnt'"\\] / HexChar)
+  ///   / !'\\' c:.
+  ///   ;
   int? parseStringChar(State<StringReader> state) {
     int? $0;
     // '\\' v:(c:[rnt'"\\] / HexChar)
@@ -695,6 +753,10 @@ class PegParser {
     return $0;
   }
 
+  /// int
+  /// HexChar =
+  ///   'u{' v:$[a-zA-Z0-9]+ '}'
+  ///   ;
   int? parseHexChar(State<StringReader> state) {
     int? $0;
     // 'u{' v:$[a-zA-Z0-9]+ '}'
@@ -745,6 +807,9 @@ class PegParser {
     return $0;
   }
 
+  /// SingleQuote =
+  ///   v:'\'' Spaces
+  ///   ;
   void fastParseSingleQuote(State<StringReader> state) {
     // v:'\'' Spaces
     final $0 = state.pos;
@@ -758,6 +823,9 @@ class PegParser {
     }
   }
 
+  /// Comma =
+  ///   v:',' Spaces
+  ///   ;
   void fastParseComma(State<StringReader> state) {
     // v:',' Spaces
     final $0 = state.pos;
@@ -771,6 +839,9 @@ class PegParser {
     }
   }
 
+  /// CloseParenthesis =
+  ///   v:')' Spaces
+  ///   ;
   void fastParseCloseParenthesis(State<StringReader> state) {
     // v:')' Spaces
     final $0 = state.pos;
@@ -784,6 +855,9 @@ class PegParser {
     }
   }
 
+  /// Equal =
+  ///   v:'=' Spaces
+  ///   ;
   void fastParseEqual(State<StringReader> state) {
     // v:'=' Spaces
     final $0 = state.pos;
@@ -797,6 +871,9 @@ class PegParser {
     }
   }
 
+  /// Expression =
+  ///   OrderedChoice
+  ///   ;
   Expression? parseExpression(State<StringReader> state) {
     Expression? $0;
     // OrderedChoice
@@ -807,6 +884,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// OrderedChoice =
+  ///   h:Sequence t:(Slash v:Sequence)*
+  ///   ;
   Expression? parseOrderedChoice(State<StringReader> state) {
     Expression? $0;
     // h:Sequence t:(Slash v:Sequence)*
@@ -854,6 +935,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Sequence =
+  ///   e:SequenceElement+ a:Action?
+  ///   ;
   Expression? parseSequence(State<StringReader> state) {
     Expression? $0;
     // e:SequenceElement+ a:Action?
@@ -890,6 +975,10 @@ class PegParser {
     return $0;
   }
 
+  /// SequenceElement =
+  ///     i:Identifier Colon p:Prefix
+  ///   / Prefix
+  ///   ;
   Expression? parseSequenceElement(State<StringReader> state) {
     Expression? $0;
     // i:Identifier Colon p:Prefix
@@ -923,6 +1012,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Prefix =
+  ///   p:(Dollar / Ampersand / Exclamation)? s:Suffix
+  ///   ;
   Expression? parsePrefix(State<StringReader> state) {
     Expression? $0;
     // p:(Dollar / Ampersand / Exclamation)? s:Suffix
@@ -965,6 +1058,9 @@ class PegParser {
     return $0;
   }
 
+  /// Exclamation =
+  ///   v:'!' Spaces
+  ///   ;
   String? parseExclamation(State<StringReader> state) {
     String? $0;
     // v:'!' Spaces
@@ -984,6 +1080,9 @@ class PegParser {
     return $0;
   }
 
+  /// Ampersand =
+  ///   v:'&' Spaces
+  ///   ;
   String? parseAmpersand(State<StringReader> state) {
     String? $0;
     // v:'&' Spaces
@@ -1003,6 +1102,9 @@ class PegParser {
     return $0;
   }
 
+  /// Dollar =
+  ///   v:'\$' Spaces
+  ///   ;
   String? parseDollar(State<StringReader> state) {
     String? $0;
     // v:'\$' Spaces
@@ -1022,6 +1124,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Suffix =
+  ///   p:Primary s:(Asterisk / Question / Plus / OpenBrace v:MinMax CloseBrace)?
+  ///   ;
   Expression? parseSuffix(State<StringReader> state) {
     Expression? $0;
     // p:Primary s:(Asterisk / Question / Plus / OpenBrace v:MinMax CloseBrace)?
@@ -1082,6 +1188,18 @@ class PegParser {
     return $0;
   }
 
+  /// Primary =
+  ///     Symbol
+  ///   / CharacterClass
+  ///   / Literal
+  ///   / CharacterClass
+  ///   / AnyCharacter
+  ///   / Group
+  ///   / ErrorHandler
+  ///   / MatchString
+  ///   / SepBy
+  ///   / Verify
+  ///   ;
   Expression? parsePrimary(State<StringReader> state) {
     Expression? $0;
     // Symbol
@@ -1155,6 +1273,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Verify =
+  ///   '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
+  ///   ;
   Expression? parseVerify(State<StringReader> state) {
     Expression? $0;
     // '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
@@ -1191,6 +1313,9 @@ class PegParser {
     return $0;
   }
 
+  /// Block =
+  ///   '{' v:$BlockBody* CloseBrace
+  ///   ;
   String? parseBlock(State<StringReader> state) {
     String? $0;
     // '{' v:$BlockBody* CloseBrace
@@ -1223,6 +1348,10 @@ class PegParser {
     return $0;
   }
 
+  /// BlockBody =
+  ///     '{' v:BlockBody* '}'
+  ///   / !'}' .
+  ///   ;
   void fastParseBlockBody(State<StringReader> state) {
     // '{' v:BlockBody* '}'
     final $3 = state.pos;
@@ -1269,6 +1398,9 @@ class PegParser {
     }
   }
 
+  /// CloseBrace =
+  ///   v:'}' Spaces
+  ///   ;
   void fastParseCloseBrace(State<StringReader> state) {
     // v:'}' Spaces
     final $0 = state.pos;
@@ -1282,6 +1414,10 @@ class PegParser {
     }
   }
 
+  /// Expression
+  /// SepBy =
+  ///   '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis
+  ///   ;
   Expression? parseSepBy(State<StringReader> state) {
     Expression? $0;
     // '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis
@@ -1318,6 +1454,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// MatchString =
+  ///   '@matchString' OpenParenthesis b:Block CloseParenthesis
+  ///   ;
   Expression? parseMatchString(State<StringReader> state) {
     Expression? $0;
     // '@matchString' OpenParenthesis b:Block CloseParenthesis
@@ -1346,6 +1486,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// ErrorHandler =
+  ///   '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
+  ///   ;
   Expression? parseErrorHandler(State<StringReader> state) {
     Expression? $0;
     // '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis
@@ -1382,6 +1526,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Group =
+  ///   OpenParenthesis e:Expression CloseParenthesis
+  ///   ;
   Expression? parseGroup(State<StringReader> state) {
     Expression? $0;
     // OpenParenthesis e:Expression CloseParenthesis
@@ -1406,6 +1554,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// AnyCharacter =
+  ///   Dot
+  ///   ;
   Expression? parseAnyCharacter(State<StringReader> state) {
     Expression? $0;
     // Dot
@@ -1418,6 +1570,9 @@ class PegParser {
     return $0;
   }
 
+  /// Dot =
+  ///   v:'.' Spaces
+  ///   ;
   void fastParseDot(State<StringReader> state) {
     // v:'.' Spaces
     final $0 = state.pos;
@@ -1431,6 +1586,11 @@ class PegParser {
     }
   }
 
+  /// Expression
+  /// CharacterClass =
+  ///     '[^' r:(!']' v:Range)+ CloseBracket
+  ///   / '[' r:(!']' v:Range)+ CloseBracket
+  ///   ;
   Expression? parseCharacterClass(State<StringReader> state) {
     Expression? $0;
     // '[^' r:(!']' v:Range)+ CloseBracket
@@ -1538,6 +1698,11 @@ class PegParser {
     return $0;
   }
 
+  /// (int, int)
+  /// Range =
+  ///     s:RangeChar '-' e:RangeChar
+  ///   / s:RangeChar
+  ///   ;
   (int, int)? parseRange(State<StringReader> state) {
     (int, int)? $0;
     // s:RangeChar '-' e:RangeChar
@@ -1576,6 +1741,11 @@ class PegParser {
     return $0;
   }
 
+  /// int
+  /// RangeChar =
+  ///     '\\' v:(c:[-nrt\]\\^] / HexChar)
+  ///   / !'\\' c:.
+  ///   ;
   int? parseRangeChar(State<StringReader> state) {
     int? $0;
     // '\\' v:(c:[-nrt\]\\^] / HexChar)
@@ -1651,6 +1821,9 @@ class PegParser {
     return $0;
   }
 
+  /// CloseBracket =
+  ///   v:']' Spaces
+  ///   ;
   void fastParseCloseBracket(State<StringReader> state) {
     // v:']' Spaces
     final $0 = state.pos;
@@ -1664,6 +1837,11 @@ class PegParser {
     }
   }
 
+  /// Expression
+  /// Literal =
+  ///     '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
+  ///   / '"' cs:(!'"' c:StringChar)* '"' Spaces
+  ///   ;
   Expression? parseLiteral(State<StringReader> state) {
     Expression? $0;
     // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces
@@ -1779,6 +1957,10 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Symbol =
+  ///   i:Identifier
+  ///   ;
   Expression? parseSymbol(State<StringReader> state) {
     Expression? $0;
     // i:Identifier
@@ -1793,6 +1975,9 @@ class PegParser {
     return $0;
   }
 
+  /// OpenBrace =
+  ///   v:'{' Spaces
+  ///   ;
   void fastParseOpenBrace(State<StringReader> state) {
     // v:'{' Spaces
     final $0 = state.pos;
@@ -1806,6 +1991,13 @@ class PegParser {
     }
   }
 
+  /// (int?, int?)
+  /// MinMax =
+  ///     m:Integer Comma n:Integer
+  ///   / Comma n:Integer
+  ///   / m:Integer Comma
+  ///   / n:Integer
+  ///   ;
   (int?, int?)? parseMinMax(State<StringReader> state) {
     (int?, int?)? $0;
     // m:Integer Comma n:Integer
@@ -1879,6 +2071,10 @@ class PegParser {
     return $0;
   }
 
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+
+  ///   ;
   int? parseInteger(State<StringReader> state) {
     int? $0;
     // v:$[0-9]+
@@ -1915,6 +2111,9 @@ class PegParser {
     return $0;
   }
 
+  /// Plus =
+  ///   v:'+' Spaces
+  ///   ;
   String? parsePlus(State<StringReader> state) {
     String? $0;
     // v:'+' Spaces
@@ -1934,6 +2133,9 @@ class PegParser {
     return $0;
   }
 
+  /// Question =
+  ///   v:'?' Spaces
+  ///   ;
   String? parseQuestion(State<StringReader> state) {
     String? $0;
     // v:'?' Spaces
@@ -1953,6 +2155,9 @@ class PegParser {
     return $0;
   }
 
+  /// Asterisk =
+  ///   v:'*' Spaces
+  ///   ;
   String? parseAsterisk(State<StringReader> state) {
     String? $0;
     // v:'*' Spaces
@@ -1972,6 +2177,9 @@ class PegParser {
     return $0;
   }
 
+  /// Colon =
+  ///   v:':' Spaces
+  ///   ;
   void fastParseColon(State<StringReader> state) {
     // v:':' Spaces
     final $0 = state.pos;
@@ -1985,6 +2193,10 @@ class PegParser {
     }
   }
 
+  /// SemanticAction
+  /// Action =
+  ///   t:(Less v:Type Greater)? b:Block
+  ///   ;
   SemanticAction? parseAction(State<StringReader> state) {
     SemanticAction? $0;
     // t:(Less v:Type Greater)? b:Block
@@ -2024,6 +2236,9 @@ class PegParser {
     return $0;
   }
 
+  /// Less =
+  ///   v:'<' Spaces
+  ///   ;
   void fastParseLess(State<StringReader> state) {
     // v:'<' Spaces
     final $0 = state.pos;
@@ -2037,6 +2252,10 @@ class PegParser {
     }
   }
 
+  /// ResultType
+  /// Type =
+  ///   t:(GenericType / RecordType) q:Question?
+  ///   ;
   ResultType? parseType(State<StringReader> state) {
     ResultType? $0;
     // t:(GenericType / RecordType) q:Question?
@@ -2072,6 +2291,10 @@ class PegParser {
     return $0;
   }
 
+  /// ResultType
+  /// RecordType =
+  ///   OpenParenthesis v:(n:NamedFields / p:PositionalFields Comma n:NamedFields / h:Type Comma t:PositionalFields / t:Type Comma) CloseParenthesis
+  ///   ;
   ResultType? parseRecordType(State<StringReader> state) {
     ResultType? $0;
     // OpenParenthesis v:(n:NamedFields / p:PositionalFields Comma n:NamedFields / h:Type Comma t:PositionalFields / t:Type Comma) CloseParenthesis
@@ -2165,6 +2388,10 @@ class PegParser {
     return $0;
   }
 
+  /// List<ResultType>
+  /// PositionalFields =
+  ///   h:Type t:(Comma v:Type)*
+  ///   ;
   List<ResultType>? parsePositionalFields(State<StringReader> state) {
     List<ResultType>? $0;
     // h:Type t:(Comma v:Type)*
@@ -2212,6 +2439,10 @@ class PegParser {
     return $0;
   }
 
+  /// List<(ResultType, String)>
+  /// NamedFields =
+  ///   h:NamedField t:(Comma v:NamedField)*
+  ///   ;
   List<(ResultType, String)>? parseNamedFields(State<StringReader> state) {
     List<(ResultType, String)>? $0;
     // h:NamedField t:(Comma v:NamedField)*
@@ -2259,6 +2490,10 @@ class PegParser {
     return $0;
   }
 
+  /// (ResultType, String)
+  /// NamedField =
+  ///   t:Type i:Identifier
+  ///   ;
   (ResultType, String)? parseNamedField(State<StringReader> state) {
     (ResultType, String)? $0;
     // t:Type i:Identifier
@@ -2282,6 +2517,11 @@ class PegParser {
     return $0;
   }
 
+  /// ResultType
+  /// GenericType =
+  ///     i:Identifier Less p:TypeArguments Greater
+  ///   / i:Identifier
+  ///   ;
   ResultType? parseGenericType(State<StringReader> state) {
     ResultType? $0;
     // i:Identifier Less p:TypeArguments Greater
@@ -2322,6 +2562,10 @@ class PegParser {
     return $0;
   }
 
+  /// List<ResultType>
+  /// TypeArguments =
+  ///   h:Type t:(Comma v:Type)*
+  ///   ;
   List<ResultType>? parseTypeArguments(State<StringReader> state) {
     List<ResultType>? $0;
     // h:Type t:(Comma v:Type)*
@@ -2369,6 +2613,9 @@ class PegParser {
     return $0;
   }
 
+  /// Greater =
+  ///   v:'>' Spaces
+  ///   ;
   void fastParseGreater(State<StringReader> state) {
     // v:'>' Spaces
     final $0 = state.pos;
@@ -2382,6 +2629,9 @@ class PegParser {
     }
   }
 
+  /// Slash =
+  ///   v:'/' Spaces
+  ///   ;
   void fastParseSlash(State<StringReader> state) {
     // v:'/' Spaces
     final $0 = state.pos;
@@ -2395,6 +2645,9 @@ class PegParser {
     }
   }
 
+  /// Semicolon =
+  ///   v:';' Spaces
+  ///   ;
   void fastParseSemicolon(State<StringReader> state) {
     // v:';' Spaces
     final $0 = state.pos;

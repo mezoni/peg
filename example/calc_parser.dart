@@ -37,6 +37,9 @@ class CalcParser {
     }
   }
 
+  /// Start =
+  ///   Spaces v:Expression Eof
+  ///   ;
   num? parseStart(State<StringReader> state) {
     num? $0;
     // Spaces v:Expression Eof
@@ -62,6 +65,9 @@ class CalcParser {
     return $0;
   }
 
+  /// Spaces =
+  ///   [ \n\r\t]*
+  ///   ;
   void fastParseSpaces(State<StringReader> state) {
     // [ \n\r\t]*
     while (true) {
@@ -83,6 +89,9 @@ class CalcParser {
     }
   }
 
+  /// Expression =
+  ///   Add
+  ///   ;
   num? parseExpression(State<StringReader> state) {
     num? $0;
     // Add
@@ -93,6 +102,10 @@ class CalcParser {
     return $0;
   }
 
+  /// num
+  /// Add =
+  ///   h:Mul t:(AddOp Mul)*
+  ///   ;
   num? parseAdd(State<StringReader> state) {
     num? $0;
     // h:Mul t:(AddOp Mul)*
@@ -141,6 +154,10 @@ class CalcParser {
     return $0;
   }
 
+  /// num
+  /// Mul =
+  ///   h:Prefix t:(MulOp Prefix)*
+  ///   ;
   num? parseMul(State<StringReader> state) {
     num? $0;
     // h:Prefix t:(MulOp Prefix)*
@@ -189,6 +206,10 @@ class CalcParser {
     return $0;
   }
 
+  /// num
+  /// Prefix =
+  ///   o:'-'? e:Primary
+  ///   ;
   num? parsePrefix(State<StringReader> state) {
     num? $0;
     // o:'-'? e:Primary
@@ -214,6 +235,10 @@ class CalcParser {
     return $0;
   }
 
+  /// Primary =
+  ///     Number
+  ///   / OpenParenthesis v:Number CloseParenthesis
+  ///   ;
   num? parsePrimary(State<StringReader> state) {
     num? $0;
     // Number
@@ -242,6 +267,9 @@ class CalcParser {
     return $0;
   }
 
+  /// OpenParenthesis =
+  ///   '(' Spaces
+  ///   ;
   void fastParseOpenParenthesis(State<StringReader> state) {
     // '(' Spaces
     final $0 = state.pos;
@@ -255,6 +283,9 @@ class CalcParser {
     }
   }
 
+  /// Number =
+  ///   @errorHandler(NumberRaw)
+  ///   ;
   num? parseNumber(State<StringReader> state) {
     num? $0;
     // @errorHandler(NumberRaw)
@@ -286,6 +317,10 @@ class CalcParser {
     return $0;
   }
 
+  /// num
+  /// NumberRaw =
+  ///   v:$('-'? '0' / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+  ///   ;
   num? parseNumberRaw(State<StringReader> state) {
     num? $0;
     // v:$('-'? '0' / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
@@ -435,6 +470,9 @@ class CalcParser {
     return $0;
   }
 
+  /// CloseParenthesis =
+  ///   ')' Spaces
+  ///   ;
   void fastParseCloseParenthesis(State<StringReader> state) {
     // ')' Spaces
     final $0 = state.pos;
@@ -448,6 +486,9 @@ class CalcParser {
     }
   }
 
+  /// MulOp =
+  ///   v:('/' / '*') Spaces
+  ///   ;
   String? parseMulOp(State<StringReader> state) {
     String? $0;
     // v:('/' / '*') Spaces
@@ -486,6 +527,9 @@ class CalcParser {
     return $0;
   }
 
+  /// AddOp =
+  ///   v:('-' / '+') Spaces
+  ///   ;
   String? parseAddOp(State<StringReader> state) {
     String? $0;
     // v:('-' / '+') Spaces

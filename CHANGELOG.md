@@ -4,6 +4,7 @@
 - Changes in the implementation of `CharacterClassExpression.toString()`
 - Changes in the implementation of `ProductionRule.toString()`
 - Breaking change: The order of the production rule attributes has been changed. Metadata must be specified before specifying the result type.
+- The generator now generates documenting comments for the production rules. The rule definition is used as text.
 
 ## 1.0.17
 

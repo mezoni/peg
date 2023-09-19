@@ -1,6 +1,9 @@
 class CsvParser {
   const CsvParser();
 
+  /// Start =
+  ///   v:Rows Eof
+  ///   ;
   List<List<String>>? parseStart(State<StringReader> state) {
     List<List<String>>? $0;
     // v:Rows Eof
@@ -23,6 +26,10 @@ class CsvParser {
     return $0;
   }
 
+  /// List<List<String>>
+  /// Rows =
+  ///   v:@sepBy(Row, RowEnding) Eol?
+  ///   ;
   List<List<String>>? parseRows(State<StringReader> state) {
     List<List<String>>? $0;
     // v:@sepBy(Row, RowEnding) Eol?
@@ -138,6 +145,10 @@ class CsvParser {
     return $0;
   }
 
+  /// List<String>
+  /// Row =
+  ///   @sepBy(Field, ',')
+  ///   ;
   List<String>? parseRow(State<StringReader> state) {
     List<String>? $0;
     // @sepBy(Field, ',')
@@ -214,6 +225,9 @@ class CsvParser {
     return $0;
   }
 
+  /// Text =
+  ///   $[^,"\n\r]*
+  ///   ;
   String? parseText(State<StringReader> state) {
     String? $0;
     // $[^,"\n\r]*
@@ -244,6 +258,10 @@ class CsvParser {
     return $0;
   }
 
+  /// String
+  /// String =
+  ///   OpenQuote v:Chars CloseQuote
+  ///   ;
   String? parseString(State<StringReader> state) {
     String? $0;
     // OpenQuote v:Chars CloseQuote
@@ -338,6 +356,9 @@ class CsvParser {
     return $0;
   }
 
+  /// Spaces =
+  ///   [ \t]*
+  ///   ;
   void fastParseSpaces(State<StringReader> state) {
     // [ \t]*
     while (true) {

@@ -97,6 +97,11 @@ void {{name}}(State<StringReader> state) {
     }
 
     values['expression'] = expression.accept(this);
+
+    final ruleParts = _productionRuleToPrintableList();
+    var comment = '/// ';
+    comment += ruleParts.join('\n/// ');
+    template = '$comment\n$template';
     final source = helper.render(template, values);
     generatedRules[methodName] = source;
   }
@@ -242,5 +247,36 @@ void {{name}}(State<StringReader> state) {
 
   String _generate(ExpressionGenerator generator) {
     return generator.generate();
+  }
+
+  List<String> _productionRuleToPrintableList() {
+    final result = <String>[];
+    if (rule.metadata != null) {
+      final metadata = rule.metadataToPrintableList();
+      result.addAll(metadata);
+    }
+
+    if (rule.resultType case final resultType?) {
+      result.add(resultType.toString());
+    }
+
+    final name = rule.name;
+    result.add('$name =');
+    final expression = rule.expression;
+    final children = expression.expressions;
+    if (children.length == 1) {
+      final child = children[0];
+      result.add('  $child');
+    } else {
+      final child = children[0];
+      result.add('    $child');
+      for (var i = 1; i < children.length; i++) {
+        final child = children[i];
+        result.add('  / $child');
+      }
+    }
+
+    result.add('  ;');
+    return result;
   }
 }

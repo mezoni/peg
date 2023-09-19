@@ -30,6 +30,9 @@ class JsonParser {
     return result;
   }
 
+  /// Start =
+  ///   Spaces v:Value !.
+  ///   ;
   Object? parseStart(State<StringReader> state) {
     Object? $0;
     // Spaces v:Value !.
@@ -54,6 +57,9 @@ class JsonParser {
     return $0;
   }
 
+  /// Spaces =
+  ///   [ \n\r\t]*
+  ///   ;
   void fastParseSpaces(State<StringReader> state) {
     // [ \n\r\t]*
     while (true) {
@@ -75,6 +81,17 @@ class JsonParser {
     }
   }
 
+  /// @event
+  /// Value =
+  ///     Array
+  ///   / String
+  ///   / Object
+  ///   / Array
+  ///   / Number
+  ///   / True
+  ///   / False
+  ///   / Null
+  ///   ;
   Object? parseValue(State<StringReader> state) {
     beginEvent('Value');
     Object? $0;
@@ -178,6 +195,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// num
+  /// Number =
+  ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
+  ///   ;
   num? parseNumber(State<StringReader> state) {
     beginEvent('Number');
     num? $0;
@@ -351,6 +373,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// List<Object?>
+  /// Array =
+  ///   OpenBracket v:Values CloseBracket
+  ///   ;
   List<Object?>? parseArray(State<StringReader> state) {
     beginEvent('Array');
     List<Object?>? $0;
@@ -392,6 +419,10 @@ class JsonParser {
     return $0;
   }
 
+  /// List<Object?>
+  /// Values =
+  ///   @sepBy(Value, Comma)
+  ///   ;
   List<Object?>? parseValues(State<StringReader> state) {
     List<Object?>? $0;
     // @sepBy(Value, Comma)
@@ -442,6 +473,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// Map<String, Object?>
+  /// Object =
+  ///   OpenBrace kv:KeyValues CloseBrace
+  ///   ;
   Map<String, Object?>? parseObject(State<StringReader> state) {
     beginEvent('Object');
     Map<String, Object?>? $0;
@@ -486,6 +522,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// List<MapEntry<String, Object?>>
+  /// KeyValues =
+  ///   @sepBy(KeyValue, Comma)
+  ///   ;
   List<MapEntry<String, Object?>>? parseKeyValues(State<StringReader> state) {
     beginEvent('KeyValues');
     List<MapEntry<String, Object?>>? $0;
@@ -538,6 +579,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// MapEntry<String, Object?>
+  /// KeyValue =
+  ///   k:Key Colon v:Value
+  ///   ;
   MapEntry<String, Object?>? parseKeyValue(State<StringReader> state) {
     beginEvent('KeyValue');
     MapEntry<String, Object?>? $0;
@@ -579,6 +625,10 @@ class JsonParser {
     return $0;
   }
 
+  /// String
+  /// String =
+  ///   '"' v:StringChars* Quote
+  ///   ;
   String? parseString(State<StringReader> state) {
     String? $0;
     // '"' v:StringChars* Quote
@@ -696,6 +746,9 @@ class JsonParser {
     return $0;
   }
 
+  /// HexNumber =
+  ///   @errorHandler(HexNumberRaw)
+  ///   ;
   int? parseHexNumber(State<StringReader> state) {
     int? $0;
     // @errorHandler(HexNumberRaw)
@@ -759,6 +812,11 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
+  /// String
+  /// EscapeChar =
+  ///   c:["/bfnrt\\]
+  ///   ;
   String? parseEscapeChar(State<StringReader> state) {
     beginEvent('EscapeChar');
     String? $0;

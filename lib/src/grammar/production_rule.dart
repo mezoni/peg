@@ -30,36 +30,7 @@ class ProductionRule {
 
   bool get isMacro => parameters != null;
 
-  @override
-  String toString() {
-    final buffer = StringBuffer();
-    if (resultType != null) {
-      buffer.write(resultType);
-      buffer.write(' ');
-    }
-
-    if (metadata != null) {
-      final list = _metadataToPrintableList();
-      if (list.isNotEmpty) {
-        buffer.write(list.join(' '));
-        buffer.write(' ');
-      }
-    }
-
-    buffer.write(name);
-    if (parameters case final parameters?) {
-      buffer.write('(');
-      buffer.write(parameters.join(', '));
-      buffer.write(')');
-    }
-
-    buffer.write(' = ');
-    buffer.write(expression);
-    buffer.write(' ;');
-    return buffer.toString();
-  }
-
-  List<String> _metadataToPrintableList() {
+  List<String> metadataToPrintableList() {
     final result = <String>[];
     if (metadata case final metadata?) {
       for (var i = 0; i < metadata.length; i++) {
@@ -86,5 +57,34 @@ class ProductionRule {
     }
 
     return result;
+  }
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    if (resultType != null) {
+      buffer.write(resultType);
+      buffer.write(' ');
+    }
+
+    if (metadata != null) {
+      final list = metadataToPrintableList();
+      if (list.isNotEmpty) {
+        buffer.write(list.join(' '));
+        buffer.write(' ');
+      }
+    }
+
+    buffer.write(name);
+    if (parameters case final parameters?) {
+      buffer.write('(');
+      buffer.write(parameters.join(', '));
+      buffer.write(')');
+    }
+
+    buffer.write(' = ');
+    buffer.write(expression);
+    buffer.write(' ;');
+    return buffer.toString();
   }
 }
