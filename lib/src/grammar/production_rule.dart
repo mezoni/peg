@@ -1,4 +1,5 @@
 import '../expressions/expressions.dart';
+import '../helper.dart' as helper;
 
 class ProductionRule {
   final Set<ProductionRule> allCallees = {};
@@ -37,9 +38,10 @@ class ProductionRule {
       buffer.write(' ');
     }
 
-    if (metadata case final metadata?) {
-      if (metadata.isNotEmpty) {
-        buffer.write(metadata.join(' '));
+    if (metadata != null) {
+      final list = _metadataToPrintableList();
+      if (list.isNotEmpty) {
+        buffer.write(list.join(' '));
         buffer.write(' ');
       }
     }
@@ -55,5 +57,34 @@ class ProductionRule {
     buffer.write(expression);
     buffer.write(' ;');
     return buffer.toString();
+  }
+
+  List<String> _metadataToPrintableList() {
+    final result = <String>[];
+    if (metadata case final metadata?) {
+      for (var i = 0; i < metadata.length; i++) {
+        final element = metadata[i];
+        final name = element.name;
+        final arguments = element.arguments;
+        final buffer = StringBuffer();
+        buffer.write(name);
+        if (arguments.isNotEmpty) {
+          buffer.write('(');
+          for (final argument in arguments) {
+            if (argument is String) {
+              buffer.write(helper.escapeString(argument));
+            } else {
+              buffer.write(argument);
+            }
+          }
+
+          buffer.write(')');
+        }
+
+        result.add(buffer.toString());
+      }
+    }
+
+    return result;
   }
 }

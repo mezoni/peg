@@ -2,6 +2,7 @@
 
 - Changes to the `csv_parser.peg` and `json_parser.peg` grammar example files.
 - Changes in the implementation of `CharacterClassExpression.toString()`
+- Changes in the implementation of `ProductionRule.toString()`
 
 ## 1.0.17
 
