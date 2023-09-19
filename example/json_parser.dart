@@ -398,56 +398,50 @@ class JsonParser {
 
   List<Object?>? parseValues(State<StringReader> state) {
     List<Object?>? $0;
-    // h:Value t:(Comma v:Value)*
-    final $1 = state.pos;
-    Object? $2;
-    $2 = parseValue(state);
+    // @sepBy(Value, Comma)
+    Object? $4;
+    // Value
+    $4 = parseValue(state);
     if (state.ok) {
-      List<Object?>? $3;
-      final $4 = <Object?>[];
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4];
       while (true) {
-        Object? $5;
-        // Comma v:Value
-        final $6 = state.pos;
+        final $2 = state.pos;
+        // Comma
         // v:',' Spaces
-        final $8 = state.pos;
-        const $9 = ',';
-        matchLiteral1(state, 44, $9, const ErrorExpectedTags([$9]));
+        final $7 = state.pos;
+        const $8 = ',';
+        matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
         if (state.ok) {
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.pos = $8;
-        }
-        if (state.ok) {
-          Object? $7;
-          $7 = parseValue(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
+          state.pos = $7;
         }
         if (!state.ok) {
           state.ok = true;
+          $0 = $3;
           break;
         }
-        $4.add($5);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<Object?>? $$;
-        final h = $2;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
+        // Value
+        $4 = parseValue(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4);
       }
     }
-    if (!state.ok) {
-      state.pos = $1;
+    if (state.ok) {
+      $0 = $0;
     }
     return $0;
   }
@@ -500,56 +494,50 @@ class JsonParser {
   List<MapEntry<String, Object?>>? parseKeyValues(State<StringReader> state) {
     beginEvent('KeyValues');
     List<MapEntry<String, Object?>>? $0;
-    // h:KeyValue t:(Comma v:KeyValue)*
-    final $1 = state.pos;
-    MapEntry<String, Object?>? $2;
-    $2 = parseKeyValue(state);
+    // @sepBy(KeyValue, Comma)
+    MapEntry<String, Object?>? $4;
+    // KeyValue
+    $4 = parseKeyValue(state);
     if (state.ok) {
-      List<MapEntry<String, Object?>>? $3;
-      final $4 = <MapEntry<String, Object?>>[];
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4!];
       while (true) {
-        MapEntry<String, Object?>? $5;
-        // Comma v:KeyValue
-        final $6 = state.pos;
+        final $2 = state.pos;
+        // Comma
         // v:',' Spaces
-        final $8 = state.pos;
-        const $9 = ',';
-        matchLiteral1(state, 44, $9, const ErrorExpectedTags([$9]));
+        final $7 = state.pos;
+        const $8 = ',';
+        matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
         if (state.ok) {
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.pos = $8;
-        }
-        if (state.ok) {
-          MapEntry<String, Object?>? $7;
-          $7 = parseKeyValue(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
+          state.pos = $7;
         }
         if (!state.ok) {
           state.ok = true;
+          $0 = $3;
           break;
         }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<MapEntry<String, Object?>>? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
+        // KeyValue
+        $4 = parseKeyValue(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4!);
       }
     }
-    if (!state.ok) {
-      state.pos = $1;
+    if (state.ok) {
+      $0 = $0;
     }
     $0 = endEvent<List<MapEntry<String, Object?>>>('KeyValues', $0, state.ok);
     return $0;

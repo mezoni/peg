@@ -209,7 +209,7 @@ class PegParser {
       if (state.ok) {
         state.pos = $5;
       } else {
-        state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
       }
       if (state.ok) {
         $2 = state.input.substring($4, state.pos);
@@ -246,7 +246,7 @@ class PegParser {
       if (state.ok) {
         state.pos = $5;
       } else {
-        state.failAt(state.input.length, const ErrorUnexpectedEndOfInput());
+        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
       }
       if (state.ok) {
         $2 = state.input.substring($4, state.pos);
@@ -1132,10 +1132,17 @@ class PegParser {
                     $0 = $0;
                   }
                   if (!state.ok) {
-                    // Verify
-                    $0 = parseVerify(state);
+                    // SepBy
+                    $0 = parseSepBy(state);
                     if (state.ok) {
                       $0 = $0;
+                    }
+                    if (!state.ok) {
+                      // Verify
+                      $0 = parseVerify(state);
+                      if (state.ok) {
+                        $0 = $0;
+                      }
                     }
                   }
                 }
@@ -1273,6 +1280,42 @@ class PegParser {
     if (!state.ok) {
       state.pos = $0;
     }
+  }
+
+  Expression? parseSepBy(State<StringReader> state) {
+    Expression? $0;
+    // '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis
+    final $1 = state.pos;
+    const $4 = '@sepBy';
+    matchLiteral(state, $4, const ErrorExpectedTags([$4]));
+    if (state.ok) {
+      fastParseOpenParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        $2 = parseExpression(state);
+        if (state.ok) {
+          fastParseComma(state);
+          if (state.ok) {
+            Expression? $3;
+            $3 = parseExpression(state);
+            if (state.ok) {
+              fastParseCloseParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final s = $3!;
+                $$ = SepByExpression(expression: e, separator: s);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
   }
 
   Expression? parseMatchString(State<StringReader> state) {
@@ -2367,9 +2410,10 @@ class PegParser {
   @pragma('vm:prefer-inline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
-    state.ok = state.input.startsWith(string, state.pos);
+    final input = state.input;
+    state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += state.input.count;
+      state.pos += input.count;
       return string;
     } else {
       state.fail(error);
@@ -2381,13 +2425,11 @@ class PegParser {
   String? matchLiteral1(
       State<StringReader> state, int char, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.length) {
-      final c = input.readChar(state.pos);
-      if (c == char) {
-        state.pos += state.input.count;
-        state.ok = true;
-        return string;
-      }
+    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    if (state.ok) {
+      state.pos += input.count;
+      state.ok = true;
+      return string;
     }
     state.fail(error);
     return null;

@@ -55,12 +55,4 @@ class SequenceExpression extends MultipleExpression {
 
     return buffer.toString();
   }
-
-  @override
-  void visitChildren<T>(ExpressionVisitor<T> visitor) {
-    for (var i = 0; i < expressions.length; i++) {
-      final child = expressions[i];
-      child.accept(visitor);
-    }
-  }
 }

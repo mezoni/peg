@@ -11,6 +11,7 @@ export 'one_or_more_expression.dart';
 export 'optional_expression.dart';
 export 'ordered_choice_expression.dart';
 export 'repetition_expression.dart';
+export 'sep_by_expression.dart';
 export 'sequence_expression.dart';
 export 'slice_expression.dart';
 export 'symbol_expression.dart';

@@ -2,7 +2,7 @@
 
 Command line tool for generating PEG parsers with support for event-based parsing.
 
-Version: 1.0.16
+Version: 1.0.17
 
 ## About this software
 
@@ -291,6 +291,7 @@ From the point of view of grammar, meta-expressions should be considered as buil
 The following meta expression exist in the current version.
 - `@errorHandler`
 - `@matchString`
+- `@sepBy`
 - `@verify`
 
 Name: `@ErrorHandler`  
@@ -327,6 +328,29 @@ Example:
 ```
 Sep = @matchString({ separator }) ;
 ```
+___
+
+Name: `@sepBy`  
+Parameters:
+- An expression representing an `element`
+- An expression representing an `separator`
+
+The meta expression `@sepBy` parses zero or more occurrences of `element`, separated by `separator` and returns a list of elements as a result.
+
+Example:
+
+```
+Elements = @sepBy(Element, Separator) ;
+```
+
+This is an optimized version of the following expression.
+
+```
+v:(h:Element t:(Separator v:Element)* { $$ = [h, ...t]; })? { $$ = v ?? const []; }
+```
+
+Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
+As a result, the grammar becomes more readable, and the generated parser code works more efficiently.
 ___
 
 Name: `@verify`  

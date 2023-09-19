@@ -1,6 +1,7 @@
 ## 1.0.17
 
 - Changes to the `json_parser.peg` grammar example file.
+- Added `@sepBy` meta expression.
 
 ## 1.0.16
 

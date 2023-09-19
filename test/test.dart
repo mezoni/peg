@@ -5,6 +5,7 @@ import 'test_parser.dart';
 void main() {
   _testMatchString();
   _testOrderedChoiceWithLiterals();
+  _testSepBy();
   _testVerify();
   _testZeroOrMore();
 }
@@ -99,7 +100,7 @@ void _testMatchString() {
       _parser.text = '123';
       await __testFailure(
         errors: {
-          ErrorMessage(0, "Expected: '123'"),
+          const ErrorMessage(0, "Expected: '123'"),
         },
         failPos: 0,
         fastParse: _parser.fastParseMatchString,
@@ -199,6 +200,57 @@ void _testOrderedChoiceWithLiterals() {
   });
 }
 
+void _testSepBy() {
+  test('SepBy', () async {
+    {
+      const source = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseSepBy,
+        parse: _parser.parseSepBy,
+        pos: 0,
+        result: <int>[],
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseSepBy,
+        parse: _parser.parseSepBy,
+        pos: 1,
+        result: [1],
+        source: source,
+      );
+    }
+
+    {
+      const source = '1,2';
+      await __testSuccess(
+        fastParse: _parser.fastParseSepBy,
+        parse: _parser.parseSepBy,
+        pos: 3,
+        result: [1, 2],
+        source: source,
+      );
+    }
+
+    {
+      const source = '1,';
+      await __testFailure(
+        errors: {
+          const ErrorUnexpectedEndOfInput().getErrorMessage(source.toInput, 2),
+        },
+        failPos: 2,
+        fastParse: _parser.fastParseSepBy,
+        parse: _parser.parseSepBy,
+        pos: 1,
+        source: source,
+      );
+    }
+  });
+}
+
 void _testVerify() {
   test('Verify', () async {
     {
@@ -216,8 +268,8 @@ void _testVerify() {
       const source = '40abc';
       await __testFailure(
         errors: {
-          ErrorMessage(0, 'error'),
-          ErrorMessage(0, "Unexpected character 'a' (0x61)"),
+          const ErrorMessage(0, 'error'),
+          const ErrorUnexpectedCharacter().getErrorMessage(source.toInput, 2),
         },
         failPos: 2,
         fastParse: _parser.fastParseVerify41,
@@ -244,7 +296,7 @@ void _testVerify() {
       _parser.flag = false;
       await __testFailure(
         errors: {
-          ErrorMessage(0, 'error'),
+          const ErrorMessage(0, 'error'),
         },
         failPos: 0,
         fastParse: _parser.fastParseVerifyFlag,
@@ -306,4 +358,10 @@ void _testZeroOrMore() {
       );
     }
   });
+}
+
+extension on String {
+  StringReader get toInput {
+    return StringReader(this);
+  }
 }

@@ -1,5 +1,6 @@
 import '../allocator.dart';
 import '../expression_generators/expression_generators.dart';
+import '../expression_generators/sep_by_generator.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
 import '../visitors/visitors.dart';
@@ -159,6 +160,13 @@ void {{name}}(State<StringReader> state) {
   }
 
   @override
+  String visitMatchString(MatchStringExpression node) {
+    final generator =
+        MatchStringGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitNotPredicate(NotPredicateExpression node) {
     final generator =
         NotPredicateGenerator(expression: node, ruleGenerator: this);
@@ -188,6 +196,12 @@ void {{name}}(State<StringReader> state) {
   String visitRepetition(RepetitionExpression node) {
     final generator =
         RepetitionGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitSepBy(SepByExpression node) {
+    final generator = SepByGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -228,12 +242,5 @@ void {{name}}(State<StringReader> state) {
 
   String _generate(ExpressionGenerator generator) {
     return generator.generate();
-  }
-
-  @override
-  String visitMatchString(MatchStringExpression node) {
-    final generator =
-        MatchStringGenerator(expression: node, ruleGenerator: this);
-    return _generate(generator);
   }
 }

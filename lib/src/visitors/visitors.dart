@@ -27,6 +27,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitRepetition(RepetitionExpression node);
 
+  T visitSepBy(SepByExpression node);
+
   T visitSequence(SequenceExpression node);
 
   T visitSlice(SliceExpression node);
@@ -98,6 +100,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitRepetition(RepetitionExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitSepBy(SepByExpression node) {
     return visitNode(node);
   }
 

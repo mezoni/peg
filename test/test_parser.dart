@@ -7,17 +7,17 @@ class TestParser {
     Object? $0;
     // (v:MatchString MatchString)
     // v:MatchString MatchString
-    final $26 = state.pos;
-    String? $27;
-    $27 = parseMatchString(state);
+    final $29 = state.pos;
+    String? $30;
+    $30 = parseMatchString(state);
     if (state.ok) {
       fastParseMatchString(state);
       if (state.ok) {
-        $0 = $27;
+        $0 = $30;
       }
     }
     if (!state.ok) {
-      state.pos = $26;
+      state.pos = $29;
     }
     if (state.ok) {
       $0 = $0;
@@ -25,17 +25,17 @@ class TestParser {
     if (!state.ok) {
       // (v:SkipUntil SkipUntil)
       // v:SkipUntil SkipUntil
-      final $23 = state.pos;
-      List<int>? $24;
-      $24 = parseSkipUntil(state);
+      final $26 = state.pos;
+      List<int>? $27;
+      $27 = parseSkipUntil(state);
       if (state.ok) {
         fastParseSkipUntil(state);
         if (state.ok) {
-          $0 = $24;
+          $0 = $27;
         }
       }
       if (!state.ok) {
-        state.pos = $23;
+        state.pos = $26;
       }
       if (state.ok) {
         $0 = $0;
@@ -43,17 +43,17 @@ class TestParser {
       if (!state.ok) {
         // (v:SkipTil SkipTil)
         // v:SkipTil SkipTil
-        final $20 = state.pos;
-        List<int>? $21;
-        $21 = parseSkipTil(state);
+        final $23 = state.pos;
+        List<int>? $24;
+        $24 = parseSkipTil(state);
         if (state.ok) {
           fastParseSkipTil(state);
           if (state.ok) {
-            $0 = $21;
+            $0 = $24;
           }
         }
         if (!state.ok) {
-          state.pos = $20;
+          state.pos = $23;
         }
         if (state.ok) {
           $0 = $0;
@@ -61,17 +61,17 @@ class TestParser {
         if (!state.ok) {
           // (v:TakeUntil TakeUntil)
           // v:TakeUntil TakeUntil
-          final $17 = state.pos;
-          String? $18;
-          $18 = parseTakeUntil(state);
+          final $20 = state.pos;
+          String? $21;
+          $21 = parseTakeUntil(state);
           if (state.ok) {
             fastParseTakeUntil(state);
             if (state.ok) {
-              $0 = $18;
+              $0 = $21;
             }
           }
           if (!state.ok) {
-            state.pos = $17;
+            state.pos = $20;
           }
           if (state.ok) {
             $0 = $0;
@@ -79,17 +79,17 @@ class TestParser {
           if (!state.ok) {
             // (v:TakeTil TakeTil)
             // v:TakeTil TakeTil
-            final $14 = state.pos;
-            String? $15;
-            $15 = parseTakeTil(state);
+            final $17 = state.pos;
+            String? $18;
+            $18 = parseTakeTil(state);
             if (state.ok) {
               fastParseTakeTil(state);
               if (state.ok) {
-                $0 = $15;
+                $0 = $18;
               }
             }
             if (!state.ok) {
-              state.pos = $14;
+              state.pos = $17;
             }
             if (state.ok) {
               $0 = $0;
@@ -97,17 +97,17 @@ class TestParser {
             if (!state.ok) {
               // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-              final $11 = state.pos;
-              String? $12;
-              $12 = parseOrderedChoiceWithLiterals(state);
+              final $14 = state.pos;
+              String? $15;
+              $15 = parseOrderedChoiceWithLiterals(state);
               if (state.ok) {
                 fastParseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
-                  $0 = $12;
+                  $0 = $15;
                 }
               }
               if (!state.ok) {
-                state.pos = $11;
+                state.pos = $14;
               }
               if (state.ok) {
                 $0 = $0;
@@ -115,56 +115,75 @@ class TestParser {
               if (!state.ok) {
                 // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
                 // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-                final $8 = state.pos;
-                String? $9;
-                $9 = parseOrderedChoiceWithLiterals(state);
+                final $11 = state.pos;
+                String? $12;
+                $12 = parseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
                   fastParseOrderedChoiceWithLiterals(state);
                   if (state.ok) {
-                    $0 = $9;
+                    $0 = $12;
                   }
                 }
                 if (!state.ok) {
-                  state.pos = $8;
+                  state.pos = $11;
                 }
                 if (state.ok) {
                   $0 = $0;
                 }
                 if (!state.ok) {
-                  // (v:Verify41 Verify41)
-                  // v:Verify41 Verify41
-                  final $5 = state.pos;
-                  int? $6;
-                  $6 = parseVerify41(state);
+                  // (v:SepBy SepBy)
+                  // v:SepBy SepBy
+                  final $8 = state.pos;
+                  List<int>? $9;
+                  $9 = parseSepBy(state);
                   if (state.ok) {
-                    fastParseVerify41(state);
+                    fastParseSepBy(state);
                     if (state.ok) {
-                      $0 = $6;
+                      $0 = $9;
                     }
                   }
                   if (!state.ok) {
-                    state.pos = $5;
+                    state.pos = $8;
                   }
                   if (state.ok) {
                     $0 = $0;
                   }
                   if (!state.ok) {
-                    // (v:VerifyFlag VerifyFlag)
-                    // v:VerifyFlag VerifyFlag
-                    final $2 = state.pos;
-                    String? $3;
-                    $3 = parseVerifyFlag(state);
+                    // (v:Verify41 Verify41)
+                    // v:Verify41 Verify41
+                    final $5 = state.pos;
+                    int? $6;
+                    $6 = parseVerify41(state);
                     if (state.ok) {
-                      fastParseVerifyFlag(state);
+                      fastParseVerify41(state);
                       if (state.ok) {
-                        $0 = $3;
+                        $0 = $6;
                       }
                     }
                     if (!state.ok) {
-                      state.pos = $2;
+                      state.pos = $5;
                     }
                     if (state.ok) {
                       $0 = $0;
+                    }
+                    if (!state.ok) {
+                      // (v:VerifyFlag VerifyFlag)
+                      // v:VerifyFlag VerifyFlag
+                      final $2 = state.pos;
+                      String? $3;
+                      $3 = parseVerifyFlag(state);
+                      if (state.ok) {
+                        fastParseVerifyFlag(state);
+                        if (state.ok) {
+                          $0 = $3;
+                        }
+                      }
+                      if (!state.ok) {
+                        state.pos = $2;
+                      }
+                      if (state.ok) {
+                        $0 = $0;
+                      }
                     }
                   }
                 }
@@ -316,6 +335,132 @@ class TestParser {
     }
     if (!state.ok) {
       state.pos = $2;
+    }
+  }
+
+  List<int>? parseSepBy(State<StringReader> state) {
+    List<int>? $0;
+    // @sepBy(Integer, ',')
+    int? $4;
+    // Integer
+    $4 = parseInteger(state);
+    if (state.ok) {
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4!];
+      while (true) {
+        final $2 = state.pos;
+        state.ok = false;
+        final $8 = state.input;
+        if (state.pos < $8.length) {
+          final $6 = $8.readChar(state.pos);
+          final $7 = $8.count;
+          switch ($6) {
+            case 44:
+              state.ok = true;
+              state.pos += $7;
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags([',']));
+        }
+        if (!state.ok) {
+          state.ok = true;
+          $0 = $3;
+          break;
+        }
+        // Integer
+        $4 = parseInteger(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4!);
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  void fastParseSepBy(State<StringReader> state) {
+    // @sepBy(Integer, ',')
+    // Integer
+    fastParseInteger(state);
+    if (!state.ok) {
+      state.ok = true;
+    } else {
+      while (true) {
+        final $1 = state.pos;
+        state.ok = false;
+        final $5 = state.input;
+        if (state.pos < $5.length) {
+          final $3 = $5.readChar(state.pos);
+          final $4 = $5.count;
+          switch ($3) {
+            case 44:
+              state.ok = true;
+              state.pos += $4;
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags([',']));
+        }
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+        // Integer
+        fastParseInteger(state);
+        if (!state.ok) {
+          state.pos = $1;
+          break;
+        }
+      }
+    }
+  }
+
+  void fastParseInteger(State<StringReader> state) {
+    // v:$[0-9]+
+    String? $1;
+    final $2 = state.pos;
+    var $3 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.readChar(state.pos);
+        state.ok = $4 >= 48 && $4 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $3 = true;
+    }
+    state.ok = $3;
+    if (state.ok) {
+      $1 = state.input.substring($2, state.pos);
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      int? $$;
+      final v = $1!;
+      $$ = int.parse(v);
     }
   }
 

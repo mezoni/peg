@@ -14,6 +14,7 @@ Start =
   / (v:TakeTil TakeTil)
   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+  / (v:SepBy SepBy)
   / (v:Verify41 Verify41)
   / (v:VerifyFlag VerifyFlag)
   ;
@@ -32,6 +33,8 @@ OrderedChoiceWithLiterals =
   / 'd'
   / 'gh'
   ;
+
+SepBy = @sepBy(Integer, ',') ;
 
 SkipUntil =  (!'END'  v:.)* ;
 

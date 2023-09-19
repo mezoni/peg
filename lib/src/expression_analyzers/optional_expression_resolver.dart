@@ -16,8 +16,7 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
 
   @override
   void visitAndPredicate(AndPredicateExpression node) {
-    final child = node.expression;
-    child.accept(this);
+    node.visitChildren(this);
     _setIsOptional(node, false);
   }
 
@@ -33,15 +32,15 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
 
   @override
   void visitErrorHandler(ErrorHandlerExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     _setIsOptional(node, child.isOptional);
   }
 
   @override
   void visitGroup(GroupExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     _setIsOptional(node, child.isOptional);
   }
 
@@ -57,63 +56,52 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
 
   @override
   void visitNotPredicate(NotPredicateExpression node) {
-    final child = node.expression;
-    child.accept(this);
+    node.visitChildren(this);
     _setIsOptional(node, false);
   }
 
   @override
   void visitOneOrMore(OneOrMoreExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     _setIsOptional(node, child.isOptional);
   }
 
   @override
   void visitOptional(OptionalExpression node) {
-    final child = node.expression;
-    child.accept(this);
+    node.visitChildren(this);
     _setIsOptional(node, true);
   }
 
   @override
   void visitOrderedChoice(OrderedChoiceExpression node) {
-    final expressions = node.expressions;
-    final length = expressions.length;
-    for (var i = 0; i < length; i++) {
-      final child = expressions[i];
-      child.accept(this);
-    }
-
-    final isOptional = expressions.where((e) => e.isOptional).isNotEmpty;
+    final children = node.expressions;
+    node.visitChildren(this);
+    final isOptional = children.where((e) => e.isOptional).isNotEmpty;
     _setIsOptional(node, isOptional);
   }
 
   @override
   void visitRepetition(RepetitionExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     final isOptional = node.min == 0 || node.max == 0 || child.isOptional;
     _setIsOptional(node, isOptional);
   }
 
   @override
   void visitSequence(SequenceExpression node) {
-    final expressions = node.expressions;
-    final length = expressions.length;
-    for (var i = 0; i < length; i++) {
-      final child = expressions[i];
-      child.accept(this);
-    }
-
-    final isOptional = expressions.where((e) => e.isOptional).length == length;
+    final children = node.expressions;
+    final length = children.length;
+    node.visitChildren(this);
+    final isOptional = children.where((e) => e.isOptional).length == length;
     _setIsOptional(node, isOptional);
   }
 
   @override
   void visitSlice(SliceExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     _setIsOptional(node, child.isOptional);
   }
 
@@ -125,15 +113,14 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
 
   @override
   void visitVerify(VerifyExpression node) {
+    node.visitChildren(this);
     final child = node.expression;
-    child.accept(this);
     _setIsOptional(node, child.isOptional);
   }
 
   @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
-    final child = node.expression;
-    child.accept(this);
+    node.visitChildren(this);
     _setIsOptional(node, true);
   }
 
@@ -144,5 +131,11 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
         node.isOptional = isOptional;
       }
     }
+  }
+
+  @override
+  void visitSepBy(SepByExpression node) {
+    node.visitChildren(this);
+    _setIsOptional(node, true);
   }
 }

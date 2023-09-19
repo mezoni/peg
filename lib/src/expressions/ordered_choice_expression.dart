@@ -14,12 +14,4 @@ class OrderedChoiceExpression extends MultipleExpression {
   String toString() {
     return expressions.join(' / ');
   }
-
-  @override
-  void visitChildren<T>(ExpressionVisitor<T> visitor) {
-    for (var i = 0; i < expressions.length; i++) {
-      final expression = expressions[i];
-      expression.accept(visitor);
-    }
-  }
 }

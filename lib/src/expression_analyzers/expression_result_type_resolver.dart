@@ -125,6 +125,13 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitSepBy(SepByExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getListResultType(_getResultType(child)));
+  }
+
+  @override
   void visitSequence(SequenceExpression node) {
     final children = node.expressions;
     final count = children.length;

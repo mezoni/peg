@@ -85,13 +85,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   @override
   void visitOrderedChoice(OrderedChoiceExpression node) {
-    final expressions = node.expressions;
-    final length = expressions.length;
-    for (var i = 0; i < length; i++) {
-      final child = expressions[i];
-      child.index = i;
-    }
-
     _initializeNode(node);
   }
 
@@ -101,16 +94,12 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitSequence(SequenceExpression node) {
-    _assignId(node);
-    final expressions = node.expressions;
-    final length = expressions.length;
-    for (var i = 0; i < length; i++) {
-      final child = expressions[i];
-      child.index = i;
-      _assignId(child);
-    }
+  void visitSepBy(SepByExpression node) {
+    _initializeNode(node);
+  }
 
+  @override
+  void visitSequence(SequenceExpression node) {
     _initializeNode(node);
   }
 
@@ -140,6 +129,7 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   void _initializeNode(Expression node) {
     final current = _current;
+    _assignId(node);
     node.parent = current;
     _current = node;
     if (node case final SingleExpression node) {
@@ -152,7 +142,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
     node.index ??= 0;
     node.rule = _rule;
-    _assignId(node);
     node.level = _level;
     final level = _level;
     _level++;

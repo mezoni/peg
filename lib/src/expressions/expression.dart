@@ -36,6 +36,14 @@ abstract class MultipleExpression extends Expression {
   MultipleExpression({
     required this.expressions,
   });
+
+  @override
+  void visitChildren<T>(ExpressionVisitor<T> visitor) {
+    for (var i = 0; i < expressions.length; i++) {
+      final expression = expressions[i];
+      expression.accept(visitor);
+    }
+  }
 }
 
 abstract class SingleExpression extends Expression {
