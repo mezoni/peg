@@ -2,6 +2,7 @@
 
 - Added example file `example_parse_from_file.dart`.
 - Changes in the file `README.md`.
+- Changes in the file `pubspec.yaml`.
 
 ## 1.0.22
 
