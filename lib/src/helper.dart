@@ -84,6 +84,8 @@ String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
     throw ArgumentError.value(ranges, 'ranges', 'Must not be empty');
   }
 
+  // TODO:
+  // ignore: unused_element
   _Expression and(_Expression left, _Expression right) {
     return _Code('$left && $right');
   }
