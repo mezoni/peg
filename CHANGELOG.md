@@ -1,3 +1,7 @@
+## 1.0.22
+
+- Breaking change: The return type of the expression `Sequence` with more than one element has changed if semantic variables are not specified. Previously, a result with type `Record` (with positional fields)  was returned, now a result with type `List<Object?>` is returned. This is done so as not to overload the system for automatically inferring the type of results returned. Because using the `Record` type as the return type by default leads to an exponential increase in the number of types for fields of the `Record` type (where the fields refer to another `Record` and so on very deeply), since the `Record` type is a very informative type and contains a huge amount of information.
+
 ## 1.0.21
 
 - Fixed a bug in the implementation of `rangesToPredicate()`.

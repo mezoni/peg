@@ -3,6 +3,18 @@ class TestParser {
 
   String text = '';
 
+  /// Start =
+  ///     (v:MatchString MatchString)
+  ///   / (v:SkipUntil SkipUntil)
+  ///   / (v:SkipTil SkipTil)
+  ///   / (v:TakeUntil TakeUntil)
+  ///   / (v:TakeTil TakeTil)
+  ///   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+  ///   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+  ///   / (v:SepBy SepBy)
+  ///   / (v:Verify41 Verify41)
+  ///   / (v:VerifyFlag VerifyFlag)
+  ///   ;
   Object? parseStart(State<StringReader> state) {
     Object? $0;
     // (v:MatchString MatchString)
@@ -196,6 +208,9 @@ class TestParser {
     return $0;
   }
 
+  /// VerifyFlag =
+  ///   @verify'')
+  ///   ;
   String? parseVerifyFlag(State<StringReader> state) {
     String? $0;
     // @verify'')
@@ -226,6 +241,9 @@ class TestParser {
     return $0;
   }
 
+  /// VerifyFlag =
+  ///   @verify'')
+  ///   ;
   void fastParseVerifyFlag(State<StringReader> state) {
     // @verify'')
     final $2 = state.pos;
@@ -252,6 +270,9 @@ class TestParser {
     }
   }
 
+  /// Verify41 =
+  ///   @verifyInteger)
+  ///   ;
   int? parseVerify41(State<StringReader> state) {
     int? $0;
     // @verifyInteger)
@@ -279,6 +300,10 @@ class TestParser {
     return $0;
   }
 
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+
+  ///   ;
   int? parseInteger(State<StringReader> state) {
     int? $0;
     // v:$[0-9]+
@@ -315,6 +340,9 @@ class TestParser {
     return $0;
   }
 
+  /// Verify41 =
+  ///   @verifyInteger)
+  ///   ;
   void fastParseVerify41(State<StringReader> state) {
     // @verifyInteger)
     final $2 = state.pos;
@@ -338,6 +366,9 @@ class TestParser {
     }
   }
 
+  /// SepBy =
+  ///   @sepBy(Integer, ',')
+  ///   ;
   List<int>? parseSepBy(State<StringReader> state) {
     List<int>? $0;
     // @sepBy(Integer, ',')
@@ -392,6 +423,9 @@ class TestParser {
     return $0;
   }
 
+  /// SepBy =
+  ///   @sepBy(Integer, ',')
+  ///   ;
   void fastParseSepBy(State<StringReader> state) {
     // @sepBy(Integer, ',')
     // Integer
@@ -430,6 +464,10 @@ class TestParser {
     }
   }
 
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+
+  ///   ;
   void fastParseInteger(State<StringReader> state) {
     // v:$[0-9]+
     String? $1;
@@ -464,6 +502,15 @@ class TestParser {
     }
   }
 
+  /// OrderedChoiceWithLiterals =
+  ///     'abc'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'def'
+  ///   / 'de'
+  ///   / 'd'
+  ///   / 'gh'
+  ///   ;
   String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
     String? $0;
     state.ok = false;
@@ -527,6 +574,15 @@ class TestParser {
     return $0;
   }
 
+  /// OrderedChoiceWithLiterals =
+  ///     'abc'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'def'
+  ///   / 'de'
+  ///   / 'd'
+  ///   / 'gh'
+  ///   ;
   void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
     state.ok = false;
     final $2 = state.input;
@@ -581,6 +637,9 @@ class TestParser {
     }
   }
 
+  /// TakeTil =
+  ///   $(![E] v:.)*
+  ///   ;
   String? parseTakeTil(State<StringReader> state) {
     String? $0;
     // $(![E] v:.)*
@@ -602,6 +661,9 @@ class TestParser {
     return $0;
   }
 
+  /// TakeTil =
+  ///   $(![E] v:.)*
+  ///   ;
   void fastParseTakeTil(State<StringReader> state) {
     // $(![E] v:.)*
     const $3 = 'E';
@@ -614,6 +676,9 @@ class TestParser {
     }
   }
 
+  /// TakeUntil =
+  ///   $(!'END' v:.)*
+  ///   ;
   String? parseTakeUntil(State<StringReader> state) {
     String? $0;
     // $(!'END' v:.)*
@@ -635,6 +700,9 @@ class TestParser {
     return $0;
   }
 
+  /// TakeUntil =
+  ///   $(!'END' v:.)*
+  ///   ;
   void fastParseTakeUntil(State<StringReader> state) {
     // $(!'END' v:.)*
     const $3 = 'END';
@@ -647,6 +715,9 @@ class TestParser {
     }
   }
 
+  /// SkipTil =
+  ///   (![E] v:.)*
+  ///   ;
   List<int>? parseSkipTil(State<StringReader> state) {
     List<int>? $0;
     // (![E] v:.)*
@@ -697,6 +768,9 @@ class TestParser {
     return $0;
   }
 
+  /// SkipTil =
+  ///   (![E] v:.)*
+  ///   ;
   void fastParseSkipTil(State<StringReader> state) {
     // (![E] v:.)*
     const $2 = 'E';
@@ -709,6 +783,9 @@ class TestParser {
     }
   }
 
+  /// SkipUntil =
+  ///   (!'END' v:.)*
+  ///   ;
   List<int>? parseSkipUntil(State<StringReader> state) {
     List<int>? $0;
     // (!'END' v:.)*
@@ -755,6 +832,9 @@ class TestParser {
     return $0;
   }
 
+  /// SkipUntil =
+  ///   (!'END' v:.)*
+  ///   ;
   void fastParseSkipUntil(State<StringReader> state) {
     // (!'END' v:.)*
     const $2 = 'END';
@@ -767,6 +847,9 @@ class TestParser {
     }
   }
 
+  /// MatchString =
+  ///   @matchString()
+  ///   ;
   String? parseMatchString(State<StringReader> state) {
     String? $0;
     // @matchString()
@@ -789,6 +872,9 @@ class TestParser {
     return $0;
   }
 
+  /// MatchString =
+  ///   @matchString()
+  ///   ;
   void fastParseMatchString(State<StringReader> state) {
     // @matchString()
     final $1 = text;

@@ -1,14 +1,16 @@
 void main(List<String> args) {
   const source = '1 + 2 * 3';
-  final parser = CalcParser();
+  const parser = CalcParser();
   final result = parseString(parser.parseStart, source);
   print(result);
 }
 
 class CalcParser {
-  num _calcBinary(num? left, (String, num) next) {
-    final op = next.$1;
-    final right = next.$2;
+  const CalcParser();
+
+  num _calcBinary(num? left, ({String op, num expr}) next) {
+    final op = next.op;
+    final right = next.expr;
     left = left!;
     switch (op) {
       case '+':
@@ -104,20 +106,20 @@ class CalcParser {
 
   /// num
   /// Add =
-  ///   h:Mul t:(AddOp Mul)*
+  ///   h:Mul t:(op:AddOp expr:Mul)*
   ///   ;
   num? parseAdd(State<StringReader> state) {
     num? $0;
-    // h:Mul t:(AddOp Mul)*
+    // h:Mul t:(op:AddOp expr:Mul)*
     final $1 = state.pos;
     num? $2;
     $2 = parseMul(state);
     if (state.ok) {
-      List<(String, num)>? $3;
-      final $4 = <(String, num)>[];
+      List<({String op, num expr})>? $3;
+      final $4 = <({String op, num expr})>[];
       while (true) {
-        (String, num)? $5;
-        // AddOp Mul
+        ({String op, num expr})? $5;
+        // op:AddOp expr:Mul
         final $6 = state.pos;
         String? $7;
         $7 = parseAddOp(state);
@@ -125,7 +127,7 @@ class CalcParser {
           num? $8;
           $8 = parseMul(state);
           if (state.ok) {
-            $5 = ($7!, $8!);
+            $5 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
@@ -156,20 +158,20 @@ class CalcParser {
 
   /// num
   /// Mul =
-  ///   h:Prefix t:(MulOp Prefix)*
+  ///   h:Prefix t:(op:MulOp expr:Prefix)*
   ///   ;
   num? parseMul(State<StringReader> state) {
     num? $0;
-    // h:Prefix t:(MulOp Prefix)*
+    // h:Prefix t:(op:MulOp expr:Prefix)*
     final $1 = state.pos;
     num? $2;
     $2 = parsePrefix(state);
     if (state.ok) {
-      List<(String, num)>? $3;
-      final $4 = <(String, num)>[];
+      List<({String op, num expr})>? $3;
+      final $4 = <({String op, num expr})>[];
       while (true) {
-        (String, num)? $5;
-        // MulOp Prefix
+        ({String op, num expr})? $5;
+        // op:MulOp expr:Prefix
         final $6 = state.pos;
         String? $7;
         $7 = parseMulOp(state);
@@ -177,7 +179,7 @@ class CalcParser {
           num? $8;
           $8 = parsePrefix(state);
           if (state.ok) {
-            $5 = ($7!, $8!);
+            $5 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
@@ -319,22 +321,30 @@ class CalcParser {
 
   /// num
   /// NumberRaw =
-  ///   v:$('-'? '0' / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+  ///   v:$([-]? [0] / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
   ///   ;
   num? parseNumberRaw(State<StringReader> state) {
     num? $0;
-    // v:$('-'? '0' / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+    // v:$([-]? [0] / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
     final $1 = state.pos;
     String? $2;
     final $3 = state.pos;
-    // '-'? '0'
+    // [-]? [0]
     final $16 = state.pos;
-    const $17 = '-';
-    matchLiteral1(state, 45, $17, const ErrorExpectedTags([$17]));
+    state.ok = state.input.matchChar(45, state.pos);
+    if (state.ok) {
+      state.pos += state.input.count;
+    } else {
+      state.fail(const ErrorExpectedCharacter(45));
+    }
     state.ok = true;
     if (state.ok) {
-      const $18 = '0';
-      matchLiteral1(state, 48, $18, const ErrorExpectedTags([$18]));
+      state.ok = state.input.matchChar(48, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
     }
     if (!state.ok) {
       state.pos = $16;

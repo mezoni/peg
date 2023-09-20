@@ -413,7 +413,7 @@ A = 'abc';
 
 The type of the returned value is `String`, the value is 'abc'.
 
-If the sequence consists of more than one element, then a value with the `Record` type is returned as a result, in which the results of the elements are used as (unnamed) fields.
+If the sequence consists of more than one element and does not use semantic variables then a value with the `List<Object?>` type is returned as a result, in which the results of the elements are used as list elements.
 
 Example:
 
@@ -421,7 +421,7 @@ Example:
 A = 'abc' 'def';
 ```
 
-The return value type is `(String, String)`, the value is ('abc', 'def').
+The return value type is `List<Object?>`, the value is `['abc', 'def']`.
 
 Semantic variables allow you to designate the results used and assign names to them.
 
@@ -440,7 +440,7 @@ Example:
 A = a:'abc' b:'def';
 ```
 
-The return value type is `(String a, String b)`, the value is (a: 'abc', b: 'def').
+The return value type is `(String a, String b)`, the value is `(a: 'abc', b: 'def')`.
 
 ```
 A = OpenBrace v:Value CloseBrace';

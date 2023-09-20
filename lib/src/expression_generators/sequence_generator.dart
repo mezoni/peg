@@ -95,7 +95,7 @@ if (state.ok) {
           }
 
           result = children.map(getExpressionVariableWithNullCheck).join(', ');
-          result = '($result)';
+          result = '[$result]';
         }
       }
     }
