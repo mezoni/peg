@@ -101,6 +101,7 @@ state.ok = false;
 final {{input}} = state.input;
 if (state.pos < {{input}}.length) {
   final {{c}} = {{input}}.readChar(state.pos);
+  // ignore: unused_local_variable
   final {{count}} = {{input}}.count;
   switch ({{c}}) {
     {{cases}}

@@ -525,10 +525,7 @@ class PegParser {
     if (state.ok) {
       fastParseSpaces(state);
       if (state.ok) {
-        String? $$;
-        final i = $2!;
-        $$ = i;
-        $0 = $$;
+        $0 = $2;
       }
     }
     if (!state.ok) {
@@ -2428,17 +2425,17 @@ class PegParser {
 
   /// (ResultType, String)
   /// NamedField =
-  ///   t:Type i:Identifier
+  ///   t:Type i:NativeIdentifier
   ///   ;
   (ResultType, String)? parseNamedField(State<StringReader> state) {
     (ResultType, String)? $0;
-    // t:Type i:Identifier
+    // t:Type i:NativeIdentifier
     final $1 = state.pos;
     ResultType? $2;
     $2 = parseType(state);
     if (state.ok) {
       String? $3;
-      $3 = parseIdentifier(state);
+      $3 = parseNativeIdentifier(state);
       if (state.ok) {
         (ResultType, String)? $$;
         final t = $2!;
@@ -2453,17 +2450,82 @@ class PegParser {
     return $0;
   }
 
+  /// String
+  /// NativeIdentifier =
+  ///   i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
+  ///   ;
+  String? parseNativeIdentifier(State<StringReader> state) {
+    String? $0;
+    // i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
+    final $1 = state.pos;
+    String? $2;
+    final $3 = state.pos;
+    // [$a-zA-Z_] [$0-9a-zA-Z_]*
+    final $4 = state.pos;
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $5 = state.input.readChar(state.pos);
+      state.ok =
+          $5 <= 90 ? $5 == 36 || $5 >= 65 : $5 == 95 || $5 >= 97 && $5 <= 122;
+      if (state.ok) {
+        state.pos += state.input.count;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.readChar(state.pos);
+          state.ok = $6 <= 90
+              ? $6 <= 57
+                  ? $6 == 36 || $6 >= 48
+                  : $6 >= 65
+              : $6 == 95 || $6 >= 97 && $6 <= 122;
+          if (state.ok) {
+            state.pos += state.input.count;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $4;
+    }
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
   /// ResultType
   /// GenericType =
-  ///     i:Identifier Less p:TypeArguments Greater
-  ///   / i:Identifier
+  ///     i:NativeIdentifier Less p:TypeArguments Greater
+  ///   / i:NativeIdentifier
   ///   ;
   ResultType? parseGenericType(State<StringReader> state) {
     ResultType? $0;
-    // i:Identifier Less p:TypeArguments Greater
+    // i:NativeIdentifier Less p:TypeArguments Greater
     final $3 = state.pos;
     String? $4;
-    $4 = parseIdentifier(state);
+    $4 = parseNativeIdentifier(state);
     if (state.ok) {
       fastParseLess(state);
       if (state.ok) {
@@ -2485,9 +2547,9 @@ class PegParser {
       state.pos = $3;
     }
     if (!state.ok) {
-      // i:Identifier
+      // i:NativeIdentifier
       String? $2;
-      $2 = parseIdentifier(state);
+      $2 = parseNativeIdentifier(state);
       if (state.ok) {
         ResultType? $$;
         final i = $2!;

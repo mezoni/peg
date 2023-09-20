@@ -1,3 +1,7 @@
+## 1.0.24
+
+- Changes to the `peg_parser.peg` grammar files. Added a `NativeIdentifier` production rule to parse native identifier.
+
 ## 1.0.23
 
 - Added example file `example_parse_from_file.dart`.

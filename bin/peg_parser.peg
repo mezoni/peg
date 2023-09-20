@@ -95,8 +95,11 @@ Type = t:(GenericType / RecordType) q:Question? { $$ = q == null ? t : t.getNull
 
 ResultType
 GenericType =
-   i:Identifier Less p:TypeArguments Greater { $$ = GenericType(name: i, arguments: p); }
-  / i:Identifier { $$ = GenericType(name: i); } ;
+   i:NativeIdentifier Less p:TypeArguments Greater { $$ = GenericType(name: i, arguments: p); }
+  / i:NativeIdentifier { $$ = GenericType(name: i); } ;
+
+String
+NativeIdentifier = i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces ;
 
 List<ResultType>
 TypeArguments = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
@@ -116,7 +119,7 @@ List<(ResultType, String)>
 NamedFields = h:NamedField t:(Comma v:NamedField)* { $$ = [h, ...t];  } ;
 
 (ResultType, String)
-NamedField = t:Type i:Identifier { $$ = (t, i); } ;
+NamedField = t:Type i:NativeIdentifier { $$ = (t, i); } ;
 
 List<ResultType>
 PositionalFields = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
@@ -222,7 +225,7 @@ RangeChar =
   / !'\\' c:.;
 
 String
-Identifier = i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces { $$ = i; } ;
+Identifier = i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces ;
 
 (int?, int?)
 MinMax =
