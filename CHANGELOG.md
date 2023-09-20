@@ -1,6 +1,7 @@
-## 1.0.22
+## 1.0.23
 
 - Added example file `example_parse_from_file.dart`.
+- Changes in the file `README.md`.
 
 ## 1.0.22
 

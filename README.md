@@ -26,6 +26,11 @@ dart pub global run peg
 
 ## Source code of the generated parser
 
+All generated parsers support the following features:  
+- Parse input data using events (event-based parsing) to save memory consumption
+- Parse directly from files without having to load input data into memory
+- Very efficient input data parsing in terms of performance and memory consumption
+
 The source code of the generated parser consists of the following parts:
 - Source code of the parser class (generated from grammar rules)
 - Source code of the parser class members (defined by the grammar)
