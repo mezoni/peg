@@ -15,6 +15,6 @@ class VerifyExpression extends SingleExpression {
 
   @override
   String toString() {
-    return '@verify$expression)';
+    return '@verify($expression)';
   }
 }

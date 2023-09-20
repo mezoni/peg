@@ -9,7 +9,7 @@ if (state.ok) {
   // ignore: unused_local_variable
   final pos = {{pos}};
   // ignore: unused_local_variable
-  final $$ = {{r}};
+  final $$ = {{rv}};
   {{handler}}
 }
 if (!state.ok) {
@@ -36,9 +36,9 @@ if (!state.ok) {
     values['handler'] = expression.handler.trim();
     values['p'] = generateExpression(child, variable == null);
     if (variable != null) {
-      values['r'] = variable;
+      values['rv'] = getExpressionVariableWithNullCheck(expression);
     } else {
-      values['r'] = ruleGenerator.getExpressionVariable(child)!;
+      values['rv'] = getExpressionVariableWithNullCheck(child);
     }
 
     return render(_template, values);

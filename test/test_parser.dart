@@ -209,11 +209,11 @@ class TestParser {
   }
 
   /// VerifyFlag =
-  ///   @verify'')
+  ///   @verify('')
   ///   ;
   String? parseVerifyFlag(State<StringReader> state) {
     String? $0;
-    // @verify'')
+    // @verify('')
     final $2 = state.pos;
     // ''
     state.ok = true;
@@ -227,7 +227,7 @@ class TestParser {
       // ignore: unused_local_variable
       final pos = $2;
       // ignore: unused_local_variable
-      final $$ = $0;
+      final $$ = $0!;
       if (!flag) {
         state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
       }
@@ -242,10 +242,10 @@ class TestParser {
   }
 
   /// VerifyFlag =
-  ///   @verify'')
+  ///   @verify('')
   ///   ;
   void fastParseVerifyFlag(State<StringReader> state) {
-    // @verify'')
+    // @verify('')
     final $2 = state.pos;
     String? $1;
     // ''
@@ -260,7 +260,7 @@ class TestParser {
       // ignore: unused_local_variable
       final pos = $2;
       // ignore: unused_local_variable
-      final $$ = $1;
+      final $$ = $1!;
       if (!flag) {
         state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
       }
@@ -271,11 +271,11 @@ class TestParser {
   }
 
   /// Verify41 =
-  ///   @verifyInteger)
+  ///   @verify(Integer)
   ///   ;
   int? parseVerify41(State<StringReader> state) {
     int? $0;
-    // @verifyInteger)
+    // @verify(Integer)
     final $2 = state.pos;
     // Integer
     $0 = parseInteger(state);
@@ -286,7 +286,7 @@ class TestParser {
       // ignore: unused_local_variable
       final pos = $2;
       // ignore: unused_local_variable
-      final $$ = $0;
+      final $$ = $0!;
       if ($$ != 41) {
         state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
       }
@@ -341,10 +341,10 @@ class TestParser {
   }
 
   /// Verify41 =
-  ///   @verifyInteger)
+  ///   @verify(Integer)
   ///   ;
   void fastParseVerify41(State<StringReader> state) {
-    // @verifyInteger)
+    // @verify(Integer)
     final $2 = state.pos;
     int? $1;
     // Integer
@@ -356,7 +356,7 @@ class TestParser {
       // ignore: unused_local_variable
       final pos = $2;
       // ignore: unused_local_variable
-      final $$ = $1;
+      final $$ = $1!;
       if ($$ != 41) {
         state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
       }
