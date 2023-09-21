@@ -4,6 +4,12 @@ Command line tool for generating PEG parsers with support for event-based parsin
 
 Version: 1.0.24
 
+[![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
+[![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
+[![GitHub Forks](https://img.shields.io/github/forks/mezoni/peg.svg)](https://github.com/mezoni/peg/forks)
+[![GitHub Stars](https://img.shields.io/github/stars/mezoni/peg.svg)](https://github.com/mezoni/peg/stargazers)
+[![GitHub License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://raw.githubusercontent.com/mezoni/peg/main/LICENSE)
+
 ## About this software
 
 This software does not contain a public API because it is a console application (command line tool).  

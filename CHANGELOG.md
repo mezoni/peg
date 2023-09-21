@@ -1,3 +1,7 @@
+## 1.0.25
+
+- Changes in the file `README.md`.
+
 ## 1.0.24
 
 - Changes to the `peg_parser.peg` grammar files. Added a `NativeIdentifier` production rule to parse native identifier.
