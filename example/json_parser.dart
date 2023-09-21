@@ -209,21 +209,11 @@ class JsonParser {
     final $3 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
     final $4 = state.pos;
-    state.ok = state.input.matchChar(45, state.pos);
-    if (state.ok) {
-      state.pos += state.input.count;
-    } else {
-      state.fail(const ErrorExpectedCharacter(45));
-    }
+    matchChar(state, 45, const ErrorUnexpectedCharacter(45));
     state.ok = true;
     if (state.ok) {
       // [0]
-      state.ok = state.input.matchChar(48, state.pos);
-      if (state.ok) {
-        state.pos += state.input.count;
-      } else {
-        state.fail(const ErrorExpectedCharacter(48));
-      }
+      matchChar(state, 48, const ErrorUnexpectedCharacter(48));
       if (!state.ok) {
         // [1-9] [0-9]*
         final $5 = state.pos;
@@ -264,12 +254,7 @@ class JsonParser {
       if (state.ok) {
         // [.] [0-9]+
         final $9 = state.pos;
-        state.ok = state.input.matchChar(46, state.pos);
-        if (state.ok) {
-          state.pos += state.input.count;
-        } else {
-          state.fail(const ErrorExpectedCharacter(46));
-        }
+        matchChar(state, 46, const ErrorUnexpectedCharacter(46));
         if (state.ok) {
           var $10 = false;
           while (true) {
@@ -843,6 +828,19 @@ class JsonParser {
     }
     $0 = endEvent<String>('EscapeChar', $0, state.ok);
     return $0;
+  }
+
+  @pragma('vm:prefer-inline')
+  int? matchChar(State<StringReader> state, int char, ParseError error) {
+    final input = state.input;
+    state.ok = input.matchChar(char, state.pos);
+    if (state.ok) {
+      state.pos += input.count;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
   }
 
   @pragma('vm:prefer-inline')

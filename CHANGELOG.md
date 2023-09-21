@@ -2,6 +2,7 @@
 
 - Changes in the file `README.md`.
 - Changes in the implementation of `OrderedChoiceGenerator` and `ZeroOrMoreGenerator`.
+- Changes in the implementation of `CharacterClassGenerator`.
 
 ## 1.0.24
 

@@ -32,21 +32,42 @@ if (!state.ok) {
 }''';
 
   static const _templateChar = '''
-state.ok = state.input.matchChar({{char}}, state.pos);
+matchChar(state, {{char}}, const ErrorUnexpectedCharacter({{char}}));
 if (state.ok) {
-  state.pos += state.input.count;
   {{r}} = {{char}};
-} else {
-  state.fail(const ErrorExpectedCharacter({{char}}));
 }''';
 
   static const _templateCharNoResult = '''
-state.ok = state.input.matchChar({{char}}, state.pos);
-if (state.ok) {
-  state.pos += state.input.count;
-} else {
+matchChar(state, {{char}}, const ErrorUnexpectedCharacter({{char}}));''';
+
+  // ignore: unused_field
+  static const _templateCharAsync = '''
+final result = AsyncResult<int>();
+final input = state.input;
+void parse() {
+  final data = input.data;
+  final c = data.readChar(state.pos);
+  state.ok = c == {{char}};
+  if (state.ok) {
+    state.pos += data.count;
+    result.value = c;
+  } else {
+    state.fail(const ErrorExpectedCharacter({{char}}));
+  }
+  result.isComplete = true;
+}
+
+if (state.pos < input.data.end) {
+  parse();
+  return result;
+}
+if (input.closed) {
+  result.isComplete = true;
   state.fail(const ErrorExpectedCharacter({{char}}));
-}''';
+  return result;
+}
+input.handle = parse;
+return result;''';
 
   CharacterClassGenerator({
     required super.expression,

@@ -40,7 +40,7 @@ void parse() {
       case 0:
         s = 1;
         r = {{p}}(state);
-        if (r.result != null) {
+        if (r.hasValue) {
           break;
         }
         r.handle = parse;
@@ -50,12 +50,49 @@ void parse() {
           s = -1;
           if (list.isNotEmpty) {
             state.ok = true;
-            result.value = Result(list);
+            result.value = list;
           }
           return;
         }
-        final value = result.value!.value;
+        final value = result.{{value}};
         list.add(value);
+        s = 0;
+        break;
+      default:
+        throw StateError('Invalid state: \$s');
+    }
+  }
+}
+
+parse();
+return result;''';
+
+// ignore: unused_field
+  static const _templateAsyncNoResult = '''
+final result = AsyncResult<void>();
+final input = state.input;
+final ok = false;
+late AsyncResult<void> r;
+var s = 0;
+void parse() {
+  while (true) {
+    switch (s) {
+      case 0:
+        s = 1;
+        r = {{p}}(state);
+        if (r.isComplete) {
+          break;
+        }
+        r.handle = parse;
+        break;
+      case 1:
+        if (!state.ok) {
+          s = -1;
+          result.isComplete = true;
+          state.ok = ok;
+          return;
+        }
+        ok = true;
         s = 0;
         break;
       default:

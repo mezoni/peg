@@ -331,20 +331,10 @@ class CalcParser {
     final $3 = state.pos;
     // [-]? [0]
     final $16 = state.pos;
-    state.ok = state.input.matchChar(45, state.pos);
-    if (state.ok) {
-      state.pos += state.input.count;
-    } else {
-      state.fail(const ErrorExpectedCharacter(45));
-    }
+    matchChar(state, 45, const ErrorUnexpectedCharacter(45));
     state.ok = true;
     if (state.ok) {
-      state.ok = state.input.matchChar(48, state.pos);
-      if (state.ok) {
-        state.pos += state.input.count;
-      } else {
-        state.fail(const ErrorExpectedCharacter(48));
-      }
+      matchChar(state, 48, const ErrorUnexpectedCharacter(48));
     }
     if (!state.ok) {
       state.pos = $16;
@@ -578,6 +568,19 @@ class CalcParser {
       state.pos = $1;
     }
     return $0;
+  }
+
+  @pragma('vm:prefer-inline')
+  int? matchChar(State<StringReader> state, int char, ParseError error) {
+    final input = state.input;
+    state.ok = input.matchChar(char, state.pos);
+    if (state.ok) {
+      state.pos += input.count;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
   }
 
   @pragma('vm:prefer-inline')

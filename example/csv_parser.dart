@@ -382,6 +382,19 @@ class CsvParser {
   }
 
   @pragma('vm:prefer-inline')
+  int? matchChar(State<StringReader> state, int char, ParseError error) {
+    final input = state.input;
+    state.ok = input.matchChar(char, state.pos);
+    if (state.ok) {
+      state.pos += input.count;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
     final input = state.input;
