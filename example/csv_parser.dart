@@ -54,6 +54,7 @@ class CsvParser {
         final $11 = state.input;
         if (state.pos < $11.length) {
           final $9 = $11.readChar(state.pos);
+          // ignore: unused_local_variable
           final $10 = $11.count;
           switch ($9) {
             case 10:
@@ -112,6 +113,7 @@ class CsvParser {
       final $20 = state.input;
       if (state.pos < $20.length) {
         final $18 = $20.readChar(state.pos);
+        // ignore: unused_local_variable
         final $19 = $20.count;
         switch ($18) {
           case 10:
@@ -178,6 +180,7 @@ class CsvParser {
         final $10 = state.input;
         if (state.pos < $10.length) {
           final $8 = $10.readChar(state.pos);
+          // ignore: unused_local_variable
           final $9 = $10.count;
           switch ($8) {
             case 44:

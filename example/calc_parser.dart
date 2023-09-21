@@ -508,6 +508,7 @@ class CalcParser {
     final $5 = state.input;
     if (state.pos < $5.length) {
       final $3 = $5.readChar(state.pos);
+      // ignore: unused_local_variable
       final $4 = $5.count;
       switch ($3) {
         case 47:
@@ -549,6 +550,7 @@ class CalcParser {
     final $5 = state.input;
     if (state.pos < $5.length) {
       final $3 = $5.readChar(state.pos);
+      // ignore: unused_local_variable
       final $4 = $5.count;
       switch ($3) {
         case 45:

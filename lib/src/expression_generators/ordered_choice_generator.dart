@@ -23,7 +23,7 @@ if (!state.ok) {
           'List of expressions must not be empty\n$expression\n$rule');
     }
 
-    final optimized = _optimize();
+    final optimized = _OrderedChoiceGenerator2.optimize(this);
     if (optimized != null) {
       return optimized;
     }
@@ -49,53 +49,10 @@ if (!state.ok) {
 
     return plunge(0);
   }
-
-  String? _optimize() {
-    final children = expression.expressions;
-    final strings = <String>[];
-    for (var i = 0; i < children.length; i++) {
-      final sequence = children[i];
-      if (sequence is! SequenceExpression) {
-        return null;
-      }
-
-      if (sequence.action != null) {
-        return null;
-      }
-
-      final elements = sequence.expressions;
-      if (elements.length != 1) {
-        return null;
-      }
-
-      final literal = elements[0];
-      if (literal is! LiteralExpression) {
-        return null;
-      }
-
-      if (!literal.caseSensitive) {
-        return null;
-      }
-
-      final string = literal.string;
-      if (string.isEmpty) {
-        return null;
-      }
-
-      strings.add(string);
-    }
-
-    final generator = _OrderedChoiceWithLiteralsGenerator(
-      expression: expression,
-      ruleGenerator: ruleGenerator,
-      strings: strings,
-    );
-    return generator.generate();
-  }
 }
 
-class _OrderedChoiceWithLiteralsGenerator
-    extends ExpressionGenerator<Expression> {
+class _OrderedChoiceGenerator2
+    extends ExpressionGenerator<OrderedChoiceExpression> {
   static const _template = '''
 state.ok = false;
 final {{input}} = state.input;
@@ -161,7 +118,7 @@ state.pos += {{count}};''';
 
   final List<String> strings;
 
-  _OrderedChoiceWithLiteralsGenerator({
+  _OrderedChoiceGenerator2({
     required super.expression,
     required super.ruleGenerator,
     required this.strings,
@@ -251,5 +208,49 @@ state.pos += {{count}};''';
     values['input'] = input;
     values['strings'] = strings.map(helper.escapeString).join(', ');
     return render(_template, values);
+  }
+
+  static String? optimize(OrderedChoiceGenerator generator) {
+    final expression = generator.expression;
+    final children = expression.expressions;
+    final strings = <String>[];
+    for (var i = 0; i < children.length; i++) {
+      final sequence = children[i];
+      if (sequence is! SequenceExpression) {
+        return null;
+      }
+
+      if (sequence.action != null) {
+        return null;
+      }
+
+      final elements = sequence.expressions;
+      if (elements.length != 1) {
+        return null;
+      }
+
+      final literal = elements[0];
+      if (literal is! LiteralExpression) {
+        return null;
+      }
+
+      if (!literal.caseSensitive) {
+        return null;
+      }
+
+      final string = literal.string;
+      if (string.isEmpty) {
+        return null;
+      }
+
+      strings.add(string);
+    }
+
+    final generator2 = _OrderedChoiceGenerator2(
+      expression: expression,
+      ruleGenerator: generator.ruleGenerator,
+      strings: strings,
+    );
+    return generator2.generate();
   }
 }

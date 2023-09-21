@@ -26,26 +26,6 @@ while (true) {
   }
 }''';
 
-  static const _templateUntilNoResult = '''
-const {{text}} = {{string}};
-final {{index}} = state.input.indexOf({{text}}, state.pos);
-state.ok = {{index}} != -1;
-if (state.ok) {
-  state.pos = {{index}};
-} else {
-  state.failAt(state.input.length, const ErrorExpectedTags([{{text}}]));
-}''';
-
-  static const _templateTilNoResult = '''
-const {{text}} = {{string}};
-final {{index}} = state.input.indexOf({{text}}, state.pos);
-state.ok = {{index}} != -1;
-if (state.ok) {
-  state.pos = {{index}};
-} else {
-  state.failAt(state.input.length, const ErrorExpectedCharacter({{char}}));
-}''';
-
   ZeroOrMoreGenerator({
     required super.expression,
     required super.ruleGenerator,
@@ -57,7 +37,7 @@ if (state.ok) {
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable == null) {
-      final optimized = _optimize();
+      final optimized = _ZeroOrMoreGenerator2.optimize(this);
       if (optimized != null) {
         return optimized;
       }
@@ -78,8 +58,60 @@ if (state.ok) {
     values['p'] = generateExpression(child, true);
     return render(template, values);
   }
+}
 
-  String? _optimize() {
+class _ZeroOrMoreGenerator2 extends ExpressionGenerator<ZeroOrMoreExpression> {
+  static const _templateUntilNoResult = '''
+const {{text}} = {{string}};
+final {{index}} = state.input.indexOf({{text}}, state.pos);
+state.ok = {{index}} != -1;
+if (state.ok) {
+  state.pos = {{index}};
+} else {
+  state.failAt(state.input.length, const ErrorExpectedTags([{{text}}]));
+}''';
+
+  static const _templateTilNoResult = '''
+const {{text}} = {{string}};
+final {{index}} = state.input.indexOf({{text}}, state.pos);
+state.ok = {{index}} != -1;
+if (state.ok) {
+  state.pos = {{index}};
+} else {
+  state.failAt(state.input.length, const ErrorExpectedCharacter({{char}}));
+}''';
+
+  _ZeroOrMoreGenerator2({
+    required super.expression,
+    required super.ruleGenerator,
+  });
+
+  @override
+  String generate() {
+    throw UnimplementedError();
+  }
+
+  String? generateTil(int charCode) {
+    final values = <String, String>{};
+    values['index'] = allocateName();
+    values['text'] = allocateName();
+    values['char'] = charCode.toString();
+    values['string'] = helper.escapeString(String.fromCharCode(charCode));
+    const template = _templateTilNoResult;
+    return render(template, values);
+  }
+
+  String? generateUntil(String string) {
+    final values = <String, String>{};
+    values['index'] = allocateName();
+    values['text'] = allocateName();
+    values['string'] = helper.escapeString(string);
+    const template = _templateUntilNoResult;
+    return render(template, values);
+  }
+
+  static String? optimize(ZeroOrMoreGenerator generator) {
+    final expression = generator.expression;
     final group = expression.expression;
     if (group is! GroupExpression) {
       return null;
@@ -125,7 +157,12 @@ if (state.ok) {
     final terminal = not.expression;
     if (child2 is AnyCharacterExpression) {
       if (terminal is LiteralExpression) {
-        return _optimizeToUntil(terminal.string);
+        final generator2 = _ZeroOrMoreGenerator2(
+          expression: expression,
+          ruleGenerator: generator.ruleGenerator,
+        );
+
+        return generator2.generateUntil(terminal.string);
       } else if (terminal is CharacterClassExpression) {
         final ranges = terminal.ranges;
         if (ranges.length == 1) {
@@ -133,31 +170,17 @@ if (state.ok) {
           final start = range.$1;
           final end = range.$2;
           if (start == end) {
-            return _optimizeToTil(start);
+            final generator2 = _ZeroOrMoreGenerator2(
+              expression: expression,
+              ruleGenerator: generator.ruleGenerator,
+            );
+
+            return generator2.generateTil(start);
           }
         }
       }
     }
 
     return null;
-  }
-
-  String? _optimizeToTil(int charCode) {
-    final values = <String, String>{};
-    values['index'] = allocateName();
-    values['text'] = allocateName();
-    values['char'] = charCode.toString();
-    values['string'] = helper.escapeString(String.fromCharCode(charCode));
-    const template = _templateTilNoResult;
-    return render(template, values);
-  }
-
-  String? _optimizeToUntil(String string) {
-    final values = <String, String>{};
-    values['index'] = allocateName();
-    values['text'] = allocateName();
-    values['string'] = helper.escapeString(string);
-    const template = _templateUntilNoResult;
-    return render(template, values);
   }
 }

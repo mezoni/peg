@@ -1,6 +1,7 @@
 ## 1.0.25
 
 - Changes in the file `README.md`.
+- Changes in the implementation of `OrderedChoiceGenerator` and `ZeroOrMoreGenerator`.
 
 ## 1.0.24
 
