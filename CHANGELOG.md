@@ -1,13 +1,10 @@
-## 1.0.26
-
-- Fixed a bug in the implementation of `SymbolGenerator`. Events were not generated for rules with the annotation `@inline`.
-- Added example file `example_parse_events.dart`.
-
 ## 1.0.25
 
 - Changes in the file `README.md`.
 - Changes in the implementation of `OrderedChoiceGenerator` and `ZeroOrMoreGenerator`.
 - Changes in the implementation of `CharacterClassGenerator`.
+- Fixed a bug in the implementation of `SymbolGenerator`. Events were not generated for rules with the annotation `@inline`.
+- Added example file `example_parse_events.dart`.
 
 ## 1.0.24
 
