@@ -1,6 +1,7 @@
 ## 1.0.26
 
 - Fixed a bug in the implementation of `SymbolGenerator`. Events were not generated for rules with the annotation `@inline`.
+- Added example file `example_parse_events.dart`.
 
 ## 1.0.25
 
