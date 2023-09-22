@@ -88,7 +88,20 @@ R? endEvent<R>(String event, R? result, bool ok) {
             isFast: false,
             rule: start)
         .generate();
-    values['methods'] = generatedRules.values.join('\n\n');
+    final methodNames = generatedRules.keys;
+    final publicMethodNames =
+        methodNames.where((e) => !e.startsWith('_')).toList();
+    final privateMethodNames =
+        methodNames.where((e) => e.startsWith('_')).toList();
+    publicMethodNames.sort();
+    privateMethodNames.sort();
+    final methods = <String>[];
+    for (final name in [...publicMethodNames, ...privateMethodNames]) {
+      final source = generatedRules[name]!;
+      methods.add(source);
+    }
+
+    values['methods'] = methods.join('\n\n');
     final hasEvents = grammar.rules.any((e) {
       if (e.metadata case final metadata?) {
         return metadata.any((e) => e.name == '@event');

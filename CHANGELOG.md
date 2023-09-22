@@ -1,3 +1,7 @@
+## 1.0.26
+
+- Fixed a bug in the implementation of `SymbolGenerator`. Events were not generated for rules with the annotation `@inline`.
+
 ## 1.0.25
 
 - Changes in the file `README.md`.

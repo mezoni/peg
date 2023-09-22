@@ -1,27 +1,106 @@
 class CsvParser {
   const CsvParser();
 
-  /// Start =
-  ///   v:Rows Eof
+  /// Spaces =
+  ///   [ \t]*
   ///   ;
-  List<List<String>>? parseStart(State<StringReader> state) {
-    List<List<String>>? $0;
-    // v:Rows Eof
-    final $1 = state.pos;
-    List<List<String>>? $2;
-    $2 = parseRows(state);
-    if (state.ok) {
-      // !.
-      state.ok = state.pos >= state.input.length;
-      if (!state.ok) {
-        state.fail(const ErrorExpectedEndOfInput());
-      }
+  void fastParseSpaces(State<StringReader> state) {
+    // [ \t]*
+    while (true) {
+      state.ok = state.pos < state.input.length;
       if (state.ok) {
-        $0 = $2;
+        final $1 = state.input.readChar(state.pos);
+        state.ok = $1 == 9 || $1 == 32;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
       }
     }
+  }
+
+  /// Row =
+  ///   @sepBy(Field, ',')
+  ///   ;
+  List<String>? parseRow(State<StringReader> state) {
+    List<String>? $0;
+    // @sepBy(Field, ',')
+    String? $4;
+    // Field
+    // String
+    $4 = parseString(state);
+    if (state.ok) {
+      $4 = $4;
+    }
     if (!state.ok) {
-      state.pos = $1;
+      // Text
+      $4 = parseText(state);
+      if (state.ok) {
+        $4 = $4;
+      }
+    }
+    if (state.ok) {
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4!];
+      while (true) {
+        final $2 = state.pos;
+        state.ok = false;
+        final $10 = state.input;
+        if (state.pos < $10.length) {
+          final $8 = $10.readChar(state.pos);
+          // ignore: unused_local_variable
+          final $9 = $10.count;
+          switch ($8) {
+            case 44:
+              state.ok = true;
+              state.pos += $9;
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags([',']));
+        }
+        if (!state.ok) {
+          state.ok = true;
+          $0 = $3;
+          break;
+        }
+        // Field
+        // String
+        $4 = parseString(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          // Text
+          $4 = parseText(state);
+          if (state.ok) {
+            $4 = $4;
+          }
+        }
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4!);
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
     }
     return $0;
   }
@@ -146,115 +225,27 @@ class CsvParser {
     return $0;
   }
 
-  /// Row =
-  ///   @sepBy(Field, ',')
+  /// Start =
+  ///   v:Rows Eof
   ///   ;
-  List<String>? parseRow(State<StringReader> state) {
-    List<String>? $0;
-    // @sepBy(Field, ',')
-    String? $4;
-    // Field
-    // String
-    $4 = parseString(state);
+  List<List<String>>? parseStart(State<StringReader> state) {
+    List<List<String>>? $0;
+    // v:Rows Eof
+    final $1 = state.pos;
+    List<List<String>>? $2;
+    $2 = parseRows(state);
     if (state.ok) {
-      $4 = $4;
+      // !.
+      state.ok = state.pos >= state.input.length;
+      if (!state.ok) {
+        state.fail(const ErrorExpectedEndOfInput());
+      }
+      if (state.ok) {
+        $0 = $2;
+      }
     }
     if (!state.ok) {
-      // Text
-      $4 = parseText(state);
-      if (state.ok) {
-        $4 = $4;
-      }
-    }
-    if (state.ok) {
-      $4 = $4;
-    }
-    if (!state.ok) {
-      state.ok = true;
-      $0 = const [];
-    } else {
-      final $3 = [$4!];
-      while (true) {
-        final $2 = state.pos;
-        state.ok = false;
-        final $10 = state.input;
-        if (state.pos < $10.length) {
-          final $8 = $10.readChar(state.pos);
-          // ignore: unused_local_variable
-          final $9 = $10.count;
-          switch ($8) {
-            case 44:
-              state.ok = true;
-              state.pos += $9;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
-        if (!state.ok) {
-          state.ok = true;
-          $0 = $3;
-          break;
-        }
-        // Field
-        // String
-        $4 = parseString(state);
-        if (state.ok) {
-          $4 = $4;
-        }
-        if (!state.ok) {
-          // Text
-          $4 = parseText(state);
-          if (state.ok) {
-            $4 = $4;
-          }
-        }
-        if (state.ok) {
-          $4 = $4;
-        }
-        if (!state.ok) {
-          state.pos = $2;
-          break;
-        }
-        $3.add($4!);
-      }
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// Text =
-  ///   $[^,"\n\r]*
-  ///   ;
-  String? parseText(State<StringReader> state) {
-    String? $0;
-    // $[^,"\n\r]*
-    final $2 = state.pos;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $3 = state.input.readChar(state.pos);
-        state.ok = !($3 == 13 || $3 == 10 || $3 == 34 || $3 == 44);
-        if (state.ok) {
-          state.pos += state.input.count;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (!state.ok) {
-        state.ok = true;
-        break;
-      }
-    }
-    if (state.ok) {
-      $0 = state.input.substring($2, state.pos);
-    }
-    if (state.ok) {
-      $0 = $0;
+      state.pos = $1;
     }
     return $0;
   }
@@ -357,16 +348,18 @@ class CsvParser {
     return $0;
   }
 
-  /// Spaces =
-  ///   [ \t]*
+  /// Text =
+  ///   $[^,"\n\r]*
   ///   ;
-  void fastParseSpaces(State<StringReader> state) {
-    // [ \t]*
+  String? parseText(State<StringReader> state) {
+    String? $0;
+    // $[^,"\n\r]*
+    final $2 = state.pos;
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $1 = state.input.readChar(state.pos);
-        state.ok = $1 == 9 || $1 == 32;
+        final $3 = state.input.readChar(state.pos);
+        state.ok = !($3 == 13 || $3 == 10 || $3 == 34 || $3 == 44);
         if (state.ok) {
           state.pos += state.input.count;
         }
@@ -379,6 +372,13 @@ class CsvParser {
         break;
       }
     }
+    if (state.ok) {
+      $0 = state.input.substring($2, state.pos);
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
   }
 
   @pragma('vm:prefer-inline')

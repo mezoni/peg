@@ -39,32 +39,36 @@ class CalcParser {
     }
   }
 
-  /// Start =
-  ///   Spaces v:Expression Eof
+  /// CloseParenthesis =
+  ///   ')' Spaces
   ///   ;
-  num? parseStart(State<StringReader> state) {
-    num? $0;
-    // Spaces v:Expression Eof
-    final $1 = state.pos;
-    fastParseSpaces(state);
+  void fastParseCloseParenthesis(State<StringReader> state) {
+    // ')' Spaces
+    final $0 = state.pos;
+    const $1 = ')';
+    matchLiteral1(state, 41, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
-      num? $2;
-      $2 = parseExpression(state);
-      if (state.ok) {
-        // !.
-        state.ok = state.pos >= state.input.length;
-        if (!state.ok) {
-          state.fail(const ErrorExpectedEndOfInput());
-        }
-        if (state.ok) {
-          $0 = $2;
-        }
-      }
+      fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.pos = $0;
     }
-    return $0;
+  }
+
+  /// OpenParenthesis =
+  ///   '(' Spaces
+  ///   ;
+  void fastParseOpenParenthesis(State<StringReader> state) {
+    // '(' Spaces
+    final $0 = state.pos;
+    const $1 = '(';
+    matchLiteral1(state, 40, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.pos = $0;
+    }
   }
 
   /// Spaces =
@@ -89,19 +93,6 @@ class CalcParser {
         break;
       }
     }
-  }
-
-  /// Expression =
-  ///   Add
-  ///   ;
-  num? parseExpression(State<StringReader> state) {
-    num? $0;
-    // Add
-    $0 = parseAdd(state);
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
   }
 
   /// num
@@ -156,6 +147,61 @@ class CalcParser {
     return $0;
   }
 
+  /// AddOp =
+  ///   v:('-' / '+') Spaces
+  ///   ;
+  String? parseAddOp(State<StringReader> state) {
+    String? $0;
+    // v:('-' / '+') Spaces
+    final $1 = state.pos;
+    String? $2;
+    state.ok = false;
+    final $5 = state.input;
+    if (state.pos < $5.length) {
+      final $3 = $5.readChar(state.pos);
+      // ignore: unused_local_variable
+      final $4 = $5.count;
+      switch ($3) {
+        case 45:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '-';
+          break;
+        case 43:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '+';
+          break;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorExpectedTags(['-', '+']));
+    }
+    if (state.ok) {
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
+  /// Expression =
+  ///   Add
+  ///   ;
+  num? parseExpression(State<StringReader> state) {
+    num? $0;
+    // Add
+    $0 = parseAdd(state);
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
   /// num
   /// Mul =
   ///   h:Prefix t:(op:MulOp expr:Prefix)*
@@ -199,6 +245,232 @@ class CalcParser {
         final h = $2!;
         final t = $3!;
         $$ = t.isEmpty ? h : t.fold(h, _calcBinary);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
+  /// MulOp =
+  ///   v:('/' / '*') Spaces
+  ///   ;
+  String? parseMulOp(State<StringReader> state) {
+    String? $0;
+    // v:('/' / '*') Spaces
+    final $1 = state.pos;
+    String? $2;
+    state.ok = false;
+    final $5 = state.input;
+    if (state.pos < $5.length) {
+      final $3 = $5.readChar(state.pos);
+      // ignore: unused_local_variable
+      final $4 = $5.count;
+      switch ($3) {
+        case 47:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '/';
+          break;
+        case 42:
+          state.ok = true;
+          state.pos += $4;
+          $2 = '*';
+          break;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorExpectedTags(['/', '*']));
+    }
+    if (state.ok) {
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
+    return $0;
+  }
+
+  /// Number =
+  ///   @errorHandler(NumberRaw)
+  ///   ;
+  num? parseNumber(State<StringReader> state) {
+    num? $0;
+    // @errorHandler(NumberRaw)
+    final $2 = state.failPos;
+    final $3 = state.errorCount;
+    // NumberRaw
+    $0 = parseNumberRaw(state);
+    if (state.ok) {
+      $0 = $0;
+    }
+    if (!state.ok && state._canHandleError($2, $3)) {
+      void replaceLastErrors(List<ParseError> errors) {
+        state._replaceLastErrors($2, $3, errors);
+      }
+
+      if (state.failPos != state.pos) {
+        state.failAt(state.failPos,
+            ErrorMessage(state.pos - state.failPos, 'Malformed number'));
+      } else {
+        const errors = [
+          ErrorExpectedTags(['number'])
+        ];
+        replaceLastErrors(errors);
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  /// num
+  /// NumberRaw =
+  ///   v:$([-]? [0] / ([1-9] [0-9]*) ([.] [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+  ///   ;
+  num? parseNumberRaw(State<StringReader> state) {
+    num? $0;
+    // v:$([-]? [0] / ([1-9] [0-9]*) ([.] [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+    final $1 = state.pos;
+    String? $2;
+    final $3 = state.pos;
+    // [-]? [0]
+    final $15 = state.pos;
+    matchChar(state, 45, const ErrorUnexpectedCharacter(45));
+    state.ok = true;
+    if (state.ok) {
+      matchChar(state, 48, const ErrorUnexpectedCharacter(48));
+    }
+    if (!state.ok) {
+      state.pos = $15;
+    }
+    if (!state.ok) {
+      // ([1-9] [0-9]*) ([.] [0-9]+)? ([eE] [+-\] [0-9]+)?
+      final $4 = state.pos;
+      // [1-9] [0-9]*
+      final $5 = state.pos;
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $6 = state.input.readChar(state.pos);
+        state.ok = $6 >= 49 && $6 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        while (true) {
+          state.ok = state.pos < state.input.length;
+          if (state.ok) {
+            final $7 = state.input.readChar(state.pos);
+            state.ok = $7 >= 48 && $7 <= 57;
+            if (state.ok) {
+              state.pos += state.input.count;
+            }
+          }
+          if (!state.ok) {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+          if (!state.ok) {
+            state.ok = true;
+            break;
+          }
+        }
+      }
+      if (!state.ok) {
+        state.pos = $5;
+      }
+      if (state.ok) {
+        // [.] [0-9]+
+        final $8 = state.pos;
+        matchChar(state, 46, const ErrorUnexpectedCharacter(46));
+        if (state.ok) {
+          var $9 = false;
+          while (true) {
+            state.ok = state.pos < state.input.length;
+            if (state.ok) {
+              final $10 = state.input.readChar(state.pos);
+              state.ok = $10 >= 48 && $10 <= 57;
+              if (state.ok) {
+                state.pos += state.input.count;
+              }
+            }
+            if (!state.ok) {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
+            if (!state.ok) {
+              break;
+            }
+            $9 = true;
+          }
+          state.ok = $9;
+        }
+        if (!state.ok) {
+          state.pos = $8;
+        }
+        state.ok = true;
+        if (state.ok) {
+          // [eE] [+-\] [0-9]+
+          final $11 = state.pos;
+          state.ok = state.pos < state.input.length;
+          if (state.ok) {
+            final $12 = state.input.readChar(state.pos);
+            state.ok = $12 == 69 || $12 == 101;
+            if (state.ok) {
+              state.pos += state.input.count;
+            }
+          }
+          if (!state.ok) {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+          if (state.ok) {
+            var $13 = false;
+            while (true) {
+              state.ok = state.pos < state.input.length;
+              if (state.ok) {
+                final $14 = state.input.readChar(state.pos);
+                state.ok = $14 == 32 || $14 >= 43 && $14 <= 93;
+                if (state.ok) {
+                  state.pos += state.input.count;
+                }
+              }
+              if (!state.ok) {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+              if (!state.ok) {
+                break;
+              }
+              $13 = true;
+            }
+            state.ok = $13;
+          }
+          if (!state.ok) {
+            state.pos = $11;
+          }
+          state.ok = true;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $4;
+      }
+    }
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      fastParseSpaces(state);
+      if (state.ok) {
+        num? $$;
+        final v = $2!;
+        $$ = num.parse(v);
         $0 = $$;
       }
     }
@@ -269,299 +541,26 @@ class CalcParser {
     return $0;
   }
 
-  /// OpenParenthesis =
-  ///   '(' Spaces
+  /// Start =
+  ///   Spaces v:Expression Eof
   ///   ;
-  void fastParseOpenParenthesis(State<StringReader> state) {
-    // '(' Spaces
-    final $0 = state.pos;
-    const $1 = '(';
-    matchLiteral1(state, 40, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// Number =
-  ///   @errorHandler(NumberRaw)
-  ///   ;
-  num? parseNumber(State<StringReader> state) {
+  num? parseStart(State<StringReader> state) {
     num? $0;
-    // @errorHandler(NumberRaw)
-    final $2 = state.failPos;
-    final $3 = state.errorCount;
-    // NumberRaw
-    $0 = parseNumberRaw(state);
-    if (state.ok) {
-      $0 = $0;
-    }
-    if (!state.ok && state._canHandleError($2, $3)) {
-      void replaceLastErrors(List<ParseError> errors) {
-        state._replaceLastErrors($2, $3, errors);
-      }
-
-      if (state.failPos != state.pos) {
-        state.failAt(state.failPos,
-            ErrorMessage(state.pos - state.failPos, 'Malformed number'));
-      } else {
-        const errors = [
-          ErrorExpectedTags(['number'])
-        ];
-        replaceLastErrors(errors);
-      }
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// num
-  /// NumberRaw =
-  ///   v:$([-]? [0] / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
-  ///   ;
-  num? parseNumberRaw(State<StringReader> state) {
-    num? $0;
-    // v:$([-]? [0] / ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?) Spaces
+    // Spaces v:Expression Eof
     final $1 = state.pos;
-    String? $2;
-    final $3 = state.pos;
-    // [-]? [0]
-    final $16 = state.pos;
-    matchChar(state, 45, const ErrorUnexpectedCharacter(45));
-    state.ok = true;
+    fastParseSpaces(state);
     if (state.ok) {
-      matchChar(state, 48, const ErrorUnexpectedCharacter(48));
-    }
-    if (!state.ok) {
-      state.pos = $16;
-    }
-    if (!state.ok) {
-      // ([1-9] [0-9]*) ('.' [0-9]+)? ([eE] [+-\] [0-9]+)?
-      final $4 = state.pos;
-      // [1-9] [0-9]*
-      final $5 = state.pos;
-      state.ok = state.pos < state.input.length;
+      num? $2;
+      $2 = parseExpression(state);
       if (state.ok) {
-        final $6 = state.input.readChar(state.pos);
-        state.ok = $6 >= 49 && $6 <= 57;
-        if (state.ok) {
-          state.pos += state.input.count;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (state.ok) {
-        while (true) {
-          state.ok = state.pos < state.input.length;
-          if (state.ok) {
-            final $7 = state.input.readChar(state.pos);
-            state.ok = $7 >= 48 && $7 <= 57;
-            if (state.ok) {
-              state.pos += state.input.count;
-            }
-          }
-          if (!state.ok) {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-          if (!state.ok) {
-            state.ok = true;
-            break;
-          }
-        }
-      }
-      if (!state.ok) {
-        state.pos = $5;
-      }
-      if (state.ok) {
-        // '.' [0-9]+
-        final $8 = state.pos;
-        const $9 = '.';
-        matchLiteral1(state, 46, $9, const ErrorExpectedTags([$9]));
-        if (state.ok) {
-          var $10 = false;
-          while (true) {
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $11 = state.input.readChar(state.pos);
-              state.ok = $11 >= 48 && $11 <= 57;
-              if (state.ok) {
-                state.pos += state.input.count;
-              }
-            }
-            if (!state.ok) {
-              state.fail(const ErrorUnexpectedCharacter());
-            }
-            if (!state.ok) {
-              break;
-            }
-            $10 = true;
-          }
-          state.ok = $10;
-        }
+        // !.
+        state.ok = state.pos >= state.input.length;
         if (!state.ok) {
-          state.pos = $8;
+          state.fail(const ErrorExpectedEndOfInput());
         }
-        state.ok = true;
         if (state.ok) {
-          // [eE] [+-\] [0-9]+
-          final $12 = state.pos;
-          state.ok = state.pos < state.input.length;
-          if (state.ok) {
-            final $13 = state.input.readChar(state.pos);
-            state.ok = $13 == 69 || $13 == 101;
-            if (state.ok) {
-              state.pos += state.input.count;
-            }
-          }
-          if (!state.ok) {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-          if (state.ok) {
-            var $14 = false;
-            while (true) {
-              state.ok = state.pos < state.input.length;
-              if (state.ok) {
-                final $15 = state.input.readChar(state.pos);
-                state.ok = $15 == 32 || $15 >= 43 && $15 <= 93;
-                if (state.ok) {
-                  state.pos += state.input.count;
-                }
-              }
-              if (!state.ok) {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-              if (!state.ok) {
-                break;
-              }
-              $14 = true;
-            }
-            state.ok = $14;
-          }
-          if (!state.ok) {
-            state.pos = $12;
-          }
-          state.ok = true;
+          $0 = $2;
         }
-      }
-      if (!state.ok) {
-        state.pos = $4;
-      }
-    }
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      fastParseSpaces(state);
-      if (state.ok) {
-        num? $$;
-        final v = $2!;
-        $$ = num.parse(v);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// CloseParenthesis =
-  ///   ')' Spaces
-  ///   ;
-  void fastParseCloseParenthesis(State<StringReader> state) {
-    // ')' Spaces
-    final $0 = state.pos;
-    const $1 = ')';
-    matchLiteral1(state, 41, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// MulOp =
-  ///   v:('/' / '*') Spaces
-  ///   ;
-  String? parseMulOp(State<StringReader> state) {
-    String? $0;
-    // v:('/' / '*') Spaces
-    final $1 = state.pos;
-    String? $2;
-    state.ok = false;
-    final $5 = state.input;
-    if (state.pos < $5.length) {
-      final $3 = $5.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $4 = $5.count;
-      switch ($3) {
-        case 47:
-          state.ok = true;
-          state.pos += $4;
-          $2 = '/';
-          break;
-        case 42:
-          state.ok = true;
-          state.pos += $4;
-          $2 = '*';
-          break;
-      }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorExpectedTags(['/', '*']));
-    }
-    if (state.ok) {
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// AddOp =
-  ///   v:('-' / '+') Spaces
-  ///   ;
-  String? parseAddOp(State<StringReader> state) {
-    String? $0;
-    // v:('-' / '+') Spaces
-    final $1 = state.pos;
-    String? $2;
-    state.ok = false;
-    final $5 = state.input;
-    if (state.pos < $5.length) {
-      final $3 = $5.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $4 = $5.count;
-      switch ($3) {
-        case 45:
-          state.ok = true;
-          state.pos += $4;
-          $2 = '-';
-          break;
-        case 43:
-          state.ok = true;
-          state.pos += $4;
-          $2 = '+';
-          break;
-      }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorExpectedTags(['-', '+']));
-    }
-    if (state.ok) {
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
       }
     }
     if (!state.ok) {

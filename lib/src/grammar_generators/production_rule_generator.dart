@@ -97,7 +97,6 @@ void {{name}}(State<StringReader> state) {
     }
 
     values['expression'] = expression.accept(this);
-
     final ruleParts = _productionRuleToPrintableList();
     var comment = '/// ';
     comment += ruleParts.join('\n/// ');
