@@ -154,7 +154,7 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
           _setResultType(node, _getResultType(expression));
         } else {
           final fields = childrenWithVariables
-              .map((e) => (_getResultType(e), e.semanticVariable!))
+              .map((e) => (type: _getResultType(e), name: e.semanticVariable!))
               .toList();
           final resultType = RecordType(named: fields);
           _setResultType(node, resultType);
@@ -230,13 +230,13 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
         final positional = type.positional;
         for (var i = 0; i < positional.length; i++) {
           final fieldType = positional[i];
-          result += priority(fieldType);
+          result += priority(fieldType.type);
         }
 
         final named = type.named;
         for (var i = 0; i < named.length; i++) {
           final field = named[i];
-          final fieldType = field.$1;
+          final fieldType = field.type;
           result += priority(fieldType);
         }
 

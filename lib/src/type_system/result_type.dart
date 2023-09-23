@@ -58,14 +58,14 @@ class RecordType extends ResultType {
   @override
   final bool isRecordType = true;
 
-  final List<(ResultType, String)> named;
+  final List<({ResultType type, String name})> named;
 
-  final List<ResultType> positional;
+  final List<({ResultType type, String? name})> positional;
 
   RecordType({
     super.isNullableType,
-    List<(ResultType, String)>? named,
-    List<ResultType>? positional,
+    List<({ResultType type, String name})>? named,
+    List<({ResultType type, String? name})>? positional,
   })  : named = named ?? const [],
         positional = positional ?? const [] {
     if (this.positional.isEmpty && this.named.isEmpty) {
@@ -74,7 +74,13 @@ class RecordType extends ResultType {
 
     final buffer = StringBuffer();
     buffer.write('(');
-    buffer.write(this.positional.join(','));
+    if (positional case final positional?) {
+      final list = positional
+          .map((e) => e.name != null ? '${e.type} ${e.name} ' : '${e.type}')
+          .join(', ');
+      buffer.write(list);
+    }
+
     if (named case final named?) {
       if (named.isNotEmpty) {
         if (this.positional.isNotEmpty) {
@@ -82,7 +88,7 @@ class RecordType extends ResultType {
         }
 
         buffer.write('{');
-        final list = named.map((e) => '${e.$1} ${e.$2}').toList();
+        final list = named.map((e) => '${e.type} ${e.name}').toList();
         list.sort();
         buffer.write(list.join(', '));
         buffer.write('}');
@@ -119,10 +125,12 @@ class RecordType extends ResultType {
   String toString() {
     final buffer = StringBuffer();
     buffer.write('(');
-    buffer.write(positional.join(', '));
+    buffer.write(positional
+        .map((e) => e.name != null ? '${e.type} ${e.name}' : '${e.type}')
+        .join(', '));
     if (named.isNotEmpty) {
       buffer.write('{');
-      buffer.write(named.map((e) => '${e.$1} ${e.$2}').join(', '));
+      buffer.write(named.map((e) => '${e.type} ${e.name}').join(', '));
       buffer.write('}');
     }
 

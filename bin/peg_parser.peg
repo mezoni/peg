@@ -110,24 +110,27 @@ RecordType =
   v:(
       n:NamedFields <RecordType>{ $$ = RecordType(named: n); }
     / p:PositionalFields Comma n:NamedFields <RecordType>{ $$ = RecordType(positional: p, named: n); }
-    / h:Type Comma t:PositionalFields <RecordType>{ $$ = RecordType(positional: [h, ...t]); }
-    / t:Type Comma <RecordType>{ $$ = RecordType(positional: [t]); }
+    / h:PositionalField Comma t:PositionalFields <RecordType>{ $$ = RecordType(positional: [h, ...t]); }
+    / t:PositionalField Comma <RecordType>{ $$ = RecordType(positional: [t]); }
   )
   CloseParenthesis ;
 
-List<(ResultType, String)>
-NamedFields = h:NamedField t:(Comma v:NamedField)* { $$ = [h, ...t];  } ;
+List<({ResultType type, String name})>
+NamedFields = OpenBrace h:NamedField t:(Comma v:NamedField)* CloseBrace { $$ = [h, ...t];  } ;
 
-(ResultType, String)
-NamedField = t:Type i:NativeIdentifier { $$ = (t, i); } ;
+({ResultType type, String name})
+NamedField = type:Type name:NativeIdentifier ;
 
-List<ResultType>
-PositionalFields = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
+List<({ResultType type, String? name})>
+PositionalFields = h:PositionalField t:(Comma v:PositionalField)* { $$ = [h, ...t]; } ;
 
-List<(String name, List<Object?> arguments)>
+({ResultType type, String? name})
+PositionalField = type:Type name:NativeIdentifier? ;
+
+List<({String name, List<Object?> arguments})>
 Metadata = h:MetadataElement t:(Spaces v:MetadataElement)* { $$ = [h, ...t]; } ;
 
-(String name, List<Object?> arguments)
+({String name, List<Object?> arguments})
 MetadataElement = AtSign i:Identifier a:MetadataArguments? { $$ = (name: '@$i', arguments: a ?? const []); } ;
 
 List<Object?>

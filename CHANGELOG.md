@@ -1,3 +1,7 @@
+## 1.0.28
+
+- Fixed bug in PEG grammar. Fixed errors related to incorrect implementation of parsing rules for the native type `Record`.
+
 ## 1.0.27
 
 - Changes (improvements and bug fixes) in the implementation of the `@verify` meta expression. To correctly implement the ability to roll back errors registered during parsing, which ends successfully, the implementation of a specific mechanism is required. Such a mechanism was implemented in this meta expression. To use this mechanism, a local function `fail(ParseError error)` is declared in this meta expression. This is the function that should be used to register an error instead of directly calling the methods of the `state` instance.
