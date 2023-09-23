@@ -4,6 +4,7 @@ import '../expression_generators/sep_by_generator.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
 import '../visitors/visitors.dart';
+import 'events_generator.dart';
 
 class ProductionRuleGenerator extends ExpressionVisitor<String> {
   static const _template = '''
@@ -40,20 +41,23 @@ void {{name}}(State<StringReader> state) {
 
   final bool isFast;
 
-  final Map<Expression, String> nodeVariables = {};
+  final String parserName;
 
   final ProductionRule rule;
+
+  final Map<Expression, String> _nodeVariables = {};
 
   ProductionRuleGenerator({
     required this.allocator,
     required this.generatedRules,
     required this.isFast,
+    required this.parserName,
     required this.rule,
   });
 
   String allocateExpressionVariable(Expression node) {
     final name = _allocateVariable();
-    nodeVariables[node] = name;
+    _nodeVariables[node] = name;
     return name;
   }
 
@@ -65,12 +69,9 @@ void {{name}}(State<StringReader> state) {
 
     final values = <String, String>{};
     final expression = rule.expression;
-    var hasEvent = false;
-    if (rule.metadata case final metadata?) {
-      hasEvent = metadata.any((e) => e.name == '@event');
-      if (hasEvent) {
-        values['event'] = helper.escapeString(rule.name);
-      }
+    final hasEvent = rule.hasEvent();
+    if (hasEvent) {
+      values['event'] = EventsGenerator.getElementFullName(rule, parserName);
     }
 
     generatedRules[methodName] = '';
@@ -106,7 +107,7 @@ void {{name}}(State<StringReader> state) {
   }
 
   String? getExpressionVariable(Expression node) {
-    return nodeVariables[node];
+    return _nodeVariables[node];
   }
 
   String getMethodName(ProductionRule rule, bool isFast) {
@@ -119,7 +120,7 @@ void {{name}}(State<StringReader> state) {
   }
 
   String setExpressionVariable(Expression node, String variable) {
-    nodeVariables[node] = variable;
+    _nodeVariables[node] = variable;
     return variable;
   }
 

@@ -1,3 +1,7 @@
+## 1.0.26
+
+- Breaking change: The value type of parsing events is now `enum`. The type name is formed from the name of the parser with the word `Event` added at the end (example, `JsonParser` => `JsonParserEvent`). Using an enumeration makes it easier to control how event values are handled in a `switch` statement. Also, the use of values of the `Enum` type increases the performance of the `switch` statement compared to processing values of the `String` type.
+
 ## 1.0.25
 
 - Changes in the file `README.md`.

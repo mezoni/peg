@@ -22,11 +22,11 @@ class JsonParser {
     }
   }
 
-  void beginEvent(String event) {
+  void beginEvent(JsonParserEvent event) {
     return;
   }
 
-  R? endEvent<R>(String event, R? result, bool ok) {
+  R? endEvent<R>(JsonParserEvent event, R? result, bool ok) {
     return result;
   }
 
@@ -60,7 +60,7 @@ class JsonParser {
   ///   OpenBracket v:Values CloseBracket
   ///   ;
   List<Object?>? parseArray(State<StringReader> state) {
-    beginEvent('Array');
+    beginEvent(JsonParserEvent.arrayEvent);
     List<Object?>? $0;
     // OpenBracket v:Values CloseBracket
     final $1 = state.pos;
@@ -96,7 +96,7 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<List<Object?>>('Array', $0, state.ok);
+    $0 = endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $0, state.ok);
     return $0;
   }
 
@@ -106,7 +106,7 @@ class JsonParser {
   ///   c:["/bfnrt\\]
   ///   ;
   String? parseEscapeChar(State<StringReader> state) {
-    beginEvent('EscapeChar');
+    beginEvent(JsonParserEvent.escapeCharEvent);
     String? $0;
     // c:["/bfnrt\\]
     int? $2;
@@ -131,7 +131,7 @@ class JsonParser {
       $$ = _escape(c);
       $0 = $$;
     }
-    $0 = endEvent<String>('EscapeChar', $0, state.ok);
+    $0 = endEvent<String>(JsonParserEvent.escapeCharEvent, $0, state.ok);
     return $0;
   }
 
@@ -207,18 +207,18 @@ class JsonParser {
   ///   k:Key Colon v:Value
   ///   ;
   MapEntry<String, Object?>? parseKeyValue(State<StringReader> state) {
-    beginEvent('KeyValue');
+    beginEvent(JsonParserEvent.keyValueEvent);
     MapEntry<String, Object?>? $0;
     // k:Key Colon v:Value
     final $1 = state.pos;
     String? $2;
-    beginEvent('Key');
+    beginEvent(JsonParserEvent.keyEvent);
     // String
     $2 = parseString(state);
     if (state.ok) {
       $2 = $2;
     }
-    $2 = endEvent<String>('Key', $2, state.ok);
+    $2 = endEvent<String>(JsonParserEvent.keyEvent, $2, state.ok);
     if (state.ok) {
       // v:':' Spaces
       final $5 = state.pos;
@@ -245,7 +245,8 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<MapEntry<String, Object?>>('KeyValue', $0, state.ok);
+    $0 = endEvent<MapEntry<String, Object?>>(
+        JsonParserEvent.keyValueEvent, $0, state.ok);
     return $0;
   }
 
@@ -254,7 +255,7 @@ class JsonParser {
   ///   @sepBy(KeyValue, Comma)
   ///   ;
   List<MapEntry<String, Object?>>? parseKeyValues(State<StringReader> state) {
-    beginEvent('KeyValues');
+    beginEvent(JsonParserEvent.keyValuesEvent);
     List<MapEntry<String, Object?>>? $0;
     // @sepBy(KeyValue, Comma)
     MapEntry<String, Object?>? $4;
@@ -301,7 +302,8 @@ class JsonParser {
     if (state.ok) {
       $0 = $0;
     }
-    $0 = endEvent<List<MapEntry<String, Object?>>>('KeyValues', $0, state.ok);
+    $0 = endEvent<List<MapEntry<String, Object?>>>(
+        JsonParserEvent.keyValuesEvent, $0, state.ok);
     return $0;
   }
 
@@ -311,7 +313,7 @@ class JsonParser {
   ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
   ///   ;
   num? parseNumber(State<StringReader> state) {
-    beginEvent('Number');
+    beginEvent(JsonParserEvent.numberEvent);
     num? $0;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
     final $1 = state.pos;
@@ -464,7 +466,7 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<num>('Number', $0, state.ok);
+    $0 = endEvent<num>(JsonParserEvent.numberEvent, $0, state.ok);
     return $0;
   }
 
@@ -474,7 +476,7 @@ class JsonParser {
   ///   OpenBrace kv:KeyValues CloseBrace
   ///   ;
   Map<String, Object?>? parseObject(State<StringReader> state) {
-    beginEvent('Object');
+    beginEvent(JsonParserEvent.objectEvent);
     Map<String, Object?>? $0;
     // OpenBrace kv:KeyValues CloseBrace
     final $1 = state.pos;
@@ -513,7 +515,8 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<Map<String, Object?>>('Object', $0, state.ok);
+    $0 = endEvent<Map<String, Object?>>(
+        JsonParserEvent.objectEvent, $0, state.ok);
     return $0;
   }
 
@@ -677,7 +680,7 @@ class JsonParser {
   ///   / Null
   ///   ;
   Object? parseValue(State<StringReader> state) {
-    beginEvent('Value');
+    beginEvent(JsonParserEvent.valueEvent);
     Object? $0;
     // Array
     $0 = parseArray(state);
@@ -775,7 +778,7 @@ class JsonParser {
         }
       }
     }
-    $0 = endEvent<Object?>('Value', $0, state.ok);
+    $0 = endEvent<Object?>(JsonParserEvent.valueEvent, $0, state.ok);
     return $0;
   }
 
@@ -872,6 +875,17 @@ class JsonParser {
     state.fail(error);
     return null;
   }
+}
+
+enum JsonParserEvent {
+  arrayEvent,
+  escapeCharEvent,
+  keyEvent,
+  keyValueEvent,
+  keyValuesEvent,
+  numberEvent,
+  objectEvent,
+  valueEvent
 }
 
 void fastParseString(

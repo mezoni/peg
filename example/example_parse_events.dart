@@ -95,19 +95,16 @@ class _FileReader implements ByteReader {
 
 class _MyJsonParser extends JsonParser {
   @override
-  void beginEvent(String event) {
+  void beginEvent(JsonParserEvent event) {
     //
   }
 
   @override
-  R? endEvent<R>(String event, R? result, bool ok) {
+  R? endEvent<R>(JsonParserEvent event, R? result, bool ok) {
     if (ok) {
       switch (event) {
-        case 'Object':
+        case JsonParserEvent.objectEvent:
           print('Object: $result');
-          break;
-        case 'String':
-          print('String: $result');
           break;
         default:
           print('$event: $result');

@@ -30,6 +30,14 @@ class ProductionRule {
 
   bool get isMacro => parameters != null;
 
+  bool hasEvent() {
+    if (metadata case final metadata?) {
+      return metadata.any((e) => e.name == '@event');
+    }
+
+    return false;
+  }
+
   List<String> metadataToPrintableList() {
     final result = <String>[];
     if (metadata case final metadata?) {

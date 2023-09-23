@@ -35,11 +35,11 @@ Future<void> main(List<String> args) async {
     outputFilename = path.join(path.dirname(inputFilename), outputFilename);
   }
 
-  var className = argResults['class'] as String?;
-  if (className == null) {
-    className = path.basenameWithoutExtension(inputFilename);
-    className = className.toLowerCase();
-    className = className.toCamelCase();
+  var parserName = argResults['class'] as String?;
+  if (parserName == null) {
+    parserName = path.basenameWithoutExtension(inputFilename);
+    parserName = parserName.toLowerCase();
+    parserName = parserName.toCamelCase();
   }
 
   final file = File(inputFilename);
@@ -62,9 +62,9 @@ Future<void> main(List<String> args) async {
   }
 
   final libraryGenerator = LibraryGenerator(
-    className: className,
     filename: inputFilename,
     grammar: grammar,
+    parserName: parserName,
   );
   final source = libraryGenerator.generate();
   File(outputFilename).writeAsStringSync(source);

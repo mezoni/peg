@@ -1,6 +1,7 @@
 import '../allocator.dart';
 import '../grammar/grammar.dart';
 import '../helper.dart' as helper;
+import 'events_generator.dart';
 import 'production_rule_generator.dart';
 
 class ClassGenerator {
@@ -55,21 +56,21 @@ class {{className}} {
 }''';
 
   static const _templateEvents = '''
-void beginEvent(String event) {
+void beginEvent({{event_type}} event) {
   return;
 }
 
-R? endEvent<R>(String event, R? result, bool ok) {
+R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   return result;
 }''';
 
-  final String className;
-
   final Grammar grammar;
 
+  final String parserName;
+
   ClassGenerator({
-    required this.className,
     required this.grammar,
+    required this.parserName,
   }) {
     if (grammar.start == null) {
       ArgumentError.checkNotNull(grammar.start, 'grammar.start');
@@ -78,7 +79,7 @@ R? endEvent<R>(String event, R? result, bool ok) {
 
   String generate() {
     final values = <String, String>{};
-    values['className'] = className;
+    values['className'] = parserName;
     values['members'] = grammar.members ?? '';
     final start = grammar.start!;
     final generatedRules = <String, String>{};
@@ -86,6 +87,7 @@ R? endEvent<R>(String event, R? result, bool ok) {
             allocator: Allocator(),
             generatedRules: generatedRules,
             isFast: false,
+            parserName: parserName,
             rule: start)
         .generate();
     final methodNames = generatedRules.keys;
@@ -102,14 +104,15 @@ R? endEvent<R>(String event, R? result, bool ok) {
     }
 
     values['methods'] = methods.join('\n\n');
-    final hasEvents = grammar.rules.any((e) {
-      if (e.metadata case final metadata?) {
-        return metadata.any((e) => e.name == '@event');
-      }
+    grammar.rules.any((e) => e.hasEvent());
+    final hasEvents = grammar.rules.any((e) => e.hasEvent());
+    if (hasEvents) {
+      values['event_type'] = EventsGenerator.getEnumType(parserName);
+      values['events'] = helper.render(_templateEvents, values);
+    } else {
+      values['events'] = '';
+    }
 
-      return false;
-    });
-    values['events'] = hasEvents ? _templateEvents : '';
     return helper.render(_template, values);
   }
 }

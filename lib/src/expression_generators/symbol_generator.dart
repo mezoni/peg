@@ -1,8 +1,8 @@
 import '../allocator.dart';
 import '../expressions/expressions.dart';
 import '../grammar/production_rule.dart';
+import '../grammar_generators/events_generator.dart';
 import '../grammar_generators/production_rule_generator.dart';
-import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
 class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
@@ -15,12 +15,12 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
   static const _templateInline = '''
 beginEvent({{event}});
 {{p}}
-{{r}} = endEvent<{{eventType}}>({{event}}, {{r}}, state.ok);''';
+{{r}} = endEvent<{{type}}>({{event}}, {{r}}, state.ok);''';
 
   static const _templateInlineNoResult = '''
 beginEvent({{event}});
 {{p}}
-endEvent<{{eventType}}>({{event}}, null, state.ok);''';
+endEvent<{{type}}>({{event}}, null, state.ok);''';
 
   SymbolGenerator({
     required super.expression,
@@ -57,6 +57,7 @@ endEvent<{{eventType}}>({{event}}, null, state.ok);''';
             allocator: Allocator(),
             generatedRules: ruleGenerator.generatedRules,
             isFast: variable == null,
+            parserName: ruleGenerator.parserName,
             rule: reference)
         .generate();
     return render(template, values);
@@ -71,17 +72,17 @@ endEvent<{{eventType}}>({{event}}, null, state.ok);''';
     }
 
     final rule = expression.reference!;
-    var hasEvent = false;
-    if (rule.metadata case final metadata?) {
-      hasEvent = metadata.any((e) => e.name == '@event');
-    }
-
+    final hasEvent = rule.hasEvent();
     final resultType = rule.resultType ??
         expression.resultType ??
         GenericType(name: 'Object', isNullableType: true);
     values['p'] = generateExpression(child, false);
-    values['event'] = helper.escapeString(rule.name);
-    values['eventType'] = '$resultType';
+    if (hasEvent) {
+      values['event'] =
+          EventsGenerator.getElementFullName(rule, ruleGenerator.parserName);
+      values['type'] = '$resultType';
+    }
+
     var template = '';
     if (hasEvent) {
       if (variable != null) {
