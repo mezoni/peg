@@ -1,6 +1,6 @@
 name: peg
 description: Command line tool for generating PEG parsers with support for event-based parsing and parsing directly from files.
-version: 1.0.26
+version: 1.0.27
 homepage: https://github.com/mezoni/peg
 topics:
   - parser
