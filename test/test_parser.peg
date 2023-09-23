@@ -45,9 +45,9 @@ TakeTil =  $(![E]  v:.)* ;
 TakeUntil =  $(!'END'  v:.)* ;
 
 Verify41 = @verify(Integer, {
-    if ($$ != 41) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+    if ($$ != 41) { fail(ErrorMessage(state.pos - pos, 'error')); }
   }) ;
 
 VerifyFlag = @verify('', {
-    if (!flag) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+    if (!flag) { fail(ErrorMessage(state.pos - pos, 'error')); }
   }) ;

@@ -268,10 +268,9 @@ void _testVerify() {
       const source = '40abc';
       await __testFailure(
         errors: {
-          const ErrorMessage(0, 'error'),
-          const ErrorUnexpectedCharacter().getErrorMessage(source.toInput, 2),
+          const ErrorMessage(2, 'error'),
         },
-        failPos: 2,
+        failPos: 0,
         fastParse: _parser.fastParseVerify41,
         parse: _parser.parseVerify41,
         pos: 0,

@@ -4,12 +4,21 @@ import 'expression_generator.dart';
 class VerifyGenerator extends ExpressionGenerator<VerifyExpression> {
   static const _template = r'''
 final {{pos}} = state.pos;
+final {{failPos}} = state.failPos;
+final {{errorCount}} = state.errorCount;
 {{p}}
 if (state.ok) {
-  // ignore: unused_local_variable
   final pos = {{pos}};
   // ignore: unused_local_variable
   final $$ = {{rv}};
+  void fail(ParseError error) {
+    if ({{failPos}} <= pos) {
+      state.failPos = {{failPos}};
+      state.errorCount = {{errorCount}};
+      state.failAt(pos, error);
+    }
+  }
+
   {{handler}}
 }
 if (!state.ok) {
@@ -32,6 +41,8 @@ if (!state.ok) {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
+    values['errorCount'] = allocateName();
+    values['failPos'] = allocateName();
     values['pos'] = allocateName();
     values['handler'] = expression.handler.trim();
     values['p'] = generateExpression(child, variable == null);

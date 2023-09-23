@@ -1,3 +1,7 @@
+## 1.0.27
+
+- Changes (improvements and bug fixes) in the implementation of the `@verify` meta expression. To correctly implement the ability to roll back errors registered during parsing, which ends successfully, the implementation of a specific mechanism is required. Such a mechanism was implemented in this meta expression. To use this mechanism, a local function `fail(ParseError error)` is declared in this meta expression. This is the function that should be used to register an error instead of directly calling the methods of the `state` instance.
+
 ## 1.0.26
 
 - Breaking change: The value type of parsing events is now `enum`. The type name is formed from the name of the parser with the word `Event` added at the end (example, `JsonParser` => `JsonParserEvent`). Using an enumeration makes it easier to control how event values are handled in a `switch` statement. Also, the use of values of the `Enum` type increases the performance of the `switch` statement compared to processing values of the `String` type.

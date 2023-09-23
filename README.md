@@ -369,6 +369,9 @@ Parameters:
 - Processed expression
 - Source code of the handler
 
+**Important info**:  
+To correctly implement the ability to roll back errors registered during parsing, which ends successfully, the implementation of a specific mechanism is required. Such a mechanism is implemented in this meta expression. To use this mechanism, a local function `fail(ParseError error)` is declared in this meta expression. This is the function that should be used to register an error instead of directly calling the methods of the `state` instance.
+
 The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
 Despite the fact that this meta-expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
 What is the meaning of the above statement?  
@@ -380,13 +383,13 @@ If the processed expression succeeds, then the verifier handler performs two fun
 
 This meta-expression allows you to simply solve the problems that arise when creating context-dependent grammars.  
 It is recommended to use an empty `Literal` as an expression that always succeeds.  
-At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).  
+At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).
 
 Example of result verification:
 
 ```
 Verify41 = @verify(Integer, {
-if ($$ != 41) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
+if ($$ != 41) { fail(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
 }) ;
 ```
 

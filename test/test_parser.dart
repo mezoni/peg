@@ -3,6 +3,596 @@ class TestParser {
 
   String text = '';
 
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+
+  ///   ;
+  void fastParseInteger(State<StringReader> state) {
+    // v:$[0-9]+
+    String? $1;
+    final $2 = state.pos;
+    var $3 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.readChar(state.pos);
+        state.ok = $4 >= 48 && $4 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $3 = true;
+    }
+    state.ok = $3;
+    if (state.ok) {
+      $1 = state.input.substring($2, state.pos);
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      int? $$;
+      final v = $1!;
+      $$ = int.parse(v);
+    }
+  }
+
+  /// MatchString =
+  ///   @matchString()
+  ///   ;
+  void fastParseMatchString(State<StringReader> state) {
+    // @matchString()
+    final $1 = text;
+    if ($1.isEmpty) {
+      state.ok = true;
+    } else {
+      state.ok = state.input.startsWith($1, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+      } else {
+        state.fail(ErrorExpectedTags([$1]));
+      }
+    }
+  }
+
+  /// OrderedChoiceWithLiterals =
+  ///     'abc'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'def'
+  ///   / 'de'
+  ///   / 'd'
+  ///   / 'gh'
+  ///   ;
+  void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
+    state.ok = false;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $0 = $2.readChar(state.pos);
+      // ignore: unused_local_variable
+      final $1 = $2.count;
+      switch ($0) {
+        case 97:
+          const $3 = 'abc';
+          state.ok = $2.startsWith($3, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $4 = 'ab';
+            state.ok = $2.startsWith($4, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
+            }
+          }
+          break;
+        case 100:
+          const $6 = 'def';
+          state.ok = $2.startsWith($6, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          } else {
+            const $7 = 'de';
+            state.ok = $2.startsWith($7, state.pos);
+            if (state.ok) {
+              state.pos += $2.count;
+            } else {
+              state.ok = true;
+              state.pos += $1;
+            }
+          }
+          break;
+        case 103:
+          const $9 = 'gh';
+          state.ok = $2.startsWith($9, state.pos);
+          if (state.ok) {
+            state.pos += $2.count;
+          }
+          break;
+      }
+    }
+    if (!state.ok) {
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
+    }
+  }
+
+  /// SepBy =
+  ///   @sepBy(Integer, ',')
+  ///   ;
+  void fastParseSepBy(State<StringReader> state) {
+    // @sepBy(Integer, ',')
+    // Integer
+    fastParseInteger(state);
+    if (!state.ok) {
+      state.ok = true;
+    } else {
+      while (true) {
+        final $1 = state.pos;
+        state.ok = false;
+        final $5 = state.input;
+        if (state.pos < $5.length) {
+          final $3 = $5.readChar(state.pos);
+          // ignore: unused_local_variable
+          final $4 = $5.count;
+          switch ($3) {
+            case 44:
+              state.ok = true;
+              state.pos += $4;
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags([',']));
+        }
+        if (!state.ok) {
+          state.ok = true;
+          break;
+        }
+        // Integer
+        fastParseInteger(state);
+        if (!state.ok) {
+          state.pos = $1;
+          break;
+        }
+      }
+    }
+  }
+
+  /// SkipTil =
+  ///   (![E] v:.)*
+  ///   ;
+  void fastParseSkipTil(State<StringReader> state) {
+    // (![E] v:.)*
+    const $2 = 'E';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
+    }
+  }
+
+  /// SkipUntil =
+  ///   (!'END' v:.)*
+  ///   ;
+  void fastParseSkipUntil(State<StringReader> state) {
+    // (!'END' v:.)*
+    const $2 = 'END';
+    final $1 = state.input.indexOf($2, state.pos);
+    state.ok = $1 != -1;
+    if (state.ok) {
+      state.pos = $1;
+    } else {
+      state.failAt(state.input.length, const ErrorExpectedTags([$2]));
+    }
+  }
+
+  /// TakeTil =
+  ///   $(![E] v:.)*
+  ///   ;
+  void fastParseTakeTil(State<StringReader> state) {
+    // $(![E] v:.)*
+    const $3 = 'E';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      state.pos = $2;
+    } else {
+      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
+    }
+  }
+
+  /// TakeUntil =
+  ///   $(!'END' v:.)*
+  ///   ;
+  void fastParseTakeUntil(State<StringReader> state) {
+    // $(!'END' v:.)*
+    const $3 = 'END';
+    final $2 = state.input.indexOf($3, state.pos);
+    state.ok = $2 != -1;
+    if (state.ok) {
+      state.pos = $2;
+    } else {
+      state.failAt(state.input.length, const ErrorExpectedTags([$3]));
+    }
+  }
+
+  /// Verify41 =
+  ///   @verify(Integer)
+  ///   ;
+  void fastParseVerify41(State<StringReader> state) {
+    // @verify(Integer)
+    final $4 = state.pos;
+    final $3 = state.failPos;
+    final $2 = state.errorCount;
+    int? $1;
+    // Integer
+    $1 = parseInteger(state);
+    if (state.ok) {
+      $1 = $1;
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      final pos = $4;
+      // ignore: unused_local_variable
+      final $$ = $1!;
+      void fail(ParseError error) {
+        if ($3 <= $4) {
+          state.failPos = $3;
+          state.errorCount = $2;
+          state.failAt($4, error);
+        }
+      }
+
+      if ($$ != 41) {
+        fail(ErrorMessage(state.pos - pos, 'error'));
+      }
+    }
+    if (!state.ok) {
+      state.pos = $4;
+    }
+  }
+
+  /// VerifyFlag =
+  ///   @verify('')
+  ///   ;
+  void fastParseVerifyFlag(State<StringReader> state) {
+    // @verify('')
+    final $4 = state.pos;
+    final $3 = state.failPos;
+    final $2 = state.errorCount;
+    String? $1;
+    // ''
+    state.ok = true;
+    if (state.ok) {
+      $1 = '';
+    }
+    if (state.ok) {
+      $1 = $1;
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      final pos = $4;
+      // ignore: unused_local_variable
+      final $$ = $1!;
+      void fail(ParseError error) {
+        if ($3 <= $4) {
+          state.failPos = $3;
+          state.errorCount = $2;
+          state.failAt($4, error);
+        }
+      }
+
+      if (!flag) {
+        fail(ErrorMessage(state.pos - pos, 'error'));
+      }
+    }
+    if (!state.ok) {
+      state.pos = $4;
+    }
+  }
+
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+
+  ///   ;
+  int? parseInteger(State<StringReader> state) {
+    int? $0;
+    // v:$[0-9]+
+    String? $2;
+    final $3 = state.pos;
+    var $4 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $5 = state.input.readChar(state.pos);
+        state.ok = $5 >= 48 && $5 <= 57;
+        if (state.ok) {
+          state.pos += state.input.count;
+        }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $4 = true;
+    }
+    state.ok = $4;
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      int? $$;
+      final v = $2!;
+      $$ = int.parse(v);
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// MatchString =
+  ///   @matchString()
+  ///   ;
+  String? parseMatchString(State<StringReader> state) {
+    String? $0;
+    // @matchString()
+    final $2 = text;
+    if ($2.isEmpty) {
+      state.ok = true;
+      $0 = '';
+    } else {
+      state.ok = state.input.startsWith($2, state.pos);
+      if (state.ok) {
+        state.pos += state.input.count;
+        $0 = $2;
+      } else {
+        state.fail(ErrorExpectedTags([$2]));
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  /// OrderedChoiceWithLiterals =
+  ///     'abc'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'def'
+  ///   / 'de'
+  ///   / 'd'
+  ///   / 'gh'
+  ///   ;
+  String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
+    String? $0;
+    state.ok = false;
+    final $3 = state.input;
+    if (state.pos < $3.length) {
+      final $1 = $3.readChar(state.pos);
+      // ignore: unused_local_variable
+      final $2 = $3.count;
+      switch ($1) {
+        case 97:
+          const $4 = 'abc';
+          state.ok = $3.startsWith($4, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $4;
+          } else {
+            const $5 = 'ab';
+            state.ok = $3.startsWith($5, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $5;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'a';
+            }
+          }
+          break;
+        case 100:
+          const $7 = 'def';
+          state.ok = $3.startsWith($7, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $7;
+          } else {
+            const $8 = 'de';
+            state.ok = $3.startsWith($8, state.pos);
+            if (state.ok) {
+              state.pos += $3.count;
+              $0 = $8;
+            } else {
+              state.ok = true;
+              state.pos += $2;
+              $0 = 'd';
+            }
+          }
+          break;
+        case 103:
+          const $10 = 'gh';
+          state.ok = $3.startsWith($10, state.pos);
+          if (state.ok) {
+            state.pos += $3.count;
+            $0 = $10;
+          }
+          break;
+      }
+    }
+    if (!state.ok) {
+      state.fail(
+          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
+    }
+    return $0;
+  }
+
+  /// SepBy =
+  ///   @sepBy(Integer, ',')
+  ///   ;
+  List<int>? parseSepBy(State<StringReader> state) {
+    List<int>? $0;
+    // @sepBy(Integer, ',')
+    int? $4;
+    // Integer
+    $4 = parseInteger(state);
+    if (state.ok) {
+      $4 = $4;
+    }
+    if (!state.ok) {
+      state.ok = true;
+      $0 = const [];
+    } else {
+      final $3 = [$4!];
+      while (true) {
+        final $2 = state.pos;
+        state.ok = false;
+        final $8 = state.input;
+        if (state.pos < $8.length) {
+          final $6 = $8.readChar(state.pos);
+          // ignore: unused_local_variable
+          final $7 = $8.count;
+          switch ($6) {
+            case 44:
+              state.ok = true;
+              state.pos += $7;
+              break;
+          }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorExpectedTags([',']));
+        }
+        if (!state.ok) {
+          state.ok = true;
+          $0 = $3;
+          break;
+        }
+        // Integer
+        $4 = parseInteger(state);
+        if (state.ok) {
+          $4 = $4;
+        }
+        if (!state.ok) {
+          state.pos = $2;
+          break;
+        }
+        $3.add($4!);
+      }
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  /// SkipTil =
+  ///   (![E] v:.)*
+  ///   ;
+  List<int>? parseSkipTil(State<StringReader> state) {
+    List<int>? $0;
+    // (![E] v:.)*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      // ![E] v:.
+      final $4 = state.pos;
+      final $6 = state.pos;
+      matchChar(state, 69, const ErrorUnexpectedCharacter(69));
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $6;
+      }
+      if (state.ok) {
+        int? $5;
+        if (state.pos < state.input.length) {
+          $5 = state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $3 = $5;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $4;
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
+  /// SkipUntil =
+  ///   (!'END' v:.)*
+  ///   ;
+  List<int>? parseSkipUntil(State<StringReader> state) {
+    List<int>? $0;
+    // (!'END' v:.)*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      // !'END' v:.
+      final $4 = state.pos;
+      final $6 = state.pos;
+      const $7 = 'END';
+      matchLiteral(state, $7, const ErrorExpectedTags([$7]));
+      state.ok = !state.ok;
+      if (!state.ok) {
+        state.pos = $6;
+      }
+      if (state.ok) {
+        int? $5;
+        if (state.pos < state.input.length) {
+          $5 = state.input.readChar(state.pos);
+          state.pos += state.input.count;
+          state.ok = true;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $3 = $5;
+        }
+      }
+      if (!state.ok) {
+        state.pos = $4;
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    return $0;
+  }
+
   /// Start =
   ///     (v:MatchString MatchString)
   ///   / (v:SkipUntil SkipUntil)
@@ -208,435 +798,6 @@ class TestParser {
     return $0;
   }
 
-  /// VerifyFlag =
-  ///   @verify('')
-  ///   ;
-  String? parseVerifyFlag(State<StringReader> state) {
-    String? $0;
-    // @verify('')
-    final $2 = state.pos;
-    // ''
-    state.ok = true;
-    if (state.ok) {
-      $0 = '';
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      final pos = $2;
-      // ignore: unused_local_variable
-      final $$ = $0!;
-      if (!flag) {
-        state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
-      }
-    }
-    if (!state.ok) {
-      state.pos = $2;
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// VerifyFlag =
-  ///   @verify('')
-  ///   ;
-  void fastParseVerifyFlag(State<StringReader> state) {
-    // @verify('')
-    final $2 = state.pos;
-    String? $1;
-    // ''
-    state.ok = true;
-    if (state.ok) {
-      $1 = '';
-    }
-    if (state.ok) {
-      $1 = $1;
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      final pos = $2;
-      // ignore: unused_local_variable
-      final $$ = $1!;
-      if (!flag) {
-        state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
-      }
-    }
-    if (!state.ok) {
-      state.pos = $2;
-    }
-  }
-
-  /// Verify41 =
-  ///   @verify(Integer)
-  ///   ;
-  int? parseVerify41(State<StringReader> state) {
-    int? $0;
-    // @verify(Integer)
-    final $2 = state.pos;
-    // Integer
-    $0 = parseInteger(state);
-    if (state.ok) {
-      $0 = $0;
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      final pos = $2;
-      // ignore: unused_local_variable
-      final $$ = $0!;
-      if ($$ != 41) {
-        state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
-      }
-    }
-    if (!state.ok) {
-      state.pos = $2;
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// int
-  /// Integer =
-  ///   v:$[0-9]+
-  ///   ;
-  int? parseInteger(State<StringReader> state) {
-    int? $0;
-    // v:$[0-9]+
-    String? $2;
-    final $3 = state.pos;
-    var $4 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.readChar(state.pos);
-        state.ok = $5 >= 48 && $5 <= 57;
-        if (state.ok) {
-          state.pos += state.input.count;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $4 = true;
-    }
-    state.ok = $4;
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      int? $$;
-      final v = $2!;
-      $$ = int.parse(v);
-      $0 = $$;
-    }
-    return $0;
-  }
-
-  /// Verify41 =
-  ///   @verify(Integer)
-  ///   ;
-  void fastParseVerify41(State<StringReader> state) {
-    // @verify(Integer)
-    final $2 = state.pos;
-    int? $1;
-    // Integer
-    $1 = parseInteger(state);
-    if (state.ok) {
-      $1 = $1;
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      final pos = $2;
-      // ignore: unused_local_variable
-      final $$ = $1!;
-      if ($$ != 41) {
-        state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error'));
-      }
-    }
-    if (!state.ok) {
-      state.pos = $2;
-    }
-  }
-
-  /// SepBy =
-  ///   @sepBy(Integer, ',')
-  ///   ;
-  List<int>? parseSepBy(State<StringReader> state) {
-    List<int>? $0;
-    // @sepBy(Integer, ',')
-    int? $4;
-    // Integer
-    $4 = parseInteger(state);
-    if (state.ok) {
-      $4 = $4;
-    }
-    if (!state.ok) {
-      state.ok = true;
-      $0 = const [];
-    } else {
-      final $3 = [$4!];
-      while (true) {
-        final $2 = state.pos;
-        state.ok = false;
-        final $8 = state.input;
-        if (state.pos < $8.length) {
-          final $6 = $8.readChar(state.pos);
-          final $7 = $8.count;
-          switch ($6) {
-            case 44:
-              state.ok = true;
-              state.pos += $7;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
-        if (!state.ok) {
-          state.ok = true;
-          $0 = $3;
-          break;
-        }
-        // Integer
-        $4 = parseInteger(state);
-        if (state.ok) {
-          $4 = $4;
-        }
-        if (!state.ok) {
-          state.pos = $2;
-          break;
-        }
-        $3.add($4!);
-      }
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// SepBy =
-  ///   @sepBy(Integer, ',')
-  ///   ;
-  void fastParseSepBy(State<StringReader> state) {
-    // @sepBy(Integer, ',')
-    // Integer
-    fastParseInteger(state);
-    if (!state.ok) {
-      state.ok = true;
-    } else {
-      while (true) {
-        final $1 = state.pos;
-        state.ok = false;
-        final $5 = state.input;
-        if (state.pos < $5.length) {
-          final $3 = $5.readChar(state.pos);
-          final $4 = $5.count;
-          switch ($3) {
-            case 44:
-              state.ok = true;
-              state.pos += $4;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        // Integer
-        fastParseInteger(state);
-        if (!state.ok) {
-          state.pos = $1;
-          break;
-        }
-      }
-    }
-  }
-
-  /// int
-  /// Integer =
-  ///   v:$[0-9]+
-  ///   ;
-  void fastParseInteger(State<StringReader> state) {
-    // v:$[0-9]+
-    String? $1;
-    final $2 = state.pos;
-    var $3 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $4 = state.input.readChar(state.pos);
-        state.ok = $4 >= 48 && $4 <= 57;
-        if (state.ok) {
-          state.pos += state.input.count;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $3 = true;
-    }
-    state.ok = $3;
-    if (state.ok) {
-      $1 = state.input.substring($2, state.pos);
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      int? $$;
-      final v = $1!;
-      $$ = int.parse(v);
-    }
-  }
-
-  /// OrderedChoiceWithLiterals =
-  ///     'abc'
-  ///   / 'ab'
-  ///   / 'a'
-  ///   / 'def'
-  ///   / 'de'
-  ///   / 'd'
-  ///   / 'gh'
-  ///   ;
-  String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
-    String? $0;
-    state.ok = false;
-    final $3 = state.input;
-    if (state.pos < $3.length) {
-      final $1 = $3.readChar(state.pos);
-      final $2 = $3.count;
-      switch ($1) {
-        case 97:
-          const $4 = 'abc';
-          state.ok = $3.startsWith($4, state.pos);
-          if (state.ok) {
-            state.pos += $3.count;
-            $0 = $4;
-          } else {
-            const $5 = 'ab';
-            state.ok = $3.startsWith($5, state.pos);
-            if (state.ok) {
-              state.pos += $3.count;
-              $0 = $5;
-            } else {
-              state.ok = true;
-              state.pos += $2;
-              $0 = 'a';
-            }
-          }
-          break;
-        case 100:
-          const $7 = 'def';
-          state.ok = $3.startsWith($7, state.pos);
-          if (state.ok) {
-            state.pos += $3.count;
-            $0 = $7;
-          } else {
-            const $8 = 'de';
-            state.ok = $3.startsWith($8, state.pos);
-            if (state.ok) {
-              state.pos += $3.count;
-              $0 = $8;
-            } else {
-              state.ok = true;
-              state.pos += $2;
-              $0 = 'd';
-            }
-          }
-          break;
-        case 103:
-          const $10 = 'gh';
-          state.ok = $3.startsWith($10, state.pos);
-          if (state.ok) {
-            state.pos += $3.count;
-            $0 = $10;
-          }
-          break;
-      }
-    }
-    if (!state.ok) {
-      state.fail(
-          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
-    }
-    return $0;
-  }
-
-  /// OrderedChoiceWithLiterals =
-  ///     'abc'
-  ///   / 'ab'
-  ///   / 'a'
-  ///   / 'def'
-  ///   / 'de'
-  ///   / 'd'
-  ///   / 'gh'
-  ///   ;
-  void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
-    state.ok = false;
-    final $2 = state.input;
-    if (state.pos < $2.length) {
-      final $0 = $2.readChar(state.pos);
-      final $1 = $2.count;
-      switch ($0) {
-        case 97:
-          const $3 = 'abc';
-          state.ok = $2.startsWith($3, state.pos);
-          if (state.ok) {
-            state.pos += $2.count;
-          } else {
-            const $4 = 'ab';
-            state.ok = $2.startsWith($4, state.pos);
-            if (state.ok) {
-              state.pos += $2.count;
-            } else {
-              state.ok = true;
-              state.pos += $1;
-            }
-          }
-          break;
-        case 100:
-          const $6 = 'def';
-          state.ok = $2.startsWith($6, state.pos);
-          if (state.ok) {
-            state.pos += $2.count;
-          } else {
-            const $7 = 'de';
-            state.ok = $2.startsWith($7, state.pos);
-            if (state.ok) {
-              state.pos += $2.count;
-            } else {
-              state.ok = true;
-              state.pos += $1;
-            }
-          }
-          break;
-        case 103:
-          const $9 = 'gh';
-          state.ok = $2.startsWith($9, state.pos);
-          if (state.ok) {
-            state.pos += $2.count;
-          }
-          break;
-      }
-    }
-    if (!state.ok) {
-      state.fail(
-          const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
-    }
-  }
-
   /// TakeTil =
   ///   $(![E] v:.)*
   ///   ;
@@ -659,21 +820,6 @@ class TestParser {
       $0 = $0;
     }
     return $0;
-  }
-
-  /// TakeTil =
-  ///   $(![E] v:.)*
-  ///   ;
-  void fastParseTakeTil(State<StringReader> state) {
-    // $(![E] v:.)*
-    const $3 = 'E';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
-    if (state.ok) {
-      state.pos = $2;
-    } else {
-      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
-    }
   }
 
   /// TakeUntil =
@@ -700,67 +846,39 @@ class TestParser {
     return $0;
   }
 
-  /// TakeUntil =
-  ///   $(!'END' v:.)*
+  /// Verify41 =
+  ///   @verify(Integer)
   ///   ;
-  void fastParseTakeUntil(State<StringReader> state) {
-    // $(!'END' v:.)*
-    const $3 = 'END';
-    final $2 = state.input.indexOf($3, state.pos);
-    state.ok = $2 != -1;
+  int? parseVerify41(State<StringReader> state) {
+    int? $0;
+    // @verify(Integer)
+    final $4 = state.pos;
+    final $3 = state.failPos;
+    final $2 = state.errorCount;
+    // Integer
+    $0 = parseInteger(state);
     if (state.ok) {
-      state.pos = $2;
-    } else {
-      state.failAt(state.input.length, const ErrorExpectedTags([$3]));
+      $0 = $0;
     }
-  }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      final pos = $4;
+      // ignore: unused_local_variable
+      final $$ = $0!;
+      void fail(ParseError error) {
+        if ($3 <= $4) {
+          state.failPos = $3;
+          state.errorCount = $2;
+          state.failAt($4, error);
+        }
+      }
 
-  /// SkipTil =
-  ///   (![E] v:.)*
-  ///   ;
-  List<int>? parseSkipTil(State<StringReader> state) {
-    List<int>? $0;
-    // (![E] v:.)*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      // ![E] v:.
-      final $4 = state.pos;
-      final $6 = state.pos;
-      state.ok = state.input.matchChar(69, state.pos);
-      if (state.ok) {
-        state.pos += state.input.count;
-      } else {
-        state.fail(const ErrorExpectedCharacter(69));
+      if ($$ != 41) {
+        fail(ErrorMessage(state.pos - pos, 'error'));
       }
-      state.ok = !state.ok;
-      if (!state.ok) {
-        state.pos = $6;
-      }
-      if (state.ok) {
-        int? $5;
-        if (state.pos < state.input.length) {
-          $5 = state.input.readChar(state.pos);
-          state.pos += state.input.count;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (state.ok) {
-          $3 = $5;
-        }
-      }
-      if (!state.ok) {
-        state.pos = $4;
-      }
-      if (!state.ok) {
-        state.ok = true;
-        break;
-      }
-      $2.add($3!);
     }
-    if (state.ok) {
-      $0 = $2;
+    if (!state.ok) {
+      state.pos = $4;
     }
     if (state.ok) {
       $0 = $0;
@@ -768,103 +886,42 @@ class TestParser {
     return $0;
   }
 
-  /// SkipTil =
-  ///   (![E] v:.)*
+  /// VerifyFlag =
+  ///   @verify('')
   ///   ;
-  void fastParseSkipTil(State<StringReader> state) {
-    // (![E] v:.)*
-    const $2 = 'E';
-    final $1 = state.input.indexOf($2, state.pos);
-    state.ok = $1 != -1;
-    if (state.ok) {
-      state.pos = $1;
-    } else {
-      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
-    }
-  }
-
-  /// SkipUntil =
-  ///   (!'END' v:.)*
-  ///   ;
-  List<int>? parseSkipUntil(State<StringReader> state) {
-    List<int>? $0;
-    // (!'END' v:.)*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      // !'END' v:.
-      final $4 = state.pos;
-      final $6 = state.pos;
-      const $7 = 'END';
-      matchLiteral(state, $7, const ErrorExpectedTags([$7]));
-      state.ok = !state.ok;
-      if (!state.ok) {
-        state.pos = $6;
-      }
-      if (state.ok) {
-        int? $5;
-        if (state.pos < state.input.length) {
-          $5 = state.input.readChar(state.pos);
-          state.pos += state.input.count;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (state.ok) {
-          $3 = $5;
-        }
-      }
-      if (!state.ok) {
-        state.pos = $4;
-      }
-      if (!state.ok) {
-        state.ok = true;
-        break;
-      }
-      $2.add($3!);
-    }
-    if (state.ok) {
-      $0 = $2;
-    }
-    if (state.ok) {
-      $0 = $0;
-    }
-    return $0;
-  }
-
-  /// SkipUntil =
-  ///   (!'END' v:.)*
-  ///   ;
-  void fastParseSkipUntil(State<StringReader> state) {
-    // (!'END' v:.)*
-    const $2 = 'END';
-    final $1 = state.input.indexOf($2, state.pos);
-    state.ok = $1 != -1;
-    if (state.ok) {
-      state.pos = $1;
-    } else {
-      state.failAt(state.input.length, const ErrorExpectedTags([$2]));
-    }
-  }
-
-  /// MatchString =
-  ///   @matchString()
-  ///   ;
-  String? parseMatchString(State<StringReader> state) {
+  String? parseVerifyFlag(State<StringReader> state) {
     String? $0;
-    // @matchString()
-    final $2 = text;
-    if ($2.isEmpty) {
-      state.ok = true;
+    // @verify('')
+    final $4 = state.pos;
+    final $3 = state.failPos;
+    final $2 = state.errorCount;
+    // ''
+    state.ok = true;
+    if (state.ok) {
       $0 = '';
-    } else {
-      state.ok = state.input.startsWith($2, state.pos);
-      if (state.ok) {
-        state.pos += state.input.count;
-        $0 = $2;
-      } else {
-        state.fail(ErrorExpectedTags([$2]));
+    }
+    if (state.ok) {
+      $0 = $0;
+    }
+    if (state.ok) {
+      // ignore: unused_local_variable
+      final pos = $4;
+      // ignore: unused_local_variable
+      final $$ = $0!;
+      void fail(ParseError error) {
+        if ($3 <= $4) {
+          state.failPos = $3;
+          state.errorCount = $2;
+          state.failAt($4, error);
+        }
       }
+
+      if (!flag) {
+        fail(ErrorMessage(state.pos - pos, 'error'));
+      }
+    }
+    if (!state.ok) {
+      state.pos = $4;
     }
     if (state.ok) {
       $0 = $0;
@@ -872,22 +929,17 @@ class TestParser {
     return $0;
   }
 
-  /// MatchString =
-  ///   @matchString()
-  ///   ;
-  void fastParseMatchString(State<StringReader> state) {
-    // @matchString()
-    final $1 = text;
-    if ($1.isEmpty) {
-      state.ok = true;
+  @pragma('vm:prefer-inline')
+  int? matchChar(State<StringReader> state, int char, ParseError error) {
+    final input = state.input;
+    state.ok = input.matchChar(char, state.pos);
+    if (state.ok) {
+      state.pos += input.count;
+      return char;
     } else {
-      state.ok = state.input.startsWith($1, state.pos);
-      if (state.ok) {
-        state.pos += state.input.count;
-      } else {
-        state.fail(ErrorExpectedTags([$1]));
-      }
+      state.fail(error);
     }
+    return null;
   }
 
   @pragma('vm:prefer-inline')
