@@ -43,7 +43,7 @@ Colon = v:':' Spaces ;
 @inline
 Comma = v:',' Spaces ;
 
-@event
+@inline
 String
 EscapeChar = c:["/bfnrt\\] { $$ = _escape(c); } ;
 
@@ -72,14 +72,12 @@ Key = String ;
 MapEntry<String, Object?>
 KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 
-@event
 KeyValues = @sepBy(KeyValue, Comma);
 
 @inline
 Object?
 Null = 'null' Spaces { $$ = null; } ;
 
-@event
 num
 Number = v:$(
   [-]?

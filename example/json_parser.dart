@@ -100,41 +100,6 @@ class JsonParser {
     return $0;
   }
 
-  /// @event
-  /// String
-  /// EscapeChar =
-  ///   c:["/bfnrt\\]
-  ///   ;
-  String? parseEscapeChar(State<StringReader> state) {
-    beginEvent(JsonParserEvent.escapeCharEvent);
-    String? $0;
-    // c:["/bfnrt\\]
-    int? $2;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
-      final $3 = state.input.readChar(state.pos);
-      state.ok = $3 == 98 ||
-          ($3 < 98
-              ? $3 == 47 || $3 == 34 || $3 == 92
-              : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
-      if (state.ok) {
-        state.pos += state.input.count;
-        $2 = $3;
-      }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
-    }
-    if (state.ok) {
-      String? $$;
-      final c = $2!;
-      $$ = _escape(c);
-      $0 = $$;
-    }
-    $0 = endEvent<String>(JsonParserEvent.escapeCharEvent, $0, state.ok);
-    return $0;
-  }
-
   /// HexNumber =
   ///   @errorHandler(HexNumberRaw)
   ///   ;
@@ -250,12 +215,10 @@ class JsonParser {
     return $0;
   }
 
-  /// @event
   /// KeyValues =
   ///   @sepBy(KeyValue, Comma)
   ///   ;
   List<MapEntry<String, Object?>>? parseKeyValues(State<StringReader> state) {
-    beginEvent(JsonParserEvent.keyValuesEvent);
     List<MapEntry<String, Object?>>? $0;
     // @sepBy(KeyValue, Comma)
     MapEntry<String, Object?>? $4;
@@ -302,18 +265,14 @@ class JsonParser {
     if (state.ok) {
       $0 = $0;
     }
-    $0 = endEvent<List<MapEntry<String, Object?>>>(
-        JsonParserEvent.keyValuesEvent, $0, state.ok);
     return $0;
   }
 
-  /// @event
   /// num
   /// Number =
   ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
   ///   ;
   num? parseNumber(State<StringReader> state) {
-    beginEvent(JsonParserEvent.numberEvent);
     num? $0;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces
     final $1 = state.pos;
@@ -466,7 +425,6 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
-    $0 = endEvent<num>(JsonParserEvent.numberEvent, $0, state.ok);
     return $0;
   }
 
@@ -563,15 +521,15 @@ class JsonParser {
       while (true) {
         String? $5;
         // $[ -!#-[\]-\u{10ffff}]+
-        final $15 = state.pos;
-        var $16 = false;
+        final $18 = state.pos;
+        var $19 = false;
         while (true) {
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $17 = state.input.readChar(state.pos);
-            state.ok = $17 <= 91
-                ? $17 >= 32 && $17 <= 33 || $17 >= 35
-                : $17 >= 93 && $17 <= 1114111;
+            final $20 = state.input.readChar(state.pos);
+            state.ok = $20 <= 91
+                ? $20 >= 32 && $20 <= 33 || $20 >= 35
+                : $20 >= 93 && $20 <= 1114111;
             if (state.ok) {
               state.pos += state.input.count;
             }
@@ -582,11 +540,11 @@ class JsonParser {
           if (!state.ok) {
             break;
           }
-          $16 = true;
+          $19 = true;
         }
-        state.ok = $16;
+        state.ok = $19;
         if (state.ok) {
-          $5 = state.input.substring($15, state.pos);
+          $5 = state.input.substring($18, state.pos);
         }
         if (state.ok) {
           $5 = $5;
@@ -599,7 +557,30 @@ class JsonParser {
           if (state.ok) {
             String? $7;
             // EscapeChar
-            $7 = parseEscapeChar(state);
+            // c:["/bfnrt\\]
+            int? $15;
+            state.ok = state.pos < state.input.length;
+            if (state.ok) {
+              final $16 = state.input.readChar(state.pos);
+              state.ok = $16 == 98 ||
+                  ($16 < 98
+                      ? $16 == 47 || $16 == 34 || $16 == 92
+                      : $16 == 110 ||
+                          ($16 < 110 ? $16 == 102 : $16 == 114 || $16 == 116));
+              if (state.ok) {
+                state.pos += state.input.count;
+                $15 = $16;
+              }
+            }
+            if (!state.ok) {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
+            if (state.ok) {
+              String? $$;
+              final c = $15!;
+              $$ = _escape(c);
+              $7 = $$;
+            }
             if (state.ok) {
               $7 = $7;
             }
@@ -645,14 +626,14 @@ class JsonParser {
       }
       if (state.ok) {
         // v:'"' Spaces
-        final $18 = state.pos;
-        const $19 = '"';
-        matchLiteral1(state, 34, $19, const ErrorExpectedTags([$19]));
+        final $21 = state.pos;
+        const $22 = '"';
+        matchLiteral1(state, 34, $22, const ErrorExpectedTags([$22]));
         if (state.ok) {
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.pos = $18;
+          state.pos = $21;
         }
         if (state.ok) {
           String? $$;
@@ -879,11 +860,8 @@ class JsonParser {
 
 enum JsonParserEvent {
   arrayEvent,
-  escapeCharEvent,
   keyEvent,
   keyValueEvent,
-  keyValuesEvent,
-  numberEvent,
   objectEvent,
   valueEvent
 }
