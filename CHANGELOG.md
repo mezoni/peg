@@ -2,6 +2,7 @@
 
 - Changes in the file `README.md`.
 - Change in project description.
+- Changes in project dependencies. Removed dependency on `dart_style`.
 
 ## 1.0.29
 

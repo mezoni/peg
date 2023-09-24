@@ -11,7 +11,6 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
   args: ^2.4.2
-  dart_style: ^2.2.4
   path: ^1.8.3
   strings: ^2.0.3
 dev_dependencies:
