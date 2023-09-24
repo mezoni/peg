@@ -52,8 +52,8 @@ String
 EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
 
 HexNumber = @errorHandler(HexNumberRaw, {
-    final errors = [ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number')];
-    replaceLastErrors(errors);
+    rollbackErrors = true;
+    error = ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number');
   }) ;
 
 @inline

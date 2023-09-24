@@ -1715,20 +1715,11 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   // ignore: unused_element
-  void _replaceLastErrors(
-      int failPos, int errorCount, List<ParseError> errors) {
+  void _rollbackErrors(int failPos, int errorCount) {
     if (this.failPos == failPos) {
       this.errorCount = errorCount;
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
-    }
-    final length = errors.length;
-    if (length == 0) {
-      failAt(this.failPos, const ErrorUnknownError());
-    } else if (length == 1) {
-      failAt(this.failPos, errors[0]);
-    } else {
-      failAllAt(this.failPos, errors);
     }
   }
 }

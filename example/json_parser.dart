@@ -151,14 +151,23 @@ class JsonParser {
       $0 = $0;
     }
     if (!state.ok && state._canHandleError($2, $3)) {
-      void replaceLastErrors(List<ParseError> errors) {
-        state._replaceLastErrors($2, $3, errors);
+      ParseError? error;
+      // ignore: prefer_final_locals
+      var rollbackErrors = false;
+      rollbackErrors = true;
+      error = ErrorMessage(
+          state.pos - state.failPos, 'Expected 4 digit hex number');
+      if (rollbackErrors == true) {
+        state._rollbackErrors($2, $3);
+        // ignore: unnecessary_null_comparison, prefer_conditional_assignment
+        if (error == null) {
+          error = const ErrorUnknownError();
+        }
       }
-
-      final errors = [
-        ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number')
-      ];
-      replaceLastErrors(errors);
+      // ignore: unnecessary_null_comparison
+      if (error != null) {
+        state.failAt(state.failPos, error);
+      }
     }
     if (state.ok) {
       $0 = $0;
@@ -1614,20 +1623,11 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   // ignore: unused_element
-  void _replaceLastErrors(
-      int failPos, int errorCount, List<ParseError> errors) {
+  void _rollbackErrors(int failPos, int errorCount) {
     if (this.failPos == failPos) {
       this.errorCount = errorCount;
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
-    }
-    final length = errors.length;
-    if (length == 0) {
-      failAt(this.failPos, const ErrorUnknownError());
-    } else if (length == 1) {
-      failAt(this.failPos, errors[0]);
-    } else {
-      failAllAt(this.failPos, errors);
     }
   }
 }

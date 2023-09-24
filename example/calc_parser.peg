@@ -65,15 +65,20 @@ Primary =
 
 Number = @errorHandler(NumberRaw, {
     if (state.failPos != state.pos) {
-      state.failAt(state.failPos, ErrorMessage(state.pos - state.failPos, 'Malformed number'));
+      error = ErrorMessage(state.pos - state.failPos, 'Malformed number');
     } else {
-      const errors = [ErrorExpectedTags(['number'])];
-      replaceLastErrors(errors);
+      rollbackErrors = true;
+      error = ErrorExpectedTags(['number']);
     }
   }) ;
 
 num
-NumberRaw = v:$([-]? [0] / ([1-9][0-9]*) ([.] [0-9]+)? ([eE] [+-] [0-9]+)?) Spaces { $$ = num.parse(v); } ;
+NumberRaw = v:$(
+  [-]?
+  ([0] / [1-9][0-9]*)
+  ([.] [0-9]+)?
+  ([eE] [-+]? [0-9]+)?
+  ) Spaces { $$ = num.parse(v); } ;
 
 CloseParenthesis = ')' Spaces ;
 

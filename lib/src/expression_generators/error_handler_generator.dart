@@ -8,10 +8,21 @@ final {{failPos}} = state.failPos;
 final {{errorCount}} = state.errorCount;
 {{p}}
 if (!state.ok && state._canHandleError({{failPos}}, {{errorCount}})) {
-  void replaceLastErrors(List<ParseError> errors) {
-    state._replaceLastErrors({{failPos}}, {{errorCount}}, errors);
-  }
+  ParseError? error;
+  // ignore: prefer_final_locals
+  var rollbackErrors = false;
   {{handler}}
+  if (rollbackErrors == true) {
+    state._rollbackErrors({{failPos}}, {{errorCount}});
+    // ignore: unnecessary_null_comparison, prefer_conditional_assignment
+    if (error == null) {
+      error = const ErrorUnknownError();
+    }
+  }
+  // ignore: unnecessary_null_comparison
+  if (error != null) {
+    state.failAt(state.failPos, error);
+  }
 }''';
 
   ErrorHandlerGenerator({
@@ -29,7 +40,7 @@ if (!state.ok && state._canHandleError({{failPos}}, {{errorCount}})) {
 
     values['failPos'] = allocateName();
     values['errorCount'] = allocateName();
-    values['handler'] = expression.handler;
+    values['handler'] = expression.handler.trim();
     values['p'] = generateExpression(child, false);
     return render(_template, values);
   }
