@@ -1,10 +1,12 @@
 name: peg
-description: Command line tool for generating PEG parsers with support for event-based parsing and parsing directly from files.
+description: A command line tool for generating top-down parsers from a parsing expression grammars (PEG).
 version: 1.0.29
 homepage: https://github.com/mezoni/peg
 topics:
   - parser
+  - parser-generator
   - peg
+  - top-down-parser
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:

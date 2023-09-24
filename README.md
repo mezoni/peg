@@ -1,6 +1,6 @@
 # peg
 
-Command line tool for generating PEG parsers with support for event-based parsing and parsing directly from files.
+A command line tool for generating top-down parsers from a parsing expression grammars (PEG).
 
 Version: 1.0.29
 

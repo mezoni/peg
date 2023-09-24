@@ -1,6 +1,7 @@
 ## 1.0.30
 
 - Changes in the file `README.md`.
+- Change in project description.
 
 ## 1.0.29
 
