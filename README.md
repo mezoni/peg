@@ -369,8 +369,8 @@ Parameters:
 - Processed expression
 - Source code of the handler
 
-**Important info**:  
-To correctly implement the ability to roll back errors registered during parsing, which ends successfully, the implementation of a specific mechanism is required. Such a mechanism is implemented in this meta expression. To use this mechanism, a local function `fail(ParseError error)` is declared in this meta expression. This is the function that should be used to register an error instead of directly calling the methods of the `state` instance.
+**Important information:**  
+To avoid situations where error registration in the `@verify`meta expression handler may be performed incorrectly, the local variable `ParseError? error` is now intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered.
 
 The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
 Despite the fact that this meta-expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
@@ -385,20 +385,18 @@ This meta-expression allows you to simply solve the problems that arise when cre
 It is recommended to use an empty `Literal` as an expression that always succeeds.  
 At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).
 
+
+
 Example of result verification:
 
 ```
-Verify41 = @verify(Integer, {
-if ($$ != 41) { fail(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
-}) ;
+Verify41 = @verify(Integer, { if ($$ != 41) { error = ErrorMessage(state.pos - pos, 'error'); } }) ;
 ```
 
 Example of parser configuration verification:
 
 ```
-VerifyFlag = @verify('', {
-if (!flag) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'error')); }
-}) ;
+Verify41 = @verify('', { if (!flag) { error = ErrorMessage(0, 'error'); } }) ;
 ```
 
 ## Semantic variables and actions
@@ -519,9 +517,7 @@ The `@memoize` instruction is not implemented in the current version.
 `CheckCondition`
 
 ```
-CheckCondition = @verify('', {
-if (!condition) { state.failAt(state.failPos, ErrorMessage(0, 'Some error message')); }
-});
+CheckCondition = @verify('', { if (!condition) { error = ErrorMessage(0, 'error'); } }) ;
 ```
 ___
 
