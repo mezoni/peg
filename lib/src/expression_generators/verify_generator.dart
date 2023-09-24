@@ -11,15 +11,15 @@ if (state.ok) {
   final pos = {{pos}};
   // ignore: unused_local_variable
   final $$ = {{rv}};
-  void fail(ParseError error) {
+  ParseError? error;
+  {{handler}}
+  if (error != null) {
     if ({{failPos}} <= pos) {
       state.failPos = {{failPos}};
       state.errorCount = {{errorCount}};
-      state.failAt(pos, error);
     }
+    state.failAt(pos, error);
   }
-
-  {{handler}}
 }
 if (!state.ok) {
   state.pos = {{pos}};

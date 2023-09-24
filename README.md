@@ -579,9 +579,7 @@ ___
 `Verify`
 
 ```
-Verify = @verify(Integer, {
-if ($$ > 0xff) { state.failAt(state.failPos, ErrorMessage(pos - state.failPos, 'Some error message')); }
-});
+Verify = @verify(Integer, { if ($$ > 0xff) { error = ErrorMessage(state.pos - pos, 'Some error message'); } } );
 ```
 
 ## Examples of parsers

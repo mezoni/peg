@@ -240,20 +240,19 @@ class TestParser {
       $1 = $1;
     }
     if (state.ok) {
-      // ignore: unused_local_variable
       final pos = $4;
       // ignore: unused_local_variable
       final $$ = $1!;
-      void fail(ParseError error) {
-        if ($3 <= $4) {
+      ParseError? error;
+      if ($$ != 41) {
+        error = ErrorMessage(state.pos - pos, 'error');
+      }
+      if (error != null) {
+        if ($3 <= pos) {
           state.failPos = $3;
           state.errorCount = $2;
-          state.failAt($4, error);
         }
-      }
-
-      if ($$ != 41) {
-        fail(ErrorMessage(state.pos - pos, 'error'));
+        state.failAt(pos, error);
       }
     }
     if (!state.ok) {
@@ -279,20 +278,19 @@ class TestParser {
       $1 = $1;
     }
     if (state.ok) {
-      // ignore: unused_local_variable
       final pos = $4;
       // ignore: unused_local_variable
       final $$ = $1!;
-      void fail(ParseError error) {
-        if ($3 <= $4) {
+      ParseError? error;
+      if (!flag) {
+        error = ErrorMessage(state.pos - pos, 'error');
+      }
+      if (error != null) {
+        if ($3 <= pos) {
           state.failPos = $3;
           state.errorCount = $2;
-          state.failAt($4, error);
         }
-      }
-
-      if (!flag) {
-        fail(ErrorMessage(state.pos - pos, 'error'));
+        state.failAt(pos, error);
       }
     }
     if (!state.ok) {
@@ -861,20 +859,19 @@ class TestParser {
       $0 = $0;
     }
     if (state.ok) {
-      // ignore: unused_local_variable
       final pos = $4;
       // ignore: unused_local_variable
       final $$ = $0!;
-      void fail(ParseError error) {
-        if ($3 <= $4) {
+      ParseError? error;
+      if ($$ != 41) {
+        error = ErrorMessage(state.pos - pos, 'error');
+      }
+      if (error != null) {
+        if ($3 <= pos) {
           state.failPos = $3;
           state.errorCount = $2;
-          state.failAt($4, error);
         }
-      }
-
-      if ($$ != 41) {
-        fail(ErrorMessage(state.pos - pos, 'error'));
+        state.failAt(pos, error);
       }
     }
     if (!state.ok) {
@@ -904,20 +901,19 @@ class TestParser {
       $0 = $0;
     }
     if (state.ok) {
-      // ignore: unused_local_variable
       final pos = $4;
       // ignore: unused_local_variable
       final $$ = $0!;
-      void fail(ParseError error) {
-        if ($3 <= $4) {
+      ParseError? error;
+      if (!flag) {
+        error = ErrorMessage(state.pos - pos, 'error');
+      }
+      if (error != null) {
+        if ($3 <= pos) {
           state.failPos = $3;
           state.errorCount = $2;
-          state.failAt($4, error);
         }
-      }
-
-      if (!flag) {
-        fail(ErrorMessage(state.pos - pos, 'error'));
+        state.failAt(pos, error);
       }
     }
     if (!state.ok) {

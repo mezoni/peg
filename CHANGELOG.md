@@ -1,3 +1,7 @@
+## 1.0.29
+
+Breaking change. To avoid situations where error registration in the `@verify`meta expression handler may be performed incorrectly, the error registration procedure has been simplified. The local variable `ParseError? error` is now intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered.
+
 ## 1.0.28
 
 - Fixed bug in PEG grammar. Fixed errors related to incorrect implementation of parsing rules for the native type `Record`.
