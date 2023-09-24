@@ -2,7 +2,7 @@
 
 A command line tool for generating top-down parsers from a parsing expression grammars (PEG).
 
-Version: 1.0.29
+Version: 1.0.30
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
