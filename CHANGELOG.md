@@ -3,6 +3,7 @@
 - Changes in the file `README.md`.
 - Change in project description.
 - Changes in project dependencies. Removed dependency on `dart_style`.
+- Changes (improvements and bug fixes) in the implementation of the `_OrderedChoiceGenerator2`.
 
 ## 1.0.29
 

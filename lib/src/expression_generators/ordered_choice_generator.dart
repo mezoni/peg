@@ -75,7 +75,7 @@ break;''';
 
   static const _templateNext = '''
 const {{string}} = {{text}};
-state.ok = {{predicate}};
+state.ok = {{input}}.startsWith({{string}}, state.pos);
 if (state.ok) {
   state.pos += {{input}}.count;
   {{r}} = {{string}};
@@ -85,16 +85,33 @@ if (state.ok) {
 
   static const _templateNextNoResult = '''
 const {{string}} = {{text}};
-state.ok = {{predicate}};
+state.ok = {{input}}.startsWith({{string}}, state.pos);
 if (state.ok) {
   state.pos += {{input}}.count;
 } else {
   {{next}}
 }''';
 
+  static const _template2Next = '''
+state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
+if (state.ok) {
+  state.pos += {{count}} + {{input}}.count;
+  {{r}} = {{text}};
+} else {
+  {{next}}
+}''';
+
+  static const _template2NextNoResult = '''
+state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
+if (state.ok) {
+  state.pos += {{count}} + {{input}}.count;
+} else {
+  {{next}}
+}''';
+
   static const _templateLast = '''
 const {{string}} = {{text}};
-state.ok = {{predicate}};
+state.ok = {{input}}.startsWith({{string}}, state.pos);
 if (state.ok) {
   state.pos += {{input}}.count;
   {{r}} = {{string}};
@@ -102,19 +119,32 @@ if (state.ok) {
 
   static const _templateLastNoResult = '''
 const {{string}} = {{text}};
-state.ok = {{predicate}};
+state.ok = {{input}}.startsWith({{string}}, state.pos);
 if (state.ok) {
   state.pos += {{input}}.count;
 }''';
 
-  static const _templateLastSingleChar = '''
+  static const _template1Last = '''
 state.ok = true;
 state.pos += {{count}};
 {{r}} = {{text}};''';
 
-  static const _templateLastSingleCharNoResult = '''
+  static const _template1LastNoResult = '''
 state.ok = true;
 state.pos += {{count}};''';
+
+  static const _template2Last = '''
+state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
+if (state.ok) {
+  state.pos += {{count}} + {{input}}.count;
+  {{r}} = {{text}};
+}''';
+
+  static const _template2LastNoResult = '''
+state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
+if (state.ok) {
+  state.pos += {{count}} + {{input}}.count;
+}''';
 
   final List<String> strings;
 
@@ -146,27 +176,37 @@ state.pos += {{count}};''';
       String plunge(int i) {
         final values = <String, String>{};
         final value = strings[i];
+        final runes = value.runes.toList();
         final string = allocateName();
         final text = helper.escapeString(value);
-        var predicate = '';
-        if (value.length > 1) {
-          predicate = '$input.startsWith($string, state.pos)';
-        } else {
-          predicate = 'true';
+        values['string'] = string;
+        values['count'] = count;
+        values['input'] = input;
+        values['text'] = text;
+        if (runes.length == 2) {
+          values['char'] = runes[1].toString();
         }
 
-        values['predicate'] = predicate;
-        values['string'] = string;
-        values['text'] = text;
         if (i < strings.length - 1) {
           values['next'] = plunge(i + 1);
-          values['input'] = input;
           var template = '';
           if (variable != null) {
             values['r'] = variable;
-            template = _templateNext;
+            if (runes.length == 1) {
+              template = _templateNext;
+            } else if (runes.length == 2) {
+              template = _template2Next;
+            } else {
+              template = _templateNext;
+            }
           } else {
-            template = _templateNextNoResult;
+            if (runes.length == 1) {
+              template = _templateNextNoResult;
+            } else if (runes.length == 2) {
+              template = _template2NextNoResult;
+            } else {
+              template = _templateNextNoResult;
+            }
           }
 
           return render(template, values);
@@ -175,17 +215,18 @@ state.pos += {{count}};''';
         var template = '';
         if (variable != null) {
           values['r'] = variable;
-          if (value.length == 1) {
-            values['count'] = count;
-            values['text'] = text;
-            template = _templateLastSingleChar;
+          if (runes.length == 1) {
+            template = _template1Last;
+          } else if (runes.length == 2) {
+            template = _template2Last;
           } else {
             template = _templateLast;
           }
         } else {
-          if (value.length == 1) {
-            values['count'] = count;
-            template = _templateLastSingleCharNoResult;
+          if (runes.length == 1) {
+            template = _template1LastNoResult;
+          } else if (runes.length == 2) {
+            template = _template2LastNoResult;
           } else {
             template = _templateLastNoResult;
           }

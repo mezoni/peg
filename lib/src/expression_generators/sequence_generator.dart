@@ -59,8 +59,24 @@ if (state.ok) {
       if (action != null || variable != null) {
         if (childrenWithVariables.length == 1) {
           final child = childrenWithVariables[0];
-          final variable = ruleGenerator.allocateExpressionVariable(child);
-          result = variable;
+          if (children.length == 1) {
+            if (variable != null) {
+              final resultType = expression.resultType!;
+              final childResultType = child.resultType!;
+              if (childResultType == resultType) {
+                declareVariable = false;
+                ruleGenerator.setExpressionVariable(child, variable);
+                result = variable;
+              } else {
+                result = ruleGenerator.allocateExpressionVariable(child);
+              }
+            } else {
+              result = ruleGenerator.allocateExpressionVariable(child);
+            }
+          } else {
+            final variable = ruleGenerator.allocateExpressionVariable(child);
+            result = variable;
+          }
         } else {
           final fields = <(String, String)>[];
           for (final child in childrenWithVariables) {
@@ -115,14 +131,17 @@ if (state.ok) {
         values['action'] = _generateActionTemplate();
       }
 
-      if (ruleGenerator.getExpressionVariable(expression)
-          case final variable?) {
+      if (variable != null) {
         values['r'] = variable;
         values['result'] = result;
         if (action != null) {
           template = _templateActionWithVariable;
         } else {
-          template = _templateLastWithVariable;
+          if (children.length == 1) {
+            template = '{{p}}';
+          } else {
+            template = _templateLastWithVariable;
+          }
         }
       } else {
         if (action != null) {

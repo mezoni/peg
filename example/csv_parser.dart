@@ -1,6 +1,14 @@
 class CsvParser {
   const CsvParser();
 
+  void beginEvent(CsvParserEvent event) {
+    return;
+  }
+
+  R? endEvent<R>(CsvParserEvent event, R? result, bool ok) {
+    return result;
+  }
+
   /// Spaces =
   ///   [ \t]*
   ///   ;
@@ -25,29 +33,24 @@ class CsvParser {
     }
   }
 
+  /// @event
   /// Row =
   ///   @sepBy(Field, ',')
   ///   ;
   List<String>? parseRow(State<StringReader> state) {
+    beginEvent(CsvParserEvent.rowEvent);
     List<String>? $0;
     // @sepBy(Field, ',')
     String? $4;
     // Field
+    beginEvent(CsvParserEvent.fieldEvent);
     // String
     $4 = parseString(state);
-    if (state.ok) {
-      $4 = $4;
-    }
     if (!state.ok) {
       // Text
       $4 = parseText(state);
-      if (state.ok) {
-        $4 = $4;
-      }
     }
-    if (state.ok) {
-      $4 = $4;
-    }
+    $4 = endEvent<String>(CsvParserEvent.fieldEvent, $4, state.ok);
     if (!state.ok) {
       state.ok = true;
       $0 = const [];
@@ -77,21 +80,14 @@ class CsvParser {
           break;
         }
         // Field
+        beginEvent(CsvParserEvent.fieldEvent);
         // String
         $4 = parseString(state);
-        if (state.ok) {
-          $4 = $4;
-        }
         if (!state.ok) {
           // Text
           $4 = parseText(state);
-          if (state.ok) {
-            $4 = $4;
-          }
         }
-        if (state.ok) {
-          $4 = $4;
-        }
+        $4 = endEvent<String>(CsvParserEvent.fieldEvent, $4, state.ok);
         if (!state.ok) {
           state.pos = $2;
           break;
@@ -99,9 +95,7 @@ class CsvParser {
         $3.add($4!);
       }
     }
-    if (state.ok) {
-      $0 = $0;
-    }
+    $0 = endEvent<List<String>>(CsvParserEvent.rowEvent, $0, state.ok);
     return $0;
   }
 
@@ -116,9 +110,6 @@ class CsvParser {
     List<String>? $5;
     // Row
     $5 = parseRow(state);
-    if (state.ok) {
-      $5 = $5;
-    }
     if (!state.ok) {
       state.ok = true;
       $2 = const [];
@@ -141,10 +132,9 @@ class CsvParser {
               state.pos += $10;
               break;
             case 13:
-              const $13 = '\r\n';
-              state.ok = $11.startsWith($13, state.pos);
+              state.ok = $11.matchChar(10, state.pos + $10);
               if (state.ok) {
-                state.pos += $11.count;
+                state.pos += $10 + $11.count;
               } else {
                 state.ok = true;
                 state.pos += $10;
@@ -177,9 +167,6 @@ class CsvParser {
         }
         // Row
         $5 = parseRow(state);
-        if (state.ok) {
-          $5 = $5;
-        }
         if (!state.ok) {
           state.pos = $3;
           break;
@@ -200,10 +187,9 @@ class CsvParser {
             state.pos += $19;
             break;
           case 13:
-            const $22 = '\r\n';
-            state.ok = $20.startsWith($22, state.pos);
+            state.ok = $20.matchChar(10, state.pos + $19);
             if (state.ok) {
-              state.pos += $20.count;
+              state.pos += $19 + $20.count;
             } else {
               state.ok = true;
               state.pos += $19;
@@ -298,9 +284,6 @@ class CsvParser {
         if (state.ok) {
           $7 = state.input.substring($11, state.pos);
         }
-        if (state.ok) {
-          $7 = $7;
-        }
         if (!state.ok) {
           // '""'
           const $9 = '""';
@@ -319,9 +302,6 @@ class CsvParser {
       }
       if (state.ok) {
         $2 = $6;
-      }
-      if (state.ok) {
-        $2 = $2;
       }
       if (state.ok) {
         // '"' Spaces
@@ -375,9 +355,6 @@ class CsvParser {
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -422,6 +399,8 @@ class CsvParser {
     return null;
   }
 }
+
+enum CsvParserEvent { fieldEvent, rowEvent }
 
 void fastParseString(
   void Function(State<StringReader> state) fastParse,

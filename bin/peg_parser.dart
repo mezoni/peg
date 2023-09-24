@@ -868,9 +868,6 @@ class PegParser {
     Expression? $0;
     // OrderedChoice
     $0 = parseOrderedChoice(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -1869,21 +1866,12 @@ class PegParser {
     String? $2;
     // Dollar
     $2 = parseDollar(state);
-    if (state.ok) {
-      $2 = $2;
-    }
     if (!state.ok) {
       // Ampersand
       $2 = parseAmpersand(state);
-      if (state.ok) {
-        $2 = $2;
-      }
       if (!state.ok) {
         // Exclamation
         $2 = parseExclamation(state);
-        if (state.ok) {
-          $2 = $2;
-        }
       }
     }
     state.ok = true;
@@ -1920,63 +1908,33 @@ class PegParser {
     Expression? $0;
     // Symbol
     $0 = parseSymbol(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok) {
       // CharacterClass
       $0 = parseCharacterClass(state);
-      if (state.ok) {
-        $0 = $0;
-      }
       if (!state.ok) {
         // Literal
         $0 = parseLiteral(state);
-        if (state.ok) {
-          $0 = $0;
-        }
         if (!state.ok) {
           // CharacterClass
           $0 = parseCharacterClass(state);
-          if (state.ok) {
-            $0 = $0;
-          }
           if (!state.ok) {
             // AnyCharacter
             $0 = parseAnyCharacter(state);
-            if (state.ok) {
-              $0 = $0;
-            }
             if (!state.ok) {
               // Group
               $0 = parseGroup(state);
-              if (state.ok) {
-                $0 = $0;
-              }
               if (!state.ok) {
                 // ErrorHandler
                 $0 = parseErrorHandler(state);
-                if (state.ok) {
-                  $0 = $0;
-                }
                 if (!state.ok) {
                   // MatchString
                   $0 = parseMatchString(state);
-                  if (state.ok) {
-                    $0 = $0;
-                  }
                   if (!state.ok) {
                     // SepBy
                     $0 = parseSepBy(state);
-                    if (state.ok) {
-                      $0 = $0;
-                    }
                     if (!state.ok) {
                       // Verify
                       $0 = parseVerify(state);
-                      if (state.ok) {
-                        $0 = $0;
-                      }
                     }
                   }
                 }
@@ -2068,19 +2026,18 @@ class PegParser {
     if (state.ok) {
       int? $6;
       // c:[-nrt\]\\^]
-      int? $10;
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $11 = state.input.readChar(state.pos);
-        state.ok = $11 == 110 ||
-            ($11 < 110
-                ? $11 <= 94
-                    ? $11 == 45 || $11 >= 92
+        final $10 = state.input.readChar(state.pos);
+        state.ok = $10 == 110 ||
+            ($10 < 110
+                ? $10 <= 94
+                    ? $10 == 45 || $10 >= 92
                     : false
-                : $11 == 114 || $11 == 116);
+                : $10 == 114 || $10 == 116);
         if (state.ok) {
           state.pos += state.input.count;
-          $10 = $11;
+          $6 = $10;
         }
       }
       if (!state.ok) {
@@ -2088,16 +2045,13 @@ class PegParser {
       }
       if (state.ok) {
         int? $$;
-        final c = $10!;
+        final c = $6!;
         $$ = _escape(c);
         $6 = $$;
       }
       if (!state.ok) {
         // HexChar
         $6 = parseHexChar(state);
-        if (state.ok) {
-          $6 = $6;
-        }
       }
       if (state.ok) {
         $0 = $6;
@@ -2343,9 +2297,6 @@ class PegParser {
     if (!state.ok) {
       // Prefix
       $0 = parsePrefix(state);
-      if (state.ok) {
-        $0 = $0;
-      }
     }
     return $0;
   }
@@ -2415,18 +2366,15 @@ class PegParser {
     // [ -[\]-\u{10ffff}]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $9 = state.input.readChar(state.pos);
-      state.ok = $9 >= 32 && $9 <= 91 || $9 >= 93 && $9 <= 1114111;
+      final $8 = state.input.readChar(state.pos);
+      state.ok = $8 >= 32 && $8 <= 91 || $8 >= 93 && $8 <= 1114111;
       if (state.ok) {
         state.pos += state.input.count;
-        $0 = $9;
+        $0 = $8;
       }
     }
     if (!state.ok) {
       state.fail(const ErrorUnexpectedCharacter());
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     if (!state.ok) {
       // '\\' v:(c:[rnt'"\\] / HexChar)
@@ -2436,17 +2384,16 @@ class PegParser {
       if (state.ok) {
         int? $2;
         // c:[rnt'"\\]
-        int? $6;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.readChar(state.pos);
-          state.ok = $7 == 92 ||
-              ($7 < 92
-                  ? $7 == 39 || $7 == 34
-                  : $7 == 114 || ($7 < 114 ? $7 == 110 : $7 == 116));
+          final $6 = state.input.readChar(state.pos);
+          state.ok = $6 == 92 ||
+              ($6 < 92
+                  ? $6 == 39 || $6 == 34
+                  : $6 == 114 || ($6 < 114 ? $6 == 110 : $6 == 116));
           if (state.ok) {
             state.pos += state.input.count;
-            $6 = $7;
+            $2 = $6;
           }
         }
         if (!state.ok) {
@@ -2454,16 +2401,13 @@ class PegParser {
         }
         if (state.ok) {
           int? $$;
-          final c = $6!;
+          final c = $2!;
           $$ = _escape(c);
           $2 = $$;
         }
         if (!state.ok) {
           // HexChar
           $2 = parseHexChar(state);
-          if (state.ok) {
-            $2 = $2;
-          }
         }
         if (state.ok) {
           $0 = $2;
@@ -2490,21 +2434,12 @@ class PegParser {
       Object? $3;
       // Asterisk
       $3 = parseAsterisk(state);
-      if (state.ok) {
-        $3 = $3;
-      }
       if (!state.ok) {
         // Question
         $3 = parseQuestion(state);
-        if (state.ok) {
-          $3 = $3;
-        }
         if (!state.ok) {
           // Plus
           $3 = parsePlus(state);
-          if (state.ok) {
-            $3 = $3;
-          }
           if (!state.ok) {
             // OpenBrace v:MinMax CloseBrace
             final $4 = state.pos;
@@ -2569,15 +2504,9 @@ class PegParser {
     ResultType? $2;
     // GenericType
     $2 = parseGenericType(state);
-    if (state.ok) {
-      $2 = $2;
-    }
     if (!state.ok) {
       // RecordType
       $2 = parseRecordType(state);
-      if (state.ok) {
-        $2 = $2;
-      }
     }
     if (state.ok) {
       String? $3;
@@ -3478,20 +3407,11 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   // ignore: unused_element
-  void _replaceLastErrors(
-      int failPos, int errorCount, List<ParseError> errors) {
+  void _rollbackErrors(int failPos, int errorCount) {
     if (this.failPos == failPos) {
       this.errorCount = errorCount;
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
-    }
-    final length = errors.length;
-    if (length == 0) {
-      failAt(this.failPos, const ErrorUnknownError());
-    } else if (length == 1) {
-      failAt(this.failPos, errors[0]);
-    } else {
-      failAllAt(this.failPos, errors);
     }
   }
 }

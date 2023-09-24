@@ -82,10 +82,9 @@ class TestParser {
           if (state.ok) {
             state.pos += $2.count;
           } else {
-            const $4 = 'ab';
-            state.ok = $2.startsWith($4, state.pos);
+            state.ok = $2.matchChar(98, state.pos + $1);
             if (state.ok) {
-              state.pos += $2.count;
+              state.pos += $1 + $2.count;
             } else {
               state.ok = true;
               state.pos += $1;
@@ -98,10 +97,9 @@ class TestParser {
           if (state.ok) {
             state.pos += $2.count;
           } else {
-            const $7 = 'de';
-            state.ok = $2.startsWith($7, state.pos);
+            state.ok = $2.matchChar(101, state.pos + $1);
             if (state.ok) {
-              state.pos += $2.count;
+              state.pos += $1 + $2.count;
             } else {
               state.ok = true;
               state.pos += $1;
@@ -109,10 +107,9 @@ class TestParser {
           }
           break;
         case 103:
-          const $9 = 'gh';
-          state.ok = $2.startsWith($9, state.pos);
+          state.ok = $2.matchChar(104, state.pos + $1);
           if (state.ok) {
-            state.pos += $2.count;
+            state.pos += $1 + $2.count;
           }
           break;
       }
@@ -237,9 +234,6 @@ class TestParser {
     // Integer
     $1 = parseInteger(state);
     if (state.ok) {
-      $1 = $1;
-    }
-    if (state.ok) {
       final pos = $4;
       // ignore: unused_local_variable
       final $$ = $1!;
@@ -273,9 +267,6 @@ class TestParser {
     state.ok = true;
     if (state.ok) {
       $1 = '';
-    }
-    if (state.ok) {
-      $1 = $1;
     }
     if (state.ok) {
       final pos = $4;
@@ -357,9 +348,6 @@ class TestParser {
         state.fail(ErrorExpectedTags([$2]));
       }
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -388,11 +376,10 @@ class TestParser {
             state.pos += $3.count;
             $0 = $4;
           } else {
-            const $5 = 'ab';
-            state.ok = $3.startsWith($5, state.pos);
+            state.ok = $3.matchChar(98, state.pos + $2);
             if (state.ok) {
-              state.pos += $3.count;
-              $0 = $5;
+              state.pos += $2 + $3.count;
+              $0 = 'ab';
             } else {
               state.ok = true;
               state.pos += $2;
@@ -407,11 +394,10 @@ class TestParser {
             state.pos += $3.count;
             $0 = $7;
           } else {
-            const $8 = 'de';
-            state.ok = $3.startsWith($8, state.pos);
+            state.ok = $3.matchChar(101, state.pos + $2);
             if (state.ok) {
-              state.pos += $3.count;
-              $0 = $8;
+              state.pos += $2 + $3.count;
+              $0 = 'de';
             } else {
               state.ok = true;
               state.pos += $2;
@@ -420,11 +406,10 @@ class TestParser {
           }
           break;
         case 103:
-          const $10 = 'gh';
-          state.ok = $3.startsWith($10, state.pos);
+          state.ok = $3.matchChar(104, state.pos + $2);
           if (state.ok) {
-            state.pos += $3.count;
-            $0 = $10;
+            state.pos += $2 + $3.count;
+            $0 = 'gh';
           }
           break;
       }
@@ -445,9 +430,6 @@ class TestParser {
     int? $4;
     // Integer
     $4 = parseInteger(state);
-    if (state.ok) {
-      $4 = $4;
-    }
     if (!state.ok) {
       state.ok = true;
       $0 = const [];
@@ -478,18 +460,12 @@ class TestParser {
         }
         // Integer
         $4 = parseInteger(state);
-        if (state.ok) {
-          $4 = $4;
-        }
         if (!state.ok) {
           state.pos = $2;
           break;
         }
         $3.add($4!);
       }
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }
@@ -535,9 +511,6 @@ class TestParser {
     }
     if (state.ok) {
       $0 = $2;
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }
@@ -585,9 +558,6 @@ class TestParser {
     if (state.ok) {
       $0 = $2;
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -619,9 +589,6 @@ class TestParser {
     if (!state.ok) {
       state.pos = $29;
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok) {
       // (v:SkipUntil SkipUntil)
       // v:SkipUntil SkipUntil
@@ -636,9 +603,6 @@ class TestParser {
       }
       if (!state.ok) {
         state.pos = $26;
-      }
-      if (state.ok) {
-        $0 = $0;
       }
       if (!state.ok) {
         // (v:SkipTil SkipTil)
@@ -655,9 +619,6 @@ class TestParser {
         if (!state.ok) {
           state.pos = $23;
         }
-        if (state.ok) {
-          $0 = $0;
-        }
         if (!state.ok) {
           // (v:TakeUntil TakeUntil)
           // v:TakeUntil TakeUntil
@@ -672,9 +633,6 @@ class TestParser {
           }
           if (!state.ok) {
             state.pos = $20;
-          }
-          if (state.ok) {
-            $0 = $0;
           }
           if (!state.ok) {
             // (v:TakeTil TakeTil)
@@ -691,9 +649,6 @@ class TestParser {
             if (!state.ok) {
               state.pos = $17;
             }
-            if (state.ok) {
-              $0 = $0;
-            }
             if (!state.ok) {
               // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
@@ -708,9 +663,6 @@ class TestParser {
               }
               if (!state.ok) {
                 state.pos = $14;
-              }
-              if (state.ok) {
-                $0 = $0;
               }
               if (!state.ok) {
                 // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
@@ -727,9 +679,6 @@ class TestParser {
                 if (!state.ok) {
                   state.pos = $11;
                 }
-                if (state.ok) {
-                  $0 = $0;
-                }
                 if (!state.ok) {
                   // (v:SepBy SepBy)
                   // v:SepBy SepBy
@@ -744,9 +693,6 @@ class TestParser {
                   }
                   if (!state.ok) {
                     state.pos = $8;
-                  }
-                  if (state.ok) {
-                    $0 = $0;
                   }
                   if (!state.ok) {
                     // (v:Verify41 Verify41)
@@ -763,9 +709,6 @@ class TestParser {
                     if (!state.ok) {
                       state.pos = $5;
                     }
-                    if (state.ok) {
-                      $0 = $0;
-                    }
                     if (!state.ok) {
                       // (v:VerifyFlag VerifyFlag)
                       // v:VerifyFlag VerifyFlag
@@ -780,9 +723,6 @@ class TestParser {
                       }
                       if (!state.ok) {
                         state.pos = $2;
-                      }
-                      if (state.ok) {
-                        $0 = $0;
                       }
                     }
                   }
@@ -814,9 +754,6 @@ class TestParser {
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -838,9 +775,6 @@ class TestParser {
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -855,9 +789,6 @@ class TestParser {
     final $2 = state.errorCount;
     // Integer
     $0 = parseInteger(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     if (state.ok) {
       final pos = $4;
       // ignore: unused_local_variable
@@ -877,9 +808,6 @@ class TestParser {
     if (!state.ok) {
       state.pos = $4;
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -896,9 +824,6 @@ class TestParser {
     state.ok = true;
     if (state.ok) {
       $0 = '';
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     if (state.ok) {
       final pos = $4;
@@ -918,9 +843,6 @@ class TestParser {
     }
     if (!state.ok) {
       state.pos = $4;
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }

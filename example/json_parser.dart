@@ -147,9 +147,6 @@ class JsonParser {
       $$ = int.parse(v, radix: 16);
       $0 = $$;
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok && state._canHandleError($2, $3)) {
       ParseError? error;
       // ignore: prefer_final_locals
@@ -169,9 +166,6 @@ class JsonParser {
         state.failAt(state.failPos, error);
       }
     }
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -189,9 +183,6 @@ class JsonParser {
     beginEvent(JsonParserEvent.keyEvent);
     // String
     $2 = parseString(state);
-    if (state.ok) {
-      $2 = $2;
-    }
     $2 = endEvent<String>(JsonParserEvent.keyEvent, $2, state.ok);
     if (state.ok) {
       // v:':' Spaces
@@ -233,9 +224,6 @@ class JsonParser {
     MapEntry<String, Object?>? $4;
     // KeyValue
     $4 = parseKeyValue(state);
-    if (state.ok) {
-      $4 = $4;
-    }
     if (!state.ok) {
       state.ok = true;
       $0 = const [];
@@ -261,18 +249,12 @@ class JsonParser {
         }
         // KeyValue
         $4 = parseKeyValue(state);
-        if (state.ok) {
-          $4 = $4;
-        }
         if (!state.ok) {
           state.pos = $2;
           break;
         }
         $3.add($4!);
       }
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }
@@ -555,9 +537,6 @@ class JsonParser {
         if (state.ok) {
           $5 = state.input.substring($18, state.pos);
         }
-        if (state.ok) {
-          $5 = $5;
-        }
         if (!state.ok) {
           // '\\' v:(EscapeChar / EscapeHex)
           final $6 = state.pos;
@@ -590,9 +569,6 @@ class JsonParser {
               $$ = _escape(c);
               $7 = $$;
             }
-            if (state.ok) {
-              $7 = $7;
-            }
             if (!state.ok) {
               // EscapeHex
               // 'u' v:HexNumber
@@ -611,9 +587,6 @@ class JsonParser {
               }
               if (!state.ok) {
                 state.pos = $10;
-              }
-              if (state.ok) {
-                $7 = $7;
               }
             }
             if (state.ok) {
@@ -674,33 +647,18 @@ class JsonParser {
     Object? $0;
     // Array
     $0 = parseArray(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok) {
       // String
       $0 = parseString(state);
-      if (state.ok) {
-        $0 = $0;
-      }
       if (!state.ok) {
         // Object
         $0 = parseObject(state);
-        if (state.ok) {
-          $0 = $0;
-        }
         if (!state.ok) {
           // Array
           $0 = parseArray(state);
-          if (state.ok) {
-            $0 = $0;
-          }
           if (!state.ok) {
             // Number
             $0 = parseNumber(state);
-            if (state.ok) {
-              $0 = $0;
-            }
             if (!state.ok) {
               // True
               // 'true' Spaces
@@ -717,9 +675,6 @@ class JsonParser {
               }
               if (!state.ok) {
                 state.pos = $8;
-              }
-              if (state.ok) {
-                $0 = $0;
               }
               if (!state.ok) {
                 // False
@@ -738,9 +693,6 @@ class JsonParser {
                 if (!state.ok) {
                   state.pos = $5;
                 }
-                if (state.ok) {
-                  $0 = $0;
-                }
                 if (!state.ok) {
                   // Null
                   // 'null' Spaces
@@ -757,9 +709,6 @@ class JsonParser {
                   }
                   if (!state.ok) {
                     state.pos = $2;
-                  }
-                  if (state.ok) {
-                    $0 = $0;
                   }
                 }
               }
@@ -781,9 +730,6 @@ class JsonParser {
     Object? $4;
     // Value
     $4 = parseValue(state);
-    if (state.ok) {
-      $4 = $4;
-    }
     if (!state.ok) {
       state.ok = true;
       $0 = const [];
@@ -809,18 +755,12 @@ class JsonParser {
         }
         // Value
         $4 = parseValue(state);
-        if (state.ok) {
-          $4 = $4;
-        }
         if (!state.ok) {
           state.pos = $2;
           break;
         }
         $3.add($4);
       }
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }

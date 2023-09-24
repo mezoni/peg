@@ -196,9 +196,6 @@ class CalcParser {
     num? $0;
     // Add
     $0 = parseAdd(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     return $0;
   }
 
@@ -306,9 +303,6 @@ class CalcParser {
     final $3 = state.errorCount;
     // NumberRaw
     $0 = parseNumberRaw(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok && state._canHandleError($2, $3)) {
       ParseError? error;
       // ignore: prefer_final_locals
@@ -330,9 +324,6 @@ class CalcParser {
       if (error != null) {
         state.failAt(state.failPos, error);
       }
-    }
-    if (state.ok) {
-      $0 = $0;
     }
     return $0;
   }
@@ -534,9 +525,6 @@ class CalcParser {
     num? $0;
     // Number
     $0 = parseNumber(state);
-    if (state.ok) {
-      $0 = $0;
-    }
     if (!state.ok) {
       // OpenParenthesis v:Number CloseParenthesis
       final $1 = state.pos;
