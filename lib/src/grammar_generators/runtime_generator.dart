@@ -653,6 +653,7 @@ class State<T> {
   State(this.input);
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
     if (pos >= failPos) {
@@ -668,6 +669,7 @@ class State<T> {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
     if (pos >= failPos) {
@@ -685,6 +687,7 @@ class State<T> {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
     if (offset >= failPos) {
@@ -702,6 +705,7 @@ class State<T> {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
     if (offset >= failPos) {
@@ -739,6 +743,7 @@ class State<T> {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   // ignore: unused_element
   bool _canHandleError(int failPos, int errorCount) {
     return failPos == this.failPos
@@ -747,6 +752,7 @@ class State<T> {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   // ignore: unused_element
   void _rollbackErrors(int failPos, int errorCount) {
     if (this.failPos == failPos) {
@@ -815,6 +821,7 @@ class _StringReader implements StringReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool matchChar(int char, int offset) {
     if (offset < length) {
       final c = source.runeAt(offset);
@@ -829,6 +836,7 @@ class _StringReader implements StringReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   int readChar(int offset) {
     final result = source.runeAt(offset);
     count = result > 0xffff ? 2 : 1;
@@ -837,6 +845,7 @@ class _StringReader implements StringReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool startsWith(String string, [int index = 0]) {
     if (source.startsWith(string, index)) {
       count = string.length;
@@ -848,6 +857,7 @@ class _StringReader implements StringReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   String substring(int start, [int? end]) {
     final result = source.substring(start, end);
     count = result.length;
@@ -862,6 +872,7 @@ class _StringReader implements StringReader {
 
 extension StringExt on String {
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   // ignore: unused_element
   int runeAt(int index) {
     final w1 = codeUnitAt(index++);

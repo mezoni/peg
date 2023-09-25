@@ -37,9 +37,14 @@ while (true) {
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable == null) {
-      final optimized = _ZeroOrMoreGenerator2.optimize(this);
-      if (optimized != null) {
-        return optimized;
+      final optimized1 = _ZeroOrMoreGenerator2.optimize(this);
+      if (optimized1 != null) {
+        return optimized1;
+      }
+
+      final optimized2 = _ZeroOrMoreGenerator3.optimize(this);
+      if (optimized2 != null) {
+        return optimized2;
       }
     }
 
@@ -182,5 +187,58 @@ if (state.ok) {
     }
 
     return null;
+  }
+}
+
+class _ZeroOrMoreGenerator3 extends ExpressionGenerator<ZeroOrMoreExpression> {
+  static const _template = '''
+while (state.pos < state.input.length) {
+  final {{c}} = state.input.readChar(state.pos);
+  state.ok = {{predicate}};
+  if (!state.ok) {
+    break;
+  }
+  state.pos += state.input.count;
+}
+state.fail(const ErrorUnexpectedCharacter());
+state.ok = true;''';
+
+  final CharacterClassExpression characterClass;
+
+  _ZeroOrMoreGenerator3({
+    required this.characterClass,
+    required super.expression,
+    required super.ruleGenerator,
+  });
+
+  @override
+  String generate() {
+    final values = <String, String>{};
+    final ranges = characterClass.ranges;
+    final negate = characterClass.negate;
+    final c = allocateName();
+    values['c'] = c;
+    values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
+    return render(_template, values);
+  }
+
+  static String? optimize(ZeroOrMoreGenerator generator) {
+    final ruleGenerator = generator.ruleGenerator;
+    final expression = generator.expression;
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    if (variable != null) {
+      return null;
+    }
+
+    final child = expression.expression;
+    if (child is! CharacterClassExpression) {
+      return null;
+    }
+
+    return _ZeroOrMoreGenerator3(
+      characterClass: child,
+      expression: expression,
+      ruleGenerator: ruleGenerator,
+    ).generate();
   }
 }

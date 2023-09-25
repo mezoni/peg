@@ -3,6 +3,7 @@
 - Changes in the implementation of the `_OrderedChoiceGenerator2`.
 - Changes in the implementation of the `_NotPredicateGenerator2`.
 - Changes in the implementation of the `SymbolGenerator`.
+- Changes in the implementation of the `_ZeroOrMoreGenerator3`.
 - Changes to the `peg_parser.peg` grammar files.
 
 ## 1.0.30

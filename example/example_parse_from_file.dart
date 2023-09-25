@@ -59,6 +59,7 @@ class FileReader implements ByteReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   int get length {
     if (_length >= 0) {
       return _length;
@@ -69,6 +70,7 @@ class FileReader implements ByteReader {
 
   @override
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   int readByte(int offset) {
     if (offset < 0) {
       RangeError.checkNotNegative(offset, 'offset');

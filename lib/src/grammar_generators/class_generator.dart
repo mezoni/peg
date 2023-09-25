@@ -14,6 +14,7 @@ class {{className}} {
   {{methods}}
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   int? matchChar(State<StringReader> state, int char, ParseError error) {
     final input = state.input;
     state.ok = input.matchChar(char, state.pos);
@@ -27,6 +28,7 @@ class {{className}} {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
     final input = state.input;
@@ -41,6 +43,7 @@ class {{className}} {
   }
 
   @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   String? matchLiteral1(
       State<StringReader> state, int char, String string, ParseError error) {
     final input = state.input;
