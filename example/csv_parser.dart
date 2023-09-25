@@ -9,6 +9,39 @@ class CsvParser {
     return result;
   }
 
+  /// Eol =
+  ///     '\n'
+  ///   / '\r\n'
+  ///   / '\r'
+  ///   ;
+  void fastParseEol(State<StringReader> state) {
+    state.ok = false;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $0 = $2.readChar(state.pos);
+      // ignore: unused_local_variable
+      final $1 = $2.count;
+      switch ($0) {
+        case 10:
+          state.ok = true;
+          state.pos += $1;
+          break;
+        case 13:
+          state.ok = $2.matchChar(10, state.pos + $1);
+          if (state.ok) {
+            state.pos += $1 + $2.count;
+          } else {
+            state.ok = true;
+            state.pos += $1;
+          }
+          break;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
+    }
+  }
+
   /// Spaces =
   ///   [ \t]*
   ///   ;
@@ -115,34 +148,10 @@ class CsvParser {
         // @inline RowEnding = Eol !Eof ;
         // Eol !Eof
         final $8 = state.pos;
-        // @inline Eol = '\n' / '\r\n' / '\r' ;
-        state.ok = false;
-        final $11 = state.input;
-        if (state.pos < $11.length) {
-          final $9 = $11.readChar(state.pos);
-          // ignore: unused_local_variable
-          final $10 = $11.count;
-          switch ($9) {
-            case 10:
-              state.ok = true;
-              state.pos += $10;
-              break;
-            case 13:
-              state.ok = $11.matchChar(10, state.pos + $10);
-              if (state.ok) {
-                state.pos += $10 + $11.count;
-              } else {
-                state.ok = true;
-                state.pos += $10;
-              }
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
-        }
+        // Eol
+        fastParseEol(state);
         if (state.ok) {
-          final $15 = state.pos;
+          final $9 = state.pos;
           // @inline Eof = !. ;
           // !.
           state.ok = state.pos >= state.input.length;
@@ -151,7 +160,7 @@ class CsvParser {
           }
           state.ok = !state.ok;
           if (!state.ok) {
-            state.pos = $15;
+            state.pos = $9;
           }
         }
         if (!state.ok) {
@@ -173,32 +182,8 @@ class CsvParser {
       }
     }
     if (state.ok) {
-      // @inline Eol = '\n' / '\r\n' / '\r' ;
-      state.ok = false;
-      final $20 = state.input;
-      if (state.pos < $20.length) {
-        final $18 = $20.readChar(state.pos);
-        // ignore: unused_local_variable
-        final $19 = $20.count;
-        switch ($18) {
-          case 10:
-            state.ok = true;
-            state.pos += $19;
-            break;
-          case 13:
-            state.ok = $20.matchChar(10, state.pos + $19);
-            if (state.ok) {
-              state.pos += $19 + $20.count;
-            } else {
-              state.ok = true;
-              state.pos += $19;
-            }
-            break;
-        }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorExpectedTags(['\n', '\r\n', '\r']));
-      }
+      // Eol
+      fastParseEol(state);
       state.ok = true;
       if (state.ok) {
         $0 = $2;

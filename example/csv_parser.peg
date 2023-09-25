@@ -15,7 +15,6 @@ CloseQuote = '"' Spaces ;
 @inline
 Eof = !. ;
 
-@inline
 Eol = '\n' / '\r\n' / '\r' ;
 
 @event
