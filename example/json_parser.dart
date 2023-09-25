@@ -48,7 +48,6 @@ class JsonParser {
   }
 
   /// @event
-  /// List<Object?>
   /// Array =
   ///   OpenBracket v:Values CloseBracket
   ///   ;

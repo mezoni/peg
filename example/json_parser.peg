@@ -28,7 +28,6 @@
 Start = Spaces v:Value !. ;
 
 @event
-List<Object?>
 Array = OpenBracket v:Values CloseBracket ;
 
 @inline
