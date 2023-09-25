@@ -147,6 +147,8 @@ Number of operands: 1
 
 Executes the operand and if the execution of the operand succeeds, this result is returned. If the operand execution fails, then this expression succeeds and returns `null'.
 
+Example:
+
 ```
 'abc'?
 ```
@@ -157,6 +159,8 @@ Operator: `*`
 Number of operands: 1
 
 Cyclically executes the operand until the execution of the operand fails. During execution, adds the results of the operand execution in a list. After the loop is completed, the expression succeeds and a list of results is returned.
+
+Example:
 
 ```
 'abc'*
@@ -169,6 +173,8 @@ Number of operands: 1
 
 Cyclically executes the operand until the execution of the operand fails. During execution, puts the results of the operand execution in a list. If the number of items in the list of results is at least 1, then the list of results is returned.
 
+Example:
+
 ```
 'abc'+
 ```
@@ -178,7 +184,8 @@ Name: `Repetition`
 Operators: `{min,max}` or `{min,}` or `{,max}` or `{n}`  
 Number of operands: 1
 
-Note: The use of spaces in the operator body (i.e., between `{` and `}`) is not allowed and will lead to syntax error.
+⚠️ **Important information:**  
+The use of spaces in the operator body (i.e., between `{` and `}`) is not allowed and will lead to syntax error.
 
 Example of misuse:
 
@@ -190,6 +197,8 @@ Operator `{min,max}`:
 
 Cyclically executes the operand at least `min` and no more than `max` times. During execution, puts the results of the operand execution in a list. If (after the end of the loop) the number of items in the list of results is at least `min`, then the list of results is returned.
 
+Example:
+
 ```
 [0-9A-Zza-Z]{1,4}
 ```
@@ -197,6 +206,8 @@ Cyclically executes the operand at least `min` and no more than `max` times. Dur
 Operator `{min,}`:
 
 Cyclically executes the operand at least `min` times. During execution, puts the results of the operand execution in a list. If (after the end of the loop) the number of items in the list of results is at least `min`, then the list of results is returned.
+
+Example:
 
 ```
 [0-9A-Zza-Z]{2,}
@@ -206,6 +217,8 @@ Operator `{,max}`:
 
 Cyclically executes the operand no more than `max` times. During execution, puts the results of the operand execution in a list. After completing the execution of the loop, a list of results is returned.
 
+Example:
+
 ```
 [0-9A-Zza-Z]{,4}
 ```
@@ -213,6 +226,8 @@ Cyclically executes the operand no more than `max` times. During execution, puts
 Operator `{n}`:
 
 Cyclically executes the operand `n` times. During execution, puts the results of the operand execution in a list. If (after the loop is completed) the number of items in the result list is `n`, then the result list is returned.
+
+Example:
 
 ```
 [0-9A-Zza-Z]{4}
@@ -226,6 +241,8 @@ Operands: string value enclosed in single quotes
 Note: It is allowed to use an empty string as an operand. In this case, the expression always succeeds, without changing the current position.
 
 Matches the input data at the current position with a string value. If the matching is successful, then the current position is incremented by the length of the string value and this string value is returned.
+
+Example:
 
 ```
 'abc'
@@ -242,6 +259,8 @@ Operand: character ranges enclosed between `[` and `]`
 
 Checks the character from the input data at the current position for occurrence in one of the specified ranges. If the check is successful, the current position is increased by the length of the current character and the current character is returned.
 
+Example:
+
 ```
 [0-9A-Za-z]
 ```
@@ -249,6 +268,8 @@ Checks the character from the input data at the current position for occurrence 
 Operand is a character ranges enclosed between `[^` and `]`
 
 Checks the character from the input data at the current position for non-occurrence in one of the specified ranges. If the check is successful, the current position is increased by the length of the current character and the current character is returned.
+
+Example:
 
 ```
 [^0-9A-Za-z]
@@ -261,8 +282,10 @@ Number of operands: 1
 
 Executes the operand and if the execution of the operand succeeds, the text corresponding to the start and end positions of the operand is returned.
 
+Example:
+
 ```
-$([a-z])*
+$[a-z]*
 ```
 ___
 
@@ -272,8 +295,10 @@ Operand: Name of the rule
 
 Executes an operand (a rule with the specified name) and returns the result of executing the operand.
 
+Example:
+
 ```
-$([a-z])*
+number
 ```
 ___
 
@@ -282,6 +307,8 @@ Operator: `&`
 Number of operands: 1
 
 Executes the operand and, if the execution of the operand succeeds, returns the result of the execution of the operand. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
+
+Example:
 
 ```
 &[a-z]+
@@ -294,7 +321,13 @@ Number of operands: 1
 
 Executes the operand and, if the execution of the operand fails, returns `null'. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
 
-## Meta-expressions
+Example:
+
+```
+![a-z]+
+```
+
+## Meta expressions
 
 Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta-expressions extend the grammar with capabilities that are not present in it.  
 From the point of view of grammar, meta-expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
@@ -382,8 +415,6 @@ If the processed expression succeeds, then the verifier handler performs two fun
 This meta-expression allows you to simply solve the problems that arise when creating context-dependent grammars.  
 It is recommended to use an empty `Literal` as an expression that always succeeds.  
 At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).
-
-
 
 Example of result verification:
 
@@ -533,26 +564,33 @@ Peak = &foo ;
 ```
 ___
 
+`Position`
+
+```
+int
+Position = '' { $$ = state.pos; } ;
+```
+___
+
 `SeparatedList`
 
 ```
-List<ElemType>
-SeparatedList = v:(h:Elem t:(Sep v:Elem)* { $$ = [h, ...t]; })? { $$ = v ?? []; } ;
+SeparatedList = @sepBy(Elem, Sep) ;
 ```
 ___
 
 `SeparatedList1`
 
 ```
-List<ElemType>
-SeparatedList1 = h:Elem t:(Sep v:Elem)* { $$ = [h, ...t]; } ;
+<List<int>>
+SeparatedList1 = h:[a] t:([,] v:@sepBy([a], [,]))? { $$ = [h, if (t != null) ...t]; }
 ```
 ___
 
 `SeparatedPair`
 
 ```
-SeparatedPair = k:Key Sep v:Value { $$ = (k, v); } ;
+SeparatedPair = k:Key Sep v:Value ;
 ```
 ___
 
@@ -567,6 +605,14 @@ ___
 
 ```
 TakeWhile1 = $[0-9]+ ;
+```
+___
+
+`Value`
+
+```
+int
+Value = '' { $$ = 41; };
 ```
 ___
 

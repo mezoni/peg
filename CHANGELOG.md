@@ -1,3 +1,7 @@
+## 1.0.33
+
+- Changes in the file `README.md`.
+
 ## 1.0.32
 
 - Fixed a bug in the `JSON` grammar example. An incorrect range of characters was specified for parsing hex numbers.
