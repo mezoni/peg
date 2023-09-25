@@ -518,7 +518,7 @@ class JsonParser {
       final $4 = <String>[];
       while (true) {
         String? $5;
-        // String @inline StringChars = $[ -!#-[\]-\u{10ffff}]+ / '\\' v:(EscapeChar / EscapeHex) ;
+        // @inline StringChars = $[ -!#-[\]-\u{10ffff}]+ / '\\' v:(EscapeChar / EscapeHex) ;
         // $[ -!#-[\]-\u{10ffff}]+
         final $18 = state.pos;
         var $19 = false;

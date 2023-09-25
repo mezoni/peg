@@ -1,7 +1,7 @@
 ## 1.0.33
 
 - Changes in the file `README.md`.
-- Changes in the file `example/json_parser.peg`. Removed result type in rule definition `Array`.
+- Changes in the file `example/json_parser.peg`. Removed result type in rule definitions `Array`and `StringChars`.
 
 ## 1.0.32
 
