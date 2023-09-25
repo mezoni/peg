@@ -58,7 +58,7 @@ HexNumber = @errorHandler(HexNumberRaw, {
 
 @inline
 int
-HexNumberRaw = v:$([0-9A-Za-z]{4}) { $$ = int.parse(v, radix: 16); } ;
+HexNumberRaw = v:$[0-9A-Fa-f]{4} { $$ = int.parse(v, radix: 16); } ;
 
 @inline
 bool

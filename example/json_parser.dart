@@ -107,20 +107,19 @@ class JsonParser {
     final $2 = state.failPos;
     final $3 = state.errorCount;
     // HexNumberRaw
-    // int @inline HexNumberRaw = v:$([0-9A-Za-z]{4,4}) ;
-    // v:$([0-9A-Za-z]{4,4})
+    // int @inline HexNumberRaw = v:$[0-9A-Fa-f]{4,4} ;
+    // v:$[0-9A-Fa-f]{4,4}
     String? $6;
     final $7 = state.pos;
-    // [0-9A-Za-z]{4,4}
-    final $10 = state.pos;
-    var $11 = 0;
-    while ($11 < 4) {
+    final $9 = state.pos;
+    var $10 = 0;
+    while ($10 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $12 = state.input.readChar(state.pos);
-        state.ok = $12 <= 90
-            ? $12 >= 48 && $12 <= 57 || $12 >= 65
-            : $12 >= 97 && $12 <= 122;
+        final $11 = state.input.readChar(state.pos);
+        state.ok = $11 <= 70
+            ? $11 >= 48 && $11 <= 57 || $11 >= 65
+            : $11 >= 97 && $11 <= 102;
         if (state.ok) {
           state.pos += state.input.count;
         }
@@ -131,11 +130,11 @@ class JsonParser {
       if (!state.ok) {
         break;
       }
-      $11++;
+      $10++;
     }
-    state.ok = $11 == 4;
+    state.ok = $10 == 4;
     if (!state.ok) {
-      state.pos = $10;
+      state.pos = $9;
     }
     if (state.ok) {
       $6 = state.input.substring($7, state.pos);

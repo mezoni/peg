@@ -1,3 +1,7 @@
+## 1.0.32
+
+- Fixed a bug in the `JSON` grammar example. An incorrect range of characters was specified for parsing hex numbers.
+
 ## 1.0.31
 
 - Changes in the implementation of the `_OrderedChoiceGenerator2`.
