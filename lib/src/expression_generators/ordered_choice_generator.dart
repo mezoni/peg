@@ -287,6 +287,10 @@ if (state.ok) {
       strings.add(string);
     }
 
+    if (strings.length < 2) {
+      return null;
+    }
+
     final generator2 = _OrderedChoiceGenerator2(
       expression: expression,
       ruleGenerator: generator.ruleGenerator,

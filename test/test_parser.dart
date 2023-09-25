@@ -132,22 +132,9 @@ class TestParser {
     } else {
       while (true) {
         final $1 = state.pos;
-        state.ok = false;
-        final $5 = state.input;
-        if (state.pos < $5.length) {
-          final $3 = $5.readChar(state.pos);
-          // ignore: unused_local_variable
-          final $4 = $5.count;
-          switch ($3) {
-            case 44:
-              state.ok = true;
-              state.pos += $4;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
+        // ','
+        const $4 = ',';
+        matchLiteral1(state, 44, $4, const ErrorExpectedTags([$4]));
         if (!state.ok) {
           state.ok = true;
           break;
@@ -437,22 +424,9 @@ class TestParser {
       final $3 = [$4!];
       while (true) {
         final $2 = state.pos;
-        state.ok = false;
-        final $8 = state.input;
-        if (state.pos < $8.length) {
-          final $6 = $8.readChar(state.pos);
-          // ignore: unused_local_variable
-          final $7 = $8.count;
-          switch ($6) {
-            case 44:
-              state.ok = true;
-              state.pos += $7;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
+        // ','
+        const $7 = ',';
+        matchLiteral1(state, 44, $7, const ErrorExpectedTags([$7]));
         if (!state.ok) {
           state.ok = true;
           $0 = $3;

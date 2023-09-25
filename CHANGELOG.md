@@ -1,3 +1,7 @@
+## 1.0.31
+
+- Changes in the implementation of the `_OrderedChoiceGenerator2`.
+
 ## 1.0.30
 
 - Changes in the file `README.md`.

@@ -58,22 +58,9 @@ class CsvParser {
       final $3 = [$4!];
       while (true) {
         final $2 = state.pos;
-        state.ok = false;
-        final $10 = state.input;
-        if (state.pos < $10.length) {
-          final $8 = $10.readChar(state.pos);
-          // ignore: unused_local_variable
-          final $9 = $10.count;
-          switch ($8) {
-            case 44:
-              state.ok = true;
-              state.pos += $9;
-              break;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorExpectedTags([',']));
-        }
+        // ','
+        const $9 = ',';
+        matchLiteral1(state, 44, $9, const ErrorExpectedTags([$9]));
         if (!state.ok) {
           state.ok = true;
           $0 = $3;
