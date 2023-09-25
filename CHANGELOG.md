@@ -5,6 +5,7 @@
 - Changes in the implementation of the `SymbolGenerator`.
 - Changes in the implementation of the `_ZeroOrMoreGenerator3`.
 - Changes to the `peg_parser.peg` grammar files.
+- Changes in the file `README.md`.
 
 ## 1.0.30
 
