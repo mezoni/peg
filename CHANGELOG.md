@@ -1,6 +1,7 @@
 ## 1.0.31
 
 - Changes in the implementation of the `_OrderedChoiceGenerator2`.
+- Changes in the implementation of the `_NotPredicateGenerator2`.
 
 ## 1.0.30
 

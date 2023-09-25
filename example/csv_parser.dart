@@ -137,7 +137,7 @@ class CsvParser {
           // !.
           state.ok = state.pos >= state.input.length;
           if (!state.ok) {
-            state.fail(const ErrorExpectedEndOfInput());
+            state.fail(const ErrorUnexpectedCharacter());
           }
           state.ok = !state.ok;
           if (!state.ok) {
@@ -211,7 +211,7 @@ class CsvParser {
       // !.
       state.ok = state.pos >= state.input.length;
       if (!state.ok) {
-        state.fail(const ErrorExpectedEndOfInput());
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (state.ok) {
         $0 = $2;

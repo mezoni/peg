@@ -2336,7 +2336,7 @@ class PegParser {
           if (state.ok) {
             state.ok = state.pos >= state.input.length;
             if (!state.ok) {
-              state.fail(const ErrorExpectedEndOfInput());
+              state.fail(const ErrorUnexpectedCharacter());
             }
             if (state.ok) {
               Grammar? $$;

@@ -483,7 +483,7 @@ class JsonParser {
       if (state.ok) {
         state.ok = state.pos >= state.input.length;
         if (!state.ok) {
-          state.fail(const ErrorExpectedEndOfInput());
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           $0 = $2;
