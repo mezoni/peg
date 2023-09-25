@@ -44,9 +44,12 @@ class CsvParser {
     String? $4;
     // Field
     beginEvent(CsvParserEvent.fieldEvent);
+    // @event @inline Field = String / Text ;
+    // String
     // String
     $4 = parseString(state);
     if (!state.ok) {
+      // Text
       // Text
       $4 = parseText(state);
     }
@@ -68,9 +71,12 @@ class CsvParser {
         }
         // Field
         beginEvent(CsvParserEvent.fieldEvent);
+        // @event @inline Field = String / Text ;
+        // String
         // String
         $4 = parseString(state);
         if (!state.ok) {
+          // Text
           // Text
           $4 = parseText(state);
         }
@@ -96,6 +102,7 @@ class CsvParser {
     List<List<String>>? $2;
     List<String>? $5;
     // Row
+    // Row
     $5 = parseRow(state);
     if (!state.ok) {
       state.ok = true;
@@ -105,8 +112,10 @@ class CsvParser {
       while (true) {
         final $3 = state.pos;
         // RowEnding
+        // @inline RowEnding = Eol !Eof ;
         // Eol !Eof
         final $8 = state.pos;
+        // @inline Eol = '\n' / '\r\n' / '\r' ;
         state.ok = false;
         final $11 = state.input;
         if (state.pos < $11.length) {
@@ -134,6 +143,7 @@ class CsvParser {
         }
         if (state.ok) {
           final $15 = state.pos;
+          // @inline Eof = !. ;
           // !.
           state.ok = state.pos >= state.input.length;
           if (!state.ok) {
@@ -153,6 +163,7 @@ class CsvParser {
           break;
         }
         // Row
+        // Row
         $5 = parseRow(state);
         if (!state.ok) {
           state.pos = $3;
@@ -162,6 +173,7 @@ class CsvParser {
       }
     }
     if (state.ok) {
+      // @inline Eol = '\n' / '\r\n' / '\r' ;
       state.ok = false;
       final $20 = state.input;
       if (state.pos < $20.length) {
@@ -206,8 +218,10 @@ class CsvParser {
     // v:Rows Eof
     final $1 = state.pos;
     List<List<String>>? $2;
+    // Rows
     $2 = parseRows(state);
     if (state.ok) {
+      // @inline Eof = !. ;
       // !.
       state.ok = state.pos >= state.input.length;
       if (!state.ok) {
@@ -231,8 +245,10 @@ class CsvParser {
     String? $0;
     // OpenQuote v:Chars CloseQuote
     final $1 = state.pos;
+    // @inline OpenQuote = Spaces '"' ;
     // Spaces '"'
     final $3 = state.pos;
+    // Spaces
     fastParseSpaces(state);
     if (state.ok) {
       const $4 = '"';
@@ -243,6 +259,7 @@ class CsvParser {
     }
     if (state.ok) {
       List<String>? $2;
+      // @inline Chars = ($[^"]+ / '""')* ;
       // ($[^"]+ / '""')*
       final $6 = <String>[];
       while (true) {
@@ -291,11 +308,13 @@ class CsvParser {
         $2 = $6;
       }
       if (state.ok) {
+        // @inline CloseQuote = '"' Spaces ;
         // '"' Spaces
         final $14 = state.pos;
         const $15 = '"';
         matchLiteral1(state, 34, $15, const ErrorExpectedTags([$15]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {

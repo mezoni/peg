@@ -73,6 +73,7 @@ class PegParser {
     const $1 = '@';
     matchLiteral1(state, 64, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -91,6 +92,7 @@ class PegParser {
     matchLiteral1(state, 123, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
       while (true) {
+        // BlockBody
         fastParseBlockBody(state);
         if (!state.ok) {
           state.ok = true;
@@ -139,6 +141,7 @@ class PegParser {
     const $1 = '}';
     matchLiteral1(state, 125, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -155,6 +158,7 @@ class PegParser {
     const $1 = ']';
     matchLiteral1(state, 93, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -171,6 +175,7 @@ class PegParser {
     const $1 = ')';
     matchLiteral1(state, 41, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -187,6 +192,7 @@ class PegParser {
     const $1 = ':';
     matchLiteral1(state, 58, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -203,6 +209,7 @@ class PegParser {
     const $1 = ',';
     matchLiteral1(state, 44, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -270,6 +277,7 @@ class PegParser {
     const $1 = '.';
     matchLiteral1(state, 46, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -286,6 +294,7 @@ class PegParser {
     const $1 = '=';
     matchLiteral1(state, 61, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -302,6 +311,7 @@ class PegParser {
     const $1 = '>';
     matchLiteral1(state, 62, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -318,6 +328,7 @@ class PegParser {
     const $1 = '<';
     matchLiteral1(state, 60, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -334,6 +345,7 @@ class PegParser {
     const $1 = '{';
     matchLiteral1(state, 123, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -350,6 +362,7 @@ class PegParser {
     const $1 = '(';
     matchLiteral1(state, 40, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -366,6 +379,7 @@ class PegParser {
     const $1 = ';';
     matchLiteral1(state, 59, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -382,6 +396,7 @@ class PegParser {
     const $1 = '\'';
     matchLiteral1(state, 39, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -398,6 +413,7 @@ class PegParser {
     const $1 = '/';
     matchLiteral1(state, 47, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -412,8 +428,10 @@ class PegParser {
     // (WhiteSpace / Comment)*
     while (true) {
       // WhiteSpace
+      // WhiteSpace
       fastParseWhiteSpace(state);
       if (!state.ok) {
+        // Comment
         // Comment
         fastParseComment(state);
       }
@@ -453,11 +471,14 @@ class PegParser {
     ResultType? $2;
     // Less v:Type Greater
     final $4 = state.pos;
+    // Less
     fastParseLess(state);
     if (state.ok) {
       ResultType? $5;
+      // Type
       $5 = parseType(state);
       if (state.ok) {
+        // Greater
         fastParseGreater(state);
         if (state.ok) {
           $2 = $5;
@@ -470,6 +491,7 @@ class PegParser {
     state.ok = true;
     if (state.ok) {
       String? $3;
+      // Block
       $3 = parseBlock(state);
       if (state.ok) {
         SemanticAction? $$;
@@ -496,6 +518,7 @@ class PegParser {
     const $3 = '&';
     $2 = matchLiteral1(state, 38, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -513,6 +536,7 @@ class PegParser {
   ///   ;
   Expression? parseAnyCharacter(State<StringReader> state) {
     Expression? $0;
+    // Dot
     // Dot
     fastParseDot(state);
     if (state.ok) {
@@ -534,6 +558,7 @@ class PegParser {
     const $3 = '*';
     $2 = matchLiteral1(state, 42, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -558,6 +583,7 @@ class PegParser {
       String? $2;
       final $4 = state.pos;
       while (true) {
+        // BlockBody
         fastParseBlockBody(state);
         if (!state.ok) {
           state.ok = true;
@@ -568,6 +594,7 @@ class PegParser {
         $2 = state.input.substring($4, state.pos);
       }
       if (state.ok) {
+        // CloseBrace
         fastParseCloseBrace(state);
         if (state.ok) {
           $0 = $2;
@@ -607,6 +634,7 @@ class PegParser {
         }
         if (state.ok) {
           (int, int)? $16;
+          // Range
           $16 = parseRange(state);
           if (state.ok) {
             $14 = $16;
@@ -625,6 +653,7 @@ class PegParser {
         $11 = $13;
       }
       if (state.ok) {
+        // CloseBracket
         fastParseCloseBracket(state);
         if (state.ok) {
           Expression? $$;
@@ -658,6 +687,7 @@ class PegParser {
           }
           if (state.ok) {
             (int, int)? $7;
+            // Range
             $7 = parseRange(state);
             if (state.ok) {
               $5 = $7;
@@ -676,6 +706,7 @@ class PegParser {
           $2 = $4;
         }
         if (state.ok) {
+          // CloseBracket
           fastParseCloseBracket(state);
           if (state.ok) {
             Expression? $$;
@@ -702,21 +733,27 @@ class PegParser {
     // m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
     final $5 = state.pos;
     List<({String name, List<Object?> arguments})>? $6;
+    // Metadata
     $6 = parseMetadata(state);
     state.ok = true;
     if (state.ok) {
       ResultType? $7;
+      // Type
       $7 = parseType(state);
       state.ok = true;
       if (state.ok) {
         String? $8;
+        // Identifier
         $8 = parseIdentifier(state);
         if (state.ok) {
+          // Equal
           fastParseEqual(state);
           if (state.ok) {
             Expression? $9;
+            // Expression
             $9 = parseExpression(state);
             if (state.ok) {
+              // Semicolon
               fastParseSemicolon(state);
               if (state.ok) {
                 ProductionRule? $$;
@@ -743,17 +780,22 @@ class PegParser {
       // m:Metadata? i:Identifier Equal e:Expression Semicolon
       final $1 = state.pos;
       List<({String name, List<Object?> arguments})>? $2;
+      // Metadata
       $2 = parseMetadata(state);
       state.ok = true;
       if (state.ok) {
         String? $3;
+        // Identifier
         $3 = parseIdentifier(state);
         if (state.ok) {
+          // Equal
           fastParseEqual(state);
           if (state.ok) {
             Expression? $4;
+            // Expression
             $4 = parseExpression(state);
             if (state.ok) {
+              // Semicolon
               fastParseSemicolon(state);
               if (state.ok) {
                 ProductionRule? $$;
@@ -788,6 +830,7 @@ class PegParser {
     const $3 = '\$';
     $2 = matchLiteral1(state, 36, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -810,16 +853,21 @@ class PegParser {
     const $4 = '@errorHandler';
     matchLiteral(state, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
+      // OpenParenthesis
       fastParseOpenParenthesis(state);
       if (state.ok) {
         Expression? $2;
+        // Expression
         $2 = parseExpression(state);
         if (state.ok) {
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             String? $3;
+            // Block
             $3 = parseBlock(state);
             if (state.ok) {
+              // CloseParenthesis
               fastParseCloseParenthesis(state);
               if (state.ok) {
                 Expression? $$;
@@ -850,6 +898,7 @@ class PegParser {
     const $3 = '!';
     $2 = matchLiteral1(state, 33, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -867,6 +916,7 @@ class PegParser {
   Expression? parseExpression(State<StringReader> state) {
     Expression? $0;
     // OrderedChoice
+    // OrderedChoice
     $0 = parseOrderedChoice(state);
     return $0;
   }
@@ -881,13 +931,17 @@ class PegParser {
     // i:NativeIdentifier Less p:TypeArguments Greater
     final $3 = state.pos;
     String? $4;
+    // NativeIdentifier
     $4 = parseNativeIdentifier(state);
     if (state.ok) {
+      // Less
       fastParseLess(state);
       if (state.ok) {
         List<ResultType>? $5;
+        // TypeArguments
         $5 = parseTypeArguments(state);
         if (state.ok) {
+          // Greater
           fastParseGreater(state);
           if (state.ok) {
             ResultType? $$;
@@ -905,6 +959,7 @@ class PegParser {
     if (!state.ok) {
       // i:NativeIdentifier
       String? $2;
+      // NativeIdentifier
       $2 = parseNativeIdentifier(state);
       if (state.ok) {
         ResultType? $$;
@@ -943,6 +998,7 @@ class PegParser {
         const $7 = '}%';
         matchLiteral(state, $7, const ErrorExpectedTags([$7]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
           if (state.ok) {
             $0 = $2;
@@ -964,11 +1020,14 @@ class PegParser {
     Expression? $0;
     // OpenParenthesis e:Expression CloseParenthesis
     final $1 = state.pos;
+    // OpenParenthesis
     fastParseOpenParenthesis(state);
     if (state.ok) {
       Expression? $2;
+      // Expression
       $2 = parseExpression(state);
       if (state.ok) {
+        // CloseParenthesis
         fastParseCloseParenthesis(state);
         if (state.ok) {
           Expression? $$;
@@ -1089,6 +1148,7 @@ class PegParser {
       $2 = state.input.substring($3, state.pos);
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -1166,6 +1226,7 @@ class PegParser {
         }
         if (state.ok) {
           int? $7;
+          // StringChar
           $7 = parseStringChar(state);
           if (state.ok) {
             $5 = $7;
@@ -1187,6 +1248,7 @@ class PegParser {
         const $10 = '\'';
         matchLiteral1(state, 39, $10, const ErrorExpectedTags([$10]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
           if (state.ok) {
             Expression? $$;
@@ -1214,11 +1276,14 @@ class PegParser {
     const $3 = '@matchString';
     matchLiteral(state, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // OpenParenthesis
       fastParseOpenParenthesis(state);
       if (state.ok) {
         String? $2;
+        // Block
         $2 = parseBlock(state);
         if (state.ok) {
+          // CloseParenthesis
           fastParseCloseParenthesis(state);
           if (state.ok) {
             Expression? $$;
@@ -1262,6 +1327,7 @@ class PegParser {
         const $7 = '%%';
         matchLiteral(state, $7, const ErrorExpectedTags([$7]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
           if (state.ok) {
             $0 = $2;
@@ -1285,6 +1351,7 @@ class PegParser {
     // h:MetadataElement t:(Spaces v:MetadataElement)*
     final $1 = state.pos;
     ({String name, List<Object?> arguments})? $2;
+    // MetadataElement
     $2 = parseMetadataElement(state);
     if (state.ok) {
       List<({String name, List<Object?> arguments})>? $3;
@@ -1293,9 +1360,11 @@ class PegParser {
         ({String name, List<Object?> arguments})? $5;
         // Spaces v:MetadataElement
         final $6 = state.pos;
+        // Spaces
         fastParseSpaces(state);
         if (state.ok) {
           ({String name, List<Object?> arguments})? $7;
+          // MetadataElement
           $7 = parseMetadataElement(state);
           if (state.ok) {
             $5 = $7;
@@ -1341,6 +1410,7 @@ class PegParser {
       final $4 = <int>[];
       while (true) {
         int? $5;
+        // StringChar
         $5 = parseStringChar(state);
         if (!state.ok) {
           state.ok = true;
@@ -1352,6 +1422,7 @@ class PegParser {
         $2 = $4;
       }
       if (state.ok) {
+        // SingleQuote
         fastParseSingleQuote(state);
         if (state.ok) {
           Object? $$;
@@ -1376,6 +1447,7 @@ class PegParser {
     // h:MetadataArgument t:(Comma v:MetadataArgument)*
     final $1 = state.pos;
     Object? $2;
+    // MetadataArgument
     $2 = parseMetadataArgument(state);
     if (state.ok) {
       List<Object?>? $3;
@@ -1384,9 +1456,11 @@ class PegParser {
         Object? $5;
         // Comma v:MetadataArgument
         final $6 = state.pos;
+        // Comma
         fastParseComma(state);
         if (state.ok) {
           Object? $7;
+          // MetadataArgument
           $7 = parseMetadataArgument(state);
           if (state.ok) {
             $5 = $7;
@@ -1426,12 +1500,15 @@ class PegParser {
     List<Object?>? $0;
     // OpenParenthesis v:MetadataArgumentList? CloseParenthesis
     final $1 = state.pos;
+    // OpenParenthesis
     fastParseOpenParenthesis(state);
     if (state.ok) {
       List<Object?>? $2;
+      // MetadataArgumentList
       $2 = parseMetadataArgumentList(state);
       state.ok = true;
       if (state.ok) {
+        // CloseParenthesis
         fastParseCloseParenthesis(state);
         if (state.ok) {
           List<Object?>? $$;
@@ -1456,12 +1533,15 @@ class PegParser {
     ({String name, List<Object?> arguments})? $0;
     // AtSign i:Identifier a:MetadataArguments?
     final $1 = state.pos;
+    // AtSign
     fastParseAtSign(state);
     if (state.ok) {
       String? $2;
+      // Identifier
       $2 = parseIdentifier(state);
       if (state.ok) {
         List<Object?>? $3;
+        // MetadataArguments
         $3 = parseMetadataArguments(state);
         state.ok = true;
         if (state.ok) {
@@ -1491,11 +1571,14 @@ class PegParser {
     // m:Integer Comma n:Integer
     final $7 = state.pos;
     int? $8;
+    // Integer
     $8 = parseInteger(state);
     if (state.ok) {
+      // Comma
       fastParseComma(state);
       if (state.ok) {
         int? $9;
+        // Integer
         $9 = parseInteger(state);
         if (state.ok) {
           (int?, int?)? $$;
@@ -1512,9 +1595,11 @@ class PegParser {
     if (!state.ok) {
       // Comma n:Integer
       final $5 = state.pos;
+      // Comma
       fastParseComma(state);
       if (state.ok) {
         int? $6;
+        // Integer
         $6 = parseInteger(state);
         if (state.ok) {
           (int?, int?)? $$;
@@ -1530,8 +1615,10 @@ class PegParser {
         // m:Integer Comma
         final $3 = state.pos;
         int? $4;
+        // Integer
         $4 = parseInteger(state);
         if (state.ok) {
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             (int?, int?)? $$;
@@ -1546,6 +1633,7 @@ class PegParser {
         if (!state.ok) {
           // n:Integer
           int? $2;
+          // Integer
           $2 = parseInteger(state);
           if (state.ok) {
             (int?, int?)? $$;
@@ -1568,9 +1656,11 @@ class PegParser {
     // type:Type name:NativeIdentifier
     final $1 = state.pos;
     ResultType? $2;
+    // Type
     $2 = parseType(state);
     if (state.ok) {
       String? $3;
+      // NativeIdentifier
       $3 = parseNativeIdentifier(state);
       if (state.ok) {
         $0 = (type: $2!, name: $3!);
@@ -1591,9 +1681,11 @@ class PegParser {
     List<({ResultType type, String name})>? $0;
     // OpenBrace h:NamedField t:(Comma v:NamedField)* CloseBrace
     final $1 = state.pos;
+    // OpenBrace
     fastParseOpenBrace(state);
     if (state.ok) {
       ({ResultType type, String name})? $2;
+      // NamedField
       $2 = parseNamedField(state);
       if (state.ok) {
         List<({ResultType type, String name})>? $3;
@@ -1602,9 +1694,11 @@ class PegParser {
           ({ResultType type, String name})? $5;
           // Comma v:NamedField
           final $6 = state.pos;
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             ({ResultType type, String name})? $7;
+            // NamedField
             $7 = parseNamedField(state);
             if (state.ok) {
               $5 = $7;
@@ -1623,6 +1717,7 @@ class PegParser {
           $3 = $4;
         }
         if (state.ok) {
+          // CloseBrace
           fastParseCloseBrace(state);
           if (state.ok) {
             List<({ResultType type, String name})>? $$;
@@ -1694,6 +1789,7 @@ class PegParser {
       $2 = state.input.substring($3, state.pos);
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -1714,6 +1810,7 @@ class PegParser {
     // h:Sequence t:(Slash v:Sequence)*
     final $1 = state.pos;
     Expression? $2;
+    // Sequence
     $2 = parseSequence(state);
     if (state.ok) {
       List<Expression>? $3;
@@ -1722,9 +1819,11 @@ class PegParser {
         Expression? $5;
         // Slash v:Sequence
         final $6 = state.pos;
+        // Slash
         fastParseSlash(state);
         if (state.ok) {
           Expression? $7;
+          // Sequence
           $7 = parseSequence(state);
           if (state.ok) {
             $5 = $7;
@@ -1767,6 +1866,7 @@ class PegParser {
     const $3 = '+';
     $2 = matchLiteral1(state, 43, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -1788,9 +1888,11 @@ class PegParser {
     // type:Type name:NativeIdentifier?
     final $1 = state.pos;
     ResultType? $2;
+    // Type
     $2 = parseType(state);
     if (state.ok) {
       String? $3;
+      // NativeIdentifier
       $3 = parseNativeIdentifier(state);
       state.ok = true;
       if (state.ok) {
@@ -1813,6 +1915,7 @@ class PegParser {
     // h:PositionalField t:(Comma v:PositionalField)*
     final $1 = state.pos;
     ({ResultType type, String? name})? $2;
+    // PositionalField
     $2 = parsePositionalField(state);
     if (state.ok) {
       List<({ResultType type, String? name})>? $3;
@@ -1821,9 +1924,11 @@ class PegParser {
         ({ResultType type, String? name})? $5;
         // Comma v:PositionalField
         final $6 = state.pos;
+        // Comma
         fastParseComma(state);
         if (state.ok) {
           ({ResultType type, String? name})? $7;
+          // PositionalField
           $7 = parsePositionalField(state);
           if (state.ok) {
             $5 = $7;
@@ -1865,11 +1970,14 @@ class PegParser {
     final $1 = state.pos;
     String? $2;
     // Dollar
+    // Dollar
     $2 = parseDollar(state);
     if (!state.ok) {
       // Ampersand
+      // Ampersand
       $2 = parseAmpersand(state);
       if (!state.ok) {
+        // Exclamation
         // Exclamation
         $2 = parseExclamation(state);
       }
@@ -1877,6 +1985,7 @@ class PegParser {
     state.ok = true;
     if (state.ok) {
       Expression? $3;
+      // Suffix
       $3 = parseSuffix(state);
       if (state.ok) {
         Expression? $$;
@@ -1907,32 +2016,42 @@ class PegParser {
   Expression? parsePrimary(State<StringReader> state) {
     Expression? $0;
     // Symbol
+    // Symbol
     $0 = parseSymbol(state);
     if (!state.ok) {
+      // CharacterClass
       // CharacterClass
       $0 = parseCharacterClass(state);
       if (!state.ok) {
         // Literal
+        // Literal
         $0 = parseLiteral(state);
         if (!state.ok) {
+          // CharacterClass
           // CharacterClass
           $0 = parseCharacterClass(state);
           if (!state.ok) {
             // AnyCharacter
+            // AnyCharacter
             $0 = parseAnyCharacter(state);
             if (!state.ok) {
+              // Group
               // Group
               $0 = parseGroup(state);
               if (!state.ok) {
                 // ErrorHandler
+                // ErrorHandler
                 $0 = parseErrorHandler(state);
                 if (!state.ok) {
+                  // MatchString
                   // MatchString
                   $0 = parseMatchString(state);
                   if (!state.ok) {
                     // SepBy
+                    // SepBy
                     $0 = parseSepBy(state);
                     if (!state.ok) {
+                      // Verify
                       // Verify
                       $0 = parseVerify(state);
                     }
@@ -1958,6 +2077,7 @@ class PegParser {
     const $3 = '?';
     $2 = matchLiteral1(state, 63, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -1979,12 +2099,14 @@ class PegParser {
     // s:RangeChar '-' e:RangeChar
     final $3 = state.pos;
     int? $4;
+    // RangeChar
     $4 = parseRangeChar(state);
     if (state.ok) {
       const $6 = '-';
       matchLiteral1(state, 45, $6, const ErrorExpectedTags([$6]));
       if (state.ok) {
         int? $5;
+        // RangeChar
         $5 = parseRangeChar(state);
         if (state.ok) {
           (int, int)? $$;
@@ -2001,6 +2123,7 @@ class PegParser {
     if (!state.ok) {
       // s:RangeChar
       int? $2;
+      // RangeChar
       $2 = parseRangeChar(state);
       if (state.ok) {
         (int, int)? $$;
@@ -2051,6 +2174,7 @@ class PegParser {
       }
       if (!state.ok) {
         // HexChar
+        // HexChar
         $6 = parseHexChar(state);
       }
       if (state.ok) {
@@ -2098,11 +2222,13 @@ class PegParser {
     ResultType? $0;
     // OpenParenthesis v:(n:NamedFields / p:PositionalFields Comma n:NamedFields / h:PositionalField Comma t:PositionalFields / t:PositionalField Comma) CloseParenthesis
     final $1 = state.pos;
+    // OpenParenthesis
     fastParseOpenParenthesis(state);
     if (state.ok) {
       RecordType? $2;
       // n:NamedFields
       List<({ResultType type, String name})>? $12;
+      // NamedFields
       $12 = parseNamedFields(state);
       if (state.ok) {
         RecordType? $$;
@@ -2114,11 +2240,14 @@ class PegParser {
         // p:PositionalFields Comma n:NamedFields
         final $8 = state.pos;
         List<({ResultType type, String? name})>? $9;
+        // PositionalFields
         $9 = parsePositionalFields(state);
         if (state.ok) {
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             List<({ResultType type, String name})>? $10;
+            // NamedFields
             $10 = parseNamedFields(state);
             if (state.ok) {
               RecordType? $$;
@@ -2136,11 +2265,14 @@ class PegParser {
           // h:PositionalField Comma t:PositionalFields
           final $5 = state.pos;
           ({ResultType type, String? name})? $6;
+          // PositionalField
           $6 = parsePositionalField(state);
           if (state.ok) {
+            // Comma
             fastParseComma(state);
             if (state.ok) {
               List<({ResultType type, String? name})>? $7;
+              // PositionalFields
               $7 = parsePositionalFields(state);
               if (state.ok) {
                 RecordType? $$;
@@ -2158,8 +2290,10 @@ class PegParser {
             // t:PositionalField Comma
             final $3 = state.pos;
             ({ResultType type, String? name})? $4;
+            // PositionalField
             $4 = parsePositionalField(state);
             if (state.ok) {
+              // Comma
               fastParseComma(state);
               if (state.ok) {
                 RecordType? $$;
@@ -2175,6 +2309,7 @@ class PegParser {
         }
       }
       if (state.ok) {
+        // CloseParenthesis
         fastParseCloseParenthesis(state);
         if (state.ok) {
           $0 = $2;
@@ -2198,16 +2333,21 @@ class PegParser {
     const $4 = '@sepBy';
     matchLiteral(state, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
+      // OpenParenthesis
       fastParseOpenParenthesis(state);
       if (state.ok) {
         Expression? $2;
+        // Expression
         $2 = parseExpression(state);
         if (state.ok) {
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             Expression? $3;
+            // Expression
             $3 = parseExpression(state);
             if (state.ok) {
+              // CloseParenthesis
               fastParseCloseParenthesis(state);
               if (state.ok) {
                 Expression? $$;
@@ -2239,6 +2379,7 @@ class PegParser {
     final $4 = <Expression>[];
     while (true) {
       Expression? $5;
+      // SequenceElement
       $5 = parseSequenceElement(state);
       if (!state.ok) {
         break;
@@ -2251,6 +2392,7 @@ class PegParser {
     }
     if (state.ok) {
       SemanticAction? $3;
+      // Action
       $3 = parseAction(state);
       state.ok = true;
       if (state.ok) {
@@ -2276,11 +2418,14 @@ class PegParser {
     // i:Identifier Colon p:Prefix
     final $2 = state.pos;
     String? $3;
+    // Identifier
     $3 = parseIdentifier(state);
     if (state.ok) {
+      // Colon
       fastParseColon(state);
       if (state.ok) {
         Expression? $4;
+        // Prefix
         $4 = parsePrefix(state);
         if (state.ok) {
           Expression? $$;
@@ -2296,6 +2441,7 @@ class PegParser {
     }
     if (!state.ok) {
       // Prefix
+      // Prefix
       $0 = parsePrefix(state);
     }
     return $0;
@@ -2309,13 +2455,16 @@ class PegParser {
     Grammar? $0;
     // Spaces g:Globals? m:Members? d:Definition* !.
     final $1 = state.pos;
+    // Spaces
     fastParseSpaces(state);
     if (state.ok) {
       String? $2;
+      // Globals
       $2 = parseGlobals(state);
       state.ok = true;
       if (state.ok) {
         String? $3;
+        // Members
         $3 = parseMembers(state);
         state.ok = true;
         if (state.ok) {
@@ -2323,6 +2472,7 @@ class PegParser {
           final $5 = <ProductionRule>[];
           while (true) {
             ProductionRule? $6;
+            // Definition
             $6 = parseDefinition(state);
             if (!state.ok) {
               state.ok = true;
@@ -2407,6 +2557,7 @@ class PegParser {
         }
         if (!state.ok) {
           // HexChar
+          // HexChar
           $2 = parseHexChar(state);
         }
         if (state.ok) {
@@ -2429,25 +2580,32 @@ class PegParser {
     // p:Primary s:(Asterisk / Question / Plus / OpenBrace v:MinMax CloseBrace)?
     final $1 = state.pos;
     Expression? $2;
+    // Primary
     $2 = parsePrimary(state);
     if (state.ok) {
       Object? $3;
       // Asterisk
+      // Asterisk
       $3 = parseAsterisk(state);
       if (!state.ok) {
         // Question
+        // Question
         $3 = parseQuestion(state);
         if (!state.ok) {
+          // Plus
           // Plus
           $3 = parsePlus(state);
           if (!state.ok) {
             // OpenBrace v:MinMax CloseBrace
             final $4 = state.pos;
+            // OpenBrace
             fastParseOpenBrace(state);
             if (state.ok) {
               (int?, int?)? $5;
+              // MinMax
               $5 = parseMinMax(state);
               if (state.ok) {
+                // CloseBrace
                 fastParseCloseBrace(state);
                 if (state.ok) {
                   $3 = $5;
@@ -2483,6 +2641,7 @@ class PegParser {
     Expression? $0;
     // i:Identifier
     String? $2;
+    // Identifier
     $2 = parseIdentifier(state);
     if (state.ok) {
       Expression? $$;
@@ -2503,13 +2662,16 @@ class PegParser {
     final $1 = state.pos;
     ResultType? $2;
     // GenericType
+    // GenericType
     $2 = parseGenericType(state);
     if (!state.ok) {
+      // RecordType
       // RecordType
       $2 = parseRecordType(state);
     }
     if (state.ok) {
       String? $3;
+      // Question
       $3 = parseQuestion(state);
       state.ok = true;
       if (state.ok) {
@@ -2535,6 +2697,7 @@ class PegParser {
     // h:Type t:(Comma v:Type)*
     final $1 = state.pos;
     ResultType? $2;
+    // Type
     $2 = parseType(state);
     if (state.ok) {
       List<ResultType>? $3;
@@ -2543,9 +2706,11 @@ class PegParser {
         ResultType? $5;
         // Comma v:Type
         final $6 = state.pos;
+        // Comma
         fastParseComma(state);
         if (state.ok) {
           ResultType? $7;
+          // Type
           $7 = parseType(state);
           if (state.ok) {
             $5 = $7;
@@ -2588,16 +2753,21 @@ class PegParser {
     const $4 = '@verify';
     matchLiteral(state, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
+      // OpenParenthesis
       fastParseOpenParenthesis(state);
       if (state.ok) {
         Expression? $2;
+        // Expression
         $2 = parseExpression(state);
         if (state.ok) {
+          // Comma
           fastParseComma(state);
           if (state.ok) {
             String? $3;
+            // Block
             $3 = parseBlock(state);
             if (state.ok) {
+              // CloseParenthesis
               fastParseCloseParenthesis(state);
               if (state.ok) {
                 Expression? $$;

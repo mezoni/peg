@@ -126,6 +126,7 @@ class TestParser {
   void fastParseSepBy(State<StringReader> state) {
     // @sepBy(Integer, ',')
     // Integer
+    // Integer
     fastParseInteger(state);
     if (!state.ok) {
       state.ok = true;
@@ -139,6 +140,7 @@ class TestParser {
           state.ok = true;
           break;
         }
+        // Integer
         // Integer
         fastParseInteger(state);
         if (!state.ok) {
@@ -218,6 +220,7 @@ class TestParser {
     final $3 = state.failPos;
     final $2 = state.errorCount;
     int? $1;
+    // Integer
     // Integer
     $1 = parseInteger(state);
     if (state.ok) {
@@ -416,6 +419,7 @@ class TestParser {
     // @sepBy(Integer, ',')
     int? $4;
     // Integer
+    // Integer
     $4 = parseInteger(state);
     if (!state.ok) {
       state.ok = true;
@@ -432,6 +436,7 @@ class TestParser {
           $0 = $3;
           break;
         }
+        // Integer
         // Integer
         $4 = parseInteger(state);
         if (!state.ok) {
@@ -553,8 +558,10 @@ class TestParser {
     // v:MatchString MatchString
     final $29 = state.pos;
     String? $30;
+    // MatchString
     $30 = parseMatchString(state);
     if (state.ok) {
+      // MatchString
       fastParseMatchString(state);
       if (state.ok) {
         $0 = $30;
@@ -568,8 +575,10 @@ class TestParser {
       // v:SkipUntil SkipUntil
       final $26 = state.pos;
       List<int>? $27;
+      // SkipUntil
       $27 = parseSkipUntil(state);
       if (state.ok) {
+        // SkipUntil
         fastParseSkipUntil(state);
         if (state.ok) {
           $0 = $27;
@@ -583,8 +592,10 @@ class TestParser {
         // v:SkipTil SkipTil
         final $23 = state.pos;
         List<int>? $24;
+        // SkipTil
         $24 = parseSkipTil(state);
         if (state.ok) {
+          // SkipTil
           fastParseSkipTil(state);
           if (state.ok) {
             $0 = $24;
@@ -598,8 +609,10 @@ class TestParser {
           // v:TakeUntil TakeUntil
           final $20 = state.pos;
           String? $21;
+          // TakeUntil
           $21 = parseTakeUntil(state);
           if (state.ok) {
+            // TakeUntil
             fastParseTakeUntil(state);
             if (state.ok) {
               $0 = $21;
@@ -613,8 +626,10 @@ class TestParser {
             // v:TakeTil TakeTil
             final $17 = state.pos;
             String? $18;
+            // TakeTil
             $18 = parseTakeTil(state);
             if (state.ok) {
+              // TakeTil
               fastParseTakeTil(state);
               if (state.ok) {
                 $0 = $18;
@@ -628,8 +643,10 @@ class TestParser {
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
               final $14 = state.pos;
               String? $15;
+              // OrderedChoiceWithLiterals
               $15 = parseOrderedChoiceWithLiterals(state);
               if (state.ok) {
+                // OrderedChoiceWithLiterals
                 fastParseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
                   $0 = $15;
@@ -643,8 +660,10 @@ class TestParser {
                 // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
                 final $11 = state.pos;
                 String? $12;
+                // OrderedChoiceWithLiterals
                 $12 = parseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
+                  // OrderedChoiceWithLiterals
                   fastParseOrderedChoiceWithLiterals(state);
                   if (state.ok) {
                     $0 = $12;
@@ -658,8 +677,10 @@ class TestParser {
                   // v:SepBy SepBy
                   final $8 = state.pos;
                   List<int>? $9;
+                  // SepBy
                   $9 = parseSepBy(state);
                   if (state.ok) {
+                    // SepBy
                     fastParseSepBy(state);
                     if (state.ok) {
                       $0 = $9;
@@ -673,8 +694,10 @@ class TestParser {
                     // v:Verify41 Verify41
                     final $5 = state.pos;
                     int? $6;
+                    // Verify41
                     $6 = parseVerify41(state);
                     if (state.ok) {
+                      // Verify41
                       fastParseVerify41(state);
                       if (state.ok) {
                         $0 = $6;
@@ -688,8 +711,10 @@ class TestParser {
                       // v:VerifyFlag VerifyFlag
                       final $2 = state.pos;
                       String? $3;
+                      // VerifyFlag
                       $3 = parseVerifyFlag(state);
                       if (state.ok) {
+                        // VerifyFlag
                         fastParseVerifyFlag(state);
                         if (state.ok) {
                           $0 = $3;
@@ -761,6 +786,7 @@ class TestParser {
     final $4 = state.pos;
     final $3 = state.failPos;
     final $2 = state.errorCount;
+    // Integer
     // Integer
     $0 = parseInteger(state);
     if (state.ok) {

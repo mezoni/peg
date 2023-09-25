@@ -48,6 +48,7 @@ class CalcParser {
     const $1 = ')';
     matchLiteral1(state, 41, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -64,6 +65,7 @@ class CalcParser {
     const $1 = '(';
     matchLiteral1(state, 40, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -104,6 +106,7 @@ class CalcParser {
     // h:Mul t:(op:AddOp expr:Mul)*
     final $1 = state.pos;
     num? $2;
+    // Mul
     $2 = parseMul(state);
     if (state.ok) {
       List<({String op, num expr})>? $3;
@@ -113,9 +116,11 @@ class CalcParser {
         // op:AddOp expr:Mul
         final $6 = state.pos;
         String? $7;
+        // AddOp
         $7 = parseAddOp(state);
         if (state.ok) {
           num? $8;
+          // Mul
           $8 = parseMul(state);
           if (state.ok) {
             $5 = (op: $7!, expr: $8!);
@@ -178,6 +183,7 @@ class CalcParser {
       state.fail(const ErrorExpectedTags(['-', '+']));
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -195,6 +201,7 @@ class CalcParser {
   num? parseExpression(State<StringReader> state) {
     num? $0;
     // Add
+    // Add
     $0 = parseAdd(state);
     return $0;
   }
@@ -208,6 +215,7 @@ class CalcParser {
     // h:Prefix t:(op:MulOp expr:Prefix)*
     final $1 = state.pos;
     num? $2;
+    // Prefix
     $2 = parsePrefix(state);
     if (state.ok) {
       List<({String op, num expr})>? $3;
@@ -217,9 +225,11 @@ class CalcParser {
         // op:MulOp expr:Prefix
         final $6 = state.pos;
         String? $7;
+        // MulOp
         $7 = parseMulOp(state);
         if (state.ok) {
           num? $8;
+          // Prefix
           $8 = parsePrefix(state);
           if (state.ok) {
             $5 = (op: $7!, expr: $8!);
@@ -282,6 +292,7 @@ class CalcParser {
       state.fail(const ErrorExpectedTags(['/', '*']));
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         $0 = $2;
@@ -301,6 +312,7 @@ class CalcParser {
     // @errorHandler(NumberRaw)
     final $2 = state.failPos;
     final $3 = state.errorCount;
+    // NumberRaw
     // NumberRaw
     $0 = parseNumberRaw(state);
     if (!state.ok && state._canHandleError($2, $3)) {
@@ -474,6 +486,7 @@ class CalcParser {
       $2 = state.input.substring($3, state.pos);
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         num? $$;
@@ -502,6 +515,7 @@ class CalcParser {
     state.ok = true;
     if (state.ok) {
       num? $3;
+      // Primary
       $3 = parsePrimary(state);
       if (state.ok) {
         num? $$;
@@ -524,15 +538,19 @@ class CalcParser {
   num? parsePrimary(State<StringReader> state) {
     num? $0;
     // Number
+    // Number
     $0 = parseNumber(state);
     if (!state.ok) {
       // OpenParenthesis v:Number CloseParenthesis
       final $1 = state.pos;
+      // OpenParenthesis
       fastParseOpenParenthesis(state);
       if (state.ok) {
         num? $2;
+        // Number
         $2 = parseNumber(state);
         if (state.ok) {
+          // CloseParenthesis
           fastParseCloseParenthesis(state);
           if (state.ok) {
             $0 = $2;
@@ -553,11 +571,14 @@ class CalcParser {
     num? $0;
     // Spaces v:Expression Eof
     final $1 = state.pos;
+    // Spaces
     fastParseSpaces(state);
     if (state.ok) {
       num? $2;
+      // Expression
       $2 = parseExpression(state);
       if (state.ok) {
+        // @inline Eof = !. ;
         // !.
         state.ok = state.pos >= state.input.length;
         if (!state.ok) {

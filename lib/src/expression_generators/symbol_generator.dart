@@ -60,7 +60,10 @@ endEvent<{{type}}>({{event}}, null, state.ok);''';
             parserName: ruleGenerator.parserName,
             rule: reference)
         .generate();
-    return render(template, values);
+    final buffer = StringBuffer();
+    buffer.writeln(' // $expression');
+    buffer.write(render(template, values));
+    return buffer.toString();
   }
 
   String _generateInline(ProductionRule reference) {
@@ -76,7 +79,8 @@ endEvent<{{type}}>({{event}}, null, state.ok);''';
     final resultType = rule.resultType ??
         expression.resultType ??
         GenericType(name: 'Object', isNullableType: true);
-    values['p'] = generateExpression(child, false);
+    final p = generateExpression(child, false);
+    values['p'] = ' // $rule\n$p';
     if (hasEvent) {
       values['event'] =
           EventsGenerator.getElementFullName(rule, ruleGenerator.parserName);

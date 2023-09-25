@@ -64,11 +64,13 @@ class JsonParser {
     List<Object?>? $0;
     // OpenBracket v:Values CloseBracket
     final $1 = state.pos;
+    // @inline OpenBracket = v:'[' Spaces ;
     // v:'[' Spaces
     final $3 = state.pos;
     const $4 = '[';
     matchLiteral1(state, 91, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -76,13 +78,16 @@ class JsonParser {
     }
     if (state.ok) {
       List<Object?>? $2;
+      // Values
       $2 = parseValues(state);
       if (state.ok) {
+        // @inline CloseBracket = v:']' Spaces ;
         // v:']' Spaces
         final $5 = state.pos;
         const $6 = ']';
         matchLiteral1(state, 93, $6, const ErrorExpectedTags([$6]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
@@ -109,6 +114,7 @@ class JsonParser {
     final $2 = state.failPos;
     final $3 = state.errorCount;
     // HexNumberRaw
+    // int @inline HexNumberRaw = v:$([0-9A-Za-z]{4,4}) ;
     // v:$([0-9A-Za-z]{4,4})
     String? $6;
     final $7 = state.pos;
@@ -181,15 +187,19 @@ class JsonParser {
     final $1 = state.pos;
     String? $2;
     beginEvent(JsonParserEvent.keyEvent);
+    // @inline @event Key = String ;
+    // String
     // String
     $2 = parseString(state);
     $2 = endEvent<String>(JsonParserEvent.keyEvent, $2, state.ok);
     if (state.ok) {
+      // @inline Colon = v:':' Spaces ;
       // v:':' Spaces
       final $5 = state.pos;
       const $6 = ':';
       matchLiteral1(state, 58, $6, const ErrorExpectedTags([$6]));
       if (state.ok) {
+        // Spaces
         fastParseSpaces(state);
       }
       if (!state.ok) {
@@ -197,6 +207,7 @@ class JsonParser {
       }
       if (state.ok) {
         Object? $3;
+        // Value
         $3 = parseValue(state);
         if (state.ok) {
           MapEntry<String, Object?>? $$;
@@ -223,6 +234,7 @@ class JsonParser {
     // @sepBy(KeyValue, Comma)
     MapEntry<String, Object?>? $4;
     // KeyValue
+    // KeyValue
     $4 = parseKeyValue(state);
     if (!state.ok) {
       state.ok = true;
@@ -232,11 +244,13 @@ class JsonParser {
       while (true) {
         final $2 = state.pos;
         // Comma
+        // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
         final $7 = state.pos;
         const $8 = ',';
         matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
@@ -247,6 +261,7 @@ class JsonParser {
           $0 = $3;
           break;
         }
+        // KeyValue
         // KeyValue
         $4 = parseKeyValue(state);
         if (!state.ok) {
@@ -405,6 +420,7 @@ class JsonParser {
       $2 = state.input.substring($3, state.pos);
     }
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
       if (state.ok) {
         num? $$;
@@ -429,11 +445,13 @@ class JsonParser {
     Map<String, Object?>? $0;
     // OpenBrace kv:KeyValues CloseBrace
     final $1 = state.pos;
+    // @inline OpenBrace = v:'{' Spaces ;
     // v:'{' Spaces
     final $3 = state.pos;
     const $4 = '{';
     matchLiteral1(state, 123, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
+      // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
@@ -441,13 +459,16 @@ class JsonParser {
     }
     if (state.ok) {
       List<MapEntry<String, Object?>>? $2;
+      // KeyValues
       $2 = parseKeyValues(state);
       if (state.ok) {
+        // @inline CloseBrace = v:'}' Spaces ;
         // v:'}' Spaces
         final $5 = state.pos;
         const $6 = '}';
         matchLiteral1(state, 125, $6, const ErrorExpectedTags([$6]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
@@ -476,9 +497,11 @@ class JsonParser {
     Object? $0;
     // Spaces v:Value !.
     final $1 = state.pos;
+    // Spaces
     fastParseSpaces(state);
     if (state.ok) {
       Object? $2;
+      // Value
       $2 = parseValue(state);
       if (state.ok) {
         state.ok = state.pos >= state.input.length;
@@ -511,6 +534,7 @@ class JsonParser {
       final $4 = <String>[];
       while (true) {
         String? $5;
+        // String @inline StringChars = $[ -!#-[\]-\u{10ffff}]+ / '\\' v:(EscapeChar / EscapeHex) ;
         // $[ -!#-[\]-\u{10ffff}]+
         final $18 = state.pos;
         var $19 = false;
@@ -545,6 +569,7 @@ class JsonParser {
           if (state.ok) {
             String? $7;
             // EscapeChar
+            // String @inline EscapeChar = c:["/bfnrt\\] ;
             // c:["/bfnrt\\]
             int? $15;
             state.ok = state.pos < state.input.length;
@@ -571,12 +596,14 @@ class JsonParser {
             }
             if (!state.ok) {
               // EscapeHex
+              // String @inline EscapeHex = 'u' v:HexNumber ;
               // 'u' v:HexNumber
               final $10 = state.pos;
               const $12 = 'u';
               matchLiteral1(state, 117, $12, const ErrorExpectedTags([$12]));
               if (state.ok) {
                 int? $11;
+                // HexNumber
                 $11 = parseHexNumber(state);
                 if (state.ok) {
                   String? $$;
@@ -607,11 +634,13 @@ class JsonParser {
         $2 = $4;
       }
       if (state.ok) {
+        // @inline Quote = v:'"' Spaces ;
         // v:'"' Spaces
         final $21 = state.pos;
         const $22 = '"';
         matchLiteral1(state, 34, $22, const ErrorExpectedTags([$22]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
@@ -646,26 +675,33 @@ class JsonParser {
     beginEvent(JsonParserEvent.valueEvent);
     Object? $0;
     // Array
+    // Array
     $0 = parseArray(state);
     if (!state.ok) {
+      // String
       // String
       $0 = parseString(state);
       if (!state.ok) {
         // Object
+        // Object
         $0 = parseObject(state);
         if (!state.ok) {
+          // Array
           // Array
           $0 = parseArray(state);
           if (!state.ok) {
             // Number
+            // Number
             $0 = parseNumber(state);
             if (!state.ok) {
               // True
+              // bool @inline True = 'true' Spaces ;
               // 'true' Spaces
               final $8 = state.pos;
               const $9 = 'true';
               matchLiteral(state, $9, const ErrorExpectedTags([$9]));
               if (state.ok) {
+                // Spaces
                 fastParseSpaces(state);
                 if (state.ok) {
                   bool? $$;
@@ -678,11 +714,13 @@ class JsonParser {
               }
               if (!state.ok) {
                 // False
+                // bool @inline False = 'false' Spaces ;
                 // 'false' Spaces
                 final $5 = state.pos;
                 const $6 = 'false';
                 matchLiteral(state, $6, const ErrorExpectedTags([$6]));
                 if (state.ok) {
+                  // Spaces
                   fastParseSpaces(state);
                   if (state.ok) {
                     bool? $$;
@@ -695,11 +733,13 @@ class JsonParser {
                 }
                 if (!state.ok) {
                   // Null
+                  // Object? @inline Null = 'null' Spaces ;
                   // 'null' Spaces
                   final $2 = state.pos;
                   const $3 = 'null';
                   matchLiteral(state, $3, const ErrorExpectedTags([$3]));
                   if (state.ok) {
+                    // Spaces
                     fastParseSpaces(state);
                     if (state.ok) {
                       Object? $$;
@@ -729,6 +769,7 @@ class JsonParser {
     // @sepBy(Value, Comma)
     Object? $4;
     // Value
+    // Value
     $4 = parseValue(state);
     if (!state.ok) {
       state.ok = true;
@@ -738,11 +779,13 @@ class JsonParser {
       while (true) {
         final $2 = state.pos;
         // Comma
+        // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
         final $7 = state.pos;
         const $8 = ',';
         matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
         if (state.ok) {
+          // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
@@ -753,6 +796,7 @@ class JsonParser {
           $0 = $3;
           break;
         }
+        // Value
         // Value
         $4 = parseValue(state);
         if (!state.ok) {

@@ -2,6 +2,7 @@
 
 - Changes in the implementation of the `_OrderedChoiceGenerator2`.
 - Changes in the implementation of the `_NotPredicateGenerator2`.
+- Changes in the implementation of the `SymbolGenerator`.
 
 ## 1.0.30
 
