@@ -519,7 +519,9 @@ Example:
 A = 'abc' 'def';
 ```
 
-The return value type is `List<Object?>`, the value is `['abc', 'def']`.
+The return value type is `List<Object?>`, the value is `['abc', 'def']`.  
+Although the generator might infer the type of this expression as `List<String>`, it will return a value with the value `List<Object?>`. This is the current design and, in this case, this was done intentionally.
+
 
 Semantic variables allow you to designate the results used and assign names to them.
 
@@ -538,7 +540,7 @@ Example:
 A = a:'abc' b:'def';
 ```
 
-The return value type is `(String a, String b)`, the value is `(a: 'abc', b: 'def')`.
+The return value type is `({String a, String b})`, the value is `(a: 'abc', b: 'def')`.
 
 ```
 A = OpenBrace v:Value CloseBrace';
