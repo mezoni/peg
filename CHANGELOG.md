@@ -1,3 +1,7 @@
+## 1.0.34
+
+- Changes in the file `README.md`.
+
 ## 1.0.33
 
 - Changes in the file `README.md`.

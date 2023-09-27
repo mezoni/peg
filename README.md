@@ -115,6 +115,8 @@ KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
 
 Below is a list of available expressions.
 
+### Orderer choice
+
 Name: `Orderer choice`  
 Operator: `/`  
 Number of operands: 2 or more
@@ -126,7 +128,8 @@ Example:
 ```
 'abc' / 'def'
 ```
-___
+
+### Sequence
 
 Name: `Sequence`  
 Operator: not used  
@@ -139,7 +142,8 @@ Example:
 ```
 'abc' 'def'
 ```
-___
+
+### Optional
 
 Name: `Optional`  
 Operator: `?`  
@@ -152,7 +156,8 @@ Example:
 ```
 'abc'?
 ```
-___
+
+### Zero or more
 
 Name: `Zero or more`  
 Operator: `*`  
@@ -165,7 +170,8 @@ Example:
 ```
 'abc'*
 ```
-___
+
+### One or more
 
 Name: `One or more`  
 Operator: `+`  
@@ -178,7 +184,8 @@ Example:
 ```
 'abc'+
 ```
-___
+
+### Repetition
 
 Name: `Repetition`  
 Operators: `{min,max}` or `{min,}` or `{,max}` or `{n}`  
@@ -232,7 +239,8 @@ Example:
 ```
 [0-9A-Zza-Z]{4}
 ```
-___
+
+### Literal
 
 Name: `Literal`  
 Operator: not used  
@@ -247,7 +255,8 @@ Example:
 ```
 'abc'
 ```
-___
+
+### Character class
 
 Name: `Character class`  
 Operator: not used  
@@ -274,7 +283,8 @@ Example:
 ```
 [^0-9A-Za-z]
 ```
-___
+
+### Slice
 
 Name: `Slice`  
 Operator: `$`  
@@ -287,7 +297,8 @@ Example:
 ```
 $[a-z]*
 ```
-___
+
+### Symbol
 
 Name: `Symbol`  
 Operator: not used  
@@ -300,7 +311,8 @@ Example:
 ```
 number
 ```
-___
+
+### AndPredicate
 
 Name: `AndPredicate`  
 Operator: `&`  
@@ -313,7 +325,8 @@ Example:
 ```
 &[a-z]+
 ```
-___
+
+### NotPredicate
 
 Name: `NotPredicate`  
 Operator: `!`  
@@ -336,7 +349,10 @@ The following meta expression exist in the current version.
 - `@errorHandler`
 - `@matchString`
 - `@sepBy`
+- `@stringChars`
 - `@verify`
+
+### @errorHandler
 
 Name: `@errorHandler`  
 Parameters:
@@ -357,7 +373,8 @@ HexNumber = @errorHandler(HexNumberRaw, {
     error = ErrorMessage(state.pos - state.failPos, 'Expected 4 digit hex number');
   }) ;
 ```
-___
+
+### @matchString
 
 Name: `@matchString`  
 Parameters:
@@ -370,7 +387,8 @@ Example:
 ```
 Sep = @matchString({ separator }) ;
 ```
-___
+
+### @sepBy
 
 Name: `@sepBy`  
 Parameters:
@@ -385,7 +403,7 @@ Example:
 Elements = @sepBy(Element, Separator) ;
 ```
 
-This is an optimized version of the following expression.
+This was an example of an optimized version of the following expression.
 
 ```
 v:(h:Element t:(Separator v:Element)* { $$ = [h, ...t]; })? { $$ = v ?? const []; }
@@ -393,7 +411,46 @@ v:(h:Element t:(Separator v:Element)* { $$ = [h, ...t]; })? { $$ = v ?? const []
 
 Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
 As a result, the grammar becomes more readable, and the generated parser code works more efficiently.
-___
+
+### @stringChars
+
+Name: `stringChars`  
+Parameters:
+- An expression representing an `normalCharacters`
+- An expression representing an `escapeCharacter`
+- An expression representing an `escape`
+
+⚠️ **Important information:**  
+The expressions `normalCharacters` and `escape` must have a result type of `String`.
+
+The `@stringChars` meta expression is intended to add the ability to efficiently parse string characters.  
+The term `string characters` in this case refers to the characters enclosed in quotation marks in string literals.  
+
+Example:
+
+```
+StringChars = @stringChars(
+    $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+,
+    [\\],
+    (EscapeChar / EscapeHex)
+  ) ;
+
+String = '"' v:StringChars Quote ;
+```
+
+This was an example of an optimized version of the following implementation.
+
+```
+String
+StringChars =
+    $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+
+  / [\\] v:(EscapeChar / EscapeHex) ;
+
+String
+String = '"' v:StringChars* Quote { $$ = v.join(); } ;
+```
+
+### @verify
 
 Name: `@verify`  
 Parameters:
