@@ -342,8 +342,8 @@ Example:
 
 ## Meta expressions
 
-Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta-expressions extend the grammar with capabilities that are not present in it.  
-From the point of view of grammar, meta-expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
+Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta expressions extend the grammar with capabilities that are not present in it.  
+From the point of view of grammar, meta expressions should be considered as built-in production rules with certain behavior that cannot be implemented by existing expressions.
 
 The following meta expression exist in the current version.
 - `@errorHandler`
@@ -461,15 +461,15 @@ Parameters:
 To avoid situations where error registration in the `@verify` meta expression handler may be performed incorrectly, the local variable `ParseError? error` is intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered.
 
 The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
-Despite the fact that this meta-expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
+Despite the fact that this meta expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
 What is the meaning of the above statement?  
-As follows from the name of the specified meta-expression, it verifies the result of the processed expression.  
+As follows from the name of the specified meta expression, it verifies the result of the processed expression.  
 If the processed expression fails, the verifier handler is not executed.  
 If the processed expression succeeds, then the verifier handler performs two functions:  
 - Verifies the value of the result of the processed expression
 - Either does nothing, or generates an error based on the verification results
 
-This meta-expression allows you to simply solve the problems that arise when creating context-dependent grammars.  
+This meta expression allows you to simply solve the problems that arise when creating context-dependent grammars.  
 It is recommended to use an empty `Literal` as an expression that always succeeds.  
 At the same time, any available data can be used as verification data (for example, user settings of the parser implemented by the developer).
 
