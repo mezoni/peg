@@ -2,6 +2,7 @@
 
 - Changes in the file `README.md`.
 - Changes in the file `example/json_parser.peg`. Removed result type in rule definitions `Array`and `StringChars`.
+- Added `@stringChars` meta expression. Improves the efficiency of parsing string characters. By definition, `string characters` mean the characters between the opening and closing quotes, including escape sequences.
 
 ## 1.0.32
 

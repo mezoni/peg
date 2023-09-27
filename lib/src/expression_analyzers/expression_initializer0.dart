@@ -109,6 +109,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitStringChars(StringCharsExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitSymbol(SymbolExpression node) {
     _initializeSymbol(node);
   }

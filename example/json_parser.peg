@@ -1,3 +1,14 @@
+%{
+
+void main(List<String> args) {
+  const source = '""';
+  final parser = JsonParser();
+  final result = parseString(parser.parseStart, source);
+  print(result);
+}
+
+}%
+
 %%
 
   String _escape(int charCode) {
@@ -42,11 +53,9 @@ Colon = v:':' Spaces ;
 @inline
 Comma = v:',' Spaces ;
 
-@inline
 String
 EscapeChar = c:["/bfnrt\\] { $$ = _escape(c); } ;
 
-@inline
 String
 EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
 
@@ -101,12 +110,14 @@ Quote = v:'"' Spaces ;
 Spaces = [ \n\r\t]* ;
 
 @inline
-StringChars =
-    $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+
-  / '\\' v:(EscapeChar / EscapeHex);
+StringChars = @stringChars(
+    $[\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]+,
+    [\\],
+    (EscapeChar / EscapeHex)
+  ) ;
 
 String
-String = '"' v:StringChars* Quote { $$ = v.join(); } ;
+String = '"' v:StringChars Quote ;
 
 @inline
 bool

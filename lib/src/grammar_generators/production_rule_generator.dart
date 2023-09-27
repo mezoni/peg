@@ -223,6 +223,13 @@ void {{name}}(State<StringReader> state) {
   }
 
   @override
+  String visitStringChars(StringCharsExpression node) {
+    final generator =
+        StringCharsGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitSymbol(SymbolExpression node) {
     final generator = SymbolGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);

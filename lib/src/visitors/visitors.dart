@@ -33,6 +33,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitSlice(SliceExpression node);
 
+  T visitStringChars(StringCharsExpression node);
+
   T visitSymbol(SymbolExpression node);
 
   T visitVerify(VerifyExpression node);
@@ -115,6 +117,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitSlice(SliceExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitStringChars(StringCharsExpression node) {
     return visitNode(node);
   }
 

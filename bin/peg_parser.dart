@@ -1997,6 +1997,7 @@ class PegParser {
   ///   / ErrorHandler
   ///   / MatchString
   ///   / SepBy
+  ///   / StringChars
   ///   / Verify
   ///   ;
   Expression? parsePrimary(State<StringReader> state) {
@@ -2037,9 +2038,14 @@ class PegParser {
                     // SepBy
                     $0 = parseSepBy(state);
                     if (!state.ok) {
-                      // Verify
-                      // Verify
-                      $0 = parseVerify(state);
+                      // StringChars
+                      // StringChars
+                      $0 = parseStringChars(state);
+                      if (!state.ok) {
+                        // Verify
+                        // Verify
+                        $0 = parseVerify(state);
+                      }
                     }
                   }
                 }
@@ -2553,6 +2559,62 @@ class PegParser {
       if (!state.ok) {
         state.pos = $1;
       }
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// StringChars =
+  ///   '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis
+  ///   ;
+  Expression? parseStringChars(State<StringReader> state) {
+    Expression? $0;
+    // '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis
+    final $1 = state.pos;
+    const $5 = '@stringChars';
+    matchLiteral(state, $5, const ErrorExpectedTags([$5]));
+    if (state.ok) {
+      // OpenParenthesis
+      fastParseOpenParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            Expression? $3;
+            // Expression
+            $3 = parseExpression(state);
+            if (state.ok) {
+              // Comma
+              fastParseComma(state);
+              if (state.ok) {
+                Expression? $4;
+                // Expression
+                $4 = parseExpression(state);
+                if (state.ok) {
+                  // CloseParenthesis
+                  fastParseCloseParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final n = $2!;
+                    final c = $3!;
+                    final e = $4!;
+                    $$ = StringCharsExpression(
+                        normalCharacters: n, escapeCharacter: c, escape: e);
+                    $0 = $$;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
     }
     return $0;
   }

@@ -170,6 +170,13 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitStringChars(StringCharsExpression node) {
+    node.visitChildren(this);
+    final stringType = GenericType(name: 'String');
+    _setResultType(node, stringType);
+  }
+
+  @override
   void visitSymbol(SymbolExpression node) {
     node.visitChildren(this);
     final reference = node.reference!;

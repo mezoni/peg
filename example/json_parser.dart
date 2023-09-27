@@ -1,3 +1,10 @@
+void main(List<String> args) {
+  const source = '""';
+  final parser = JsonParser();
+  final result = parseString(parser.parseStart, source);
+  print(result);
+}
+
 class JsonParser {
   String _escape(int charCode) {
     switch (charCode) {
@@ -94,6 +101,65 @@ class JsonParser {
       state.pos = $1;
     }
     $0 = endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $0, state.ok);
+    return $0;
+  }
+
+  /// String
+  /// EscapeChar =
+  ///   c:["/bfnrt\\]
+  ///   ;
+  String? parseEscapeChar(State<StringReader> state) {
+    String? $0;
+    // c:["/bfnrt\\]
+    int? $2;
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $3 = state.input.readChar(state.pos);
+      state.ok = $3 == 98 ||
+          ($3 < 98
+              ? $3 == 47 || $3 == 34 || $3 == 92
+              : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
+      if (state.ok) {
+        state.pos += state.input.count;
+        $2 = $3;
+      }
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      String? $$;
+      final c = $2!;
+      $$ = _escape(c);
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// String
+  /// EscapeHex =
+  ///   'u' v:HexNumber
+  ///   ;
+  String? parseEscapeHex(State<StringReader> state) {
+    String? $0;
+    // 'u' v:HexNumber
+    final $1 = state.pos;
+    const $3 = 'u';
+    matchLiteral1(state, 117, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      int? $2;
+      // HexNumber
+      $2 = parseHexNumber(state);
+      if (state.ok) {
+        String? $$;
+        final v = $2!;
+        $$ = String.fromCharCode(v);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.pos = $1;
+    }
     return $0;
   }
 
@@ -505,30 +571,33 @@ class JsonParser {
 
   /// String
   /// String =
-  ///   '"' v:StringChars* Quote
+  ///   '"' v:StringChars Quote
   ///   ;
   String? parseString(State<StringReader> state) {
     String? $0;
-    // '"' v:StringChars* Quote
+    // '"' v:StringChars Quote
     final $1 = state.pos;
     const $3 = '"';
     matchLiteral1(state, 34, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
-      List<String>? $2;
-      final $4 = <String>[];
-      while (true) {
+      String? $2;
+      // @inline StringChars = @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex)) ;
+      // @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex))
+      final $15 = state.input;
+      List<String>? $16;
+      String? $17;
+      while (state.pos < $15.length) {
         String? $5;
-        // @inline StringChars = $[ -!#-[\]-\u{10ffff}]+ / '\\' v:(EscapeChar / EscapeHex) ;
         // $[ -!#-[\]-\u{10ffff}]+
-        final $18 = state.pos;
-        var $19 = false;
+        final $8 = state.pos;
+        var $9 = false;
         while (true) {
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $20 = state.input.readChar(state.pos);
-            state.ok = $20 <= 91
-                ? $20 >= 32 && $20 <= 33 || $20 >= 35
-                : $20 >= 93 && $20 <= 1114111;
+            final $10 = state.input.readChar(state.pos);
+            state.ok = $10 <= 91
+                ? $10 >= 32 && $10 <= 33 || $10 >= 35
+                : $10 >= 93 && $10 <= 1114111;
             if (state.ok) {
               state.pos += state.input.count;
             }
@@ -539,102 +608,75 @@ class JsonParser {
           if (!state.ok) {
             break;
           }
-          $19 = true;
+          $9 = true;
         }
-        state.ok = $19;
+        state.ok = $9;
         if (state.ok) {
-          $5 = state.input.substring($18, state.pos);
+          $5 = state.input.substring($8, state.pos);
         }
-        if (!state.ok) {
-          // '\\' v:(EscapeChar / EscapeHex)
-          final $6 = state.pos;
-          const $8 = '\\';
-          matchLiteral1(state, 92, $8, const ErrorExpectedTags([$8]));
-          if (state.ok) {
-            String? $7;
-            // EscapeChar
-            // String @inline EscapeChar = c:["/bfnrt\\] ;
-            // c:["/bfnrt\\]
-            int? $15;
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $16 = state.input.readChar(state.pos);
-              state.ok = $16 == 98 ||
-                  ($16 < 98
-                      ? $16 == 47 || $16 == 34 || $16 == 92
-                      : $16 == 110 ||
-                          ($16 < 110 ? $16 == 102 : $16 == 114 || $16 == 116));
-              if (state.ok) {
-                state.pos += state.input.count;
-                $15 = $16;
-              }
-            }
-            if (!state.ok) {
-              state.fail(const ErrorUnexpectedCharacter());
-            }
-            if (state.ok) {
-              String? $$;
-              final c = $15!;
-              $$ = _escape(c);
-              $7 = $$;
-            }
-            if (!state.ok) {
-              // EscapeHex
-              // String @inline EscapeHex = 'u' v:HexNumber ;
-              // 'u' v:HexNumber
-              final $10 = state.pos;
-              const $12 = 'u';
-              matchLiteral1(state, 117, $12, const ErrorExpectedTags([$12]));
-              if (state.ok) {
-                int? $11;
-                // HexNumber
-                $11 = parseHexNumber(state);
-                if (state.ok) {
-                  String? $$;
-                  final v = $11!;
-                  $$ = String.fromCharCode(v);
-                  $7 = $$;
-                }
-              }
-              if (!state.ok) {
-                state.pos = $10;
-              }
-            }
-            if (state.ok) {
-              $5 = $7;
-            }
-          }
-          if (!state.ok) {
-            state.pos = $6;
+        if (state.ok) {
+          final v = $5!;
+          if ($17 == null) {
+            $17 = v;
+          } else if ($16 == null) {
+            $16 = [$17, v];
+          } else {
+            $16.add(v);
           }
         }
+        final pos = state.pos;
+        // [\\]
+        matchChar(state, 92, const ErrorUnexpectedCharacter(92));
         if (!state.ok) {
-          state.ok = true;
           break;
         }
-        $4.add($5!);
+        String? $6;
+        // (EscapeChar / EscapeHex)
+        // EscapeChar
+        // EscapeChar
+        $6 = parseEscapeChar(state);
+        if (!state.ok) {
+          // EscapeHex
+          // EscapeHex
+          $6 = parseEscapeHex(state);
+        }
+        if (!state.ok) {
+          state.pos = pos;
+          break;
+        }
+        if ($17 == null) {
+          $17 = $6!;
+        } else {
+          if ($16 == null) {
+            $16 = [$17, $6!];
+          } else {
+            $16.add($6!);
+          }
+        }
       }
-      if (state.ok) {
-        $2 = $4;
+      state.ok = true;
+      if ($17 == null) {
+        $2 = '';
+      } else if ($16 == null) {
+        $2 = $17;
+      } else {
+        $2 = $16.join();
       }
       if (state.ok) {
         // @inline Quote = v:'"' Spaces ;
         // v:'"' Spaces
-        final $21 = state.pos;
-        const $22 = '"';
-        matchLiteral1(state, 34, $22, const ErrorExpectedTags([$22]));
+        final $18 = state.pos;
+        const $19 = '"';
+        matchLiteral1(state, 34, $19, const ErrorExpectedTags([$19]));
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.pos = $21;
+          state.pos = $18;
         }
         if (state.ok) {
-          String? $$;
-          final v = $2!;
-          $$ = v.join();
-          $0 = $$;
+          $0 = $2;
         }
       }
     }

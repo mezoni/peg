@@ -90,6 +90,12 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitSepBy(SepByExpression node) {
+    node.visitChildren(this);
+    _setIsOptional(node, true);
+  }
+
+  @override
   void visitSequence(SequenceExpression node) {
     final children = node.expressions;
     final length = children.length;
@@ -103,6 +109,12 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final child = node.expression;
     _setIsOptional(node, child.isOptional);
+  }
+
+  @override
+  void visitStringChars(StringCharsExpression node) {
+    node.visitChildren(this);
+    _setIsOptional(node, true);
   }
 
   @override
@@ -131,11 +143,5 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
         node.isOptional = isOptional;
       }
     }
-  }
-
-  @override
-  void visitSepBy(SepByExpression node) {
-    node.visitChildren(this);
-    _setIsOptional(node, true);
   }
 }

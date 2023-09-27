@@ -177,6 +177,7 @@ Primary =
   / ErrorHandler
   / MatchString
   / SepBy
+  / StringChars
   / Verify ;
 
 Expression
@@ -204,6 +205,9 @@ MatchString = '@matchString' OpenParenthesis b:Block CloseParenthesis { $$ = Mat
 
 Expression
 SepBy = '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis { $$ = SepByExpression(expression: e, separator: s); } ;
+
+Expression
+StringChars = '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
 
 Expression
 Verify = '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = VerifyExpression(expression: e, handler: a); } ;
