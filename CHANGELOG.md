@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Changes in the file  `example_parse_from_stream.dart`.
+
 ## 2.0.0
 
 - Changes in the file `README.md`.

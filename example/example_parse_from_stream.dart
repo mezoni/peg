@@ -22,6 +22,7 @@ Future<void> _parse() {
   final input = parseAsync(parser.parseStart$Async, (result) {
     try {
       result.getResult();
+      completer.complete();
     } catch (e, s) {
       completer.completeError(e, s);
     }
@@ -54,8 +55,8 @@ class _MyCsvParser extends CsvParser {
 
   @override
   R? endEvent<R>(CsvParserEvent event, R? result, bool ok) {
-    if (event == CsvParserEvent.rowEvent) {
-      // Save to database and free up memory.
+    if (ok && event == CsvParserEvent.rowEvent) {
+      // Save one record to the database and free the memory from that record.
       print('Saving to database: $result');
       return const <String>[] as R;
     }
