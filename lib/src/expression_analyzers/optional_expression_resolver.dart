@@ -26,6 +26,13 @@ class OptionalExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitBuffer(BufferExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setIsOptional(node, child.isOptional);
+  }
+
+  @override
   void visitCharacterClass(CharacterClassExpression node) {
     _setIsOptional(node, false);
   }

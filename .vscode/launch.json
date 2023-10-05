@@ -33,6 +33,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
+                "--async",
                 "example/csv_parser.peg"
             ]
         },
@@ -51,7 +52,18 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
+                "--async",
                 "tool/x.peg"
+            ]
+        },
+        {
+            "name": "peg test2",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "--async",
+                "test/test2_parser.peg"
             ]
         }
     ]

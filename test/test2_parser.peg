@@ -1,0 +1,127 @@
+%%
+
+bool flag = false;
+
+String text = '';
+
+%%
+
+Start =
+    (v:AndPredicate AndPredicate)
+  / (v:AnyCharacter AnyCharacter)
+  / (v:Buffer Buffer)
+  / (v:CharacterClass CharacterClass)
+  / (v:CharacterClassChar32 CharacterClassChar32)
+  / (v:CharacterClassRange32 CharacterClassRange32)
+  / (v:ErrorHandler ErrorHandler)
+  / (v:Eof Eof)
+  / (v:Literal0 Literal0)
+  / (v:Literal1 Literal1)
+  / (v:Literal2 Literal2)
+  / (v:Literals Literals)
+  / (v:MatchString MatchString)
+  / (v:NotPredicate NotPredicate)
+  / (v:OneOrMore OneOrMore)
+  / (v:OrderedChoice2 OrderedChoice2)
+  / (v:OrderedChoice3 OrderedChoice3)
+  / (v:Optional Optional)
+  / (v:RepetitionMax RepetitionMax)
+  / (v:RepetitionMin RepetitionMin)
+  / (v:RepetitionMinMax RepetitionMinMax)
+  / (v:RepetitionN RepetitionN)
+  / (v:SepBy SepBy)
+  / (v:Sequence1 Sequence1)
+  / (v:Sequence1WithAction Sequence1WithAction)
+  / (v:Sequence1WithVariable Sequence1WithVariable)
+  / (v:Sequence1WithVariable Sequence1WithVariable)
+  / (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+  / (v:Sequence2 Sequence2)
+  / (v:Sequence2WithAction Sequence2WithAction)
+  / (v:Sequence2WithVariable Sequence2WithVariable)
+  / (v:Sequence2WithVariables Sequence2WithVariables)
+  / (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+  / (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+  / (v:Slice Slice)
+  / (v:StringChars StringChars)
+  / (v:Verify Verify)
+  / (v:ZeroOrMore ZeroOrMore)
+  ;
+
+AndPredicate = &([0] [1] [2]) [0] [1] [2] ;
+
+AnyCharacter = . ;
+
+Buffer = @buffer(([0] [1] [2])) / ([0] [1]) ;
+
+CharacterClass = [0-9] ;
+
+CharacterClassChar32 = [🚀] ;
+
+CharacterClassRange32 = [ -🚀] ;
+
+ErrorHandler = @errorHandler([0], {
+    rollbackErrors = true;
+    error = const ErrorMessage(0, 'error');
+  }) ;
+
+Eof = [0] !. ;
+
+Literal0 = '' ;
+
+Literal1 = '0' ;
+
+Literal2 = '01' ;
+
+Literals = '012' / '01' ;
+
+MatchString = @matchString({ text }) ;
+
+NotPredicate = !([0] [1] [2]) [0] [1] ;
+
+OneOrMore = [0]+ ;
+
+OrderedChoice2 = [0] / [1] ;
+
+OrderedChoice3 = [0] / [1] / [2] ;
+
+Optional = [0]? [1] ;
+
+RepetitionMax = [🚀]{,3} ;
+
+RepetitionMin = [🚀]{3,} / [🚀] ;
+
+RepetitionMinMax = [🚀]{2,3} / [🚀] ;
+
+RepetitionN = [🚀]{3} / [🚀] ;
+
+SepBy = @sepBy([0], [,]) ;
+
+Sequence1 = [0] ;
+
+Sequence1WithAction = [0] <int>{ $$ = 0x30; } ;
+
+Sequence1WithVariable = v:[0] ;
+
+Sequence1WithVariableWithAction = v:[0] <int>{ $$ = v; } ;
+
+Sequence2 = [0] [1] ;
+
+Sequence2WithAction = [0] [1] <int>{ $$ = 0x30; } ;
+
+Sequence2WithVariable = v:[0] [1] ;
+
+Sequence2WithVariables = v1:[0] v2:[1] ;
+
+Sequence2WithVariableWithAction = v:[0] [1] <int>{ $$ = v; } ;
+
+Sequence2WithVariablesWithAction = v1:[0] v2:[1] <int>{ $$ = v1 + v2; } ;
+
+Slice = $([0] [1] [2]) / $([0] [1]);
+
+StringChars = @stringChars($[0-9]+, [\\], [t] <String>{ $$ = '\t'; }) ;
+
+Verify = @verify(., {
+    if ($$ != 0x30) { error = const ErrorMessage(0, 'error'); }
+  }) ;
+
+ZeroOrMore = [0]* ;

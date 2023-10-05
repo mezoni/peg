@@ -40,6 +40,13 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitBuffer(BufferExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getResultType(child));
+  }
+
+  @override
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
     _setResultType(node, GenericType(name: 'int'));

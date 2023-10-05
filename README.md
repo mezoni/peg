@@ -1,8 +1,8 @@
 # peg
 
-A command line tool for generating top-down parsers from a parsing expression grammars (PEG).
+A command line tool for generating (streaming, chunk, file) top-down parsers from a parsing expression grammars (PEG).
 
-Version: 1.0.33
+Version: 2.0.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -599,6 +599,142 @@ The `@event` instruction indicates to the generator that for this rule, when par
 The `@inline` instruction indicates to the generator that the source code of this production rule should not create a separate method in the parser class and should be generated as code embedded in the method that calls this rule.
 
 The `@memoize` instruction is not implemented in the current version.
+
+## Streaming parsing
+
+### A few words as an introduction
+
+The term `streaming parsing` means the possibility of asynchronous data parsing.  
+The term `asynchronous parsing` means the possibility of parsing data by chunks.  
+The term `chunked parsing` means analyzing data in parts as those parts become available.  
+
+The implementation of data parsing in parts differs from regular parsing in at least two ways:
+1. The entire input data for parsing is not available
+2. Backtracking is not possible without buffering of input data
+
+The first specificity is not a difficult task to solve, since it can be solved using special parsing algorithms.  
+That is, it can be solved without any action on the part of the grammar developer.  
+The second specificity is not too easy to solve and requires special attention. In this case, buffering certain data. Both automatic and forced buffering.
+
+### What is buffering of input data
+
+Buffering is a way to ensure that sufficient input data is available.  
+At the same time, buffering solves two tasks:
+1. Accumulation of sufficient input data to perform parsing by expression
+2. Caching input data for backtracking if expression parsing fails
+
+Accumulation of sufficient input data is a fairly simple task.  
+All expressions in this sense are self-sufficient and cope with this work themselves.
+
+Caching input data for backtracking is not a trivial task.  
+The main problem is that not all expressions buffer input data and, in this case, there will simply be no (buffered) input data to perform backtracking.  
+But this does not mean that this is a difficult or insoluble task.
+
+### How and what do expressions buffer?
+
+Expressions buffer only the data necessary to ensure a backtracking if parsing fails.  
+But what would happen if all expressions were able to provide this?  
+If this happens then this would defeat the purpose of implementing streaming parsing and would result in the buffer gradually filling up with entire input data.
+
+To minimize buffer overload, not all expressions buffer input data.
+
+Below is a list of expressions and meta expressions and what they buffer.
+- The `AndPredicate` expression buffers the child expression
+- The `AnyCharacter` expression buffers itself
+- The `Buffer` expression buffers the child expression
+- The `CharacterClass` expression buffers itself
+- The `ErrorHandlerClass` meta expression does not buffer anything
+- The `Literal` expression buffers itself
+- The `NotPredicate` expression buffers the child expression
+- The `OneOrMore` expression does not buffer itself, buffers only the current child expression in the iteration
+- The `Optional` expression buffers the child expression
+- The `OrderedChoice` expression does not buffer anything
+- The `Repetition{m,}` at the beginning the expression buffers itself up to `m` iterations, and after that it buffers only the current child expression in the iteration
+- The `Repetition{m,n}` at the beginning the expression buffers itself up to `m` iterations, and after that it buffers only the current child expression in the iteration
+- The `Repetition{,n}` expression does not buffer itself, buffers only the current child expression in the iteration
+- The `Repetition{n}` expression buffers itself
+- The `SepBy` meta expression does not buffer itself, buffers only the current child expressions in the iteration
+- The `Sequence` expression does not buffer anything
+- The `Slice` expression buffers the child expression
+- The `StringChars` meta expression does not buffer itself, buffers only the current child expression (combination) in the iteration
+- The `Symbol` expression does not buffer anything
+- The `Verify` meta expression buffers the child expression
+- The `ZeroOrMore` expression does not buffer itself, buffers only the current child expression in the iteration
+
+
+
+How then to implement the possibility of backtracking?  
+The answer to this question lies in the question itself (to a large extent).  
+If you need it, then force it.  
+It's not difficult to force it. The meta expression `Buffer` serves this purpose.  
+It would seem that everything is simple, but the question remains unclear in what cases to use forced buffering.  
+
+### The reason to use forced buffering
+
+If one of the previous (alternative) expressions in the expression `OrderedChoice` can fail not at the current parse position, but after moving forward, then in this case such an expression must be buffered forcibly.  
+This must be done only directly in the expression `OrderedChoice` in accordance with the logic of the work of only this expression `OrderedChoice`.
+
+The simplest example.
+
+```
+Choice =
+    A B C # 1
+  / A B   # 2
+  / X     # 3
+  ;
+A = 'a' ;
+B = 'b' ;
+C = 'c' ;
+X = 'x' ;
+```
+
+If parsing the expression `#1` fails to parse the expression `C`, then the expression `#2` may be left without input data if the buffer does not contain the required data (`ab`). Because they have already been successfully parsed during the partially unsuccessful parsing of the expression `#1` and quite possibly also flushed from the buffer.  
+At the same time, this will not have any effect on the parsing of the `X` expression.  
+
+In this case, this is solved simply, which in principle does not mean that taking this into account is just as simple.
+
+```
+Choice =
+   @buffer(A B C)
+  / A B
+  / X
+  ;
+A = 'a' ;
+B = 'b' ;
+C = 'c' ;
+X = 'x' ;
+```
+
+That is, always in such cases.
+
+```
+Choice =
+    @buffer(A B C)
+  / @buffer(A B)
+  / A
+  / M N
+  / @buffer(XY)
+  / X
+  ;
+
+XY = X Y ;
+```
+
+In principle, this can be done in a way that is more convenient.  
+For example like this.
+
+```
+Choice =
+    XY
+  / X
+  ;
+
+XY = @buffer(X Y) ;
+```
+
+That is, if the subsequent expression begins with the same character as the previous one, then it is necessary to buffer the previous expression.  
+Perhaps in subsequent versions this will be implemented at the generator level, but nevertheless, the most reliable solution is to do this explicitly in the description of the grammar.  
+
 
 ## Code snippets
 

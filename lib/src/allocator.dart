@@ -4,4 +4,8 @@ class Allocator {
   String allocate() {
     return '\$${_id++}';
   }
+
+  void reset() {
+    _id = 0;
+  }
 }

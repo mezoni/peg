@@ -7,6 +7,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitAnyCharacter(AnyCharacterExpression node);
 
+  T visitBuffer(BufferExpression node);
+
   T visitCharacterClass(CharacterClassExpression node);
 
   T visitErrorHandler(ErrorHandlerExpression node);
@@ -50,6 +52,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitAnyCharacter(AnyCharacterExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitBuffer(BufferExpression node) {
     return visitNode(node);
   }
 

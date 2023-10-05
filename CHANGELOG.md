@@ -1,6 +1,25 @@
-## 1.0.34
+## 2.0.0
 
 - Changes in the file `README.md`.
+- Added example file `example_parse_from_stream.dart`.
+- Implemented support for generating asynchronous code in the `ProductionRuleGenerator` generator.
+- Implemented support for generating asynchronous code in the `AndPredicateGenerator` generator.
+- Implemented support for generating asynchronous code in the `AnyCharacterGenerator` generator.
+- Implemented support for generating asynchronous code in the `BufferGenerator` generator.
+- Implemented support for generating asynchronous code in the `CharacterClassGenerator` generator.
+- Implemented support for generating asynchronous code in the `ErrorHandlerClassGenerator` generator.
+- Implemented support for generating asynchronous code in the `LiteralGenerator` generator.
+- Implemented support for generating asynchronous code in the `NotPredicateGenerator` generator.
+- Implemented support for generating asynchronous code in the `OneOrMoreGenerator` generator.
+- Implemented support for generating asynchronous code in the `OptionalGenerator` generator.
+- Implemented support for generating asynchronous code in the `OrderedChoiceGenerator` generator.
+- Implemented support for generating asynchronous code in the `RepetitionGenerator` generator.
+- Implemented support for generating asynchronous code in the `SepByGenerator` generator.
+- Implemented support for generating asynchronous code in the `SequenceGenerator` generator.
+- Implemented support for generating asynchronous code in the `SliceGenerator` generator.
+- Implemented support for generating asynchronous code in the `StringCharsGenerator` generator.
+- Implemented support for generating asynchronous code in the `VerifyGenerator` generator.
+- Implemented support for generating asynchronous code in the `ZeroOrMoreGenerator` generator.
 
 ## 1.0.33
 

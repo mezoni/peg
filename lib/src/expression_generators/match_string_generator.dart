@@ -2,34 +2,6 @@ import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
 class MatchStringGenerator extends ExpressionGenerator<MatchStringExpression> {
-  static const _template = '''
-final {{literal}} = {{string}};
-if ({{literal}}.isEmpty) {
-  state.ok = true;
-  {{r}} = '';
-} else {
-  state.ok = state.input.startsWith({{literal}}, state.pos);
-  if (state.ok) {
-    state.pos += state.input.count;
-    {{r}} = {{literal}};
-  } else {
-    state.fail(ErrorExpectedTags([{{literal}}]));
-  }
-}''';
-
-  static const _templateNoResult = '''
-final {{literal}} = {{string}};
-if ({{literal}}.isEmpty) {
-  state.ok = true;
-} else {
-  state.ok = state.input.startsWith({{literal}}, state.pos);
-  if (state.ok) {
-    state.pos += state.input.count;
-  } else {
-    state.fail(ErrorExpectedTags([{{literal}}]));
-  }
-}''';
-
   MatchStringGenerator({
     required super.expression,
     required super.ruleGenerator,
@@ -39,10 +11,54 @@ if ({{literal}}.isEmpty) {
   String generate() {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    values['literal'] = allocateName();
-    values['string'] = expression.string;
-    values['r'] = variable ?? '';
-    final template = variable != null ? _template : _templateNoResult;
+    values['string'] = allocateName();
+    values['value'] = expression.value;
+    if (variable != null) {
+      values['assign_result'] = '$variable = ';
+    } else {
+      values['assign_result'] = '';
+    }
+
+    const template = '''
+final {{string}} = {{value}};
+{{assign_result}}matchLiteral(state, {{string}}, ErrorExpectedTags([{{string}}]));''';
     return render(template, values);
+  }
+
+  @override
+  void generateAsync() {
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+    final value = expression.value;
+    final input = allocateName();
+    final string = allocateName();
+
+    asyncGenerator.writeln('state.input.beginBuffering();');
+    asyncGenerator.moveToNewState();
+
+    {
+      final values = <String, String>{};
+      values['handle'] = asyncGenerator.functionName;
+      values['input'] = input;
+      values['string'] = string;
+      values['value'] = value;
+      if (variable != null) {
+        values['assign_result'] = '$variable = ';
+      } else {
+        values['assign_result'] = '';
+      }
+
+      const template = '''
+final {{input}} = state.input;
+final {{string}} = {{value}};
+if (state.pos + {{string}}.length - 1 >= {{input}}.end && !{{input}}.isClosed) {
+  {{input}}.sleep = true;
+  {{input}}.handle = {{handle}};
+  return;
+}
+{{assign_result}}matchLiteralAsync(state, {{string}}, ErrorExpectedTags([{{string}}]));
+{{input}}.endBuffering(state.pos);''';
+      asyncGenerator.render(template, values);
+    }
   }
 }

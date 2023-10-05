@@ -1,5 +1,8 @@
+export '../type_system/result_type.dart';
+export '../visitors/visitors.dart';
 export 'and_predicate_expression.dart';
 export 'any_character_expression.dart';
+export 'buffer_expression.dart';
 export 'character_class_expression.dart';
 export 'error_handler_expression.dart';
 export 'expression.dart';

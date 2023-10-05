@@ -3,24 +3,6 @@ import 'expression_generator.dart';
 
 class AnyCharacterGenerator
     extends ExpressionGenerator<AnyCharacterExpression> {
-  static const _template = '''
-if (state.pos < state.input.length) {
-  {{r}} = state.input.readChar(state.pos);
-  state.pos += state.input.count;
-  state.ok = true;
-} else {
-  state.fail(const ErrorUnexpectedEndOfInput());
-}''';
-
-  static const _templateNoResult = '''
-if (state.pos < state.input.length) {
-  state.input.readChar(state.pos);
-  state.pos += state.input.count;
-  state.ok = true;
-} else {
-  state.fail(const ErrorUnexpectedEndOfInput());
-}''';
-
   AnyCharacterGenerator({
     required super.expression,
     required super.ruleGenerator,
@@ -30,14 +12,70 @@ if (state.pos < state.input.length) {
   String generate() {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    var template = '';
+    final input = allocateName();
+    values['input'] = input;
     if (variable != null) {
-      values['r'] = variable;
-      template = _template;
+      values['assign_result'] = '$variable = ';
     } else {
-      template = _templateNoResult;
+      values['assign_result'] = '';
     }
 
+    const template = '''
+final {{input}} = state.input;
+if (state.pos < {{input}}.length) {
+  {{assign_result}}{{input}}.readChar(state.pos);
+  state.pos += {{input}}.count;
+  state.ok = true;
+} else {
+  state.fail(const ErrorUnexpectedEndOfInput());
+}''';
     return render(template, values);
+  }
+
+  @override
+  void generateAsync() {
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+
+    {
+      asyncGenerator.writeln('state.input.beginBuffering();');
+      asyncGenerator.moveToNewState();
+    }
+
+    {
+      final values = <String, String>{};
+      values['handle'] = asyncGenerator.functionName;
+      values['input'] = allocateName();
+      if (variable != null) {
+        values['assign_result'] = '$variable = c;';
+        values['clear_result'] = '$variable = null;';
+      } else {
+        values['assign_result'] = '';
+        values['clear_result'] = '';
+      }
+
+      const template = '''
+final {{input}} = state.input;
+if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
+  {{input}}.sleep = true;
+  {{input}}.handle = {{handle}};
+  return;
+}
+{{clear_result}}
+if (state.pos >= {{input}}.start) {
+  state.ok = state.pos < {{input}}.end;
+  if (state.ok) {
+    final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
+    state.pos += c > 0xffff ? 2 : 1;
+    {{assign_result}}
+  } else {
+    state.fail(const ErrorUnexpectedEndOfInput());
+  }
+} else {
+  state.fail(ErrorBacktracking({{input}}.start - state.pos));
+}
+{{input}}.endBuffering(state.pos);''';
+      asyncGenerator.render(template, values);
+    }
   }
 }

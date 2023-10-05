@@ -49,8 +49,13 @@ class SequenceExpression extends MultipleExpression {
 
       return '$e';
     }).join(' '));
-    if (action != null) {
-      //buffer.write(action);
+    if (action case final action?) {
+      buffer.write(' ');
+      if (action.resultType != null) {
+        buffer.write('<$resultType>');
+      }
+
+      buffer.write('{}');
     }
 
     return buffer.toString();

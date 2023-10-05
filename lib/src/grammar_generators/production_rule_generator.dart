@@ -1,43 +1,19 @@
 import '../allocator.dart';
+import '../async_generator.dart';
 import '../expression_generators/expression_generators.dart';
-import '../expression_generators/sep_by_generator.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
 import '../visitors/visitors.dart';
 import 'events_generator.dart';
 
 class ProductionRuleGenerator extends ExpressionVisitor<String> {
-  static const _template = '''
-{{type}} {{name}}(State<StringReader> state) {
-  {{type}} {{r}};
-  {{expression}}
-  return {{r}};
-}''';
-
-  static const _templateNoResult = '''
-void {{name}}(State<StringReader> state) {
-  {{expression}}
-}''';
-
-  static const _templateWithEvent = '''
-{{type}} {{name}}(State<StringReader> state) {
-  beginEvent({{event}});
-  {{type}} {{r}};
-  {{expression}}
-  {{r}} = endEvent<{{eventType}}>({{event}}, {{r}}, state.ok);
-  return {{r}};
-}''';
-
-  static const _templateWithEventNoResult = '''
-void {{name}}(State<StringReader> state) {
-  beginEvent({{event}});
-  {{expression}}
-  endEvent<Object?>({{event}}, null, state.ok);
-}''';
-
   final Allocator allocator;
 
+  late final AsyncGenerator asyncGenerator;
+
   final Map<String, String> generatedRules;
+
+  final bool isAsync;
 
   final bool isFast;
 
@@ -45,11 +21,14 @@ void {{name}}(State<StringReader> state) {
 
   final ProductionRule rule;
 
-  final Map<Expression, String> _nodeVariables = {};
+  final Map<Expression, String> _expressionVariables = {};
+
+  bool _isAsync = false;
 
   ProductionRuleGenerator({
     required this.allocator,
     required this.generatedRules,
+    required this.isAsync,
     required this.isFast,
     required this.parserName,
     required this.rule,
@@ -57,57 +36,211 @@ void {{name}}(State<StringReader> state) {
 
   String allocateExpressionVariable(Expression node) {
     final name = _allocateVariable();
-    _nodeVariables[node] = name;
+    _expressionVariables[node] = name;
     return name;
   }
 
   void generate() {
-    final methodName = getMethodName(rule, isFast);
-    if (generatedRules.containsKey(methodName)) {
-      return;
-    }
-
-    final values = <String, String>{};
     final expression = rule.expression;
     final hasEvent = rule.hasEvent();
-    if (hasEvent) {
-      values['event'] = EventsGenerator.getElementFullName(rule, parserName);
-    }
-
-    generatedRules[methodName] = '';
-    values['name'] = methodName;
-    var template = '';
-    if (isFast) {
-      if (hasEvent) {
-        template = _templateWithEventNoResult;
-      } else {
-        template = _templateNoResult;
-      }
-    } else {
-      final resultType = rule.resultType ??
-          expression.resultType ??
-          GenericType(name: 'Object', isNullableType: true);
-      values['type'] = resultType.getNullableType().toString();
-      values['r'] = allocateExpressionVariable(expression);
-      if (hasEvent) {
-        values['eventType'] = '$resultType';
-        template = _templateWithEvent;
-      } else {
-        template = _template;
-      }
-    }
-
-    values['expression'] = expression.accept(this);
     final ruleParts = _productionRuleToPrintableList();
+    final resultType = rule.resultType ?? expression.resultType!;
     var comment = '/// ';
     comment += ruleParts.join('\n/// ');
-    template = '$comment\n$template';
-    final source = helper.render(template, values);
-    generatedRules[methodName] = source;
+    final modes = [false, if (isAsync) true];
+    for (final isAsync in modes) {
+      _isAsync = isAsync;
+      _expressionVariables.clear();
+      allocator.reset();
+      var methodName = '';
+      if (!isAsync) {
+        methodName = getMethodName(rule, isFast);
+      } else {
+        methodName = getAsyncMethodName(rule, isFast);
+      }
+
+      if (generatedRules.containsKey(methodName)) {
+        continue;
+      }
+
+      final values = <String, String>{};
+
+      String? asyncResult;
+      if (isAsync) {
+        asyncResult = allocator.allocate();
+        final stateVariable = allocator.allocate();
+        final functionName = allocator.allocate();
+        asyncGenerator = AsyncGenerator(
+          functionName: functionName,
+          stateVariable: stateVariable,
+        );
+        values['async_result'] = asyncResult;
+        values['state_machine'] = asyncGenerator.functionName;
+      }
+
+      String? variable;
+      if (!isFast) {
+        variable = allocateExpressionVariable(expression);
+        values['r'] = variable;
+      }
+
+      String event = '__unknown_event__';
+      if (hasEvent) {
+        event = EventsGenerator.getElementFullName(rule, parserName);
+        values['event'] = event;
+      }
+
+      generatedRules[methodName] = '';
+      values['name'] = methodName;
+      values['nullable_type'] = resultType.getNullableType().toString();
+      values['type'] = '$resultType';
+      var template = '';
+      if (isFast) {
+        if (hasEvent) {
+          if (!isAsync) {
+            template = '''
+void {{name}}(State<StringReader> state) {
+  beginEvent({{event}});
+  {{expression}}
+  endEvent<Object?>({{event}}, null, state.ok);
+}''';
+          } else {
+            template = '''
+AsyncResult<Object?> {{name}}(State<ChunkedParsingSink> state) {
+  final {{async_result}} = AsyncResult<Object?>();
+  beginEvent({{event}});
+  {{expression}}
+  {{state_machine}}();
+  return {{async_result}};
+}''';
+          }
+        } else {
+          if (!isAsync) {
+            template = '''
+void {{name}}(State<StringReader> state) {
+  {{expression}}
+}''';
+          } else {
+            template = '''
+AsyncResult<Object?> {{name}}(State<ChunkedParsingSink> state) {
+  final {{async_result}} = AsyncResult<Object?>();
+  {{expression}}
+  {{state_machine}}();
+  return {{async_result}};
+}''';
+          }
+        }
+      } else {
+        if (hasEvent) {
+          if (!isAsync) {
+            template = '''
+{{nullable_type}} {{name}}(State<StringReader> state) {
+  beginEvent({{event}});
+  {{nullable_type}} {{r}};
+  {{expression}}
+  {{r}} = endEvent<{{type}}>({{event}}, {{r}}, state.ok);
+  return {{r}};
+}''';
+          } else {
+            template = '''
+AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
+  final {{async_result}} = AsyncResult<{{type}}>();
+  beginEvent({{event}});
+  {{nullable_type}} {{r}};
+  {{expression}}
+  {{state_machine}}();
+  return {{async_result}};
+}''';
+          }
+        } else {
+          if (!isAsync) {
+            template = '''
+{{nullable_type}} {{name}}(State<StringReader> state) {
+  {{nullable_type}} {{r}};
+  {{expression}}
+  return {{r}};
+}''';
+          } else {
+            template = '''
+AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
+  final {{async_result}} = AsyncResult<{{type}}>();
+  {{nullable_type}} {{r}};
+  {{expression}}
+  {{state_machine}}();
+  return {{async_result}};
+}''';
+          }
+        }
+      }
+
+      if (!isAsync) {
+        values['expression'] = expression.accept(this);
+      } else {
+        void generateLastAction() {
+          final values = <String, String>{};
+          values['ar'] = asyncResult!;
+          values['state'] = asyncGenerator.stateVariable;
+          var template = '';
+          if (isFast) {
+            if (hasEvent) {
+              values['event'] = event;
+              values['type'] = '$resultType';
+              template = '''
+endEvent<{{type}}>({{event}}, null, state.ok);
+{{ar}}.isComplete = true;
+state.input.handle = {{ar}}.onComplete;
+{{state}} = -1;
+return;''';
+            } else {
+              template = '''
+{{ar}}.isComplete = true;
+state.input.handle = {{ar}}.onComplete;
+{{state}} = -1;
+return;''';
+            }
+          } else {
+            values['r'] = variable!;
+            if (hasEvent) {
+              values['event'] = event;
+              values['type'] = '$resultType';
+              template = '''
+{{r}} = endEvent<{{type}}>({{event}}, {{r}}, state.ok);
+{{ar}}.value = {{r}};
+{{ar}}.isComplete = true;
+state.input.handle = {{ar}}.onComplete;
+{{state}} = -1;
+return;''';
+            } else {
+              template = '''
+{{ar}}.value = {{r}};
+{{ar}}.isComplete = true;
+state.input.handle = {{ar}}.onComplete;
+{{state}} = -1;
+return;''';
+            }
+          }
+
+          asyncGenerator.render(template, values);
+        }
+
+        expression.accept(this);
+        generateLastAction();
+        values['expression'] = asyncGenerator.generate();
+      }
+
+      template = '$comment\n$template';
+      final source = helper.render(template, values);
+      generatedRules[methodName] = source;
+    }
+  }
+
+  String getAsyncMethodName(ProductionRule rule, bool isFast) {
+    final name = getMethodName(rule, isFast);
+    return '$name\$Async';
   }
 
   String? getExpressionVariable(Expression node) {
-    return _nodeVariables[node];
+    return _expressionVariables[node];
   }
 
   String getMethodName(ProductionRule rule, bool isFast) {
@@ -119,8 +252,12 @@ void {{name}}(State<StringReader> state) {
     return 'parse$name';
   }
 
+  void removeExpressionVariable(Expression node) {
+    _expressionVariables.remove(node);
+  }
+
   String setExpressionVariable(Expression node, String variable) {
-    _nodeVariables[node] = variable;
+    _expressionVariables[node] = variable;
     return variable;
   }
 
@@ -135,6 +272,12 @@ void {{name}}(State<StringReader> state) {
   String visitAnyCharacter(AnyCharacterExpression node) {
     final generator =
         AnyCharacterGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitBuffer(BufferExpression node) {
+    final generator = BufferGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -253,7 +396,12 @@ void {{name}}(State<StringReader> state) {
   }
 
   String _generate(ExpressionGenerator generator) {
-    return generator.generate();
+    if (!_isAsync) {
+      return generator.generate();
+    }
+
+    generator.generateAsync();
+    return '';
   }
 
   List<String> _productionRuleToPrintableList() {

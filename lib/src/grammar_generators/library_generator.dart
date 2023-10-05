@@ -18,10 +18,13 @@ class LibraryGenerator {
 
   final Grammar grammar;
 
+  final bool isAsync;
+
   final String parserName;
 
   LibraryGenerator({
     required this.filename,
+    required this.isAsync,
     required this.grammar,
     required this.parserName,
   });
@@ -30,8 +33,9 @@ class LibraryGenerator {
     final values = <String, String>{};
     values['globals'] = grammar.globals ?? '';
     final classGenerator = ClassGenerator(
-      parserName: parserName,
       grammar: grammar,
+      isAsync: isAsync,
+      parserName: parserName,
     );
     values['parser_class'] = classGenerator.generate();
     final eventsGenerator =

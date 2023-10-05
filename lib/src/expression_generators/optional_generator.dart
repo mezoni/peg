@@ -2,31 +2,6 @@ import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
 class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
-  static const _template = '''
-{{p}}
-state.ok = true;''';
-
-  // ignore: unused_field
-  static const _templateAsync = '''
-final result = AsyncResult<{{O}}?>();
-final input = state.input;
-final r = {{p}}(state);
-void parse() {
-  result.isComplete = true;
-  if (state.ok) {
-    result.value = r.value;
-  } else {
-    state.ok = true;
-  }
-}
-
-if (r.isComplete) {
-  parse();
-} else {
-  r.handle = parse;
-}
-return result;''';
-
   OptionalGenerator({
     required super.expression,
     required super.ruleGenerator,
@@ -41,6 +16,32 @@ return result;''';
     }
 
     values['p'] = generateExpression(child, false);
-    return render(_template, values);
+    const template = '''
+{{p}}
+state.ok = true;''';
+    return render(template, values);
+  }
+
+  @override
+  void generateAsync() {
+    final child = expression.expression;
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+    if (variable != null) {
+      ruleGenerator.setExpressionVariable(child, variable);
+    }
+
+    asyncGenerator.writeln('state.input.beginBuffering();');
+    generateAsyncExpression(child, false);
+    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
+
+    {
+      final values = <String, String>{};
+      const template = '''
+ if (!state.ok) {
+  state.ok = true;
+}''';
+      asyncGenerator.render(template, values);
+    }
   }
 }

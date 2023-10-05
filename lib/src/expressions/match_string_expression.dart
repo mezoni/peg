@@ -1,10 +1,10 @@
 import 'expression.dart';
 
 class MatchStringExpression extends Expression {
-  final String string;
+  final String value;
 
   MatchStringExpression({
-    required this.string,
+    required this.value,
   });
 
   @override

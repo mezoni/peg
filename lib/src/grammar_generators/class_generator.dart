@@ -29,6 +29,30 @@ class {{className}} {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  int? matchCharAsync(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(input.start - state.pos));
+      return null;
+    }
+    state.ok = state.pos < input.end;
+    if (state.ok) {
+      final c = input.data.runeAt(state.pos - input.start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos += c > 0xffff ? 2 : 1;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   String? matchLiteral(
       State<StringReader> state, String string, ParseError error) {
     final input = state.input;
@@ -56,6 +80,44 @@ class {{className}} {
     state.fail(error);
     return null;
   }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
+      String string, ParseError error) {
+    final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(input.start - state.pos));
+      return null;
+    }
+    state.ok = state.pos < input.end &&
+        input.data.runeAt(state.pos - input.start) == char;
+    if (state.ok) {
+      state.pos += char > 0xffff ? 2 : 1;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteralAsync(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(input.start - state.pos));
+      return null;
+    }
+    state.ok = state.pos <= input.end &&
+        input.data.startsWith(string, state.pos - input.start);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
 }''';
 
   static const _templateEvents = '''
@@ -69,10 +131,13 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
 
   final Grammar grammar;
 
+  final bool isAsync;
+
   final String parserName;
 
   ClassGenerator({
     required this.grammar,
+    required this.isAsync,
     required this.parserName,
   }) {
     if (grammar.start == null) {
@@ -90,6 +155,7 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
             allocator: Allocator(),
             generatedRules: generatedRules,
             isFast: false,
+            isAsync: isAsync,
             parserName: parserName,
             rule: start)
         .generate();

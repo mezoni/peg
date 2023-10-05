@@ -1,8 +1,8 @@
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
-class GroupGenerator extends ExpressionGenerator<GroupExpression> {
-  GroupGenerator({
+class BufferGenerator extends ExpressionGenerator<BufferExpression> {
+  BufferGenerator({
     required super.expression,
     required super.ruleGenerator,
   });
@@ -21,11 +21,14 @@ class GroupGenerator extends ExpressionGenerator<GroupExpression> {
   @override
   void generateAsync() {
     final child = expression.expression;
+    final asyncGenerator = ruleGenerator.asyncGenerator;
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
+    asyncGenerator.writeln('state.input.beginBuffering();');
     generateAsyncExpression(child, false);
+    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
   }
 }

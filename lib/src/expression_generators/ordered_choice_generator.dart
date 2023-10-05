@@ -4,12 +4,6 @@ import 'expression_generator.dart';
 
 class OrderedChoiceGenerator
     extends ExpressionGenerator<OrderedChoiceExpression> {
-  static const _templateNext = '''
-{{p}}
-if (!state.ok) {
-  {{next}}
-}''';
-
   OrderedChoiceGenerator({
     required super.expression,
     required super.ruleGenerator,
@@ -35,19 +29,81 @@ if (!state.ok) {
       }
     }
 
-    String plunge(int i) {
-      final values = <String, String>{};
+    final childSource = <String>[];
+    for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      if (i < children.length - 1) {
-        values['next'] = plunge(i + 1);
-        values['p'] = generateExpression(child, false);
-        return render(_templateNext, values);
-      }
-
-      return generateExpression(child, false);
+      final source = generateExpression(child, false);
+      childSource.add(source);
     }
 
-    return plunge(0);
+    var source = '';
+    for (var i = children.length - 1; i >= 0; i--) {
+      if (i < children.length - 1) {
+        final values = <String, String>{};
+        values['next'] = source;
+        values['p'] = childSource[i];
+        const template = '''
+{{p}}
+if (!state.ok) {
+  {{next}}
+}''';
+        source = render(template, values);
+      } else {
+        source = childSource[i];
+      }
+    }
+
+    return source;
+  }
+
+  @override
+  void generateAsync() {
+    final children = expression.expressions;
+    if (children.isEmpty) {
+      throw StateError(
+          'List of expressions must not be empty\n$expression\n$rule');
+    }
+
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+    final stateVariable = asyncGenerator.stateVariable;
+    if (children.length == 1) {
+      final child = children[0];
+      if (variable != null) {
+        ruleGenerator.setExpressionVariable(child, variable);
+      }
+
+      generateAsyncExpression(child, false);
+    } else {
+      final endState = asyncGenerator.allocateState();
+      for (var i = 0; i < children.length; i++) {
+        final values = <String, String>{};
+        final child = children[i];
+        if (variable != null) {
+          ruleGenerator.setExpressionVariable(child, variable);
+        }
+
+        generateAsyncExpression(child, false);
+        values['end'] = endState;
+        values['state'] = stateVariable;
+        var template = '';
+        if (i < children.length - 1) {
+          template = '''
+if (state.ok) {
+  {{state}} = {{end}};
+  break;
+}''';
+        } else {
+          template = '''
+{{state}} = {{end}};
+break;''';
+        }
+
+        asyncGenerator.render(template, values);
+      }
+
+      asyncGenerator.beginState(endState);
+    }
   }
 }
 

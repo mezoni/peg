@@ -24,7 +24,7 @@ void parsingUsingUtf8Reader() {
   final fileReader = FileReader(file.openSync(), bufferSize: 1024);
   final utf8Reader = Utf8Reader(fileReader);
   final parser = JsonParser();
-  final result = parseInput(parser.parseStart, utf8Reader);
+  final result = tryParse(parser.parseStart, utf8Reader).result;
   // End of parsing
 
   print(result);

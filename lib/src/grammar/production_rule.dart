@@ -14,8 +14,6 @@ class ProductionRule {
 
   final List<({String name, List<Object?> arguments})>? metadata;
 
-  final List<String>? parameters;
-
   final String name;
 
   final ResultType? resultType;
@@ -24,15 +22,20 @@ class ProductionRule {
     required this.expression,
     this.metadata,
     required this.name,
-    this.parameters,
     this.resultType,
   });
-
-  bool get isMacro => parameters != null;
 
   bool hasEvent() {
     if (metadata case final metadata?) {
       return metadata.any((e) => e.name == '@event');
+    }
+
+    return false;
+  }
+
+  bool isInline() {
+    if (metadata case final metadata?) {
+      return metadata.any((e) => e.name == '@inline');
     }
 
     return false;
@@ -84,12 +87,6 @@ class ProductionRule {
     }
 
     buffer.write(name);
-    if (parameters case final parameters?) {
-      buffer.write('(');
-      buffer.write(parameters.join(', '));
-      buffer.write(')');
-    }
-
     buffer.write(' = ');
     buffer.write(expression);
     buffer.write(' ;');

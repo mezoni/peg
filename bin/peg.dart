@@ -17,6 +17,13 @@ Future<void> main(List<String> args) async {
     help: 'Specifies the name of the generated parser class',
   );
 
+  argParser.addFlag(
+    'async',
+    help:
+        'Indicates that asynchronous parsing methods should be generated. (Experimental feature, workability is not guaranteed)',
+    defaultsTo: false,
+  );
+
   final argResults = argParser.parse(args);
   final rest = argResults.rest;
   if (rest.isEmpty || rest.length > 2) {
@@ -35,6 +42,7 @@ Future<void> main(List<String> args) async {
     outputFilename = path.join(path.dirname(inputFilename), outputFilename);
   }
 
+  final isAsync = argResults['async'] as bool;
   var parserName = argResults['class'] as String?;
   if (parserName == null) {
     parserName = path.basenameWithoutExtension(inputFilename);
@@ -64,6 +72,7 @@ Future<void> main(List<String> args) async {
   final libraryGenerator = LibraryGenerator(
     filename: inputFilename,
     grammar: grammar,
+    isAsync: isAsync,
     parserName: parserName,
   );
   final source = libraryGenerator.generate();

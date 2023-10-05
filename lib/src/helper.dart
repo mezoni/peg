@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 void checkRange((int, int) range) {
   if (range.$1 > range.$2) {
     throw RangeError.range(range.$2, range.$1, null);
@@ -220,6 +222,19 @@ String render(String template, Map<String, String> values) {
     final key = entry.key;
     final value = entry.value;
     template = template.replaceAll('{{$key}}', value);
+  }
+
+  final buffer = StringBuffer();
+  final lines = const LineSplitter().convert(template);
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    if (line.trim().isNotEmpty) {
+      if (i < lines.length - 1) {
+        buffer.writeln(line);
+      } else {
+        buffer.write(line);
+      }
+    }
   }
 
   return template;

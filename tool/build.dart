@@ -10,8 +10,11 @@ Future<void> main(List<String> args) async {
     'example/json_parser.peg',
   ];
   for (final file in files) {
-    final process =
-        await Process.start(Platform.executable, ['bin/peg.dart', file]);
+    final process = await Process.start(Platform.executable, [
+      'bin/peg.dart',
+      '--async',
+      file,
+    ]);
     unawaited(process.stdout.transform(utf8.decoder).forEach(print));
     unawaited(process.stderr.transform(utf8.decoder).forEach(print));
     exitCodes.add(process.exitCode);
