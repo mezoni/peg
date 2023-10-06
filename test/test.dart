@@ -21,7 +21,7 @@ Future<void> __testFailure({
   required String source,
 }) async {
   final input = StringReader(source);
-  final r1 = tryFastParse(fastParse, input);
+  final r1 = tryParse(fastParse, input);
   final r2 = tryParse(parse, input);
   expect(r1.ok, false, reason: 'fastParse, ok != false, source: "$source"');
   expect(r2.ok, false, reason: 'parse, ok != false, source: "$source"');
@@ -47,7 +47,7 @@ Future<void> __testSuccess({
   required String source,
 }) async {
   final input = StringReader(source);
-  final r1 = tryFastParse(fastParse, input);
+  final r1 = tryParse(fastParse, input);
   final r2 = tryParse(parse, input);
   expect(r1.ok, true, reason: 'fastParse, ok != true, source: "$source"');
   expect(r2.ok, true, reason: 'parse, ok != true, source: "$source"');
@@ -237,14 +237,11 @@ void _testSepBy() {
 
     {
       const source = '1,';
-      await __testFailure(
-        errors: {
-          const ErrorUnexpectedEndOfInput().getErrorMessage(source.toInput, 2),
-        },
-        failPos: 2,
+      await __testSuccess(
         fastParse: _parser.fastParseSepBy,
         parse: _parser.parseSepBy,
         pos: 1,
+        result: [1],
         source: source,
       );
     }

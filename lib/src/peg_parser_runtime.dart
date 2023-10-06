@@ -270,6 +270,8 @@ abstract interface class ByteReader {
 }
 
 class ChunkedParsingSink implements Sink<String> {
+  int bufferLoad = 0;
+
   String data = '';
 
   int end = 0;
@@ -311,6 +313,10 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     end = start + this.data.length;
+    if (bufferLoad < this.data.length) {
+      bufferLoad = this.data.length;
+    }
+
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -383,16 +389,15 @@ class ChunkedParsingSink implements Sink<String> {
 }
 
 class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error';
+  static const message = 'Backtracking error to position {{0}}';
 
-  @override
-  final int length;
+  final int position;
 
-  const ErrorBacktracking(this.length);
+  const ErrorBacktracking(this.position);
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(length, ErrorBacktracking.message);
+    return ErrorMessage(0, ErrorBacktracking.message, [position]);
   }
 }
 

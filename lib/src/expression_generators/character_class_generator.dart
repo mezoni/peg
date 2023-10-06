@@ -119,7 +119,7 @@ if (state.pos >= {{input}}.start) {
     state.fail(const ErrorUnexpectedEndOfInput());
   }
 } else {
-  state.fail(ErrorBacktracking({{input}}.start - state.pos));
+  state.fail(ErrorBacktracking(state.pos));
 }
 {{input}}.endBuffering(state.pos);''';
       asyncGenerator.render(template, values);

@@ -33,7 +33,7 @@ class {{className}} {
       State<ChunkedParsingSink> state, int char, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end;
@@ -87,7 +87,7 @@ class {{className}} {
       String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end &&
@@ -106,7 +106,7 @@ class {{className}} {
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos <= input.end &&

@@ -93,7 +93,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($3.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $3.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -399,7 +399,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($5.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $5.endBuffering(state.pos);
             if (state.ok) {
@@ -658,7 +658,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($11.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $11.endBuffering(state.pos);
             if (!state.ok) {
@@ -1356,7 +1356,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($11.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $11.endBuffering(state.pos);
             if (!state.ok) {
@@ -1394,7 +1394,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($12.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $12.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -1477,7 +1477,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($16.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $16.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -1539,7 +1539,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($18.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $18.endBuffering(state.pos);
             if (!state.ok) {
@@ -1574,7 +1574,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($19.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $19.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -1618,7 +1618,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($21.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $21.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -2033,7 +2033,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($11.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $11.endBuffering(state.pos);
             state.input.endBuffering($10!);
@@ -2282,7 +2282,7 @@ class JsonParser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($13.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $13.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -3048,7 +3048,7 @@ class JsonParser {
       State<ChunkedParsingSink> state, int char, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end;
@@ -3102,7 +3102,7 @@ class JsonParser {
       String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end &&
@@ -3121,7 +3121,7 @@ class JsonParser {
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos <= input.end &&
@@ -3385,7 +3385,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.length);
+      key = (ErrorBacktracking, error.position);
     }
 
     errorMap[key] = error;
@@ -3415,6 +3415,8 @@ abstract interface class ByteReader {
 }
 
 class ChunkedParsingSink implements Sink<String> {
+  int bufferLoad = 0;
+
   String data = '';
 
   int end = 0;
@@ -3456,6 +3458,10 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     end = start + this.data.length;
+    if (bufferLoad < this.data.length) {
+      bufferLoad = this.data.length;
+    }
+
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -3528,16 +3534,15 @@ class ChunkedParsingSink implements Sink<String> {
 }
 
 class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error';
+  static const message = 'Backtracking error to position {{0}}';
 
-  @override
-  final int length;
+  final int position;
 
-  const ErrorBacktracking(this.length);
+  const ErrorBacktracking(this.position);
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(length, ErrorBacktracking.message);
+    return ErrorMessage(0, ErrorBacktracking.message, [position]);
   }
 }
 

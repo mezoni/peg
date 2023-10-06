@@ -245,7 +245,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($3.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $3.endBuffering(state.pos);
             $0.isComplete = true;
@@ -495,7 +495,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($3.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $3.endBuffering(state.pos);
             $0.isComplete = true;
@@ -616,7 +616,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($3.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $3.endBuffering(state.pos);
             $0.isComplete = true;
@@ -722,7 +722,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($6.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $6.endBuffering(state.pos);
             state.input.endBuffering($5!);
@@ -3205,7 +3205,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($5.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $5.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -3374,7 +3374,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($7.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $7.endBuffering(state.pos);
             if (state.ok) {
@@ -3750,7 +3750,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($4.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $4.endBuffering(state.pos);
             $0.value = $3;
@@ -4028,7 +4028,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($4.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $4.endBuffering(state.pos);
             $0.value = $3;
@@ -4160,7 +4160,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($4.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $4.endBuffering(state.pos);
             $0.value = $3;
@@ -4277,7 +4277,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($9.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $9.endBuffering(state.pos);
             state.input.endBuffering($8!);
@@ -9833,7 +9833,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($10.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $10.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
@@ -10016,7 +10016,7 @@ class Test2Parser {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
             } else {
-              state.fail(ErrorBacktracking($7.start - state.pos));
+              state.fail(ErrorBacktracking(state.pos));
             }
             $7.endBuffering(state.pos);
             if (state.ok) {
@@ -10160,7 +10160,7 @@ class Test2Parser {
       State<ChunkedParsingSink> state, int char, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end;
@@ -10214,7 +10214,7 @@ class Test2Parser {
       String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos < input.end &&
@@ -10233,7 +10233,7 @@ class Test2Parser {
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
     if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(input.start - state.pos));
+      state.fail(ErrorBacktracking(state.pos));
       return null;
     }
     state.ok = state.pos <= input.end &&
@@ -10489,7 +10489,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.length);
+      key = (ErrorBacktracking, error.position);
     }
 
     errorMap[key] = error;
@@ -10519,6 +10519,8 @@ abstract interface class ByteReader {
 }
 
 class ChunkedParsingSink implements Sink<String> {
+  int bufferLoad = 0;
+
   String data = '';
 
   int end = 0;
@@ -10560,6 +10562,10 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     end = start + this.data.length;
+    if (bufferLoad < this.data.length) {
+      bufferLoad = this.data.length;
+    }
+
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -10632,16 +10638,15 @@ class ChunkedParsingSink implements Sink<String> {
 }
 
 class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error';
+  static const message = 'Backtracking error to position {{0}}';
 
-  @override
-  final int length;
+  final int position;
 
-  const ErrorBacktracking(this.length);
+  const ErrorBacktracking(this.position);
 
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(length, ErrorBacktracking.message);
+    return ErrorMessage(0, ErrorBacktracking.message, [position]);
   }
 }
 

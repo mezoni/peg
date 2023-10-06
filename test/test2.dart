@@ -321,7 +321,7 @@ void _testCharacterClass() {
         parse: _parser.parseCharacterClassChar32,
         parseAsync: _parser.parseCharacterClassChar32$Async,
         pos: 2,
-        result: '🚀'.runeAt(0),
+        result: 0x1f680,
         source: source,
       );
     }
@@ -330,7 +330,7 @@ void _testCharacterClass() {
       const source = '';
       await __testFailure(
         errors: {
-          ErrorExpectedCharacter('🚀'.runeAt(0))
+          ErrorExpectedCharacter(0x1f680)
               .getErrorMessage(StringReader(source), 0),
         },
         failPos: 0,
@@ -347,7 +347,7 @@ void _testCharacterClass() {
       const source = '0';
       await __testFailure(
         errors: {
-          ErrorExpectedCharacter('🚀'.runeAt(0))
+          ErrorExpectedCharacter(0x1f680)
               .getErrorMessage(StringReader(source), 0),
         },
         failPos: 0,
@@ -368,7 +368,7 @@ void _testCharacterClass() {
         parse: _parser.parseCharacterClassRange32,
         parseAsync: _parser.parseCharacterClassRange32$Async,
         pos: 2,
-        result: '🚀'.runeAt(0),
+        result: 0x1f680,
         source: source,
       );
     }
