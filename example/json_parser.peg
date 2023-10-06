@@ -36,6 +36,7 @@ void main(List<String> args) {
 
 %%
 
+@event
 Start = Spaces v:Value !. ;
 
 @event

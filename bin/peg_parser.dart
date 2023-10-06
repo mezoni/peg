@@ -2965,6 +2965,10 @@ class PegParser {
   int? matchCharAsync(
       State<ChunkedParsingSink> state, int char, ParseError error) {
     final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(state.pos));
+      return null;
+    }
     state.ok = state.pos < input.end;
     if (state.ok) {
       final c = input.data.runeAt(state.pos - input.start);
@@ -3015,6 +3019,10 @@ class PegParser {
   String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
       String string, ParseError error) {
     final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(state.pos));
+      return null;
+    }
     state.ok = state.pos < input.end &&
         input.data.runeAt(state.pos - input.start) == char;
     if (state.ok) {
@@ -3030,6 +3038,10 @@ class PegParser {
   String? matchLiteralAsync(
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
+    if (state.pos < input.start) {
+      state.fail(ErrorBacktracking(state.pos));
+      return null;
+    }
     state.ok = state.pos <= input.end &&
         input.data.startsWith(string, state.pos - input.start);
     if (state.ok) {
@@ -3282,6 +3294,8 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
       key = ErrorUnknownError;
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
+    } else if (error is ErrorBacktracking) {
+      key = (ErrorBacktracking, error.position);
     }
 
     errorMap[key] = error;
@@ -3311,6 +3325,8 @@ abstract interface class ByteReader {
 }
 
 class ChunkedParsingSink implements Sink<String> {
+  int bufferLoad = 0;
+
   String data = '';
 
   int end = 0;
@@ -3352,6 +3368,10 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     end = start + this.data.length;
+    if (bufferLoad < this.data.length) {
+      bufferLoad = this.data.length;
+    }
+
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -3364,7 +3384,15 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     if (_buffering == 0) {
-      //
+      if (_lastPosition > start) {
+        if (_lastPosition == end) {
+          this.data = '';
+        } else {
+          this.data = this.data.substring(_lastPosition - start);
+        }
+
+        start = _lastPosition;
+      }
     }
   }
 
@@ -3412,6 +3440,19 @@ class ChunkedParsingSink implements Sink<String> {
     } else if (_buffering < 0) {
       throw StateError('Inconsistent buffering completion detected.');
     }
+  }
+}
+
+class ErrorBacktracking extends ParseError {
+  static const message = 'Backtracking error to position {{0}}';
+
+  final int position;
+
+  const ErrorBacktracking(this.position);
+
+  @override
+  ErrorMessage getErrorMessage(Object? input, int? offset) {
+    return ErrorMessage(0, ErrorBacktracking.message, [position]);
   }
 }
 

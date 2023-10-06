@@ -51,13 +51,14 @@ final {{string}} = {{value}};
       const template = '''
 final {{input}} = state.input;
 final {{string}} = {{value}};
-if (state.pos + {{string}}.length - 1 >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos + {{string}}.length - 1 < {{input}}.end || {{input}}.isClosed) {
+  {{assign_result}}matchLiteralAsync(state, {{string}}, ErrorExpectedTags([{{string}}]));
+  {{input}}.endBuffering(state.pos);
+} else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}
-{{assign_result}}matchLiteralAsync(state, {{string}}, ErrorExpectedTags([{{string}}]));
-{{input}}.endBuffering(state.pos);''';
+}''';
       asyncGenerator.render(template, values);
     }
   }

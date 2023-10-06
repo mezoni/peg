@@ -98,30 +98,32 @@ if (state.ok) {
 
       const template = '''
 final {{input}} = state.input;
-if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
+  {{clear_result}}
+  state.ok = state.pos < {{input}}.end;
+  if (state.pos >= {{input}}.start) {
+    if (state.ok) {
+      final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
+      state.ok = {{predicate}};
+      if (state.ok) {
+        state.pos += c > 0xffff ? 2 : 1;
+        {{assign_result}}
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+  } else {
+    state.fail(ErrorBacktracking(state.pos));
+  }
+  {{input}}.endBuffering(state.pos);
+} else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}
-{{clear_result}}
-state.ok = state.pos < {{input}}.end;
-if (state.pos >= {{input}}.start) {
-  if (state.ok) {
-    final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
-    state.ok = {{predicate}};
-    if (state.ok) {
-      state.pos += c > 0xffff ? 2 : 1;
-      {{assign_result}}
-    } else {
-      state.fail(const ErrorUnexpectedCharacter());
-    }
-  } else {
-    state.fail(const ErrorUnexpectedEndOfInput());
-  }
-} else {
-  state.fail(ErrorBacktracking(state.pos));
-}
-{{input}}.endBuffering(state.pos);''';
+}''';
+
       asyncGenerator.render(template, values);
     }
   }
@@ -148,13 +150,14 @@ if (state.pos >= {{input}}.start) {
 
       const template = '''
 final {{input}} = state.input;
-if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
+  {{assign_result}}matchCharAsync(state, {{char}}, const ErrorExpectedCharacter({{char}}));
+  state.input.endBuffering(state.pos);
+} else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}
-{{assign_result}}matchCharAsync(state, {{char}}, const ErrorExpectedCharacter({{char}}));
-state.input.endBuffering(state.pos);''';
+}''';
       asyncGenerator.render(template, values);
     }
   }

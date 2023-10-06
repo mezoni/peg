@@ -1,26 +1,55 @@
 import 'dart:async';
 
-import 'csv_parser.dart';
+import 'json_parser.dart';
 
-Future<void> main() async {
-  await _parse();
+Future<void> main(List<String> args) async {
+  await _exampleParseStreamWithEvents();
 }
 
-const _data = '''
-John,Doe,120 jefferson st.,Riverside, NJ, 08075
-Jack,McGinnis,220 hobo Av.,Phila, PA,09119
-"John ""Da Man""",Repici,120 Jefferson St.,Riverside, NJ,08075
-Stephen,Tyler,"7452 Terrace ""At the Plaza"" road",SomeTown,SD, 91234
-,Blankman,,SomeTown, SD, 00298
-"Joan ""the bone"", Anne",Jet,"9th, at Terrace plc",Desert City,CO,00123''';
+Stream<String> _createStream() {
+  // Create the stream with 1000000 objects
+  const count = 1000 * 1000;
+  final controller = StreamController<String>();
+  final sink = controller.sink;
+  const object = '{ "firstName" : "John", "lastName" : "Doe", "age" : 41 }';
+  const rowsInChunk = count ~/ 100;
+  final chunk = List.generate(rowsInChunk, (i) => object).join(',');
+  print('Total data amount ${object.length * count} code units.');
+  print('The data will arrive in ${chunk.length} code unit chunks.');
+  var i = 0;
+  sink.add('[');
+  Timer.periodic(Duration.zero, (timer) {
+    sink.add(chunk);
+    i += rowsInChunk;
+    if (i < count) {
+      sink.add(',');
+    }
 
-Future<void> _parse() {
+    if (i >= count) {
+      sink.add(']');
+      controller.close();
+      timer.cancel();
+    }
+  });
+
+  return controller.stream;
+}
+
+Future<void> _exampleParseStreamWithEvents() async {
+  print('=========================');
+  print('Start event-based streaming parsing JSON data');
+  // Get external data
+  final stream = _createStream();
+  final parser = _MyParser();
   final completer = Completer<void>();
-  // The chunk size is 16 code units but can be anything from 1 code unit
-  final stream = Stream.fromIterable(_toChunks(_data, 16));
-  final parser = _MyCsvParser();
+  final sw = Stopwatch();
+  sw.start();
   final input = parseAsync(parser.parseStart$Async, (result) {
+    sw.stop();
+    print('Data processing complete in ${sw.elapsed}');
     try {
+      final input = result.input;
+      print('Max parsing buffer load: ${input.bufferLoad} code units');
       result.getResult();
       completer.complete();
     } catch (e, s) {
@@ -31,36 +60,70 @@ Future<void> _parse() {
   return completer.future;
 }
 
-Iterable<String> _toChunks(String string, int size) sync* {
-  final count = string.length ~/ size;
-  final rest = string.length % size;
-  for (var i = 0; i < count; i++) {
-    final start = i * size;
-    final value = string.substring(start, start + size);
-    yield value;
-  }
+class _MyParser extends JsonParser {
+  int _count = 0;
 
-  if (rest != 0) {
-    final start = count * size;
-    final value = string.substring(start, start + rest);
-    yield value;
-  }
-}
+  int _totalCount = 0;
 
-class _MyCsvParser extends CsvParser {
+  int _transactionCount = 0;
+
+  final List<Map<String, Object?>> _object = [];
+
   @override
-  void beginEvent(CsvParserEvent event) {
-    //
+  void beginEvent(JsonParserEvent event) {
+    if (event == JsonParserEvent.startEvent) {
+      _count = 0;
+      _totalCount = 0;
+      _transactionCount = 0;
+      _object.clear();
+    }
   }
 
   @override
-  R? endEvent<R>(CsvParserEvent event, R? result, bool ok) {
-    if (ok && event == CsvParserEvent.rowEvent) {
-      // Save one record to the database and free the memory from that record.
-      print('Saving to database: $result');
-      return const <String>[] as R;
+  R? endEvent<R>(JsonParserEvent event, R? result, bool ok) {
+    if (ok) {
+      switch (event) {
+        case JsonParserEvent.objectEvent:
+          final object = result as Map<String, Object?>;
+          _object.add(object);
+          if (_object.length > 10000) {
+            _saveObjects(false);
+          }
+
+          // Free memory
+          result = const <String, Object?>{} as R;
+          break;
+        case JsonParserEvent.startEvent:
+          _saveObjects(true);
+        default:
+      }
     }
 
     return result;
+  }
+
+  void _saveObjects(bool isLast) {
+    final rows = _object.toList();
+    _object.clear();
+    Timer.run(() async {
+      await _saveToDatabase(rows, isLast);
+    });
+  }
+
+  Future<void> _saveToDatabase(
+      List<Map<String, Object?>> rows, bool isLast) async {
+    _transactionCount++;
+    _count += rows.length;
+    _totalCount += rows.length;
+    if (_count > 100000 || isLast) {
+      print(
+          'Saved to virtual database $_totalCount row(s) in $_transactionCount transaction(s)');
+      _count = 0;
+    }
+
+    if (isLast) {
+      print(
+          'Totally saved to virtual database $_totalCount row(s) in $_transactionCount transaction(s)');
+    }
   }
 }

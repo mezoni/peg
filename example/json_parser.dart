@@ -73,29 +73,29 @@ class JsonParser {
             break;
           case 1:
             final $3 = state.input;
-            if (state.pos + 1 >= $3.end && !$3.isClosed) {
+            if (state.pos + 1 < $3.end || $3.isClosed) {
+              state.ok = state.pos < $3.end;
+              if (state.pos >= $3.start) {
+                if (state.ok) {
+                  final c = $3.data.runeAt(state.pos - $3.start);
+                  state.ok = c == 13 || c >= 9 && c <= 10 || c == 32;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $3.endBuffering(state.pos);
+            } else {
               $3.sleep = true;
               $3.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $3.end;
-            if (state.pos >= $3.start) {
-              if (state.ok) {
-                final c = $3.data.runeAt(state.pos - $3.start);
-                state.ok = c == 13 || c >= 9 && c <= 10 || c == 32;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $3.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 2;
@@ -201,13 +201,15 @@ class JsonParser {
             break;
           case 3:
             final $7 = state.input;
-            if (state.pos + 1 >= $7.end && !$7.isClosed) {
+            if (state.pos + 1 < $7.end || $7.isClosed) {
+              matchLiteral1Async(
+                  state, 91, '[', const ErrorExpectedTags(['[']));
+              $7.endBuffering(state.pos);
+            } else {
               $7.sleep = true;
               $7.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 91, '[', const ErrorExpectedTags(['[']));
-            $7.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 2;
               break;
@@ -264,13 +266,15 @@ class JsonParser {
             break;
           case 7:
             final $13 = state.input;
-            if (state.pos + 1 >= $13.end && !$13.isClosed) {
+            if (state.pos + 1 < $13.end || $13.isClosed) {
+              matchLiteral1Async(
+                  state, 93, ']', const ErrorExpectedTags([']']));
+              $13.endBuffering(state.pos);
+            } else {
               $13.sleep = true;
               $13.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 93, ']', const ErrorExpectedTags([']']));
-            $13.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 6;
               break;
@@ -374,34 +378,35 @@ class JsonParser {
             break;
           case 1:
             final $5 = state.input;
-            if (state.pos + 1 >= $5.end && !$5.isClosed) {
+            if (state.pos + 1 < $5.end || $5.isClosed) {
+              $4 = null;
+              state.ok = state.pos < $5.end;
+              if (state.pos >= $5.start) {
+                if (state.ok) {
+                  final c = $5.data.runeAt(state.pos - $5.start);
+                  state.ok = c == 98 ||
+                      (c < 98
+                          ? c == 47 || c == 34 || c == 92
+                          : c == 110 ||
+                              (c < 110 ? c == 102 : c == 114 || c == 116));
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                    $4 = c;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $5.endBuffering(state.pos);
+            } else {
               $5.sleep = true;
               $5.handle = $2;
               return;
             }
-            $4 = null;
-            state.ok = state.pos < $5.end;
-            if (state.pos >= $5.start) {
-              if (state.ok) {
-                final c = $5.data.runeAt(state.pos - $5.start);
-                state.ok = c == 98 ||
-                    (c < 98
-                        ? c == 47 || c == 34 || c == 92
-                        : c == 110 ||
-                            (c < 110 ? c == 102 : c == 114 || c == 116));
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                  $4 = c;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $5.endBuffering(state.pos);
             if (state.ok) {
               String? $$;
               final c = $4!;
@@ -473,13 +478,15 @@ class JsonParser {
             break;
           case 2:
             final $6 = state.input;
-            if (state.pos + 1 >= $6.end && !$6.isClosed) {
+            if (state.pos + 1 < $6.end || $6.isClosed) {
+              matchLiteral1Async(
+                  state, 117, 'u', const ErrorExpectedTags(['u']));
+              $6.endBuffering(state.pos);
+            } else {
               $6.sleep = true;
               $6.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 117, 'u', const ErrorExpectedTags(['u']));
-            $6.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 1;
               break;
@@ -636,31 +643,31 @@ class JsonParser {
             break;
           case 2:
             final $11 = state.input;
-            if (state.pos + 1 >= $11.end && !$11.isClosed) {
+            if (state.pos + 1 < $11.end || $11.isClosed) {
+              state.ok = state.pos < $11.end;
+              if (state.pos >= $11.start) {
+                if (state.ok) {
+                  final c = $11.data.runeAt(state.pos - $11.start);
+                  state.ok = c <= 70
+                      ? c >= 48 && c <= 57 || c >= 65
+                      : c >= 97 && c <= 102;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $11.endBuffering(state.pos);
+            } else {
               $11.sleep = true;
               $11.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $11.end;
-            if (state.pos >= $11.start) {
-              if (state.ok) {
-                final c = $11.data.runeAt(state.pos - $11.start);
-                state.ok = c <= 70
-                    ? c >= 48 && c <= 57 || c >= 65
-                    : c >= 97 && c <= 102;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $11.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 3;
               break;
@@ -829,13 +836,15 @@ class JsonParser {
             break;
           case 4:
             final $10 = state.input;
-            if (state.pos + 1 >= $10.end && !$10.isClosed) {
+            if (state.pos + 1 < $10.end || $10.isClosed) {
+              matchLiteral1Async(
+                  state, 58, ':', const ErrorExpectedTags([':']));
+              $10.endBuffering(state.pos);
+            } else {
               $10.sleep = true;
               $10.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 58, ':', const ErrorExpectedTags([':']));
-            $10.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 3;
               break;
@@ -1017,13 +1026,15 @@ class JsonParser {
             break;
           case 5:
             final $9 = state.input;
-            if (state.pos + 1 >= $9.end && !$9.isClosed) {
+            if (state.pos + 1 < $9.end || $9.isClosed) {
+              matchLiteral1Async(
+                  state, 44, ',', const ErrorExpectedTags([',']));
+              $9.endBuffering(state.pos);
+            } else {
               $9.sleep = true;
               $9.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 44, ',', const ErrorExpectedTags([',']));
-            $9.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 4;
               break;
@@ -1293,13 +1304,14 @@ class JsonParser {
             break;
           case 3:
             final $8 = state.input;
-            if (state.pos + 1 >= $8.end && !$8.isClosed) {
+            if (state.pos + 1 < $8.end || $8.isClosed) {
+              matchCharAsync(state, 45, const ErrorExpectedCharacter(45));
+              state.input.endBuffering(state.pos);
+            } else {
               $8.sleep = true;
               $8.handle = $2;
               return;
             }
-            matchCharAsync(state, 45, const ErrorExpectedCharacter(45));
-            state.input.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               state.ok = true;
@@ -1317,13 +1329,14 @@ class JsonParser {
             break;
           case 5:
             final $9 = state.input;
-            if (state.pos + 1 >= $9.end && !$9.isClosed) {
+            if (state.pos + 1 < $9.end || $9.isClosed) {
+              matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
+              state.input.endBuffering(state.pos);
+            } else {
               $9.sleep = true;
               $9.handle = $2;
               return;
             }
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-            state.input.endBuffering(state.pos);
             if (state.ok) {
               $1 = 4;
               break;
@@ -1336,29 +1349,29 @@ class JsonParser {
             break;
           case 7:
             final $11 = state.input;
-            if (state.pos + 1 >= $11.end && !$11.isClosed) {
+            if (state.pos + 1 < $11.end || $11.isClosed) {
+              state.ok = state.pos < $11.end;
+              if (state.pos >= $11.start) {
+                if (state.ok) {
+                  final c = $11.data.runeAt(state.pos - $11.start);
+                  state.ok = c >= 49 && c <= 57;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $11.endBuffering(state.pos);
+            } else {
               $11.sleep = true;
               $11.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $11.end;
-            if (state.pos >= $11.start) {
-              if (state.ok) {
-                final c = $11.data.runeAt(state.pos - $11.start);
-                state.ok = c >= 49 && c <= 57;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $11.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 6;
               break;
@@ -1374,29 +1387,29 @@ class JsonParser {
             break;
           case 9:
             final $12 = state.input;
-            if (state.pos + 1 >= $12.end && !$12.isClosed) {
+            if (state.pos + 1 < $12.end || $12.isClosed) {
+              state.ok = state.pos < $12.end;
+              if (state.pos >= $12.start) {
+                if (state.ok) {
+                  final c = $12.data.runeAt(state.pos - $12.start);
+                  state.ok = c >= 48 && c <= 57;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $12.endBuffering(state.pos);
+            } else {
               $12.sleep = true;
               $12.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $12.end;
-            if (state.pos >= $12.start) {
-              if (state.ok) {
-                final c = $12.data.runeAt(state.pos - $12.start);
-                state.ok = c >= 48 && c <= 57;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $12.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 10;
@@ -1434,13 +1447,14 @@ class JsonParser {
             break;
           case 12:
             final $14 = state.input;
-            if (state.pos + 1 >= $14.end && !$14.isClosed) {
+            if (state.pos + 1 < $14.end || $14.isClosed) {
+              matchCharAsync(state, 46, const ErrorExpectedCharacter(46));
+              state.input.endBuffering(state.pos);
+            } else {
               $14.sleep = true;
               $14.handle = $2;
               return;
             }
-            matchCharAsync(state, 46, const ErrorExpectedCharacter(46));
-            state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 11;
               break;
@@ -1457,29 +1471,29 @@ class JsonParser {
             break;
           case 14:
             final $16 = state.input;
-            if (state.pos + 1 >= $16.end && !$16.isClosed) {
+            if (state.pos + 1 < $16.end || $16.isClosed) {
+              state.ok = state.pos < $16.end;
+              if (state.pos >= $16.start) {
+                if (state.ok) {
+                  final c = $16.data.runeAt(state.pos - $16.start);
+                  state.ok = c >= 48 && c <= 57;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $16.endBuffering(state.pos);
+            } else {
               $16.sleep = true;
               $16.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $16.end;
-            if (state.pos >= $16.start) {
-              if (state.ok) {
-                final c = $16.data.runeAt(state.pos - $16.start);
-                state.ok = c >= 48 && c <= 57;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $16.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 15;
@@ -1519,29 +1533,29 @@ class JsonParser {
             break;
           case 17:
             final $18 = state.input;
-            if (state.pos + 1 >= $18.end && !$18.isClosed) {
+            if (state.pos + 1 < $18.end || $18.isClosed) {
+              state.ok = state.pos < $18.end;
+              if (state.pos >= $18.start) {
+                if (state.ok) {
+                  final c = $18.data.runeAt(state.pos - $18.start);
+                  state.ok = c == 69 || c == 101;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $18.endBuffering(state.pos);
+            } else {
               $18.sleep = true;
               $18.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $18.end;
-            if (state.pos >= $18.start) {
-              if (state.ok) {
-                final c = $18.data.runeAt(state.pos - $18.start);
-                state.ok = c == 69 || c == 101;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $18.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 16;
               break;
@@ -1554,29 +1568,29 @@ class JsonParser {
             break;
           case 18:
             final $19 = state.input;
-            if (state.pos + 1 >= $19.end && !$19.isClosed) {
+            if (state.pos + 1 < $19.end || $19.isClosed) {
+              state.ok = state.pos < $19.end;
+              if (state.pos >= $19.start) {
+                if (state.ok) {
+                  final c = $19.data.runeAt(state.pos - $19.start);
+                  state.ok = c == 43 || c == 45;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $19.endBuffering(state.pos);
+            } else {
               $19.sleep = true;
               $19.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $19.end;
-            if (state.pos >= $19.start) {
-              if (state.ok) {
-                final c = $19.data.runeAt(state.pos - $19.start);
-                state.ok = c == 43 || c == 45;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $19.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               state.ok = true;
@@ -1598,29 +1612,29 @@ class JsonParser {
             break;
           case 20:
             final $21 = state.input;
-            if (state.pos + 1 >= $21.end && !$21.isClosed) {
+            if (state.pos + 1 < $21.end || $21.isClosed) {
+              state.ok = state.pos < $21.end;
+              if (state.pos >= $21.start) {
+                if (state.ok) {
+                  final c = $21.data.runeAt(state.pos - $21.start);
+                  state.ok = c >= 48 && c <= 57;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $21.endBuffering(state.pos);
+            } else {
               $21.sleep = true;
               $21.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $21.end;
-            if (state.pos >= $21.start) {
-              if (state.ok) {
-                final c = $21.data.runeAt(state.pos - $21.start);
-                state.ok = c >= 48 && c <= 57;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $21.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 21;
@@ -1789,13 +1803,15 @@ class JsonParser {
             break;
           case 3:
             final $7 = state.input;
-            if (state.pos + 1 >= $7.end && !$7.isClosed) {
+            if (state.pos + 1 < $7.end || $7.isClosed) {
+              matchLiteral1Async(
+                  state, 123, '{', const ErrorExpectedTags(['{']));
+              $7.endBuffering(state.pos);
+            } else {
               $7.sleep = true;
               $7.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 123, '{', const ErrorExpectedTags(['{']));
-            $7.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 2;
               break;
@@ -1852,13 +1868,15 @@ class JsonParser {
             break;
           case 7:
             final $13 = state.input;
-            if (state.pos + 1 >= $13.end && !$13.isClosed) {
+            if (state.pos + 1 < $13.end || $13.isClosed) {
+              matchLiteral1Async(
+                  state, 125, '}', const ErrorExpectedTags(['}']));
+              $13.endBuffering(state.pos);
+            } else {
               $13.sleep = true;
               $13.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 125, '}', const ErrorExpectedTags(['}']));
-            $13.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 6;
               break;
@@ -1912,10 +1930,12 @@ class JsonParser {
     return $0;
   }
 
+  /// @event
   /// Start =
   ///   Spaces v:Value !.
   ///   ;
   Object? parseStart(State<StringReader> state) {
+    beginEvent(JsonParserEvent.startEvent);
     Object? $0;
     // Spaces v:Value !.
     final $1 = state.pos;
@@ -1954,14 +1974,17 @@ class JsonParser {
     if (!state.ok) {
       state.pos = $1;
     }
+    $0 = endEvent<Object?>(JsonParserEvent.startEvent, $0, state.ok);
     return $0;
   }
 
+  /// @event
   /// Start =
   ///   Spaces v:Value !.
   ///   ;
   AsyncResult<Object?> parseStart$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
+    beginEvent(JsonParserEvent.startEvent);
     Object? $3;
     int? $5;
     AsyncResult<Object?>? $6;
@@ -2057,6 +2080,7 @@ class JsonParser {
             $1 = 1;
             break;
           case 1:
+            $3 = endEvent<Object?>(JsonParserEvent.startEvent, $3, state.ok);
             $0.value = $3;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -2223,13 +2247,15 @@ class JsonParser {
             break;
           case 2:
             final $6 = state.input;
-            if (state.pos + 1 >= $6.end && !$6.isClosed) {
+            if (state.pos + 1 < $6.end || $6.isClosed) {
+              matchLiteral1Async(
+                  state, 34, '"', const ErrorExpectedTags(['"']));
+              $6.endBuffering(state.pos);
+            } else {
               $6.sleep = true;
               $6.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 34, '"', const ErrorExpectedTags(['"']));
-            $6.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 1;
               break;
@@ -2260,31 +2286,31 @@ class JsonParser {
             break;
           case 5:
             final $13 = state.input;
-            if (state.pos + 1 >= $13.end && !$13.isClosed) {
+            if (state.pos + 1 < $13.end || $13.isClosed) {
+              state.ok = state.pos < $13.end;
+              if (state.pos >= $13.start) {
+                if (state.ok) {
+                  final c = $13.data.runeAt(state.pos - $13.start);
+                  state.ok = c <= 91
+                      ? c >= 32 && c <= 33 || c >= 35
+                      : c >= 93 && c <= 1114111;
+                  if (state.ok) {
+                    state.pos += c > 0xffff ? 2 : 1;
+                  } else {
+                    state.fail(const ErrorUnexpectedCharacter());
+                  }
+                } else {
+                  state.fail(const ErrorUnexpectedEndOfInput());
+                }
+              } else {
+                state.fail(ErrorBacktracking(state.pos));
+              }
+              $13.endBuffering(state.pos);
+            } else {
               $13.sleep = true;
               $13.handle = $2;
               return;
             }
-
-            state.ok = state.pos < $13.end;
-            if (state.pos >= $13.start) {
-              if (state.ok) {
-                final c = $13.data.runeAt(state.pos - $13.start);
-                state.ok = c <= 91
-                    ? c >= 32 && c <= 33 || c >= 35
-                    : c >= 93 && c <= 1114111;
-                if (state.ok) {
-                  state.pos += c > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
-              }
-            } else {
-              state.fail(ErrorBacktracking(state.pos));
-            }
-            $13.endBuffering(state.pos);
             state.input.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 6;
@@ -2319,13 +2345,14 @@ class JsonParser {
             break;
           case 9:
             final $15 = state.input;
-            if (state.pos + 1 >= $15.end && !$15.isClosed) {
+            if (state.pos + 1 < $15.end || $15.isClosed) {
+              matchCharAsync(state, 92, const ErrorExpectedCharacter(92));
+              state.input.endBuffering(state.pos);
+            } else {
               $15.sleep = true;
               $15.handle = $2;
               return;
             }
-            matchCharAsync(state, 92, const ErrorExpectedCharacter(92));
-            state.input.endBuffering(state.pos);
             if (!state.ok) {
               state.input.endBuffering(state.pos);
               $1 = $8 == true ? 3 : 8;
@@ -2399,13 +2426,15 @@ class JsonParser {
             break;
           case 14:
             final $21 = state.input;
-            if (state.pos + 1 >= $21.end && !$21.isClosed) {
+            if (state.pos + 1 < $21.end || $21.isClosed) {
+              matchLiteral1Async(
+                  state, 34, '"', const ErrorExpectedTags(['"']));
+              $21.endBuffering(state.pos);
+            } else {
               $21.sleep = true;
               $21.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 34, '"', const ErrorExpectedTags(['"']));
-            $21.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 13;
               break;
@@ -2687,14 +2716,16 @@ class JsonParser {
             break;
           case 8:
             final $15 = state.input;
-            if (state.pos + 3 >= $15.end && !$15.isClosed) {
+            if (state.pos + 3 < $15.end || $15.isClosed) {
+              const string = 'true';
+              matchLiteralAsync(
+                  state, string, const ErrorExpectedTags([string]));
+              $15.endBuffering(state.pos);
+            } else {
               $15.sleep = true;
               $15.handle = $2;
               return;
             }
-            const string = 'true';
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-            $15.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 7;
               break;
@@ -2737,14 +2768,16 @@ class JsonParser {
             break;
           case 11:
             final $19 = state.input;
-            if (state.pos + 4 >= $19.end && !$19.isClosed) {
+            if (state.pos + 4 < $19.end || $19.isClosed) {
+              const string = 'false';
+              matchLiteralAsync(
+                  state, string, const ErrorExpectedTags([string]));
+              $19.endBuffering(state.pos);
+            } else {
               $19.sleep = true;
               $19.handle = $2;
               return;
             }
-            const string = 'false';
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-            $19.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 10;
               break;
@@ -2787,14 +2820,16 @@ class JsonParser {
             break;
           case 14:
             final $23 = state.input;
-            if (state.pos + 3 >= $23.end && !$23.isClosed) {
+            if (state.pos + 3 < $23.end || $23.isClosed) {
+              const string = 'null';
+              matchLiteralAsync(
+                  state, string, const ErrorExpectedTags([string]));
+              $23.endBuffering(state.pos);
+            } else {
               $23.sleep = true;
               $23.handle = $2;
               return;
             }
-            const string = 'null';
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-            $23.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 13;
               break;
@@ -2950,13 +2985,15 @@ class JsonParser {
             break;
           case 5:
             final $9 = state.input;
-            if (state.pos + 1 >= $9.end && !$9.isClosed) {
+            if (state.pos + 1 < $9.end || $9.isClosed) {
+              matchLiteral1Async(
+                  state, 44, ',', const ErrorExpectedTags([',']));
+              $9.endBuffering(state.pos);
+            } else {
               $9.sleep = true;
               $9.handle = $2;
               return;
             }
-            matchLiteral1Async(state, 44, ',', const ErrorExpectedTags([',']));
-            $9.endBuffering(state.pos);
             if (!state.ok) {
               $1 = 4;
               break;
@@ -3136,6 +3173,7 @@ class JsonParser {
 }
 
 enum JsonParserEvent {
+  startEvent,
   arrayEvent,
   keyEvent,
   keyValueEvent,

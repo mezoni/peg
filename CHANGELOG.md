@@ -1,3 +1,8 @@
+## 2.0.2
+
+- Changes in the file `example_parse_from_stream.dart`.
+- Changes in terminal expression parsing algorithms. The order of statements has been changed.
+
 ## 2.0.1
 
 - Changes in the file  `example_parse_from_stream.dart`.

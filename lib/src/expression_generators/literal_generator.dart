@@ -81,14 +81,15 @@ const {{literal}} = {{string}};
 
       const template = '''
 final {{input}} = state.input;
-if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos + {{offset}} < {{input}}.end || {{input}}.isClosed) {
+  const string = {{literal}};
+  {{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+  {{input}}.endBuffering(state.pos);
+} else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}
-const string = {{literal}};
-{{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-{{input}}.endBuffering(state.pos);''';
+}''';
       asyncGenerator.render(template, values);
     }
   }
@@ -128,13 +129,14 @@ const string = {{literal}};
 
       const template = '''
 final {{input}} = state.input;
-if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
+  {{assign_result}}matchLiteral1Async(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));
+  {{input}}.endBuffering(state.pos);
+} else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}
-{{assign_result}}matchLiteral1Async(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));
-{{input}}.endBuffering(state.pos);''';
+}''';
       asyncGenerator.render(template, values);
     }
   }

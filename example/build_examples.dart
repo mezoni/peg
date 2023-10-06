@@ -4,11 +4,11 @@ import 'dart:io';
 
 Future<void> main(List<String> args) async {
   final exitCodes = <Future<int>>[];
-  const files = [
-    'example/calc_parser.peg',
-    'example/csv_parser.peg',
-    'example/json_parser.peg',
-  ];
+  const files = <String, List<String>>{
+    'example/calc_parser.peg': [],
+    'example/csv_parser.peg': ['--async'],
+    'example/json_parser.peg': ['--async'],
+  };
   final process = await Process.start(Platform.executable, [
     'pub',
     'global',
@@ -22,13 +22,14 @@ Future<void> main(List<String> args) async {
     exit(exitCode);
   }
 
-  for (final file in files) {
+  for (final file in files.entries) {
     final process = await Process.start(Platform.executable, [
       'pub',
       'global',
       'run',
       'peg',
-      file,
+      ...file.value,
+      file.key,
     ]);
     unawaited(process.stdout.transform(utf8.decoder).forEach(print));
     unawaited(process.stderr.transform(utf8.decoder).forEach(print));
