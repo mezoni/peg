@@ -1,10 +1,7 @@
-## 2.0.2
-
-- Implemented the ability to statistic buffer loading during streaming parsing. Added field `ChunkedParsingSink.bufferLoad`.
-
 ## 2.0.1
 
 - Changes in the file  `example_parse_from_stream.dart`.
+- Implemented the ability to statistic buffer loading during streaming parsing. Added field `ChunkedParsingSink.bufferLoad`.
 
 ## 2.0.0
 
