@@ -237,7 +237,13 @@ class CsvParser {
         final $2 = state.pos;
         // ','
         const $9 = ',';
-        matchLiteral1(state, 44, $9, const ErrorExpectedTags([$9]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$9]));
+        }
         if (!state.ok) {
           $0 = $3;
           break;
@@ -907,7 +913,13 @@ class CsvParser {
     fastParseSpaces(state);
     if (state.ok) {
       const $4 = '"';
-      matchLiteral1(state, 34, $4, const ErrorExpectedTags([$4]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 34;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
     }
     if (!state.ok) {
       state.pos = $3;
@@ -925,10 +937,10 @@ class CsvParser {
         while (true) {
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $11 = state.input.runeAt(state.pos);
+            final $11 = state.input.codeUnitAt(state.pos);
             state.ok = $11 != 34;
             if (state.ok) {
-              state.pos += $11 > 0xffff ? 2 : 1;
+              state.pos++;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -947,7 +959,14 @@ class CsvParser {
         if (!state.ok) {
           // '""' <String>{}
           const $13 = '""';
-          matchLiteral(state, $13, const ErrorExpectedTags([$13]));
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 34 &&
+              state.input.startsWith($13, state.pos);
+          if (state.ok) {
+            state.pos += 2;
+          } else {
+            state.fail(const ErrorExpectedTags([$13]));
+          }
           if (state.ok) {
             String? $$;
             $$ = '"';
@@ -968,7 +987,13 @@ class CsvParser {
         // '"' Spaces
         final $14 = state.pos;
         const $15 = '"';
-        matchLiteral1(state, 34, $15, const ErrorExpectedTags([$15]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 34;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$15]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);

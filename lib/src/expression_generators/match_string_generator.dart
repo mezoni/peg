@@ -11,17 +11,33 @@ class MatchStringGenerator extends ExpressionGenerator<MatchStringExpression> {
   String generate() {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    values['string'] = allocateName();
+    final string = allocateName();
+    values['string'] = string;
     values['value'] = expression.value;
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $string;';
+      values['assign_empty_result'] = '$variable = \'\';';
     } else {
       values['assign_result'] = '';
+      values['assign_empty_result'] = '';
     }
 
     const template = '''
 final {{string}} = {{value}};
-{{assign_result}}matchLiteral(state, {{string}}, ErrorExpectedTags([{{string}}]));''';
+if ({{string}}.isEmpty) {
+  state.ok = true;
+  {{assign_empty_result}}
+} else {
+  state.ok = state.pos < state.input.length &&
+      state.input.codeUnitAt(state.pos) == {{string}}.codeUnitAt(0) &&
+      state.input.startsWith({{string}}, state.pos);
+  if (state.ok) {
+    state.pos += {{string}}.length;
+    {{assign_result}}
+  } else {
+    state.fail(ErrorExpectedTags([{{string}}]));
+  }
+}''';
     return render(template, values);
   }
 

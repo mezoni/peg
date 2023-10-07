@@ -67,7 +67,6 @@ Future<void> main(List<String> args) async {
   );
   final parserSource = libraryGenerator.generate();
   File(parserFilePath).writeAsStringSync(parserSource);
-  await _format(parserFilePath);
 
   final converterGenerator = ConverterGenerator(
       converterName: converterName,
@@ -77,19 +76,21 @@ Future<void> main(List<String> args) async {
       parserName: parserName);
   final converterSource = converterGenerator.generate();
   File(converterFilePath).writeAsStringSync(converterSource);
-  await _format(converterFilePath);
+  final files = [parserFilePath, converterFilePath];
+  files.sort();
+  await _format(files);
 }
 
-Future<void> _format(String filename) async {
+Future<void> _format(List<String> filenames) async {
   final process2 =
-      await Process.start(Platform.executable, ['format', filename]);
+      await Process.start(Platform.executable, ['format', ...filenames]);
   unawaited(process2.stdout.transform(utf8.decoder).forEach(print));
   unawaited(process2.stderr.transform(utf8.decoder).forEach(print));
 }
 
 Grammar? _parse(String input) {
   final parser = PegParser();
-  final result = tryParse(parser.parseStart, StringReader(input));
+  final result = tryParse(parser.parseStart, input);
   if (!result.ok) {
     final message = result.errorMessage;
     print('Errors were found while parsing the grammar:');

@@ -47,6 +47,7 @@ class CharacterClassGenerator
     final variable = ruleGenerator.getExpressionVariable(expression);
     final c = allocateName();
     final predicate = helper.rangesToPredicate(c, ranges, negate);
+    final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
     values['c'] = c;
     values['predicate'] = predicate;
     if (variable != null) {
@@ -55,7 +56,9 @@ class CharacterClassGenerator
       values['assign_result'] = '';
     }
 
-    const template = '''
+    var template = '';
+    if (is32Bit) {
+      template = '''
 state.ok = state.pos < state.input.length;
 if (state.ok) {
   final {{c}} = state.input.runeAt(state.pos);
@@ -69,6 +72,23 @@ if (state.ok) {
 } else {
   state.fail(const ErrorUnexpectedEndOfInput());
 }''';
+    } else {
+      template = '''
+state.ok = state.pos < state.input.length;
+if (state.ok) {
+  final {{c}} = state.input.codeUnitAt(state.pos);
+  state.ok = {{predicate}};
+  if (state.ok) {
+    state.pos++;
+    {{assign_result}}
+  } else {
+    state.fail(const ErrorUnexpectedCharacter());
+  }
+} else {
+  state.fail(const ErrorUnexpectedEndOfInput());
+}''';
+    }
+
     return render(template, values);
   }
 
@@ -165,15 +185,35 @@ if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
   String _generateChar(int char) {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final is32Bit = char > 0xffff;
     values['char'] = '$char';
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $char;';
     } else {
       values['assign_result'] = '';
     }
 
-    const template = '''
-{{assign_result}}matchChar(state, {{char}}, const ErrorExpectedCharacter({{char}}));''';
+    var template = '';
+    if (is32Bit) {
+      template = '''
+state.ok = state.pos < state.input.length && state.input.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += 2;
+  {{assign_result}}
+} else {
+  state.fail(const ErrorExpectedCharacter({{char}}));
+}''';
+    } else {
+      template = '''
+state.ok = state.pos < state.input.length && state.input.codeUnitAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos++;
+  {{assign_result}}
+} else {
+  state.fail(const ErrorExpectedCharacter({{char}}));
+}''';
+    }
+
     return render(template, values);
   }
 }

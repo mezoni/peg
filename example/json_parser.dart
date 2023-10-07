@@ -132,7 +132,13 @@ class JsonParser {
     // v:'[' Spaces
     final $3 = state.pos;
     const $4 = '[';
-    matchLiteral1(state, 91, $4, const ErrorExpectedTags([$4]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 91;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -149,7 +155,13 @@ class JsonParser {
         // v:']' Spaces
         final $5 = state.pos;
         const $6 = ']';
-        matchLiteral1(state, 93, $6, const ErrorExpectedTags([$6]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 93;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$6]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -335,13 +347,13 @@ class JsonParser {
     int? $2;
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $3 = state.input.runeAt(state.pos);
+      final $3 = state.input.codeUnitAt(state.pos);
       state.ok = $3 == 98 ||
           ($3 < 98
               ? $3 == 47 || $3 == 34 || $3 == 92
               : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
       if (state.ok) {
-        state.pos += $3 > 0xffff ? 2 : 1;
+        state.pos++;
         $2 = $3;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -437,7 +449,13 @@ class JsonParser {
     // 'u' v:HexNumber {}
     final $1 = state.pos;
     const $3 = 'u';
-    matchLiteral1(state, 117, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 117;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       int? $2;
       // HexNumber
@@ -549,12 +567,12 @@ class JsonParser {
     while ($9 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $10 = state.input.runeAt(state.pos);
+        final $10 = state.input.codeUnitAt(state.pos);
         state.ok = $10 <= 70
             ? $10 >= 48 && $10 <= 57 || $10 >= 65
             : $10 >= 97 && $10 <= 102;
         if (state.ok) {
-          state.pos += $10 > 0xffff ? 2 : 1;
+          state.pos++;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -751,7 +769,13 @@ class JsonParser {
       // v:':' Spaces
       final $5 = state.pos;
       const $6 = ':';
-      matchLiteral1(state, 58, $6, const ErrorExpectedTags([$6]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 58;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedTags([$6]));
+      }
       if (state.ok) {
         // Spaces
         fastParseSpaces(state);
@@ -937,7 +961,13 @@ class JsonParser {
         // v:',' Spaces
         final $7 = state.pos;
         const $8 = ',';
-        matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$8]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -1118,20 +1148,32 @@ class JsonParser {
     final $3 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
     final $4 = state.pos;
-    matchChar(state, 45, const ErrorExpectedCharacter(45));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 45;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(45));
+    }
     state.ok = true;
     if (state.ok) {
       // [0]
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         // [1-9] [0-9]*
         final $6 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.runeAt(state.pos);
+          final $7 = state.input.codeUnitAt(state.pos);
           state.ok = $7 >= 49 && $7 <= 57;
           if (state.ok) {
-            state.pos += $7 > 0xffff ? 2 : 1;
+            state.pos++;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -1157,16 +1199,22 @@ class JsonParser {
       if (state.ok) {
         // [.] [0-9]+
         final $9 = state.pos;
-        matchChar(state, 46, const ErrorExpectedCharacter(46));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 46;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(46));
+        }
         if (state.ok) {
           var $10 = false;
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $11 = state.input.runeAt(state.pos);
+              final $11 = state.input.codeUnitAt(state.pos);
               state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
-                state.pos += $11 > 0xffff ? 2 : 1;
+                state.pos++;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -1189,10 +1237,10 @@ class JsonParser {
           final $12 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.runeAt(state.pos);
+            final $13 = state.input.codeUnitAt(state.pos);
             state.ok = $13 == 69 || $13 == 101;
             if (state.ok) {
-              state.pos += $13 > 0xffff ? 2 : 1;
+              state.pos++;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -1202,10 +1250,10 @@ class JsonParser {
           if (state.ok) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $14 = state.input.runeAt(state.pos);
+              final $14 = state.input.codeUnitAt(state.pos);
               state.ok = $14 == 43 || $14 == 45;
               if (state.ok) {
-                state.pos += $14 > 0xffff ? 2 : 1;
+                state.pos++;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -1218,10 +1266,10 @@ class JsonParser {
               while (true) {
                 state.ok = state.pos < state.input.length;
                 if (state.ok) {
-                  final $16 = state.input.runeAt(state.pos);
+                  final $16 = state.input.codeUnitAt(state.pos);
                   state.ok = $16 >= 48 && $16 <= 57;
                   if (state.ok) {
-                    state.pos += $16 > 0xffff ? 2 : 1;
+                    state.pos++;
                   } else {
                     state.fail(const ErrorUnexpectedCharacter());
                   }
@@ -1728,7 +1776,13 @@ class JsonParser {
     // v:'{' Spaces
     final $3 = state.pos;
     const $4 = '{';
-    matchLiteral1(state, 123, $4, const ErrorExpectedTags([$4]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 123;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -1745,7 +1799,13 @@ class JsonParser {
         // v:'}' Spaces
         final $5 = state.pos;
         const $6 = '}';
-        matchLiteral1(state, 125, $6, const ErrorExpectedTags([$6]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 125;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$6]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -2105,7 +2165,13 @@ class JsonParser {
     // '"' v:StringChars Quote
     final $1 = state.pos;
     const $3 = '"';
-    matchLiteral1(state, 34, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 34;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       String? $2;
       // @inline StringChars = @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex)) ;
@@ -2154,7 +2220,13 @@ class JsonParser {
         }
         final pos = state.pos;
         // [\\]
-        matchChar(state, 92, const ErrorExpectedCharacter(92));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 92;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(92));
+        }
         if (!state.ok) {
           break;
         }
@@ -2195,7 +2267,13 @@ class JsonParser {
         // v:'"' Spaces
         final $18 = state.pos;
         const $19 = '"';
-        matchLiteral1(state, 34, $19, const ErrorExpectedTags([$19]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 34;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$19]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -2522,7 +2600,14 @@ class JsonParser {
               // 'true' Spaces {}
               final $7 = state.pos;
               const $8 = 'true';
-              matchLiteral(state, $8, const ErrorExpectedTags([$8]));
+              state.ok = state.pos < state.input.length &&
+                  state.input.codeUnitAt(state.pos) == 116 &&
+                  state.input.startsWith($8, state.pos);
+              if (state.ok) {
+                state.pos += 4;
+              } else {
+                state.fail(const ErrorExpectedTags([$8]));
+              }
               if (state.ok) {
                 // Spaces
                 fastParseSpaces(state);
@@ -2541,7 +2626,14 @@ class JsonParser {
                 // 'false' Spaces {}
                 final $10 = state.pos;
                 const $11 = 'false';
-                matchLiteral(state, $11, const ErrorExpectedTags([$11]));
+                state.ok = state.pos < state.input.length &&
+                    state.input.codeUnitAt(state.pos) == 102 &&
+                    state.input.startsWith($11, state.pos);
+                if (state.ok) {
+                  state.pos += 5;
+                } else {
+                  state.fail(const ErrorExpectedTags([$11]));
+                }
                 if (state.ok) {
                   // Spaces
                   fastParseSpaces(state);
@@ -2560,7 +2652,14 @@ class JsonParser {
                   // 'null' Spaces {}
                   final $13 = state.pos;
                   const $14 = 'null';
-                  matchLiteral(state, $14, const ErrorExpectedTags([$14]));
+                  state.ok = state.pos < state.input.length &&
+                      state.input.codeUnitAt(state.pos) == 110 &&
+                      state.input.startsWith($14, state.pos);
+                  if (state.ok) {
+                    state.pos += 4;
+                  } else {
+                    state.fail(const ErrorExpectedTags([$14]));
+                  }
                   if (state.ok) {
                     // Spaces
                     fastParseSpaces(state);
@@ -2896,7 +2995,13 @@ class JsonParser {
         // v:',' Spaces
         final $7 = state.pos;
         const $8 = ',';
-        matchLiteral1(state, 44, $8, const ErrorExpectedTags([$8]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$8]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);

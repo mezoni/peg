@@ -41,17 +41,31 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
 
   String _generate(String string, String? variable) {
     final values = <String, String>{};
-    values['literal'] = allocateName();
+    final char = string.codeUnitAt(0);
+    final literal = allocateName();
+    values['char'] = '$char';
+    values['length'] = string.length.toString();
+    values['literal'] = literal;
     values['string'] = helper.escapeString(string);
+    values['char'] = '$char';
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $literal;';
     } else {
       values['assign_result'] = '';
     }
 
     const template = '''
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = state.pos < state.input.length &&
+    state.input.codeUnitAt(state.pos) == {{char}} &&
+    state.input.startsWith({{literal}}, state.pos);
+if (state.ok) {
+  state.pos += {{length}};
+  {{assign_result}}
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
+
     return render(template, values);
   }
 
@@ -161,18 +175,43 @@ state.ok = true;''';
   String _generateString1(String string, String? variable) {
     final values = <String, String>{};
     final runes = string.runes.toList();
-    values['char'] = runes[0].toString();
-    values['literal'] = allocateName();
+    final char = runes[0];
+    final literal = allocateName();
+    final is32Bit = char > 0xffff;
+    values['char'] = '$char';
+    values['literal'] = literal;
     values['string'] = helper.escapeString(string);
+    values['char'] = '$char';
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $literal;';
     } else {
       values['assign_result'] = '';
     }
 
-    const template = '''
+    var template = '';
+    if (is32Bit) {
+      template = '''
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral1(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = state.pos < state.input.length &&
+    state.input.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += 2;
+  {{assign_result}}
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
+    } else {
+      template = '''
+const {{literal}} = {{string}};
+state.ok = state.pos < state.input.length && state.input.codeUnitAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos++;
+  {{assign_result}}
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
+    }
+
     return render(template, values);
   }
 }

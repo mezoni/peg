@@ -12,11 +12,29 @@ class Test2Parser {
     final $1 = state.pos;
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -26,11 +44,29 @@ class Test2Parser {
       state.pos = $1;
     }
     if (state.ok) {
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
         if (state.ok) {
-          matchChar(state, 50, const ErrorExpectedCharacter(50));
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
+        if (state.ok) {
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorExpectedCharacter(50));
+          }
         }
       }
     }
@@ -277,11 +313,29 @@ class Test2Parser {
     // ([0] [1] [2])
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -291,9 +345,21 @@ class Test2Parser {
       // ([0] [1])
       // [0] [1]
       final $4 = state.pos;
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
       }
       if (!state.ok) {
         state.pos = $4;
@@ -456,10 +522,10 @@ class Test2Parser {
     // [0-9]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $1 = state.input.runeAt(state.pos);
+      final $1 = state.input.codeUnitAt(state.pos);
       state.ok = $1 >= 48 && $1 <= 57;
       if (state.ok) {
-        state.pos += $1 > 0xffff ? 2 : 1;
+        state.pos++;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
       }
@@ -528,7 +594,13 @@ class Test2Parser {
   ///   ;
   void fastParseCharacterClassChar32(State<String> state) {
     // [\u{1f680}]
-    matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+    state.ok = state.pos < state.input.length &&
+        state.input.runeAt(state.pos) == 128640;
+    if (state.ok) {
+      state.pos += 2;
+    } else {
+      state.fail(const ErrorExpectedCharacter(128640));
+    }
   }
 
   /// CharacterClassChar32 =
@@ -652,7 +724,13 @@ class Test2Parser {
   void fastParseEof(State<String> state) {
     // [0] !.
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       final $1 = state.pos;
       final $4 = state.input;
@@ -781,7 +859,13 @@ class Test2Parser {
     final $1 = state.failPos;
     final $2 = state.errorCount;
     // [0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok && state._canHandleError($1, $2)) {
       ParseError? error;
       // ignore: prefer_final_locals
@@ -909,7 +993,13 @@ class Test2Parser {
   void fastParseLiteral1(State<String> state) {
     // '0'
     const $1 = '0';
-    matchLiteral1(state, 48, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
   }
 
   /// Literal1 =
@@ -959,7 +1049,14 @@ class Test2Parser {
   void fastParseLiteral2(State<String> state) {
     // '01'
     const $1 = '01';
-    matchLiteral(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.startsWith($1, state.pos);
+    if (state.ok) {
+      state.pos += 2;
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
   }
 
   /// Literal2 =
@@ -1009,20 +1106,20 @@ class Test2Parser {
   ///   / '01'
   ///   ;
   void fastParseLiterals(State<String> state) {
-    final $5 = state.pos;
+    final $4 = state.pos;
     state.ok = false;
-    final $2 = state.input;
-    if (state.pos < $2.length) {
-      final $0 = $2.runeAt(state.pos);
+    final $1 = state.input;
+    if (state.pos < $1.length) {
+      final $0 = $1.runeAt(state.pos);
       state.pos += $0 > 0xffff ? 2 : 1;
       switch ($0) {
         case 48:
-          const $3 = '012';
-          state.ok = $2.startsWith($3, state.pos - 1);
+          const $2 = '012';
+          state.ok = $1.startsWith($2, state.pos - 1);
           if (state.ok) {
             state.pos += 2;
           } else {
-            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 49;
+            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 49;
             if (state.ok) {
               state.pos += 1;
             }
@@ -1031,7 +1128,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $5;
+      state.pos = $4;
       state.fail(const ErrorExpectedTags(['012', '01']));
     }
   }
@@ -1109,7 +1206,18 @@ class Test2Parser {
   void fastParseMatchString(State<String> state) {
     // @matchString()
     final $1 = text;
-    matchLiteral(state, $1, ErrorExpectedTags([$1]));
+    if ($1.isEmpty) {
+      state.ok = true;
+    } else {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == $1.codeUnitAt(0) &&
+          state.input.startsWith($1, state.pos);
+      if (state.ok) {
+        state.pos += $1.length;
+      } else {
+        state.fail(ErrorExpectedTags([$1]));
+      }
+    }
   }
 
   /// MatchString =
@@ -1162,11 +1270,29 @@ class Test2Parser {
     final $1 = state.pos;
     // [0] [1] [2]
     final $3 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -1184,9 +1310,21 @@ class Test2Parser {
     }
     state.pos = $1;
     if (state.ok) {
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
       }
     }
     if (!state.ok) {
@@ -1354,7 +1492,13 @@ class Test2Parser {
     // [0]+
     var $1 = false;
     while (true) {
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         break;
       }
@@ -1426,10 +1570,22 @@ class Test2Parser {
   void fastParseOptional(State<String> state) {
     // [0]? [1]
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     state.ok = true;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
     if (!state.ok) {
       state.pos = $0;
@@ -1516,10 +1672,22 @@ class Test2Parser {
   ///   ;
   void fastParseOrderedChoice2(State<String> state) {
     // [0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok) {
       // [1]
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
   }
 
@@ -1593,13 +1761,31 @@ class Test2Parser {
   ///   ;
   void fastParseOrderedChoice3(State<String> state) {
     // [0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok) {
       // [1]
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (!state.ok) {
         // [2]
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
   }
@@ -1694,7 +1880,13 @@ class Test2Parser {
     // [\u{1f680}]{,3}
     var $1 = 0;
     while ($1 < 3) {
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -1772,7 +1964,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while (true) {
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -1784,7 +1982,13 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
   }
 
@@ -1892,7 +2096,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while ($2 < 3) {
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -1904,7 +2114,13 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
   }
 
@@ -2012,7 +2228,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while ($2 < 3) {
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -2024,7 +2246,13 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
   }
 
@@ -2123,17 +2351,35 @@ class Test2Parser {
   void fastParseSepBy(State<String> state) {
     // @sepBy([0], [,])
     // [0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       while (true) {
         final $1 = state.pos;
         // [,]
-        matchChar(state, 44, const ErrorExpectedCharacter(44));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(44));
+        }
         if (!state.ok) {
           break;
         }
         // [0]
-        matchChar(state, 48, const ErrorExpectedCharacter(48));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(48));
+        }
         if (!state.ok) {
           state.pos = $1;
           break;
@@ -2250,7 +2496,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1(State<String> state) {
     // [0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
   }
 
   /// Sequence1 =
@@ -2298,7 +2550,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1WithAction(State<String> state) {
     // [0] <int>{}
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       // ignore: unused_local_variable
       int? $$;
@@ -2356,7 +2614,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1WithVariable(State<String> state) {
     // v:[0]
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
   }
 
   /// Sequence1WithVariable =
@@ -2405,7 +2669,14 @@ class Test2Parser {
   void fastParseSequence1WithVariableWithAction(State<String> state) {
     // v:[0] <int>{}
     int? $1;
-    $1 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       // ignore: unused_local_variable
       int? $$;
@@ -2467,9 +2738,21 @@ class Test2Parser {
   void fastParseSequence2(State<String> state) {
     // [0] [1]
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
     if (!state.ok) {
       state.pos = $0;
@@ -2550,9 +2833,21 @@ class Test2Parser {
   void fastParseSequence2WithAction(State<String> state) {
     // [0] [1] <int>{}
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2641,9 +2936,21 @@ class Test2Parser {
   void fastParseSequence2WithVariable(State<String> state) {
     // v:[0] [1]
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
     if (!state.ok) {
       state.pos = $0;
@@ -2725,9 +3032,22 @@ class Test2Parser {
     // v:[0] [1] <int>{}
     final $0 = state.pos;
     int? $1;
-    $1 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2819,9 +3139,21 @@ class Test2Parser {
   void fastParseSequence2WithVariables(State<String> state) {
     // v1:[0] v2:[1]
     final $0 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
     if (!state.ok) {
       state.pos = $0;
@@ -2903,10 +3235,24 @@ class Test2Parser {
     // v1:[0] v2:[1] <int>{}
     final $0 = state.pos;
     int? $1;
-    $1 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $2;
-      $2 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $2 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -3003,11 +3349,29 @@ class Test2Parser {
     // $([0] [1] [2])
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -3017,9 +3381,21 @@ class Test2Parser {
       // $([0] [1])
       // [0] [1]
       final $5 = state.pos;
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
       }
       if (!state.ok) {
         state.pos = $5;
@@ -3188,10 +3564,10 @@ class Test2Parser {
       while (true) {
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $4 = state.input.runeAt(state.pos);
+          final $4 = state.input.codeUnitAt(state.pos);
           state.ok = $4 >= 48 && $4 <= 57;
           if (state.ok) {
-            state.pos += $4 > 0xffff ? 2 : 1;
+            state.pos++;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -3206,12 +3582,24 @@ class Test2Parser {
       state.ok = $3;
       final pos = state.pos;
       // [\\]
-      matchChar(state, 92, const ErrorExpectedCharacter(92));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(92));
+      }
       if (!state.ok) {
         break;
       }
       // [t] <String>{}
-      matchChar(state, 116, const ErrorExpectedCharacter(116));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 116;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(116));
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         String? $$;
@@ -3571,13 +3959,34 @@ class Test2Parser {
     // [0] [1] [2]
     final $7 = state.pos;
     int? $8;
-    $8 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $8 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $9;
-      $9 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $9 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         int? $10;
-        $10 = matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+          $10 = 50;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
         if (state.ok) {
           $2 = [$8!, $9!, $10!];
         }
@@ -3591,13 +4000,34 @@ class Test2Parser {
     }
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $3 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (state.ok) {
         int? $4;
-        $4 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
         if (state.ok) {
           int? $5;
-          $5 = matchChar(state, 50, const ErrorExpectedCharacter(50));
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 50;
+          if (state.ok) {
+            state.pos++;
+            $5 = 50;
+          } else {
+            state.fail(const ErrorExpectedCharacter(50));
+          }
           if (state.ok) {
             $0 = [$2!, $3!, $4!, $5!];
           }
@@ -3866,13 +4296,34 @@ class Test2Parser {
     // [0] [1] [2]
     final $3 = state.pos;
     int? $4;
-    $4 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $4 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $5;
-      $5 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $5 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         int? $6;
-        $6 = matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+          $6 = 50;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
         if (state.ok) {
           $0 = [$4!, $5!, $6!];
         }
@@ -3886,10 +4337,24 @@ class Test2Parser {
       // [0] [1]
       final $8 = state.pos;
       int? $9;
-      $9 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $9 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (state.ok) {
         int? $10;
-        $10 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+          $10 = 49;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
         if (state.ok) {
           $0 = [$9!, $10!];
         }
@@ -4067,10 +4532,10 @@ class Test2Parser {
     // [0-9]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $2 = state.input.runeAt(state.pos);
+      final $2 = state.input.codeUnitAt(state.pos);
       state.ok = $2 >= 48 && $2 <= 57;
       if (state.ok) {
-        state.pos += $2 > 0xffff ? 2 : 1;
+        state.pos++;
         $0 = $2;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -4145,7 +4610,14 @@ class Test2Parser {
   int? parseCharacterClassChar32(State<String> state) {
     int? $0;
     // [\u{1f680}]
-    $0 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+    state.ok = state.pos < state.input.length &&
+        state.input.runeAt(state.pos) == 128640;
+    if (state.ok) {
+      state.pos += 2;
+      $0 = 128640;
+    } else {
+      state.fail(const ErrorExpectedCharacter(128640));
+    }
     return $0;
   }
 
@@ -4281,7 +4753,14 @@ class Test2Parser {
     // [0] !.
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       Object? $3;
       final $4 = state.pos;
@@ -4421,7 +4900,14 @@ class Test2Parser {
     final $2 = state.failPos;
     final $3 = state.errorCount;
     // [0]
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok && state._canHandleError($2, $3)) {
       ParseError? error;
       // ignore: prefer_final_locals
@@ -4559,7 +5045,14 @@ class Test2Parser {
     String? $0;
     // '0'
     const $2 = '0';
-    $0 = matchLiteral1(state, 48, $2, const ErrorExpectedTags([$2]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = $2;
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
     return $0;
   }
 
@@ -4612,7 +5105,15 @@ class Test2Parser {
     String? $0;
     // '01'
     const $2 = '01';
-    $0 = matchLiteral(state, $2, const ErrorExpectedTags([$2]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.startsWith($2, state.pos);
+    if (state.ok) {
+      state.pos += 2;
+      $0 = $2;
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
     return $0;
   }
 
@@ -4665,21 +5166,21 @@ class Test2Parser {
   ///   ;
   String? parseLiterals(State<String> state) {
     String? $0;
-    final $6 = state.pos;
+    final $5 = state.pos;
     state.ok = false;
-    final $3 = state.input;
-    if (state.pos < $3.length) {
-      final $1 = $3.runeAt(state.pos);
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
       state.pos += $1 > 0xffff ? 2 : 1;
       switch ($1) {
         case 48:
-          const $4 = '012';
-          state.ok = $3.startsWith($4, state.pos - 1);
+          const $3 = '012';
+          state.ok = $2.startsWith($3, state.pos - 1);
           if (state.ok) {
             state.pos += 2;
-            $0 = $4;
+            $0 = $3;
           } else {
-            state.ok = state.pos < $3.length && $3.runeAt(state.pos) == 49;
+            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 49;
             if (state.ok) {
               state.pos += 1;
               $0 = '01';
@@ -4689,7 +5190,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $6;
+      state.pos = $5;
       state.fail(const ErrorExpectedTags(['012', '01']));
     }
     return $0;
@@ -4770,7 +5271,20 @@ class Test2Parser {
     String? $0;
     // @matchString()
     final $2 = text;
-    $0 = matchLiteral(state, $2, ErrorExpectedTags([$2]));
+    if ($2.isEmpty) {
+      state.ok = true;
+      $0 = '';
+    } else {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == $2.codeUnitAt(0) &&
+          state.input.startsWith($2, state.pos);
+      if (state.ok) {
+        state.pos += $2.length;
+        $0 = $2;
+      } else {
+        state.fail(ErrorExpectedTags([$2]));
+      }
+    }
     return $0;
   }
 
@@ -4827,11 +5341,29 @@ class Test2Parser {
     final $5 = state.pos;
     // [0] [1] [2]
     final $7 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -4850,10 +5382,24 @@ class Test2Parser {
     state.pos = $5;
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $3 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (state.ok) {
         int? $4;
-        $4 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
         if (state.ok) {
           $0 = [$2, $3!, $4!];
         }
@@ -5033,7 +5579,14 @@ class Test2Parser {
     final $2 = <int>[];
     while (true) {
       int? $3;
-      $3 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $3 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         break;
       }
@@ -5118,11 +5671,25 @@ class Test2Parser {
     // [0]? [1]
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     state.ok = true;
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $3 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         $0 = [$2, $3!];
       }
@@ -5219,10 +5786,24 @@ class Test2Parser {
   int? parseOrderedChoice2(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok) {
       // [1]
-      $0 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $0 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
     }
     return $0;
   }
@@ -5299,13 +5880,34 @@ class Test2Parser {
   int? parseOrderedChoice3(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (!state.ok) {
       // [1]
-      $0 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $0 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (!state.ok) {
         // [2]
-        $0 = matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+          $0 = 50;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     return $0;
@@ -5404,7 +6006,14 @@ class Test2Parser {
     final $2 = <int>[];
     while ($2.length < 3) {
       int? $3;
-      $3 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $3 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -5493,7 +6102,14 @@ class Test2Parser {
     final $3 = <int>[];
     while (true) {
       int? $4;
-      $4 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -5507,7 +6123,14 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      $0 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $0 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
     return $0;
   }
@@ -5624,7 +6247,14 @@ class Test2Parser {
     final $3 = <int>[];
     while ($3.length < 3) {
       int? $4;
-      $4 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -5638,7 +6268,14 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      $0 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $0 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
     return $0;
   }
@@ -5755,7 +6392,14 @@ class Test2Parser {
     final $3 = <int>[];
     while ($3.length < 3) {
       int? $4;
-      $4 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
@@ -5769,7 +6413,14 @@ class Test2Parser {
     }
     if (!state.ok) {
       // [\u{1f680}]
-      $0 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $0 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
     }
     return $0;
   }
@@ -5877,19 +6528,39 @@ class Test2Parser {
     final $3 = <int>[];
     int? $4;
     // [0]
-    $4 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $4 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       $3.add($4!);
       while (true) {
         final $2 = state.pos;
         // [,]
-        matchChar(state, 44, const ErrorExpectedCharacter(44));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(44));
+        }
         if (!state.ok) {
           $0 = $3;
           break;
         }
         // [0]
-        $4 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 48;
+        if (state.ok) {
+          state.pos++;
+          $4 = 48;
+        } else {
+          state.fail(const ErrorExpectedCharacter(48));
+        }
         if (!state.ok) {
           state.pos = $2;
           break;
@@ -6018,7 +6689,14 @@ class Test2Parser {
   int? parseSequence1(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     return $0;
   }
 
@@ -6069,7 +6747,13 @@ class Test2Parser {
   int? parseSequence1WithAction(State<String> state) {
     int? $0;
     // [0] <int>{}
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $$;
       $$ = 0x30;
@@ -6131,7 +6815,14 @@ class Test2Parser {
   int? parseSequence1WithVariable(State<String> state) {
     int? $0;
     // v:[0]
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     return $0;
   }
 
@@ -6183,7 +6874,14 @@ class Test2Parser {
   int? parseSequence1WithVariableWithAction(State<String> state) {
     int? $0;
     // v:[0] <int>{}
-    $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $$;
       final v = $0!;
@@ -6249,10 +6947,24 @@ class Test2Parser {
     // [0] [1]
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $3 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         $0 = [$2!, $3!];
       }
@@ -6343,9 +7055,21 @@ class Test2Parser {
     int? $0;
     // [0] [1] <int>{}
     final $1 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         int? $$;
         $$ = 0x30;
@@ -6439,9 +7163,22 @@ class Test2Parser {
     // v:[0] [1]
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         $0 = $2;
       }
@@ -6532,9 +7269,22 @@ class Test2Parser {
     // v:[0] [1] <int>{}
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         int? $$;
         final v = $2!;
@@ -6631,10 +7381,24 @@ class Test2Parser {
     // v1:[0] v2:[1]
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $3 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         $0 = (v1: $2!, v2: $3!);
       }
@@ -6726,10 +7490,24 @@ class Test2Parser {
     // v1:[0] v2:[1] <int>{}
     final $1 = state.pos;
     int? $2;
-    $2 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
     if (state.ok) {
       int? $3;
-      $3 = matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $3 = 49;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
       if (state.ok) {
         int? $$;
         final v1 = $2!;
@@ -6831,11 +7609,29 @@ class Test2Parser {
     final $2 = state.pos;
     // [0] [1] [2]
     final $3 = state.pos;
-    matchChar(state, 48, const ErrorExpectedCharacter(48));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar(state, 49, const ErrorExpectedCharacter(49));
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar(state, 50, const ErrorExpectedCharacter(50));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(49));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(50));
+        }
       }
     }
     if (!state.ok) {
@@ -6849,9 +7645,21 @@ class Test2Parser {
       final $5 = state.pos;
       // [0] [1]
       final $6 = state.pos;
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar(state, 49, const ErrorExpectedCharacter(49));
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(49));
+        }
       }
       if (!state.ok) {
         state.pos = $6;
@@ -9850,10 +10658,10 @@ class Test2Parser {
       while (true) {
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.runeAt(state.pos);
+          final $7 = state.input.codeUnitAt(state.pos);
           state.ok = $7 >= 48 && $7 <= 57;
           if (state.ok) {
-            state.pos += $7 > 0xffff ? 2 : 1;
+            state.pos++;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -9881,13 +10689,25 @@ class Test2Parser {
       }
       final pos = state.pos;
       // [\\]
-      matchChar(state, 92, const ErrorExpectedCharacter(92));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(92));
+      }
       if (!state.ok) {
         break;
       }
       String? $3;
       // [t] <String>{}
-      matchChar(state, 116, const ErrorExpectedCharacter(116));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 116;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(116));
+      }
       if (state.ok) {
         String? $$;
         $$ = '\t';
@@ -10215,7 +11035,14 @@ class Test2Parser {
     final $2 = <int>[];
     while (true) {
       int? $3;
-      $3 = matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $3 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         state.ok = true;
         break;

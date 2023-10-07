@@ -1,3 +1,7 @@
+## 3.0.2
+
+- The generated source code for parsing terminal expressions has been optimized. The synchronous parser is now faster.
+
 ## 3.0.1
 
 - Since support for generation of streaming parsers has been implemented, support for parsing directly from files, without using `Stream"` is no longer supported. All relevant code will be removed, resulting in a reduction in runtime code size and a slight increase in parsing performance. Accordingly, support for parsing from `virtual` strings via `StringReader` will be removed and parsing will be done directly from `String` values.

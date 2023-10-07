@@ -46,7 +46,13 @@ class CalcParser {
     // ')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    matchLiteral1(state, 41, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 41;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -63,7 +69,13 @@ class CalcParser {
     // '(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    matchLiteral1(state, 40, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 40;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -153,11 +165,11 @@ class CalcParser {
     // v:('-' / '+') Spaces
     final $1 = state.pos;
     String? $2;
-    final $8 = state.pos;
+    final $7 = state.pos;
     state.ok = false;
-    final $5 = state.input;
-    if (state.pos < $5.length) {
-      final $3 = $5.runeAt(state.pos);
+    final $4 = state.input;
+    if (state.pos < $4.length) {
+      final $3 = $4.runeAt(state.pos);
       state.pos += $3 > 0xffff ? 2 : 1;
       switch ($3) {
         case 45:
@@ -171,7 +183,7 @@ class CalcParser {
       }
     }
     if (!state.ok) {
-      state.pos = $8;
+      state.pos = $7;
       state.fail(const ErrorExpectedTags(['-', '+']));
     }
     if (state.ok) {
@@ -261,11 +273,11 @@ class CalcParser {
     // v:('/' / '*') Spaces
     final $1 = state.pos;
     String? $2;
-    final $8 = state.pos;
+    final $7 = state.pos;
     state.ok = false;
-    final $5 = state.input;
-    if (state.pos < $5.length) {
-      final $3 = $5.runeAt(state.pos);
+    final $4 = state.input;
+    if (state.pos < $4.length) {
+      final $3 = $4.runeAt(state.pos);
       state.pos += $3 > 0xffff ? 2 : 1;
       switch ($3) {
         case 47:
@@ -279,7 +291,7 @@ class CalcParser {
       }
     }
     if (!state.ok) {
-      state.pos = $8;
+      state.pos = $7;
       state.fail(const ErrorExpectedTags(['/', '*']));
     }
     if (state.ok) {
@@ -343,20 +355,32 @@ class CalcParser {
     final $3 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
     final $4 = state.pos;
-    matchChar(state, 45, const ErrorExpectedCharacter(45));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 45;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(45));
+    }
     state.ok = true;
     if (state.ok) {
       // [0]
-      matchChar(state, 48, const ErrorExpectedCharacter(48));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         // [1-9] [0-9]*
         final $6 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.runeAt(state.pos);
+          final $7 = state.input.codeUnitAt(state.pos);
           state.ok = $7 >= 49 && $7 <= 57;
           if (state.ok) {
-            state.pos += $7 > 0xffff ? 2 : 1;
+            state.pos++;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -382,16 +406,22 @@ class CalcParser {
       if (state.ok) {
         // [.] [0-9]+
         final $9 = state.pos;
-        matchChar(state, 46, const ErrorExpectedCharacter(46));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 46;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedCharacter(46));
+        }
         if (state.ok) {
           var $10 = false;
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $11 = state.input.runeAt(state.pos);
+              final $11 = state.input.codeUnitAt(state.pos);
               state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
-                state.pos += $11 > 0xffff ? 2 : 1;
+                state.pos++;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -414,10 +444,10 @@ class CalcParser {
           final $12 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.runeAt(state.pos);
+            final $13 = state.input.codeUnitAt(state.pos);
             state.ok = $13 == 69 || $13 == 101;
             if (state.ok) {
-              state.pos += $13 > 0xffff ? 2 : 1;
+              state.pos++;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -427,10 +457,10 @@ class CalcParser {
           if (state.ok) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $14 = state.input.runeAt(state.pos);
+              final $14 = state.input.codeUnitAt(state.pos);
               state.ok = $14 == 43 || $14 == 45;
               if (state.ok) {
-                state.pos += $14 > 0xffff ? 2 : 1;
+                state.pos++;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -443,10 +473,10 @@ class CalcParser {
               while (true) {
                 state.ok = state.pos < state.input.length;
                 if (state.ok) {
-                  final $16 = state.input.runeAt(state.pos);
+                  final $16 = state.input.codeUnitAt(state.pos);
                   state.ok = $16 >= 48 && $16 <= 57;
                   if (state.ok) {
-                    state.pos += $16 > 0xffff ? 2 : 1;
+                    state.pos++;
                   } else {
                     state.fail(const ErrorUnexpectedCharacter());
                   }
@@ -500,7 +530,14 @@ class CalcParser {
     final $1 = state.pos;
     String? $2;
     const $4 = '-';
-    $2 = matchLiteral1(state, 45, $4, const ErrorExpectedTags([$4]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 45;
+    if (state.ok) {
+      state.pos++;
+      $2 = $4;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
     state.ok = true;
     if (state.ok) {
       num? $3;

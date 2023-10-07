@@ -15,10 +15,10 @@ class TestParser {
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $4 = state.input.runeAt(state.pos);
+        final $4 = state.input.codeUnitAt(state.pos);
         state.ok = $4 >= 48 && $4 <= 57;
         if (state.ok) {
-          state.pos += $4 > 0xffff ? 2 : 1;
+          state.pos++;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -48,7 +48,18 @@ class TestParser {
   void fastParseMatchString(State<String> state) {
     // @matchString()
     final $1 = text;
-    matchLiteral(state, $1, ErrorExpectedTags([$1]));
+    if ($1.isEmpty) {
+      state.ok = true;
+    } else {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == $1.codeUnitAt(0) &&
+          state.input.startsWith($1, state.pos);
+      if (state.ok) {
+        state.pos += $1.length;
+      } else {
+        state.fail(ErrorExpectedTags([$1]));
+      }
+    }
   }
 
   /// OrderedChoiceWithLiterals =
@@ -124,7 +135,13 @@ class TestParser {
         final $1 = state.pos;
         // ','
         const $4 = ',';
-        matchLiteral1(state, 44, $4, const ErrorExpectedTags([$4]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$4]));
+        }
         if (!state.ok) {
           break;
         }
@@ -281,10 +298,10 @@ class TestParser {
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $5 = state.input.runeAt(state.pos);
+        final $5 = state.input.codeUnitAt(state.pos);
         state.ok = $5 >= 48 && $5 <= 57;
         if (state.ok) {
-          state.pos += $5 > 0xffff ? 2 : 1;
+          state.pos++;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -316,7 +333,20 @@ class TestParser {
     String? $0;
     // @matchString()
     final $2 = text;
-    $0 = matchLiteral(state, $2, ErrorExpectedTags([$2]));
+    if ($2.isEmpty) {
+      state.ok = true;
+      $0 = '';
+    } else {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == $2.codeUnitAt(0) &&
+          state.input.startsWith($2, state.pos);
+      if (state.ok) {
+        state.pos += $2.length;
+        $0 = $2;
+      } else {
+        state.fail(ErrorExpectedTags([$2]));
+      }
+    }
     return $0;
   }
 
@@ -406,7 +436,13 @@ class TestParser {
         final $2 = state.pos;
         // ','
         const $7 = ',';
-        matchLiteral1(state, 44, $7, const ErrorExpectedTags([$7]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$7]));
+        }
         if (!state.ok) {
           $0 = $3;
           break;
@@ -440,7 +476,13 @@ class TestParser {
       // ![E] v:.
       final $4 = state.pos;
       final $6 = state.pos;
-      matchChar(state, 69, const ErrorExpectedCharacter(69));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 69;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(69));
+      }
       state.ok = !state.ok;
       if (!state.ok) {
         final length = $6 - state.pos;
@@ -495,7 +537,14 @@ class TestParser {
       final $4 = state.pos;
       final $6 = state.pos;
       const $8 = 'END';
-      matchLiteral(state, $8, const ErrorExpectedTags([$8]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 69 &&
+          state.input.startsWith($8, state.pos);
+      if (state.ok) {
+        state.pos += 3;
+      } else {
+        state.fail(const ErrorExpectedTags([$8]));
+      }
       state.ok = !state.ok;
       if (!state.ok) {
         final length = $6 - state.pos;
