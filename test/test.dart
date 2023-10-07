@@ -355,9 +355,3 @@ void _testZeroOrMore() {
     }
   });
 }
-
-extension on String {
-  StringReader get toInput {
-    return StringReader(this);
-  }
-}

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
-import 'package:peg/src/grammar/grammar.dart';
+import 'package:peg/src/converter_generator.dart';
 import 'package:peg/src/grammar_generators/library_generator.dart';
 import 'package:strings/strings.dart';
 
@@ -12,43 +12,33 @@ import 'peg_parser.dart';
 
 Future<void> main(List<String> args) async {
   final argParser = ArgParser();
-  argParser.addOption(
-    'class',
-    help: 'Specifies the name of the generated parser class',
-  );
-
   argParser.addFlag(
     'async',
-    help:
-        'Indicates that asynchronous parsing methods should be generated. (Experimental feature, workability is not guaranteed)',
+    help: 'Indicates that asynchronous parsing methods should be generated.',
     defaultsTo: false,
   );
 
   final argResults = argParser.parse(args);
   final rest = argResults.rest;
-  if (rest.isEmpty || rest.length > 2) {
-    print('Usage: peg [options] input_file output_file');
+  if (rest.length != 1) {
+    print('Usage: peg [options] input_file');
     print(argParser.usage);
     exit(-1);
   }
 
   final inputFilename = rest[0];
-  var outputFilename = '';
-  if (rest.length == 2) {
-    outputFilename = rest[1];
-  } else {
-    outputFilename = path.basenameWithoutExtension(inputFilename);
-    outputFilename = '$outputFilename.dart';
-    outputFilename = path.join(path.dirname(inputFilename), outputFilename);
-  }
+  final basename = path.basenameWithoutExtension(inputFilename);
+  final outputDir = path.dirname(inputFilename);
+  final parserFilename = '${basename}_parser.dart';
+  final parserFilePath = path.join(outputDir, parserFilename);
+  final converterFilename = '${basename}_converter.dart';
+  final converterFilePath = path.join(outputDir, converterFilename);
 
   final isAsync = argResults['async'] as bool;
-  var parserName = argResults['class'] as String?;
-  if (parserName == null) {
-    parserName = path.basenameWithoutExtension(inputFilename);
-    parserName = parserName.toLowerCase();
-    parserName = parserName.toCamelCase();
-  }
+  var name = basename.toLowerCase();
+  name = name.toCamelCase();
+  final parserName = '${name}Parser';
+  final converterName = '${name}Converter';
 
   final file = File(inputFilename);
   if (!file.existsSync()) {
@@ -75,12 +65,26 @@ Future<void> main(List<String> args) async {
     isAsync: isAsync,
     parserName: parserName,
   );
-  final source = libraryGenerator.generate();
-  File(outputFilename).writeAsStringSync(source);
-  final process =
-      await Process.start(Platform.executable, ['format', outputFilename]);
-  unawaited(process.stdout.transform(utf8.decoder).forEach(print));
-  unawaited(process.stderr.transform(utf8.decoder).forEach(print));
+  final parserSource = libraryGenerator.generate();
+  File(parserFilePath).writeAsStringSync(parserSource);
+  await _format(parserFilePath);
+
+  final converterGenerator = ConverterGenerator(
+      converterName: converterName,
+      grammar: grammar,
+      isAsync: isAsync,
+      parserFilename: parserFilename,
+      parserName: parserName);
+  final converterSource = converterGenerator.generate();
+  File(converterFilePath).writeAsStringSync(converterSource);
+  await _format(converterFilePath);
+}
+
+Future<void> _format(String filename) async {
+  final process2 =
+      await Process.start(Platform.executable, ['format', filename]);
+  unawaited(process2.stdout.transform(utf8.decoder).forEach(print));
+  unawaited(process2.stderr.transform(utf8.decoder).forEach(print));
 }
 
 Grammar? _parse(String input) {

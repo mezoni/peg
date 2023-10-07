@@ -1,3 +1,7 @@
+## 3.0.0
+
+- Breaking and new features. Added implementation of automatic generation of converters. The converter is generated into a separate file. This required changes to the command line tools to unify the way classes and file names are named. To continue normal operation, it is need to rename the grammar file, removing the suffix `_parser` from the file name, if one would be used in the name of the grammar file (eg. rename `json_parser.peg` to `json.peg`).
+
 ## 2.0.2
 
 - Changes in the file `example_parse_from_stream.dart`.

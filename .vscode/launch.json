@@ -6,7 +6,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
-                "bin/peg_parser.peg"
+                "bin/peg.peg"
             ]
         },
         {
@@ -16,7 +16,7 @@
             "program": "bin/peg.dart",
             "args": [
                 "--async",
-                "example/json_parser.peg"
+                "example/json.peg"
             ]
         },
         {
@@ -25,7 +25,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
-                "example/calc_parser.peg"
+                "example/calc.peg"
             ]
         },
         {
@@ -35,7 +35,7 @@
             "program": "bin/peg.dart",
             "args": [
                 "--async",
-                "example/csv_parser.peg"
+                "example/csv.peg"
             ]
         },
         {
@@ -44,7 +44,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
-                "test/test_parser.peg"
+                "test/test.peg"
             ]
         },
         {
@@ -64,7 +64,7 @@
             "program": "bin/peg.dart",
             "args": [
                 "--async",
-                "test/test2_parser.peg"
+                "test/test2.peg"
             ]
         }
     ]

@@ -2,6 +2,8 @@
 import 'package:peg/src/expressions/expressions.dart';
 import 'package:peg/src/grammar/grammar.dart';
 
+export 'package:peg/src/grammar/grammar.dart';
+
 }%
 
 %%

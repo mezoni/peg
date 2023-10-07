@@ -5,9 +5,9 @@ import 'dart:io';
 Future<void> main(List<String> args) async {
   final exitCodes = <Future<int>>[];
   const files = <String, List<String>>{
-    'example/calc_parser.peg': [],
-    'example/csv_parser.peg': ['--async'],
-    'example/json_parser.peg': ['--async'],
+    'example/calc.peg': [],
+    'example/csv.peg': ['--async'],
+    'example/json.peg': ['--async'],
   };
   final process = await Process.start(Platform.executable, [
     'pub',

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'json_parser.dart';
+import 'json_converter.dart';
 
 Future<void> main(List<String> args) async {
   await _exampleParseStreamWithEvents();
@@ -37,30 +37,22 @@ Stream<String> _createStream() {
 
 Future<void> _exampleParseStreamWithEvents() async {
   print('=========================');
-  print('Start event-based streaming parsing JSON data');
+  print('Start streaming parsing with events');
   // Get external data
   final stream = _createStream();
-  final parser = _MyParser();
-  final completer = Completer<void>();
   final sw = Stopwatch();
   sw.start();
-  final input = parseAsync(parser.parseStart$Async, (result) {
+  final parser = _MyParser(() async {
+    print('Saving to virtual database complete in ${sw.elapsed}');
     sw.stop();
-    print('Data processing complete in ${sw.elapsed}');
-    try {
-      final input = result.input;
-      print('Max parsing buffer load: ${input.bufferLoad} code units');
-      result.getResult();
-      completer.complete();
-    } catch (e, s) {
-      completer.completeError(e, s);
-    }
   });
-  stream.listen(input.add, onDone: input.close);
-  return completer.future;
+
+  await stream.transform(JsonConverter(parser: parser)).first;
 }
 
 class _MyParser extends JsonParser {
+  final Future<void> Function()? onComplete;
+
   int _count = 0;
 
   int _totalCount = 0;
@@ -68,6 +60,8 @@ class _MyParser extends JsonParser {
   int _transactionCount = 0;
 
   final List<Map<String, Object?>> _object = [];
+
+  _MyParser(this.onComplete);
 
   @override
   void beginEvent(JsonParserEvent event) {
@@ -95,6 +89,8 @@ class _MyParser extends JsonParser {
           break;
         case JsonParserEvent.startEvent:
           _saveObjects(true);
+          // Free memory
+          result = null;
         default:
       }
     }

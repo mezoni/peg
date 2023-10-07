@@ -1,6 +1,8 @@
 import 'package:peg/src/expressions/expressions.dart';
 import 'package:peg/src/grammar/grammar.dart';
 
+export 'package:peg/src/grammar/grammar.dart';
+
 class PegParser {
   Expression _buildPrefix(String? prefix, Expression expression) {
     if (prefix == null) {
