@@ -15,12 +15,12 @@ final _parser = TestParser();
 Future<void> __testFailure({
   required Set<ErrorMessage> errors,
   required int failPos,
-  required void Function(State<StringReader>) fastParse,
-  required Object? Function(State<StringReader>) parse,
+  required void Function(State<String>) fastParse,
+  required Object? Function(State<String>) parse,
   required int pos,
   required String source,
 }) async {
-  final input = StringReader(source);
+  final input = source;
   final r1 = tryParse(fastParse, input);
   final r2 = tryParse(parse, input);
   expect(r1.ok, false, reason: 'fastParse, ok != false, source: "$source"');
@@ -40,13 +40,13 @@ Future<void> __testFailure({
 }
 
 Future<void> __testSuccess({
-  required void Function(State<StringReader>) fastParse,
-  required Object? Function(State<StringReader>) parse,
+  required void Function(State<String>) fastParse,
+  required Object? Function(State<String>) parse,
   required int pos,
   required Object? result,
   required String source,
 }) async {
-  final input = StringReader(source);
+  final input = source;
   final r1 = tryParse(fastParse, input);
   final r2 = tryParse(parse, input);
   expect(r1.ok, true, reason: 'fastParse, ok != true, source: "$source"');

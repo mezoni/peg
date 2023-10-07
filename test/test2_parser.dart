@@ -6,7 +6,7 @@ class Test2Parser {
   /// AndPredicate =
   ///   &([0] [1] [2]) [0] [1] [2]
   ///   ;
-  void fastParseAndPredicate(State<StringReader> state) {
+  void fastParseAndPredicate(State<String> state) {
     // &([0] [1] [2]) [0] [1] [2]
     final $0 = state.pos;
     final $1 = state.pos;
@@ -206,12 +206,12 @@ class Test2Parser {
   /// AnyCharacter =
   ///   .
   ///   ;
-  void fastParseAnyCharacter(State<StringReader> state) {
+  void fastParseAnyCharacter(State<String> state) {
     // .
-    final $1 = state.input;
-    if (state.pos < $1.length) {
-      $1.readChar(state.pos);
-      state.pos += $1.count;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
+      state.pos += $1 > 0xffff ? 2 : 1;
       state.ok = true;
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
@@ -272,7 +272,7 @@ class Test2Parser {
   ///     @buffer(([0] [1] [2]))
   ///   / ([0] [1])
   ///   ;
-  void fastParseBuffer(State<StringReader> state) {
+  void fastParseBuffer(State<String> state) {
     // @buffer(([0] [1] [2]))
     // ([0] [1] [2])
     // [0] [1] [2]
@@ -452,14 +452,14 @@ class Test2Parser {
   /// CharacterClass =
   ///   [0-9]
   ///   ;
-  void fastParseCharacterClass(State<StringReader> state) {
+  void fastParseCharacterClass(State<String> state) {
     // [0-9]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $1 = state.input.readChar(state.pos);
+      final $1 = state.input.runeAt(state.pos);
       state.ok = $1 >= 48 && $1 <= 57;
       if (state.ok) {
-        state.pos += state.input.count;
+        state.pos += $1 > 0xffff ? 2 : 1;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
       }
@@ -526,7 +526,7 @@ class Test2Parser {
   /// CharacterClassChar32 =
   ///   [\u{1f680}]
   ///   ;
-  void fastParseCharacterClassChar32(State<StringReader> state) {
+  void fastParseCharacterClassChar32(State<String> state) {
     // [\u{1f680}]
     matchChar(state, 128640, const ErrorExpectedCharacter(128640));
   }
@@ -575,14 +575,14 @@ class Test2Parser {
   /// CharacterClassRange32 =
   ///   [ -\u{1f680}]
   ///   ;
-  void fastParseCharacterClassRange32(State<StringReader> state) {
+  void fastParseCharacterClassRange32(State<String> state) {
     // [ -\u{1f680}]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $1 = state.input.readChar(state.pos);
+      final $1 = state.input.runeAt(state.pos);
       state.ok = $1 >= 32 && $1 <= 128640;
       if (state.ok) {
-        state.pos += state.input.count;
+        state.pos += $1 > 0xffff ? 2 : 1;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
       }
@@ -649,16 +649,16 @@ class Test2Parser {
   /// Eof =
   ///   [0] !.
   ///   ;
-  void fastParseEof(State<StringReader> state) {
+  void fastParseEof(State<String> state) {
     // [0] !.
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
     if (state.ok) {
       final $1 = state.pos;
-      final $3 = state.input;
-      if (state.pos < $3.length) {
-        $3.readChar(state.pos);
-        state.pos += $3.count;
+      final $4 = state.input;
+      if (state.pos < $4.length) {
+        final $3 = $4.runeAt(state.pos);
+        state.pos += $3 > 0xffff ? 2 : 1;
         state.ok = true;
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
@@ -776,7 +776,7 @@ class Test2Parser {
   /// ErrorHandler =
   ///   @errorHandler([0])
   ///   ;
-  void fastParseErrorHandler(State<StringReader> state) {
+  void fastParseErrorHandler(State<String> state) {
     // @errorHandler([0])
     final $1 = state.failPos;
     final $2 = state.errorCount;
@@ -870,7 +870,7 @@ class Test2Parser {
   /// Literal0 =
   ///   ''
   ///   ;
-  void fastParseLiteral0(State<StringReader> state) {
+  void fastParseLiteral0(State<String> state) {
     // ''
     state.ok = true;
   }
@@ -906,7 +906,7 @@ class Test2Parser {
   /// Literal1 =
   ///   '0'
   ///   ;
-  void fastParseLiteral1(State<StringReader> state) {
+  void fastParseLiteral1(State<String> state) {
     // '0'
     const $1 = '0';
     matchLiteral1(state, 48, $1, const ErrorExpectedTags([$1]));
@@ -956,7 +956,7 @@ class Test2Parser {
   /// Literal2 =
   ///   '01'
   ///   ;
-  void fastParseLiteral2(State<StringReader> state) {
+  void fastParseLiteral2(State<String> state) {
     // '01'
     const $1 = '01';
     matchLiteral(state, $1, const ErrorExpectedTags([$1]));
@@ -1008,29 +1008,30 @@ class Test2Parser {
   ///     '012'
   ///   / '01'
   ///   ;
-  void fastParseLiterals(State<StringReader> state) {
+  void fastParseLiterals(State<String> state) {
+    final $5 = state.pos;
     state.ok = false;
     final $2 = state.input;
     if (state.pos < $2.length) {
-      final $0 = $2.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $1 = $2.count;
+      final $0 = $2.runeAt(state.pos);
+      state.pos += $0 > 0xffff ? 2 : 1;
       switch ($0) {
         case 48:
           const $3 = '012';
-          state.ok = $2.startsWith($3, state.pos);
+          state.ok = $2.startsWith($3, state.pos - 1);
           if (state.ok) {
-            state.pos += $2.count;
+            state.pos += 2;
           } else {
-            state.ok = $2.matchChar(49, state.pos + $1);
+            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 49;
             if (state.ok) {
-              state.pos += $1 + $2.count;
+              state.pos += 1;
             }
           }
           break;
       }
     }
     if (!state.ok) {
+      state.pos = $5;
       state.fail(const ErrorExpectedTags(['012', '01']));
     }
   }
@@ -1105,7 +1106,7 @@ class Test2Parser {
   /// MatchString =
   ///   @matchString()
   ///   ;
-  void fastParseMatchString(State<StringReader> state) {
+  void fastParseMatchString(State<String> state) {
     // @matchString()
     final $1 = text;
     matchLiteral(state, $1, ErrorExpectedTags([$1]));
@@ -1155,7 +1156,7 @@ class Test2Parser {
   /// NotPredicate =
   ///   !([0] [1] [2]) [0] [1]
   ///   ;
-  void fastParseNotPredicate(State<StringReader> state) {
+  void fastParseNotPredicate(State<String> state) {
     // !([0] [1] [2]) [0] [1]
     final $0 = state.pos;
     final $1 = state.pos;
@@ -1349,7 +1350,7 @@ class Test2Parser {
   /// OneOrMore =
   ///   [0]+
   ///   ;
-  void fastParseOneOrMore(State<StringReader> state) {
+  void fastParseOneOrMore(State<String> state) {
     // [0]+
     var $1 = false;
     while (true) {
@@ -1422,7 +1423,7 @@ class Test2Parser {
   /// Optional =
   ///   [0]? [1]
   ///   ;
-  void fastParseOptional(State<StringReader> state) {
+  void fastParseOptional(State<String> state) {
     // [0]? [1]
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -1513,7 +1514,7 @@ class Test2Parser {
   ///     [0]
   ///   / [1]
   ///   ;
-  void fastParseOrderedChoice2(State<StringReader> state) {
+  void fastParseOrderedChoice2(State<String> state) {
     // [0]
     matchChar(state, 48, const ErrorExpectedCharacter(48));
     if (!state.ok) {
@@ -1590,7 +1591,7 @@ class Test2Parser {
   ///   / [1]
   ///   / [2]
   ///   ;
-  void fastParseOrderedChoice3(State<StringReader> state) {
+  void fastParseOrderedChoice3(State<String> state) {
     // [0]
     matchChar(state, 48, const ErrorExpectedCharacter(48));
     if (!state.ok) {
@@ -1689,7 +1690,7 @@ class Test2Parser {
   /// RepetitionMax =
   ///   [\u{1f680}]{,3}
   ///   ;
-  void fastParseRepetitionMax(State<StringReader> state) {
+  void fastParseRepetitionMax(State<String> state) {
     // [\u{1f680}]{,3}
     var $1 = 0;
     while ($1 < 3) {
@@ -1766,7 +1767,7 @@ class Test2Parser {
   ///     [\u{1f680}]{3,}
   ///   / [\u{1f680}]
   ///   ;
-  void fastParseRepetitionMin(State<StringReader> state) {
+  void fastParseRepetitionMin(State<String> state) {
     // [\u{1f680}]{3,}
     final $1 = state.pos;
     var $2 = 0;
@@ -1886,7 +1887,7 @@ class Test2Parser {
   ///     [\u{1f680}]{2,3}
   ///   / [\u{1f680}]
   ///   ;
-  void fastParseRepetitionMinMax(State<StringReader> state) {
+  void fastParseRepetitionMinMax(State<String> state) {
     // [\u{1f680}]{2,3}
     final $1 = state.pos;
     var $2 = 0;
@@ -2006,7 +2007,7 @@ class Test2Parser {
   ///     [\u{1f680}]{3,3}
   ///   / [\u{1f680}]
   ///   ;
-  void fastParseRepetitionN(State<StringReader> state) {
+  void fastParseRepetitionN(State<String> state) {
     // [\u{1f680}]{3,3}
     final $1 = state.pos;
     var $2 = 0;
@@ -2119,7 +2120,7 @@ class Test2Parser {
   /// SepBy =
   ///   @sepBy([0], [,])
   ///   ;
-  void fastParseSepBy(State<StringReader> state) {
+  void fastParseSepBy(State<String> state) {
     // @sepBy([0], [,])
     // [0]
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2247,7 +2248,7 @@ class Test2Parser {
   /// Sequence1 =
   ///   [0]
   ///   ;
-  void fastParseSequence1(State<StringReader> state) {
+  void fastParseSequence1(State<String> state) {
     // [0]
     matchChar(state, 48, const ErrorExpectedCharacter(48));
   }
@@ -2295,7 +2296,7 @@ class Test2Parser {
   /// Sequence1WithAction =
   ///   [0] <int>{}
   ///   ;
-  void fastParseSequence1WithAction(State<StringReader> state) {
+  void fastParseSequence1WithAction(State<String> state) {
     // [0] <int>{}
     matchChar(state, 48, const ErrorExpectedCharacter(48));
     if (state.ok) {
@@ -2353,7 +2354,7 @@ class Test2Parser {
   /// Sequence1WithVariable =
   ///   v:[0]
   ///   ;
-  void fastParseSequence1WithVariable(State<StringReader> state) {
+  void fastParseSequence1WithVariable(State<String> state) {
     // v:[0]
     matchChar(state, 48, const ErrorExpectedCharacter(48));
   }
@@ -2401,7 +2402,7 @@ class Test2Parser {
   /// Sequence1WithVariableWithAction =
   ///   v:[0] <int>{}
   ///   ;
-  void fastParseSequence1WithVariableWithAction(State<StringReader> state) {
+  void fastParseSequence1WithVariableWithAction(State<String> state) {
     // v:[0] <int>{}
     int? $1;
     $1 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2463,7 +2464,7 @@ class Test2Parser {
   /// Sequence2 =
   ///   [0] [1]
   ///   ;
-  void fastParseSequence2(State<StringReader> state) {
+  void fastParseSequence2(State<String> state) {
     // [0] [1]
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2546,7 +2547,7 @@ class Test2Parser {
   /// Sequence2WithAction =
   ///   [0] [1] <int>{}
   ///   ;
-  void fastParseSequence2WithAction(State<StringReader> state) {
+  void fastParseSequence2WithAction(State<String> state) {
     // [0] [1] <int>{}
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2637,7 +2638,7 @@ class Test2Parser {
   /// Sequence2WithVariable =
   ///   v:[0] [1]
   ///   ;
-  void fastParseSequence2WithVariable(State<StringReader> state) {
+  void fastParseSequence2WithVariable(State<String> state) {
     // v:[0] [1]
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2720,7 +2721,7 @@ class Test2Parser {
   /// Sequence2WithVariableWithAction =
   ///   v:[0] [1] <int>{}
   ///   ;
-  void fastParseSequence2WithVariableWithAction(State<StringReader> state) {
+  void fastParseSequence2WithVariableWithAction(State<String> state) {
     // v:[0] [1] <int>{}
     final $0 = state.pos;
     int? $1;
@@ -2815,7 +2816,7 @@ class Test2Parser {
   /// Sequence2WithVariables =
   ///   v1:[0] v2:[1]
   ///   ;
-  void fastParseSequence2WithVariables(State<StringReader> state) {
+  void fastParseSequence2WithVariables(State<String> state) {
     // v1:[0] v2:[1]
     final $0 = state.pos;
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -2898,7 +2899,7 @@ class Test2Parser {
   /// Sequence2WithVariablesWithAction =
   ///   v1:[0] v2:[1] <int>{}
   ///   ;
-  void fastParseSequence2WithVariablesWithAction(State<StringReader> state) {
+  void fastParseSequence2WithVariablesWithAction(State<String> state) {
     // v1:[0] v2:[1] <int>{}
     final $0 = state.pos;
     int? $1;
@@ -2998,7 +2999,7 @@ class Test2Parser {
   ///     $([0] [1] [2])
   ///   / $([0] [1])
   ///   ;
-  void fastParseSlice(State<StringReader> state) {
+  void fastParseSlice(State<String> state) {
     // $([0] [1] [2])
     // [0] [1] [2]
     final $2 = state.pos;
@@ -3178,7 +3179,7 @@ class Test2Parser {
   /// StringChars =
   ///   @stringChars($[0-9]+, [\\], [t] <String>{})
   ///   ;
-  void fastParseStringChars(State<StringReader> state) {
+  void fastParseStringChars(State<String> state) {
     // @stringChars($[0-9]+, [\\], [t] <String>{})
     final $7 = state.input;
     while (state.pos < $7.length) {
@@ -3187,10 +3188,10 @@ class Test2Parser {
       while (true) {
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $4 = state.input.readChar(state.pos);
+          final $4 = state.input.runeAt(state.pos);
           state.ok = $4 >= 48 && $4 <= 57;
           if (state.ok) {
-            state.pos += state.input.count;
+            state.pos += $4 > 0xffff ? 2 : 1;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -3371,18 +3372,19 @@ class Test2Parser {
   /// Verify =
   ///   @verify(.)
   ///   ;
-  void fastParseVerify(State<StringReader> state) {
+  void fastParseVerify(State<String> state) {
     // @verify(.)
     final $4 = state.pos;
     final $3 = state.failPos;
     final $2 = state.errorCount;
     int? $1;
     // .
-    final $6 = state.input;
-    if (state.pos < $6.length) {
-      $1 = $6.readChar(state.pos);
-      state.pos += $6.count;
+    final $7 = state.input;
+    if (state.pos < $7.length) {
+      final $6 = $7.runeAt(state.pos);
+      state.pos += $6 > 0xffff ? 2 : 1;
       state.ok = true;
+      $1 = $6;
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
@@ -3492,15 +3494,15 @@ class Test2Parser {
   /// ZeroOrMore =
   ///   [0]*
   ///   ;
-  void fastParseZeroOrMore(State<StringReader> state) {
+  void fastParseZeroOrMore(State<String> state) {
     // [0]*
     while (state.pos < state.input.length) {
-      final $1 = state.input.readChar(state.pos);
+      final $1 = state.input.runeAt(state.pos);
       state.ok = $1 == 48;
       if (!state.ok) {
         break;
       }
-      state.pos += state.input.count;
+      state.pos += $1 > 0xffff ? 2 : 1;
     }
     state.fail(const ErrorUnexpectedCharacter());
     state.ok = true;
@@ -3560,7 +3562,7 @@ class Test2Parser {
   /// AndPredicate =
   ///   &([0] [1] [2]) [0] [1] [2]
   ///   ;
-  List<Object?>? parseAndPredicate(State<StringReader> state) {
+  List<Object?>? parseAndPredicate(State<String> state) {
     List<Object?>? $0;
     // &([0] [1] [2]) [0] [1] [2]
     final $1 = state.pos;
@@ -3786,14 +3788,15 @@ class Test2Parser {
   /// AnyCharacter =
   ///   .
   ///   ;
-  int? parseAnyCharacter(State<StringReader> state) {
+  int? parseAnyCharacter(State<String> state) {
     int? $0;
     // .
-    final $2 = state.input;
-    if (state.pos < $2.length) {
-      $0 = $2.readChar(state.pos);
-      state.pos += $2.count;
+    final $3 = state.input;
+    if (state.pos < $3.length) {
+      final $2 = $3.runeAt(state.pos);
+      state.pos += $2 > 0xffff ? 2 : 1;
       state.ok = true;
+      $0 = $2;
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
@@ -3856,7 +3859,7 @@ class Test2Parser {
   ///     @buffer(([0] [1] [2]))
   ///   / ([0] [1])
   ///   ;
-  List<Object?>? parseBuffer(State<StringReader> state) {
+  List<Object?>? parseBuffer(State<String> state) {
     List<Object?>? $0;
     // @buffer(([0] [1] [2]))
     // ([0] [1] [2])
@@ -4059,15 +4062,15 @@ class Test2Parser {
   /// CharacterClass =
   ///   [0-9]
   ///   ;
-  int? parseCharacterClass(State<StringReader> state) {
+  int? parseCharacterClass(State<String> state) {
     int? $0;
     // [0-9]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $2 = state.input.readChar(state.pos);
+      final $2 = state.input.runeAt(state.pos);
       state.ok = $2 >= 48 && $2 <= 57;
       if (state.ok) {
-        state.pos += state.input.count;
+        state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -4139,7 +4142,7 @@ class Test2Parser {
   /// CharacterClassChar32 =
   ///   [\u{1f680}]
   ///   ;
-  int? parseCharacterClassChar32(State<StringReader> state) {
+  int? parseCharacterClassChar32(State<String> state) {
     int? $0;
     // [\u{1f680}]
     $0 = matchChar(state, 128640, const ErrorExpectedCharacter(128640));
@@ -4192,15 +4195,15 @@ class Test2Parser {
   /// CharacterClassRange32 =
   ///   [ -\u{1f680}]
   ///   ;
-  int? parseCharacterClassRange32(State<StringReader> state) {
+  int? parseCharacterClassRange32(State<String> state) {
     int? $0;
     // [ -\u{1f680}]
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $2 = state.input.readChar(state.pos);
+      final $2 = state.input.runeAt(state.pos);
       state.ok = $2 >= 32 && $2 <= 128640;
       if (state.ok) {
-        state.pos += state.input.count;
+        state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -4273,7 +4276,7 @@ class Test2Parser {
   /// Eof =
   ///   [0] !.
   ///   ;
-  List<Object?>? parseEof(State<StringReader> state) {
+  List<Object?>? parseEof(State<String> state) {
     List<Object?>? $0;
     // [0] !.
     final $1 = state.pos;
@@ -4282,10 +4285,10 @@ class Test2Parser {
     if (state.ok) {
       Object? $3;
       final $4 = state.pos;
-      final $6 = state.input;
-      if (state.pos < $6.length) {
-        $6.readChar(state.pos);
-        state.pos += $6.count;
+      final $7 = state.input;
+      if (state.pos < $7.length) {
+        final $6 = $7.runeAt(state.pos);
+        state.pos += $6 > 0xffff ? 2 : 1;
         state.ok = true;
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
@@ -4412,7 +4415,7 @@ class Test2Parser {
   /// ErrorHandler =
   ///   @errorHandler([0])
   ///   ;
-  int? parseErrorHandler(State<StringReader> state) {
+  int? parseErrorHandler(State<String> state) {
     int? $0;
     // @errorHandler([0])
     final $2 = state.failPos;
@@ -4509,7 +4512,7 @@ class Test2Parser {
   /// Literal0 =
   ///   ''
   ///   ;
-  String? parseLiteral0(State<StringReader> state) {
+  String? parseLiteral0(State<String> state) {
     String? $0;
     // ''
     state.ok = true;
@@ -4552,7 +4555,7 @@ class Test2Parser {
   /// Literal1 =
   ///   '0'
   ///   ;
-  String? parseLiteral1(State<StringReader> state) {
+  String? parseLiteral1(State<String> state) {
     String? $0;
     // '0'
     const $2 = '0';
@@ -4605,7 +4608,7 @@ class Test2Parser {
   /// Literal2 =
   ///   '01'
   ///   ;
-  String? parseLiteral2(State<StringReader> state) {
+  String? parseLiteral2(State<String> state) {
     String? $0;
     // '01'
     const $2 = '01';
@@ -4660,25 +4663,25 @@ class Test2Parser {
   ///     '012'
   ///   / '01'
   ///   ;
-  String? parseLiterals(State<StringReader> state) {
+  String? parseLiterals(State<String> state) {
     String? $0;
+    final $6 = state.pos;
     state.ok = false;
     final $3 = state.input;
     if (state.pos < $3.length) {
-      final $1 = $3.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $2 = $3.count;
+      final $1 = $3.runeAt(state.pos);
+      state.pos += $1 > 0xffff ? 2 : 1;
       switch ($1) {
         case 48:
           const $4 = '012';
-          state.ok = $3.startsWith($4, state.pos);
+          state.ok = $3.startsWith($4, state.pos - 1);
           if (state.ok) {
-            state.pos += $3.count;
+            state.pos += 2;
             $0 = $4;
           } else {
-            state.ok = $3.matchChar(49, state.pos + $2);
+            state.ok = state.pos < $3.length && $3.runeAt(state.pos) == 49;
             if (state.ok) {
-              state.pos += $2 + $3.count;
+              state.pos += 1;
               $0 = '01';
             }
           }
@@ -4686,6 +4689,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
+      state.pos = $6;
       state.fail(const ErrorExpectedTags(['012', '01']));
     }
     return $0;
@@ -4762,7 +4766,7 @@ class Test2Parser {
   /// MatchString =
   ///   @matchString()
   ///   ;
-  String? parseMatchString(State<StringReader> state) {
+  String? parseMatchString(State<String> state) {
     String? $0;
     // @matchString()
     final $2 = text;
@@ -4815,7 +4819,7 @@ class Test2Parser {
   /// NotPredicate =
   ///   !([0] [1] [2]) [0] [1]
   ///   ;
-  List<Object?>? parseNotPredicate(State<StringReader> state) {
+  List<Object?>? parseNotPredicate(State<String> state) {
     List<Object?>? $0;
     // !([0] [1] [2]) [0] [1]
     final $1 = state.pos;
@@ -5023,7 +5027,7 @@ class Test2Parser {
   /// OneOrMore =
   ///   [0]+
   ///   ;
-  List<int>? parseOneOrMore(State<StringReader> state) {
+  List<int>? parseOneOrMore(State<String> state) {
     List<int>? $0;
     // [0]+
     final $2 = <int>[];
@@ -5109,7 +5113,7 @@ class Test2Parser {
   /// Optional =
   ///   [0]? [1]
   ///   ;
-  List<Object?>? parseOptional(State<StringReader> state) {
+  List<Object?>? parseOptional(State<String> state) {
     List<Object?>? $0;
     // [0]? [1]
     final $1 = state.pos;
@@ -5212,7 +5216,7 @@ class Test2Parser {
   ///     [0]
   ///   / [1]
   ///   ;
-  int? parseOrderedChoice2(State<StringReader> state) {
+  int? parseOrderedChoice2(State<String> state) {
     int? $0;
     // [0]
     $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -5292,7 +5296,7 @@ class Test2Parser {
   ///   / [1]
   ///   / [2]
   ///   ;
-  int? parseOrderedChoice3(State<StringReader> state) {
+  int? parseOrderedChoice3(State<String> state) {
     int? $0;
     // [0]
     $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -5394,7 +5398,7 @@ class Test2Parser {
   /// RepetitionMax =
   ///   [\u{1f680}]{,3}
   ///   ;
-  List<int>? parseRepetitionMax(State<StringReader> state) {
+  List<int>? parseRepetitionMax(State<String> state) {
     List<int>? $0;
     // [\u{1f680}]{,3}
     final $2 = <int>[];
@@ -5482,7 +5486,7 @@ class Test2Parser {
   ///     [\u{1f680}]{3,}
   ///   / [\u{1f680}]
   ///   ;
-  Object? parseRepetitionMin(State<StringReader> state) {
+  Object? parseRepetitionMin(State<String> state) {
     Object? $0;
     // [\u{1f680}]{3,}
     final $2 = state.pos;
@@ -5613,7 +5617,7 @@ class Test2Parser {
   ///     [\u{1f680}]{2,3}
   ///   / [\u{1f680}]
   ///   ;
-  Object? parseRepetitionMinMax(State<StringReader> state) {
+  Object? parseRepetitionMinMax(State<String> state) {
     Object? $0;
     // [\u{1f680}]{2,3}
     final $2 = state.pos;
@@ -5744,7 +5748,7 @@ class Test2Parser {
   ///     [\u{1f680}]{3,3}
   ///   / [\u{1f680}]
   ///   ;
-  Object? parseRepetitionN(State<StringReader> state) {
+  Object? parseRepetitionN(State<String> state) {
     Object? $0;
     // [\u{1f680}]{3,3}
     final $2 = state.pos;
@@ -5867,7 +5871,7 @@ class Test2Parser {
   /// SepBy =
   ///   @sepBy([0], [,])
   ///   ;
-  List<int>? parseSepBy(State<StringReader> state) {
+  List<int>? parseSepBy(State<String> state) {
     List<int>? $0;
     // @sepBy([0], [,])
     final $3 = <int>[];
@@ -6011,7 +6015,7 @@ class Test2Parser {
   /// Sequence1 =
   ///   [0]
   ///   ;
-  int? parseSequence1(State<StringReader> state) {
+  int? parseSequence1(State<String> state) {
     int? $0;
     // [0]
     $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -6062,7 +6066,7 @@ class Test2Parser {
   /// Sequence1WithAction =
   ///   [0] <int>{}
   ///   ;
-  int? parseSequence1WithAction(State<StringReader> state) {
+  int? parseSequence1WithAction(State<String> state) {
     int? $0;
     // [0] <int>{}
     matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -6124,7 +6128,7 @@ class Test2Parser {
   /// Sequence1WithVariable =
   ///   v:[0]
   ///   ;
-  int? parseSequence1WithVariable(State<StringReader> state) {
+  int? parseSequence1WithVariable(State<String> state) {
     int? $0;
     // v:[0]
     $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -6176,7 +6180,7 @@ class Test2Parser {
   /// Sequence1WithVariableWithAction =
   ///   v:[0] <int>{}
   ///   ;
-  int? parseSequence1WithVariableWithAction(State<StringReader> state) {
+  int? parseSequence1WithVariableWithAction(State<String> state) {
     int? $0;
     // v:[0] <int>{}
     $0 = matchChar(state, 48, const ErrorExpectedCharacter(48));
@@ -6240,7 +6244,7 @@ class Test2Parser {
   /// Sequence2 =
   ///   [0] [1]
   ///   ;
-  List<Object?>? parseSequence2(State<StringReader> state) {
+  List<Object?>? parseSequence2(State<String> state) {
     List<Object?>? $0;
     // [0] [1]
     final $1 = state.pos;
@@ -6335,7 +6339,7 @@ class Test2Parser {
   /// Sequence2WithAction =
   ///   [0] [1] <int>{}
   ///   ;
-  int? parseSequence2WithAction(State<StringReader> state) {
+  int? parseSequence2WithAction(State<String> state) {
     int? $0;
     // [0] [1] <int>{}
     final $1 = state.pos;
@@ -6430,7 +6434,7 @@ class Test2Parser {
   /// Sequence2WithVariable =
   ///   v:[0] [1]
   ///   ;
-  int? parseSequence2WithVariable(State<StringReader> state) {
+  int? parseSequence2WithVariable(State<String> state) {
     int? $0;
     // v:[0] [1]
     final $1 = state.pos;
@@ -6523,7 +6527,7 @@ class Test2Parser {
   /// Sequence2WithVariableWithAction =
   ///   v:[0] [1] <int>{}
   ///   ;
-  int? parseSequence2WithVariableWithAction(State<StringReader> state) {
+  int? parseSequence2WithVariableWithAction(State<String> state) {
     int? $0;
     // v:[0] [1] <int>{}
     final $1 = state.pos;
@@ -6622,7 +6626,7 @@ class Test2Parser {
   /// Sequence2WithVariables =
   ///   v1:[0] v2:[1]
   ///   ;
-  ({int v1, int v2})? parseSequence2WithVariables(State<StringReader> state) {
+  ({int v1, int v2})? parseSequence2WithVariables(State<String> state) {
     ({int v1, int v2})? $0;
     // v1:[0] v2:[1]
     final $1 = state.pos;
@@ -6717,7 +6721,7 @@ class Test2Parser {
   /// Sequence2WithVariablesWithAction =
   ///   v1:[0] v2:[1] <int>{}
   ///   ;
-  int? parseSequence2WithVariablesWithAction(State<StringReader> state) {
+  int? parseSequence2WithVariablesWithAction(State<String> state) {
     int? $0;
     // v1:[0] v2:[1] <int>{}
     final $1 = state.pos;
@@ -6821,7 +6825,7 @@ class Test2Parser {
   ///     $([0] [1] [2])
   ///   / $([0] [1])
   ///   ;
-  String? parseSlice(State<StringReader> state) {
+  String? parseSlice(State<String> state) {
     String? $0;
     // $([0] [1] [2])
     final $2 = state.pos;
@@ -7064,7 +7068,7 @@ class Test2Parser {
   ///   / (v:Verify Verify)
   ///   / (v:ZeroOrMore ZeroOrMore)
   ///   ;
-  Object? parseStart(State<StringReader> state) {
+  Object? parseStart(State<String> state) {
     Object? $0;
     // (v:AndPredicate AndPredicate)
     // v:AndPredicate AndPredicate
@@ -9832,7 +9836,7 @@ class Test2Parser {
   /// StringChars =
   ///   @stringChars($[0-9]+, [\\], [t] <String>{})
   ///   ;
-  String? parseStringChars(State<StringReader> state) {
+  String? parseStringChars(State<String> state) {
     String? $0;
     // @stringChars($[0-9]+, [\\], [t] <String>{})
     final $10 = state.input;
@@ -9846,10 +9850,10 @@ class Test2Parser {
       while (true) {
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.readChar(state.pos);
+          final $7 = state.input.runeAt(state.pos);
           state.ok = $7 >= 48 && $7 <= 57;
           if (state.ok) {
-            state.pos += state.input.count;
+            state.pos += $7 > 0xffff ? 2 : 1;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -10079,18 +10083,19 @@ class Test2Parser {
   /// Verify =
   ///   @verify(.)
   ///   ;
-  int? parseVerify(State<StringReader> state) {
+  int? parseVerify(State<String> state) {
     int? $0;
     // @verify(.)
     final $4 = state.pos;
     final $3 = state.failPos;
     final $2 = state.errorCount;
     // .
-    final $6 = state.input;
-    if (state.pos < $6.length) {
-      $0 = $6.readChar(state.pos);
-      state.pos += $6.count;
+    final $7 = state.input;
+    if (state.pos < $7.length) {
+      final $6 = $7.runeAt(state.pos);
+      state.pos += $6 > 0xffff ? 2 : 1;
       state.ok = true;
+      $0 = $6;
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
@@ -10204,7 +10209,7 @@ class Test2Parser {
   /// ZeroOrMore =
   ///   [0]*
   ///   ;
-  List<int>? parseZeroOrMore(State<StringReader> state) {
+  List<int>? parseZeroOrMore(State<String> state) {
     List<int>? $0;
     // [0]*
     final $2 = <int>[];
@@ -10288,11 +10293,11 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<StringReader> state, int char, ParseError error) {
+  int? matchChar(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = input.matchChar(char, state.pos);
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       return char;
     } else {
       state.fail(error);
@@ -10326,12 +10331,11 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(
-      State<StringReader> state, String string, ParseError error) {
+  String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
     state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += string.length;
       return string;
     } else {
       state.fail(error);
@@ -10342,11 +10346,11 @@ class Test2Parser {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral1(
-      State<StringReader> state, int char, String string, ParseError error) {
+      State<String> state, int char, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       state.ok = true;
       return string;
     }
@@ -10394,9 +10398,8 @@ class Test2Parser {
 }
 
 void fastParseString(
-    void Function(State<StringReader> state) fastParse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(fastParse, input);
+    void Function(State<String> state) fastParse, String source) {
+  final result = tryParse(fastParse, source);
   result.getResult();
 }
 
@@ -10421,9 +10424,8 @@ Sink<String> parseAsync<O>(
   return input;
 }
 
-O parseString<O>(O? Function(State<StringReader> state) parse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(parse, input);
+O parseString<O>(O? Function(State<String> state) parse, String source) {
+  final result = tryParse(parse, source);
   return result.getResult();
 }
 
@@ -10449,18 +10451,14 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .map((e) => e.getErrorMessage(input, offset))
       .toList();
   String? message;
-  if (input is StringReader) {
-    if (input.hasSource) {
-      final source2 = _StringWrapper(
-        invalidChar: 32,
-        leftPadding: 0,
-        rightPadding: 0,
-        source: input.source,
-      );
-      message = _errorMessage(source2, offset, normalized);
-    } else {
-      message = _errorMessageWithoutSource(input, offset, normalized);
-    }
+  if (input is String) {
+    final source = _StringWrapper(
+      invalidChar: 32,
+      leftPadding: 0,
+      rightPadding: 0,
+      source: input,
+    );
+    message = _errorMessage(source, offset, normalized);
   } else if (input is ChunkedParsingSink) {
     final source2 = _StringWrapper(
       invalidChar: 32,
@@ -10569,44 +10567,6 @@ String _errorMessage(
   return sb.toString();
 }
 
-String _errorMessageWithoutSource(
-    StringReader input, int offset, List<ErrorMessage> errors) {
-  final sb = StringBuffer();
-  final errorInfoList = errors
-      .map((e) => (length: e.length, message: e.toString()))
-      .toSet()
-      .toList();
-  for (var i = 0; i < errorInfoList.length; i++) {
-    int max(int x, int y) => x > y ? x : y;
-    int min(int x, int y) => x < y ? x : y;
-    if (sb.isNotEmpty) {
-      sb.writeln();
-      sb.writeln();
-    }
-
-    final errorInfo = errorInfoList[i];
-    final length = errorInfo.length;
-    final message = errorInfo.message;
-    final start = min(offset + length, offset);
-    final end = max(offset + length, offset);
-    final inputLen = input.length;
-    final lineLimit = min(80, inputLen);
-    final start2 = start;
-    final end2 = min(start2 + lineLimit, end);
-    final errorLen = end2 - start;
-    final indicatorLen = max(1, errorLen);
-    var text = input.substring(start, lineLimit);
-    text = text.replaceAll('\n', ' ');
-    text = text.replaceAll('\r', ' ');
-    text = text.replaceAll('\t', ' ');
-    sb.writeln('offset $offset: $message');
-    sb.writeln(text);
-    sb.write('^' * indicatorLen);
-  }
-
-  return sb.toString();
-}
-
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -10635,7 +10595,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.position);
+      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -10656,12 +10616,6 @@ class AsyncResult<T> {
   void Function()? onComplete;
 
   T? value;
-}
-
-abstract interface class ByteReader {
-  int get length;
-
-  int readByte(int offset);
 }
 
 class ChunkedParsingSink implements Sink<String> {
@@ -10867,9 +10821,9 @@ class ErrorUnexpectedCharacter extends ParseError {
     var argument = '<?>';
     var char = this.char;
     if (offset != null && offset > 0) {
-      if (input is StringReader && input.hasSource) {
+      if (input is String) {
         if (offset < input.length) {
-          char = input.readChar(offset);
+          char = input.runeAt(offset);
         } else {
           argument = '<EOF>';
         }
@@ -11109,17 +11063,14 @@ class State<T> {
 
   @override
   String toString() {
-    if (input case final StringReader input) {
-      if (input.hasSource) {
-        final source = input.source;
-        if (pos >= source.length) {
-          return '$pos:';
-        }
-        var length = source.length - pos;
-        length = length > 40 ? 40 : length;
-        final string = source.substring(pos, pos + length);
-        return '$pos:$string';
+    if (input case final String input) {
+      if (pos >= input.length) {
+        return '$pos:';
       }
+      var length = input.length - pos;
+      length = length > 40 ? 40 : length;
+      final string = input.substring(pos, pos + length);
+      return '$pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
@@ -11153,101 +11104,6 @@ class State<T> {
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
     }
-  }
-}
-
-abstract interface class StringReader {
-  factory StringReader(String source) {
-    return _StringReader(source);
-  }
-
-  int get count;
-
-  bool get hasSource;
-
-  int get length;
-
-  String get source;
-
-  int indexOf(String string, int start);
-
-  bool matchChar(int char, int offset);
-
-  int readChar(int offset);
-
-  bool startsWith(String string, [int index = 0]);
-
-  String substring(int start, [int? end]);
-}
-
-class _StringReader implements StringReader {
-  @override
-  final bool hasSource = true;
-
-  @override
-  final int length;
-
-  @override
-  int count = 0;
-
-  @override
-  final String source;
-
-  _StringReader(this.source) : length = source.length;
-
-  @override
-  int indexOf(String string, int start) {
-    return source.indexOf(string, start);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool matchChar(int char, int offset) {
-    if (offset < length) {
-      final c = source.runeAt(offset);
-      count = char > 0xffff ? 2 : 1;
-      if (c == char) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar(int offset) {
-    final result = source.runeAt(offset);
-    count = result > 0xffff ? 2 : 1;
-    return result;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool startsWith(String string, [int index = 0]) {
-    if (source.startsWith(string, index)) {
-      count = string.length;
-      return true;
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String substring(int start, [int? end]) {
-    final result = source.substring(start, end);
-    count = result.length;
-    return result;
-  }
-
-  @override
-  String toString() {
-    return source;
   }
 }
 

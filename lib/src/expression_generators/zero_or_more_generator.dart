@@ -267,12 +267,12 @@ class _ZeroOrMoreGenerator3 extends ExpressionGenerator<ZeroOrMoreExpression> {
     values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
     const template = '''
 while (state.pos < state.input.length) {
-  final {{c}} = state.input.readChar(state.pos);
+  final {{c}} = state.input.runeAt(state.pos);
   state.ok = {{predicate}};
   if (!state.ok) {
     break;
   }
-  state.pos += state.input.count;
+  state.pos += {{c}} > 0xffff ? 2 : 1;
 }
 state.fail(const ErrorUnexpectedCharacter());
 state.ok = true;''';

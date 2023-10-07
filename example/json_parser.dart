@@ -40,15 +40,15 @@ class JsonParser {
   /// Spaces =
   ///   [ \n\r\t]*
   ///   ;
-  void fastParseSpaces(State<StringReader> state) {
+  void fastParseSpaces(State<String> state) {
     // [ \n\r\t]*
     while (state.pos < state.input.length) {
-      final $1 = state.input.readChar(state.pos);
+      final $1 = state.input.runeAt(state.pos);
       state.ok = $1 == 13 || $1 >= 9 && $1 <= 10 || $1 == 32;
       if (!state.ok) {
         break;
       }
-      state.pos += state.input.count;
+      state.pos += $1 > 0xffff ? 2 : 1;
     }
     state.fail(const ErrorUnexpectedCharacter());
     state.ok = true;
@@ -123,7 +123,7 @@ class JsonParser {
   /// Array =
   ///   OpenBracket v:Values CloseBracket
   ///   ;
-  List<Object?>? parseArray(State<StringReader> state) {
+  List<Object?>? parseArray(State<String> state) {
     beginEvent(JsonParserEvent.arrayEvent);
     List<Object?>? $0;
     // OpenBracket v:Values CloseBracket
@@ -329,19 +329,19 @@ class JsonParser {
   /// EscapeChar =
   ///   c:["/bfnrt\\] {}
   ///   ;
-  String? parseEscapeChar(State<StringReader> state) {
+  String? parseEscapeChar(State<String> state) {
     String? $0;
     // c:["/bfnrt\\] {}
     int? $2;
     state.ok = state.pos < state.input.length;
     if (state.ok) {
-      final $3 = state.input.readChar(state.pos);
+      final $3 = state.input.runeAt(state.pos);
       state.ok = $3 == 98 ||
           ($3 < 98
               ? $3 == 47 || $3 == 34 || $3 == 92
               : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
       if (state.ok) {
-        state.pos += state.input.count;
+        state.pos += $3 > 0xffff ? 2 : 1;
         $2 = $3;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -432,7 +432,7 @@ class JsonParser {
   /// EscapeHex =
   ///   'u' v:HexNumber {}
   ///   ;
-  String? parseEscapeHex(State<StringReader> state) {
+  String? parseEscapeHex(State<String> state) {
     String? $0;
     // 'u' v:HexNumber {}
     final $1 = state.pos;
@@ -534,7 +534,7 @@ class JsonParser {
   /// HexNumber =
   ///   @errorHandler(HexNumberRaw)
   ///   ;
-  int? parseHexNumber(State<StringReader> state) {
+  int? parseHexNumber(State<String> state) {
     int? $0;
     // @errorHandler(HexNumberRaw)
     final $2 = state.failPos;
@@ -549,12 +549,12 @@ class JsonParser {
     while ($9 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $10 = state.input.readChar(state.pos);
+        final $10 = state.input.runeAt(state.pos);
         state.ok = $10 <= 70
             ? $10 >= 48 && $10 <= 57 || $10 >= 65
             : $10 >= 97 && $10 <= 102;
         if (state.ok) {
-          state.pos += state.input.count;
+          state.pos += $10 > 0xffff ? 2 : 1;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -734,7 +734,7 @@ class JsonParser {
   /// KeyValue =
   ///   k:Key Colon v:Value {}
   ///   ;
-  MapEntry<String, Object?>? parseKeyValue(State<StringReader> state) {
+  MapEntry<String, Object?>? parseKeyValue(State<String> state) {
     beginEvent(JsonParserEvent.keyValueEvent);
     MapEntry<String, Object?>? $0;
     // k:Key Colon v:Value {}
@@ -920,7 +920,7 @@ class JsonParser {
   /// KeyValues =
   ///   @sepBy(KeyValue, Comma)
   ///   ;
-  List<MapEntry<String, Object?>>? parseKeyValues(State<StringReader> state) {
+  List<MapEntry<String, Object?>>? parseKeyValues(State<String> state) {
     List<MapEntry<String, Object?>>? $0;
     // @sepBy(KeyValue, Comma)
     final $3 = <MapEntry<String, Object?>>[];
@@ -1110,7 +1110,7 @@ class JsonParser {
   /// Number =
   ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
   ///   ;
-  num? parseNumber(State<StringReader> state) {
+  num? parseNumber(State<String> state) {
     num? $0;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
     final $1 = state.pos;
@@ -1128,10 +1128,10 @@ class JsonParser {
         final $6 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.readChar(state.pos);
+          final $7 = state.input.runeAt(state.pos);
           state.ok = $7 >= 49 && $7 <= 57;
           if (state.ok) {
-            state.pos += state.input.count;
+            state.pos += $7 > 0xffff ? 2 : 1;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -1140,12 +1140,12 @@ class JsonParser {
         }
         if (state.ok) {
           while (state.pos < state.input.length) {
-            final $8 = state.input.readChar(state.pos);
+            final $8 = state.input.runeAt(state.pos);
             state.ok = $8 >= 48 && $8 <= 57;
             if (!state.ok) {
               break;
             }
-            state.pos += state.input.count;
+            state.pos += $8 > 0xffff ? 2 : 1;
           }
           state.fail(const ErrorUnexpectedCharacter());
           state.ok = true;
@@ -1163,10 +1163,10 @@ class JsonParser {
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $11 = state.input.readChar(state.pos);
+              final $11 = state.input.runeAt(state.pos);
               state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
-                state.pos += state.input.count;
+                state.pos += $11 > 0xffff ? 2 : 1;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -1189,10 +1189,10 @@ class JsonParser {
           final $12 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.readChar(state.pos);
+            final $13 = state.input.runeAt(state.pos);
             state.ok = $13 == 69 || $13 == 101;
             if (state.ok) {
-              state.pos += state.input.count;
+              state.pos += $13 > 0xffff ? 2 : 1;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -1202,10 +1202,10 @@ class JsonParser {
           if (state.ok) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $14 = state.input.readChar(state.pos);
+              final $14 = state.input.runeAt(state.pos);
               state.ok = $14 == 43 || $14 == 45;
               if (state.ok) {
-                state.pos += state.input.count;
+                state.pos += $14 > 0xffff ? 2 : 1;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -1218,10 +1218,10 @@ class JsonParser {
               while (true) {
                 state.ok = state.pos < state.input.length;
                 if (state.ok) {
-                  final $16 = state.input.readChar(state.pos);
+                  final $16 = state.input.runeAt(state.pos);
                   state.ok = $16 >= 48 && $16 <= 57;
                   if (state.ok) {
-                    state.pos += state.input.count;
+                    state.pos += $16 > 0xffff ? 2 : 1;
                   } else {
                     state.fail(const ErrorUnexpectedCharacter());
                   }
@@ -1719,7 +1719,7 @@ class JsonParser {
   /// Object =
   ///   OpenBrace kv:KeyValues CloseBrace {}
   ///   ;
-  Map<String, Object?>? parseObject(State<StringReader> state) {
+  Map<String, Object?>? parseObject(State<String> state) {
     beginEvent(JsonParserEvent.objectEvent);
     Map<String, Object?>? $0;
     // OpenBrace kv:KeyValues CloseBrace {}
@@ -1934,7 +1934,7 @@ class JsonParser {
   /// Start =
   ///   Spaces v:Value !.
   ///   ;
-  Object? parseStart(State<StringReader> state) {
+  Object? parseStart(State<String> state) {
     beginEvent(JsonParserEvent.startEvent);
     Object? $0;
     // Spaces v:Value !.
@@ -1947,10 +1947,10 @@ class JsonParser {
       $2 = parseValue(state);
       if (state.ok) {
         final $3 = state.pos;
-        final $5 = state.input;
-        if (state.pos < $5.length) {
-          $5.readChar(state.pos);
-          state.pos += $5.count;
+        final $6 = state.input;
+        if (state.pos < $6.length) {
+          final $5 = $6.runeAt(state.pos);
+          state.pos += $5 > 0xffff ? 2 : 1;
           state.ok = true;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
@@ -2100,7 +2100,7 @@ class JsonParser {
   /// String =
   ///   '"' v:StringChars Quote
   ///   ;
-  String? parseString(State<StringReader> state) {
+  String? parseString(State<String> state) {
     String? $0;
     // '"' v:StringChars Quote
     final $1 = state.pos;
@@ -2121,12 +2121,12 @@ class JsonParser {
         while (true) {
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $10 = state.input.readChar(state.pos);
+            final $10 = state.input.runeAt(state.pos);
             state.ok = $10 <= 91
                 ? $10 >= 32 && $10 <= 33 || $10 >= 35
                 : $10 >= 93 && $10 <= 1114111;
             if (state.ok) {
-              state.pos += state.input.count;
+              state.pos += $10 > 0xffff ? 2 : 1;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -2494,7 +2494,7 @@ class JsonParser {
   ///   / False
   ///   / Null
   ///   ;
-  Object? parseValue(State<StringReader> state) {
+  Object? parseValue(State<String> state) {
     beginEvent(JsonParserEvent.valueEvent);
     Object? $0;
     // Array
@@ -2879,7 +2879,7 @@ class JsonParser {
   /// Values =
   ///   @sepBy(Value, Comma)
   ///   ;
-  List<Object?>? parseValues(State<StringReader> state) {
+  List<Object?>? parseValues(State<String> state) {
     List<Object?>? $0;
     // @sepBy(Value, Comma)
     final $3 = <Object?>[];
@@ -3067,11 +3067,11 @@ class JsonParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<StringReader> state, int char, ParseError error) {
+  int? matchChar(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = input.matchChar(char, state.pos);
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       return char;
     } else {
       state.fail(error);
@@ -3105,12 +3105,11 @@ class JsonParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(
-      State<StringReader> state, String string, ParseError error) {
+  String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
     state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += string.length;
       return string;
     } else {
       state.fail(error);
@@ -3121,11 +3120,11 @@ class JsonParser {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral1(
-      State<StringReader> state, int char, String string, ParseError error) {
+      State<String> state, int char, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       state.ok = true;
       return string;
     }
@@ -3182,9 +3181,8 @@ enum JsonParserEvent {
 }
 
 void fastParseString(
-    void Function(State<StringReader> state) fastParse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(fastParse, input);
+    void Function(State<String> state) fastParse, String source) {
+  final result = tryParse(fastParse, source);
   result.getResult();
 }
 
@@ -3209,9 +3207,8 @@ Sink<String> parseAsync<O>(
   return input;
 }
 
-O parseString<O>(O? Function(State<StringReader> state) parse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(parse, input);
+O parseString<O>(O? Function(State<String> state) parse, String source) {
+  final result = tryParse(parse, source);
   return result.getResult();
 }
 
@@ -3237,18 +3234,14 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .map((e) => e.getErrorMessage(input, offset))
       .toList();
   String? message;
-  if (input is StringReader) {
-    if (input.hasSource) {
-      final source2 = _StringWrapper(
-        invalidChar: 32,
-        leftPadding: 0,
-        rightPadding: 0,
-        source: input.source,
-      );
-      message = _errorMessage(source2, offset, normalized);
-    } else {
-      message = _errorMessageWithoutSource(input, offset, normalized);
-    }
+  if (input is String) {
+    final source = _StringWrapper(
+      invalidChar: 32,
+      leftPadding: 0,
+      rightPadding: 0,
+      source: input,
+    );
+    message = _errorMessage(source, offset, normalized);
   } else if (input is ChunkedParsingSink) {
     final source2 = _StringWrapper(
       invalidChar: 32,
@@ -3357,44 +3350,6 @@ String _errorMessage(
   return sb.toString();
 }
 
-String _errorMessageWithoutSource(
-    StringReader input, int offset, List<ErrorMessage> errors) {
-  final sb = StringBuffer();
-  final errorInfoList = errors
-      .map((e) => (length: e.length, message: e.toString()))
-      .toSet()
-      .toList();
-  for (var i = 0; i < errorInfoList.length; i++) {
-    int max(int x, int y) => x > y ? x : y;
-    int min(int x, int y) => x < y ? x : y;
-    if (sb.isNotEmpty) {
-      sb.writeln();
-      sb.writeln();
-    }
-
-    final errorInfo = errorInfoList[i];
-    final length = errorInfo.length;
-    final message = errorInfo.message;
-    final start = min(offset + length, offset);
-    final end = max(offset + length, offset);
-    final inputLen = input.length;
-    final lineLimit = min(80, inputLen);
-    final start2 = start;
-    final end2 = min(start2 + lineLimit, end);
-    final errorLen = end2 - start;
-    final indicatorLen = max(1, errorLen);
-    var text = input.substring(start, lineLimit);
-    text = text.replaceAll('\n', ' ');
-    text = text.replaceAll('\r', ' ');
-    text = text.replaceAll('\t', ' ');
-    sb.writeln('offset $offset: $message');
-    sb.writeln(text);
-    sb.write('^' * indicatorLen);
-  }
-
-  return sb.toString();
-}
-
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -3423,7 +3378,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.position);
+      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -3444,12 +3399,6 @@ class AsyncResult<T> {
   void Function()? onComplete;
 
   T? value;
-}
-
-abstract interface class ByteReader {
-  int get length;
-
-  int readByte(int offset);
 }
 
 class ChunkedParsingSink implements Sink<String> {
@@ -3655,9 +3604,9 @@ class ErrorUnexpectedCharacter extends ParseError {
     var argument = '<?>';
     var char = this.char;
     if (offset != null && offset > 0) {
-      if (input is StringReader && input.hasSource) {
+      if (input is String) {
         if (offset < input.length) {
-          char = input.readChar(offset);
+          char = input.runeAt(offset);
         } else {
           argument = '<EOF>';
         }
@@ -3897,17 +3846,14 @@ class State<T> {
 
   @override
   String toString() {
-    if (input case final StringReader input) {
-      if (input.hasSource) {
-        final source = input.source;
-        if (pos >= source.length) {
-          return '$pos:';
-        }
-        var length = source.length - pos;
-        length = length > 40 ? 40 : length;
-        final string = source.substring(pos, pos + length);
-        return '$pos:$string';
+    if (input case final String input) {
+      if (pos >= input.length) {
+        return '$pos:';
       }
+      var length = input.length - pos;
+      length = length > 40 ? 40 : length;
+      final string = input.substring(pos, pos + length);
+      return '$pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
@@ -3941,101 +3887,6 @@ class State<T> {
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
     }
-  }
-}
-
-abstract interface class StringReader {
-  factory StringReader(String source) {
-    return _StringReader(source);
-  }
-
-  int get count;
-
-  bool get hasSource;
-
-  int get length;
-
-  String get source;
-
-  int indexOf(String string, int start);
-
-  bool matchChar(int char, int offset);
-
-  int readChar(int offset);
-
-  bool startsWith(String string, [int index = 0]);
-
-  String substring(int start, [int? end]);
-}
-
-class _StringReader implements StringReader {
-  @override
-  final bool hasSource = true;
-
-  @override
-  final int length;
-
-  @override
-  int count = 0;
-
-  @override
-  final String source;
-
-  _StringReader(this.source) : length = source.length;
-
-  @override
-  int indexOf(String string, int start) {
-    return source.indexOf(string, start);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool matchChar(int char, int offset) {
-    if (offset < length) {
-      final c = source.runeAt(offset);
-      count = char > 0xffff ? 2 : 1;
-      if (c == char) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar(int offset) {
-    final result = source.runeAt(offset);
-    count = result > 0xffff ? 2 : 1;
-    return result;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool startsWith(String string, [int index = 0]) {
-    if (source.startsWith(string, index)) {
-      count = string.length;
-      return true;
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String substring(int start, [int? end]) {
-    final result = source.substring(start, end);
-    count = result.length;
-    return result;
-  }
-
-  @override
-  String toString() {
-    return source;
   }
 }
 

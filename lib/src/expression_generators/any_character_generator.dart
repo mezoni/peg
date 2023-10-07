@@ -12,10 +12,11 @@ class AnyCharacterGenerator
   String generate() {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final input = allocateName();
-    values['input'] = input;
+    final c = allocateName();
+    values['c'] = c;
+    values['input'] = allocateName();
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $c;';
     } else {
       values['assign_result'] = '';
     }
@@ -23,9 +24,10 @@ class AnyCharacterGenerator
     const template = '''
 final {{input}} = state.input;
 if (state.pos < {{input}}.length) {
-  {{assign_result}}{{input}}.readChar(state.pos);
-  state.pos += {{input}}.count;
+  final {{c}} = {{input}}.runeAt(state.pos);
+  state.pos += {{c}} > 0xffff ? 2 : 1;
   state.ok = true;
+  {{assign_result}}
 } else {
   state.fail(const ErrorUnexpectedEndOfInput());
 }''';

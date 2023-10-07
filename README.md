@@ -856,18 +856,6 @@ Usage example:
    fastParseString(parser.fastParseSpaces, source);
 ```
 
-Name: `parseInput`  
-Purpose: Calls the specified parsing function on the specified input source and throws a `FormatException` if parsing fails. If parsing is successful, returns the result.
-
-Usage example:
-
-```dart
-   const source = '1 + 2 * 3';
-   final input = StringReader(source);
-   final parser = CalcParser();
-   parseInput(parser.parseStart, input);
-```
-
 Name: `tryParse`  
 Purpose: Calls the specified parse function on the specified input source and returns a `ParseResult` value.
 
@@ -875,19 +863,6 @@ Usage example:
 
 ```dart
    const source = '1 + 2 * 3';
-   final input = StringReader(source);
    final parser = CalcParser();
-   final result = tryParse(parser.parseSpaces, input);
-```
-
-Name: `tryFastParse`  
-Purpose: Calls the specified parse function on the specified input source and returns a `ParseResult` value.
-
-Usage example:
-
-```dart
-   const source = '1 + 2 * 3';
-   final input = StringReader(source);
-   final parser = CalcParser();
-   final result = tryFastParse(parser.fastParseSpaces, input);
+   final result = tryParse(parser.parseSpaces, source);
 ```

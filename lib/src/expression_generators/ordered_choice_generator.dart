@@ -109,99 +109,6 @@ break;''';
 
 class _OrderedChoiceGenerator2
     extends ExpressionGenerator<OrderedChoiceExpression> {
-  static const _template = '''
-state.ok = false;
-final {{input}} = state.input;
-if (state.pos < {{input}}.length) {
-  final {{c}} = {{input}}.readChar(state.pos);
-  // ignore: unused_local_variable
-  final {{count}} = {{input}}.count;
-  switch ({{c}}) {
-    {{cases}}
-  }
-}
-if (!state.ok) {
-  state.fail(const ErrorExpectedTags([{{strings}}]));
-}''';
-
-  static const _templateCase = '''
-case {{charCode}}:
-{{body}}
-break;''';
-
-  static const _templateNext = '''
-const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos);
-if (state.ok) {
-  state.pos += {{input}}.count;
-  {{r}} = {{string}};
-} else {
-  {{next}}
-}''';
-
-  static const _templateNextNoResult = '''
-const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos);
-if (state.ok) {
-  state.pos += {{input}}.count;
-} else {
-  {{next}}
-}''';
-
-  static const _template2Next = '''
-state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
-if (state.ok) {
-  state.pos += {{count}} + {{input}}.count;
-  {{r}} = {{text}};
-} else {
-  {{next}}
-}''';
-
-  static const _template2NextNoResult = '''
-state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
-if (state.ok) {
-  state.pos += {{count}} + {{input}}.count;
-} else {
-  {{next}}
-}''';
-
-  static const _templateLast = '''
-const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos);
-if (state.ok) {
-  state.pos += {{input}}.count;
-  {{r}} = {{string}};
-}''';
-
-  static const _templateLastNoResult = '''
-const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos);
-if (state.ok) {
-  state.pos += {{input}}.count;
-}''';
-
-  static const _template1Last = '''
-state.ok = true;
-state.pos += {{count}};
-{{r}} = {{text}};''';
-
-  static const _template1LastNoResult = '''
-state.ok = true;
-state.pos += {{count}};''';
-
-  static const _template2Last = '''
-state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
-if (state.ok) {
-  state.pos += {{count}} + {{input}}.count;
-  {{r}} = {{text}};
-}''';
-
-  static const _template2LastNoResult = '''
-state.ok = {{input}}.matchChar({{char}}, state.pos + {{count}});
-if (state.ok) {
-  state.pos += {{count}} + {{input}}.count;
-}''';
-
   final List<String> strings;
 
   _OrderedChoiceGenerator2({
@@ -223,7 +130,6 @@ if (state.ok) {
     }
 
     final c = allocateName();
-    final count = allocateName();
     final input = allocateName();
     final cases = <String>[];
     for (final entry in map.entries) {
@@ -235,33 +141,74 @@ if (state.ok) {
         final runes = value.runes.toList();
         final string = allocateName();
         final text = helper.escapeString(value);
+        final firstRuneSize = value.isEmpty
+            ? 0
+            : runes[0] > 0xffff
+                ? 2
+                : 1;
         values['string'] = string;
-        values['count'] = count;
         values['input'] = input;
         values['text'] = text;
-        if (runes.length == 2) {
-          values['char'] = runes[1].toString();
-        }
-
         if (i < strings.length - 1) {
           values['next'] = plunge(i + 1);
           var template = '';
           if (variable != null) {
             values['r'] = variable;
             if (runes.length == 1) {
-              template = _templateNext;
+              template = '''
+state.ok = true;
+{{r}} = {{text}};''';
             } else if (runes.length == 2) {
-              template = _template2Next;
+              final rune2 = runes[1];
+              values['char'] = rune2.toString();
+              values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+              template = '''
+state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += {{size}};
+  {{r}} = {{text}};
+} else {
+  {{next}}
+}''';
             } else {
-              template = _templateNext;
+              values['offset'] = firstRuneSize.toString();
+              values['size'] = (value.length - firstRuneSize).toString();
+              template = '''
+const {{string}} = {{text}};
+state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+if (state.ok) {
+  state.pos += {{size}};
+  {{r}} = {{string}};
+} else {
+  {{next}}
+}''';
             }
           } else {
             if (runes.length == 1) {
-              template = _templateNextNoResult;
+              template = '''
+state.ok = true;''';
             } else if (runes.length == 2) {
-              template = _template2NextNoResult;
+              final rune2 = runes[1];
+              values['char'] = rune2.toString();
+              values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+              template = '''
+state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += {{size}};
+} else {
+  {{next}}
+}''';
             } else {
-              template = _templateNextNoResult;
+              values['offset'] = firstRuneSize.toString();
+              values['size'] = (value.length - firstRuneSize).toString();
+              template = '''
+const {{string}} = {{text}};
+state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+if (state.ok) {
+  state.pos += {{size}};
+} else {
+  {{next}}
+}''';
             }
           }
 
@@ -272,19 +219,52 @@ if (state.ok) {
         if (variable != null) {
           values['r'] = variable;
           if (runes.length == 1) {
-            template = _template1Last;
+            template = '''
+state.ok = true;
+{{r}} = {{text}};''';
           } else if (runes.length == 2) {
-            template = _template2Last;
+            final rune2 = runes[1];
+            values['char'] = rune2.toString();
+            values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+            template = '''
+state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += {{size}};
+  {{r}} = {{text}};
+}''';
           } else {
-            template = _templateLast;
+            values['offset'] = firstRuneSize.toString();
+            values['size'] = (value.length - firstRuneSize).toString();
+            template = '''
+const {{string}} = {{text}};
+state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+if (state.ok) {
+  state.pos += {{size}};
+  {{r}} = {{string}};
+}''';
           }
         } else {
           if (runes.length == 1) {
-            template = _template1LastNoResult;
+            template = '''
+state.ok = true;''';
           } else if (runes.length == 2) {
-            template = _template2LastNoResult;
+            final rune2 = runes[1];
+            values['char'] = rune2.toString();
+            values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+            template = '''
+state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+if (state.ok) {
+  state.pos += {{size}};
+}''';
           } else {
-            template = _templateLastNoResult;
+            values['offset'] = firstRuneSize.toString();
+            values['size'] = (value.length - firstRuneSize).toString();
+            template = '''
+const {{string}} = {{text}};
+state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+if (state.ok) {
+  state.pos += {{size}};
+}''';
           }
         }
 
@@ -295,16 +275,35 @@ if (state.ok) {
       values['body'] = plunge(0);
       values['charCode'] = '$key';
       values['input'] = input;
-      final code = render(_templateCase, values);
+      const template = '''
+case {{charCode}}:
+{{body}}
+break;''';
+      final code = render(template, values);
       cases.add(code);
     }
 
     values['c'] = c;
     values['cases'] = cases.join('\n');
-    values['count'] = count;
     values['input'] = input;
+    values['pos'] = allocateName();
     values['strings'] = strings.map(helper.escapeString).join(', ');
-    return render(_template, values);
+    const template = '''
+final {{pos}} = state.pos;
+state.ok = false;
+final {{input}} = state.input;
+if (state.pos < {{input}}.length) {
+  final {{c}} = {{input}}.runeAt(state.pos);
+  state.pos += {{c}} > 0xffff ? 2 : 1;
+  switch ({{c}}) {
+    {{cases}}
+  }
+}
+if (!state.ok) {
+  state.pos = {{pos}};
+  state.fail(const ErrorExpectedTags([{{strings}}]));
+}''';
+    return render(template, values);
   }
 
   static String? optimize(OrderedChoiceGenerator generator) {

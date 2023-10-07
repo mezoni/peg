@@ -15,11 +15,11 @@ class {{className}} {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<StringReader> state, int char, ParseError error) {
+  int? matchChar(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = input.matchChar(char, state.pos);
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       return char;
     } else {
       state.fail(error);
@@ -53,12 +53,11 @@ class {{className}} {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(
-      State<StringReader> state, String string, ParseError error) {
+  String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
     state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += string.length;
       return string;
     } else {
       state.fail(error);
@@ -69,11 +68,11 @@ class {{className}} {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral1(
-      State<StringReader> state, int char, String string, ParseError error) {
+      State<String> state, int char, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       state.ok = true;
       return string;
     }

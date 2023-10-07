@@ -99,7 +99,7 @@ class ProductionRuleGenerator extends ExpressionVisitor<String> {
         if (hasEvent) {
           if (!isAsync) {
             template = '''
-void {{name}}(State<StringReader> state) {
+void {{name}}(State<String> state) {
   beginEvent({{event}});
   {{expression}}
   endEvent<Object?>({{event}}, null, state.ok);
@@ -117,7 +117,7 @@ AsyncResult<Object?> {{name}}(State<ChunkedParsingSink> state) {
         } else {
           if (!isAsync) {
             template = '''
-void {{name}}(State<StringReader> state) {
+void {{name}}(State<String> state) {
   {{expression}}
 }''';
           } else {
@@ -134,7 +134,7 @@ AsyncResult<Object?> {{name}}(State<ChunkedParsingSink> state) {
         if (hasEvent) {
           if (!isAsync) {
             template = '''
-{{nullable_type}} {{name}}(State<StringReader> state) {
+{{nullable_type}} {{name}}(State<String> state) {
   beginEvent({{event}});
   {{nullable_type}} {{r}};
   {{expression}}
@@ -155,7 +155,7 @@ AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
         } else {
           if (!isAsync) {
             template = '''
-{{nullable_type}} {{name}}(State<StringReader> state) {
+{{nullable_type}} {{name}}(State<String> state) {
   {{nullable_type}} {{r}};
   {{expression}}
   return {{r}};

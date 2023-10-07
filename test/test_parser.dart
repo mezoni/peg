@@ -7,7 +7,7 @@ class TestParser {
   /// Integer =
   ///   v:$[0-9]+ <int>{}
   ///   ;
-  void fastParseInteger(State<StringReader> state) {
+  void fastParseInteger(State<String> state) {
     // v:$[0-9]+ <int>{}
     String? $1;
     final $2 = state.pos;
@@ -15,10 +15,10 @@ class TestParser {
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $4 = state.input.readChar(state.pos);
+        final $4 = state.input.runeAt(state.pos);
         state.ok = $4 >= 48 && $4 <= 57;
         if (state.ok) {
-          state.pos += state.input.count;
+          state.pos += $4 > 0xffff ? 2 : 1;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -45,7 +45,7 @@ class TestParser {
   /// MatchString =
   ///   @matchString()
   ///   ;
-  void fastParseMatchString(State<StringReader> state) {
+  void fastParseMatchString(State<String> state) {
     // @matchString()
     final $1 = text;
     matchLiteral(state, $1, ErrorExpectedTags([$1]));
@@ -60,53 +60,52 @@ class TestParser {
   ///   / 'd'
   ///   / 'gh'
   ///   ;
-  void fastParseOrderedChoiceWithLiterals(State<StringReader> state) {
+  void fastParseOrderedChoiceWithLiterals(State<String> state) {
+    final $9 = state.pos;
     state.ok = false;
-    final $2 = state.input;
-    if (state.pos < $2.length) {
-      final $0 = $2.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $1 = $2.count;
+    final $1 = state.input;
+    if (state.pos < $1.length) {
+      final $0 = $1.runeAt(state.pos);
+      state.pos += $0 > 0xffff ? 2 : 1;
       switch ($0) {
         case 97:
-          const $3 = 'abc';
-          state.ok = $2.startsWith($3, state.pos);
+          const $2 = 'abc';
+          state.ok = $1.startsWith($2, state.pos - 1);
           if (state.ok) {
-            state.pos += $2.count;
+            state.pos += 2;
           } else {
-            state.ok = $2.matchChar(98, state.pos + $1);
+            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 98;
             if (state.ok) {
-              state.pos += $1 + $2.count;
+              state.pos += 1;
             } else {
               state.ok = true;
-              state.pos += $1;
             }
           }
           break;
         case 100:
-          const $6 = 'def';
-          state.ok = $2.startsWith($6, state.pos);
+          const $5 = 'def';
+          state.ok = $1.startsWith($5, state.pos - 1);
           if (state.ok) {
-            state.pos += $2.count;
+            state.pos += 2;
           } else {
-            state.ok = $2.matchChar(101, state.pos + $1);
+            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 101;
             if (state.ok) {
-              state.pos += $1 + $2.count;
+              state.pos += 1;
             } else {
               state.ok = true;
-              state.pos += $1;
             }
           }
           break;
         case 103:
-          state.ok = $2.matchChar(104, state.pos + $1);
+          state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 104;
           if (state.ok) {
-            state.pos += $1 + $2.count;
+            state.pos += 1;
           }
           break;
       }
     }
     if (!state.ok) {
+      state.pos = $9;
       state.fail(
           const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
@@ -115,7 +114,7 @@ class TestParser {
   /// SepBy =
   ///   @sepBy(Integer, ',')
   ///   ;
-  void fastParseSepBy(State<StringReader> state) {
+  void fastParseSepBy(State<String> state) {
     // @sepBy(Integer, ',')
     // Integer
     // Integer
@@ -144,7 +143,7 @@ class TestParser {
   /// SkipTil =
   ///   (![E] v:.)*
   ///   ;
-  void fastParseSkipTil(State<StringReader> state) {
+  void fastParseSkipTil(State<String> state) {
     // (![E] v:.)*
     const $2 = 'E';
     final $1 = state.input.indexOf($2, state.pos);
@@ -159,7 +158,7 @@ class TestParser {
   /// SkipUntil =
   ///   (!'END' v:.)*
   ///   ;
-  void fastParseSkipUntil(State<StringReader> state) {
+  void fastParseSkipUntil(State<String> state) {
     // (!'END' v:.)*
     const $2 = 'END';
     final $1 = state.input.indexOf($2, state.pos);
@@ -174,7 +173,7 @@ class TestParser {
   /// TakeTil =
   ///   $(![E] v:.)*
   ///   ;
-  void fastParseTakeTil(State<StringReader> state) {
+  void fastParseTakeTil(State<String> state) {
     // $(![E] v:.)*
     const $3 = 'E';
     final $2 = state.input.indexOf($3, state.pos);
@@ -189,7 +188,7 @@ class TestParser {
   /// TakeUntil =
   ///   $(!'END' v:.)*
   ///   ;
-  void fastParseTakeUntil(State<StringReader> state) {
+  void fastParseTakeUntil(State<String> state) {
     // $(!'END' v:.)*
     const $3 = 'END';
     final $2 = state.input.indexOf($3, state.pos);
@@ -204,7 +203,7 @@ class TestParser {
   /// Verify41 =
   ///   @verify(Integer)
   ///   ;
-  void fastParseVerify41(State<StringReader> state) {
+  void fastParseVerify41(State<String> state) {
     // @verify(Integer)
     final $4 = state.pos;
     final $3 = state.failPos;
@@ -237,7 +236,7 @@ class TestParser {
   /// VerifyFlag =
   ///   @verify('')
   ///   ;
-  void fastParseVerifyFlag(State<StringReader> state) {
+  void fastParseVerifyFlag(State<String> state) {
     // @verify('')
     final $4 = state.pos;
     final $3 = state.failPos;
@@ -273,7 +272,7 @@ class TestParser {
   /// Integer =
   ///   v:$[0-9]+ <int>{}
   ///   ;
-  int? parseInteger(State<StringReader> state) {
+  int? parseInteger(State<String> state) {
     int? $0;
     // v:$[0-9]+ <int>{}
     String? $2;
@@ -282,10 +281,10 @@ class TestParser {
     while (true) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $5 = state.input.readChar(state.pos);
+        final $5 = state.input.runeAt(state.pos);
         state.ok = $5 >= 48 && $5 <= 57;
         if (state.ok) {
-          state.pos += state.input.count;
+          state.pos += $5 > 0xffff ? 2 : 1;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -313,7 +312,7 @@ class TestParser {
   /// MatchString =
   ///   @matchString()
   ///   ;
-  String? parseMatchString(State<StringReader> state) {
+  String? parseMatchString(State<String> state) {
     String? $0;
     // @matchString()
     final $2 = text;
@@ -330,61 +329,60 @@ class TestParser {
   ///   / 'd'
   ///   / 'gh'
   ///   ;
-  String? parseOrderedChoiceWithLiterals(State<StringReader> state) {
+  String? parseOrderedChoiceWithLiterals(State<String> state) {
     String? $0;
+    final $10 = state.pos;
     state.ok = false;
-    final $3 = state.input;
-    if (state.pos < $3.length) {
-      final $1 = $3.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $2 = $3.count;
+    final $2 = state.input;
+    if (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
+      state.pos += $1 > 0xffff ? 2 : 1;
       switch ($1) {
         case 97:
-          const $4 = 'abc';
-          state.ok = $3.startsWith($4, state.pos);
+          const $3 = 'abc';
+          state.ok = $2.startsWith($3, state.pos - 1);
           if (state.ok) {
-            state.pos += $3.count;
-            $0 = $4;
+            state.pos += 2;
+            $0 = $3;
           } else {
-            state.ok = $3.matchChar(98, state.pos + $2);
+            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 98;
             if (state.ok) {
-              state.pos += $2 + $3.count;
+              state.pos += 1;
               $0 = 'ab';
             } else {
               state.ok = true;
-              state.pos += $2;
               $0 = 'a';
             }
           }
           break;
         case 100:
-          const $7 = 'def';
-          state.ok = $3.startsWith($7, state.pos);
+          const $6 = 'def';
+          state.ok = $2.startsWith($6, state.pos - 1);
           if (state.ok) {
-            state.pos += $3.count;
-            $0 = $7;
+            state.pos += 2;
+            $0 = $6;
           } else {
-            state.ok = $3.matchChar(101, state.pos + $2);
+            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 101;
             if (state.ok) {
-              state.pos += $2 + $3.count;
+              state.pos += 1;
               $0 = 'de';
             } else {
               state.ok = true;
-              state.pos += $2;
               $0 = 'd';
             }
           }
           break;
         case 103:
-          state.ok = $3.matchChar(104, state.pos + $2);
+          state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 104;
           if (state.ok) {
-            state.pos += $2 + $3.count;
+            state.pos += 1;
             $0 = 'gh';
           }
           break;
       }
     }
     if (!state.ok) {
+      state.pos = $10;
       state.fail(
           const ErrorExpectedTags(['abc', 'ab', 'a', 'def', 'de', 'd', 'gh']));
     }
@@ -394,7 +392,7 @@ class TestParser {
   /// SepBy =
   ///   @sepBy(Integer, ',')
   ///   ;
-  List<int>? parseSepBy(State<StringReader> state) {
+  List<int>? parseSepBy(State<String> state) {
     List<int>? $0;
     // @sepBy(Integer, ',')
     final $3 = <int>[];
@@ -433,7 +431,7 @@ class TestParser {
   /// SkipTil =
   ///   (![E] v:.)*
   ///   ;
-  List<int>? parseSkipTil(State<StringReader> state) {
+  List<int>? parseSkipTil(State<String> state) {
     List<int>? $0;
     // (![E] v:.)*
     final $2 = <int>[];
@@ -456,11 +454,12 @@ class TestParser {
       state.pos = $6;
       if (state.ok) {
         int? $5;
-        final $8 = state.input;
-        if (state.pos < $8.length) {
-          $5 = $8.readChar(state.pos);
-          state.pos += $8.count;
+        final $9 = state.input;
+        if (state.pos < $9.length) {
+          final $8 = $9.runeAt(state.pos);
+          state.pos += $8 > 0xffff ? 2 : 1;
           state.ok = true;
+          $5 = $8;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
@@ -486,7 +485,7 @@ class TestParser {
   /// SkipUntil =
   ///   (!'END' v:.)*
   ///   ;
-  List<int>? parseSkipUntil(State<StringReader> state) {
+  List<int>? parseSkipUntil(State<String> state) {
     List<int>? $0;
     // (!'END' v:.)*
     final $2 = <int>[];
@@ -510,11 +509,12 @@ class TestParser {
       state.pos = $6;
       if (state.ok) {
         int? $5;
-        final $9 = state.input;
-        if (state.pos < $9.length) {
-          $5 = $9.readChar(state.pos);
-          state.pos += $9.count;
+        final $10 = state.input;
+        if (state.pos < $10.length) {
+          final $9 = $10.runeAt(state.pos);
+          state.pos += $9 > 0xffff ? 2 : 1;
           state.ok = true;
+          $5 = $9;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
@@ -549,7 +549,7 @@ class TestParser {
   ///   / (v:Verify41 Verify41)
   ///   / (v:VerifyFlag VerifyFlag)
   ///   ;
-  Object? parseStart(State<StringReader> state) {
+  Object? parseStart(State<String> state) {
     Object? $0;
     // (v:MatchString MatchString)
     // v:MatchString MatchString
@@ -735,7 +735,7 @@ class TestParser {
   /// TakeTil =
   ///   $(![E] v:.)*
   ///   ;
-  String? parseTakeTil(State<StringReader> state) {
+  String? parseTakeTil(State<String> state) {
     String? $0;
     // $(![E] v:.)*
     final $2 = state.pos;
@@ -756,7 +756,7 @@ class TestParser {
   /// TakeUntil =
   ///   $(!'END' v:.)*
   ///   ;
-  String? parseTakeUntil(State<StringReader> state) {
+  String? parseTakeUntil(State<String> state) {
     String? $0;
     // $(!'END' v:.)*
     final $2 = state.pos;
@@ -777,7 +777,7 @@ class TestParser {
   /// Verify41 =
   ///   @verify(Integer)
   ///   ;
-  int? parseVerify41(State<StringReader> state) {
+  int? parseVerify41(State<String> state) {
     int? $0;
     // @verify(Integer)
     final $4 = state.pos;
@@ -812,7 +812,7 @@ class TestParser {
   /// VerifyFlag =
   ///   @verify('')
   ///   ;
-  String? parseVerifyFlag(State<StringReader> state) {
+  String? parseVerifyFlag(State<String> state) {
     String? $0;
     // @verify('')
     final $4 = state.pos;
@@ -848,11 +848,11 @@ class TestParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<StringReader> state, int char, ParseError error) {
+  int? matchChar(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = input.matchChar(char, state.pos);
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       return char;
     } else {
       state.fail(error);
@@ -886,12 +886,11 @@ class TestParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(
-      State<StringReader> state, String string, ParseError error) {
+  String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
     state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += string.length;
       return string;
     } else {
       state.fail(error);
@@ -902,11 +901,11 @@ class TestParser {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral1(
-      State<StringReader> state, int char, String string, ParseError error) {
+      State<String> state, int char, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       state.ok = true;
       return string;
     }
@@ -954,9 +953,8 @@ class TestParser {
 }
 
 void fastParseString(
-    void Function(State<StringReader> state) fastParse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(fastParse, input);
+    void Function(State<String> state) fastParse, String source) {
+  final result = tryParse(fastParse, source);
   result.getResult();
 }
 
@@ -981,9 +979,8 @@ Sink<String> parseAsync<O>(
   return input;
 }
 
-O parseString<O>(O? Function(State<StringReader> state) parse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(parse, input);
+O parseString<O>(O? Function(State<String> state) parse, String source) {
+  final result = tryParse(parse, source);
   return result.getResult();
 }
 
@@ -1009,18 +1006,14 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .map((e) => e.getErrorMessage(input, offset))
       .toList();
   String? message;
-  if (input is StringReader) {
-    if (input.hasSource) {
-      final source2 = _StringWrapper(
-        invalidChar: 32,
-        leftPadding: 0,
-        rightPadding: 0,
-        source: input.source,
-      );
-      message = _errorMessage(source2, offset, normalized);
-    } else {
-      message = _errorMessageWithoutSource(input, offset, normalized);
-    }
+  if (input is String) {
+    final source = _StringWrapper(
+      invalidChar: 32,
+      leftPadding: 0,
+      rightPadding: 0,
+      source: input,
+    );
+    message = _errorMessage(source, offset, normalized);
   } else if (input is ChunkedParsingSink) {
     final source2 = _StringWrapper(
       invalidChar: 32,
@@ -1129,44 +1122,6 @@ String _errorMessage(
   return sb.toString();
 }
 
-String _errorMessageWithoutSource(
-    StringReader input, int offset, List<ErrorMessage> errors) {
-  final sb = StringBuffer();
-  final errorInfoList = errors
-      .map((e) => (length: e.length, message: e.toString()))
-      .toSet()
-      .toList();
-  for (var i = 0; i < errorInfoList.length; i++) {
-    int max(int x, int y) => x > y ? x : y;
-    int min(int x, int y) => x < y ? x : y;
-    if (sb.isNotEmpty) {
-      sb.writeln();
-      sb.writeln();
-    }
-
-    final errorInfo = errorInfoList[i];
-    final length = errorInfo.length;
-    final message = errorInfo.message;
-    final start = min(offset + length, offset);
-    final end = max(offset + length, offset);
-    final inputLen = input.length;
-    final lineLimit = min(80, inputLen);
-    final start2 = start;
-    final end2 = min(start2 + lineLimit, end);
-    final errorLen = end2 - start;
-    final indicatorLen = max(1, errorLen);
-    var text = input.substring(start, lineLimit);
-    text = text.replaceAll('\n', ' ');
-    text = text.replaceAll('\r', ' ');
-    text = text.replaceAll('\t', ' ');
-    sb.writeln('offset $offset: $message');
-    sb.writeln(text);
-    sb.write('^' * indicatorLen);
-  }
-
-  return sb.toString();
-}
-
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -1195,7 +1150,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.position);
+      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -1216,12 +1171,6 @@ class AsyncResult<T> {
   void Function()? onComplete;
 
   T? value;
-}
-
-abstract interface class ByteReader {
-  int get length;
-
-  int readByte(int offset);
 }
 
 class ChunkedParsingSink implements Sink<String> {
@@ -1427,9 +1376,9 @@ class ErrorUnexpectedCharacter extends ParseError {
     var argument = '<?>';
     var char = this.char;
     if (offset != null && offset > 0) {
-      if (input is StringReader && input.hasSource) {
+      if (input is String) {
         if (offset < input.length) {
-          char = input.readChar(offset);
+          char = input.runeAt(offset);
         } else {
           argument = '<EOF>';
         }
@@ -1669,17 +1618,14 @@ class State<T> {
 
   @override
   String toString() {
-    if (input case final StringReader input) {
-      if (input.hasSource) {
-        final source = input.source;
-        if (pos >= source.length) {
-          return '$pos:';
-        }
-        var length = source.length - pos;
-        length = length > 40 ? 40 : length;
-        final string = source.substring(pos, pos + length);
-        return '$pos:$string';
+    if (input case final String input) {
+      if (pos >= input.length) {
+        return '$pos:';
       }
+      var length = input.length - pos;
+      length = length > 40 ? 40 : length;
+      final string = input.substring(pos, pos + length);
+      return '$pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
@@ -1713,101 +1659,6 @@ class State<T> {
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
     }
-  }
-}
-
-abstract interface class StringReader {
-  factory StringReader(String source) {
-    return _StringReader(source);
-  }
-
-  int get count;
-
-  bool get hasSource;
-
-  int get length;
-
-  String get source;
-
-  int indexOf(String string, int start);
-
-  bool matchChar(int char, int offset);
-
-  int readChar(int offset);
-
-  bool startsWith(String string, [int index = 0]);
-
-  String substring(int start, [int? end]);
-}
-
-class _StringReader implements StringReader {
-  @override
-  final bool hasSource = true;
-
-  @override
-  final int length;
-
-  @override
-  int count = 0;
-
-  @override
-  final String source;
-
-  _StringReader(this.source) : length = source.length;
-
-  @override
-  int indexOf(String string, int start) {
-    return source.indexOf(string, start);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool matchChar(int char, int offset) {
-    if (offset < length) {
-      final c = source.runeAt(offset);
-      count = char > 0xffff ? 2 : 1;
-      if (c == char) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar(int offset) {
-    final result = source.runeAt(offset);
-    count = result > 0xffff ? 2 : 1;
-    return result;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool startsWith(String string, [int index = 0]) {
-    if (source.startsWith(string, index)) {
-      count = string.length;
-      return true;
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String substring(int start, [int? end]) {
-    final result = source.substring(start, end);
-    count = result.length;
-    return result;
-  }
-
-  @override
-  String toString() {
-    return source;
   }
 }
 

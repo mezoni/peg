@@ -42,7 +42,7 @@ class CalcParser {
   /// CloseParenthesis =
   ///   ')' Spaces
   ///   ;
-  void fastParseCloseParenthesis(State<StringReader> state) {
+  void fastParseCloseParenthesis(State<String> state) {
     // ')' Spaces
     final $0 = state.pos;
     const $1 = ')';
@@ -59,7 +59,7 @@ class CalcParser {
   /// OpenParenthesis =
   ///   '(' Spaces
   ///   ;
-  void fastParseOpenParenthesis(State<StringReader> state) {
+  void fastParseOpenParenthesis(State<String> state) {
     // '(' Spaces
     final $0 = state.pos;
     const $1 = '(';
@@ -76,15 +76,15 @@ class CalcParser {
   /// Spaces =
   ///   [ \n\r\t]*
   ///   ;
-  void fastParseSpaces(State<StringReader> state) {
+  void fastParseSpaces(State<String> state) {
     // [ \n\r\t]*
     while (state.pos < state.input.length) {
-      final $1 = state.input.readChar(state.pos);
+      final $1 = state.input.runeAt(state.pos);
       state.ok = $1 == 13 || $1 >= 9 && $1 <= 10 || $1 == 32;
       if (!state.ok) {
         break;
       }
-      state.pos += state.input.count;
+      state.pos += $1 > 0xffff ? 2 : 1;
     }
     state.fail(const ErrorUnexpectedCharacter());
     state.ok = true;
@@ -94,7 +94,7 @@ class CalcParser {
   /// Add =
   ///   h:Mul t:(op:AddOp expr:Mul)* {}
   ///   ;
-  num? parseAdd(State<StringReader> state) {
+  num? parseAdd(State<String> state) {
     num? $0;
     // h:Mul t:(op:AddOp expr:Mul)* {}
     final $1 = state.pos;
@@ -148,31 +148,30 @@ class CalcParser {
   /// AddOp =
   ///   v:('-' / '+') Spaces
   ///   ;
-  String? parseAddOp(State<StringReader> state) {
+  String? parseAddOp(State<String> state) {
     String? $0;
     // v:('-' / '+') Spaces
     final $1 = state.pos;
     String? $2;
+    final $8 = state.pos;
     state.ok = false;
     final $5 = state.input;
     if (state.pos < $5.length) {
-      final $3 = $5.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $4 = $5.count;
+      final $3 = $5.runeAt(state.pos);
+      state.pos += $3 > 0xffff ? 2 : 1;
       switch ($3) {
         case 45:
           state.ok = true;
-          state.pos += $4;
           $2 = '-';
           break;
         case 43:
           state.ok = true;
-          state.pos += $4;
           $2 = '+';
           break;
       }
     }
     if (!state.ok) {
+      state.pos = $8;
       state.fail(const ErrorExpectedTags(['-', '+']));
     }
     if (state.ok) {
@@ -191,7 +190,7 @@ class CalcParser {
   /// Expression =
   ///   Add
   ///   ;
-  num? parseExpression(State<StringReader> state) {
+  num? parseExpression(State<String> state) {
     num? $0;
     // Add
     // Add
@@ -203,7 +202,7 @@ class CalcParser {
   /// Mul =
   ///   h:Prefix t:(op:MulOp expr:Prefix)* {}
   ///   ;
-  num? parseMul(State<StringReader> state) {
+  num? parseMul(State<String> state) {
     num? $0;
     // h:Prefix t:(op:MulOp expr:Prefix)* {}
     final $1 = state.pos;
@@ -257,31 +256,30 @@ class CalcParser {
   /// MulOp =
   ///   v:('/' / '*') Spaces
   ///   ;
-  String? parseMulOp(State<StringReader> state) {
+  String? parseMulOp(State<String> state) {
     String? $0;
     // v:('/' / '*') Spaces
     final $1 = state.pos;
     String? $2;
+    final $8 = state.pos;
     state.ok = false;
     final $5 = state.input;
     if (state.pos < $5.length) {
-      final $3 = $5.readChar(state.pos);
-      // ignore: unused_local_variable
-      final $4 = $5.count;
+      final $3 = $5.runeAt(state.pos);
+      state.pos += $3 > 0xffff ? 2 : 1;
       switch ($3) {
         case 47:
           state.ok = true;
-          state.pos += $4;
           $2 = '/';
           break;
         case 42:
           state.ok = true;
-          state.pos += $4;
           $2 = '*';
           break;
       }
     }
     if (!state.ok) {
+      state.pos = $8;
       state.fail(const ErrorExpectedTags(['/', '*']));
     }
     if (state.ok) {
@@ -300,7 +298,7 @@ class CalcParser {
   /// Number =
   ///   @errorHandler(NumberRaw)
   ///   ;
-  num? parseNumber(State<StringReader> state) {
+  num? parseNumber(State<String> state) {
     num? $0;
     // @errorHandler(NumberRaw)
     final $2 = state.failPos;
@@ -337,7 +335,7 @@ class CalcParser {
   /// NumberRaw =
   ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
   ///   ;
-  num? parseNumberRaw(State<StringReader> state) {
+  num? parseNumberRaw(State<String> state) {
     num? $0;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
     final $1 = state.pos;
@@ -355,10 +353,10 @@ class CalcParser {
         final $6 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.readChar(state.pos);
+          final $7 = state.input.runeAt(state.pos);
           state.ok = $7 >= 49 && $7 <= 57;
           if (state.ok) {
-            state.pos += state.input.count;
+            state.pos += $7 > 0xffff ? 2 : 1;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
@@ -367,12 +365,12 @@ class CalcParser {
         }
         if (state.ok) {
           while (state.pos < state.input.length) {
-            final $8 = state.input.readChar(state.pos);
+            final $8 = state.input.runeAt(state.pos);
             state.ok = $8 >= 48 && $8 <= 57;
             if (!state.ok) {
               break;
             }
-            state.pos += state.input.count;
+            state.pos += $8 > 0xffff ? 2 : 1;
           }
           state.fail(const ErrorUnexpectedCharacter());
           state.ok = true;
@@ -390,10 +388,10 @@ class CalcParser {
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $11 = state.input.readChar(state.pos);
+              final $11 = state.input.runeAt(state.pos);
               state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
-                state.pos += state.input.count;
+                state.pos += $11 > 0xffff ? 2 : 1;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -416,10 +414,10 @@ class CalcParser {
           final $12 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.readChar(state.pos);
+            final $13 = state.input.runeAt(state.pos);
             state.ok = $13 == 69 || $13 == 101;
             if (state.ok) {
-              state.pos += state.input.count;
+              state.pos += $13 > 0xffff ? 2 : 1;
             } else {
               state.fail(const ErrorUnexpectedCharacter());
             }
@@ -429,10 +427,10 @@ class CalcParser {
           if (state.ok) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $14 = state.input.readChar(state.pos);
+              final $14 = state.input.runeAt(state.pos);
               state.ok = $14 == 43 || $14 == 45;
               if (state.ok) {
-                state.pos += state.input.count;
+                state.pos += $14 > 0xffff ? 2 : 1;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -445,10 +443,10 @@ class CalcParser {
               while (true) {
                 state.ok = state.pos < state.input.length;
                 if (state.ok) {
-                  final $16 = state.input.readChar(state.pos);
+                  final $16 = state.input.runeAt(state.pos);
                   state.ok = $16 >= 48 && $16 <= 57;
                   if (state.ok) {
-                    state.pos += state.input.count;
+                    state.pos += $16 > 0xffff ? 2 : 1;
                   } else {
                     state.fail(const ErrorUnexpectedCharacter());
                   }
@@ -496,7 +494,7 @@ class CalcParser {
   /// Prefix =
   ///   o:'-'? e:Primary {}
   ///   ;
-  num? parsePrefix(State<StringReader> state) {
+  num? parsePrefix(State<String> state) {
     num? $0;
     // o:'-'? e:Primary {}
     final $1 = state.pos;
@@ -526,7 +524,7 @@ class CalcParser {
   ///     Number
   ///   / OpenParenthesis v:Number CloseParenthesis
   ///   ;
-  num? parsePrimary(State<StringReader> state) {
+  num? parsePrimary(State<String> state) {
     num? $0;
     // Number
     // Number
@@ -558,7 +556,7 @@ class CalcParser {
   /// Start =
   ///   Spaces v:Expression Eof
   ///   ;
-  num? parseStart(State<StringReader> state) {
+  num? parseStart(State<String> state) {
     num? $0;
     // Spaces v:Expression Eof
     final $1 = state.pos;
@@ -572,10 +570,10 @@ class CalcParser {
         // @inline Eof = !. ;
         // !.
         final $4 = state.pos;
-        final $6 = state.input;
-        if (state.pos < $6.length) {
-          $6.readChar(state.pos);
-          state.pos += $6.count;
+        final $7 = state.input;
+        if (state.pos < $7.length) {
+          final $6 = $7.runeAt(state.pos);
+          state.pos += $6 > 0xffff ? 2 : 1;
           state.ok = true;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
@@ -604,11 +602,11 @@ class CalcParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<StringReader> state, int char, ParseError error) {
+  int? matchChar(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = input.matchChar(char, state.pos);
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       return char;
     } else {
       state.fail(error);
@@ -642,12 +640,11 @@ class CalcParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(
-      State<StringReader> state, String string, ParseError error) {
+  String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
     state.ok = input.startsWith(string, state.pos);
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += string.length;
       return string;
     } else {
       state.fail(error);
@@ -658,11 +655,11 @@ class CalcParser {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral1(
-      State<StringReader> state, int char, String string, ParseError error) {
+      State<String> state, int char, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.readChar(state.pos) == char;
+    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
     if (state.ok) {
-      state.pos += input.count;
+      state.pos += char > 0xffff ? 2 : 1;
       state.ok = true;
       return string;
     }
@@ -710,9 +707,8 @@ class CalcParser {
 }
 
 void fastParseString(
-    void Function(State<StringReader> state) fastParse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(fastParse, input);
+    void Function(State<String> state) fastParse, String source) {
+  final result = tryParse(fastParse, source);
   result.getResult();
 }
 
@@ -737,9 +733,8 @@ Sink<String> parseAsync<O>(
   return input;
 }
 
-O parseString<O>(O? Function(State<StringReader> state) parse, String source) {
-  final input = StringReader(source);
-  final result = tryParse(parse, input);
+O parseString<O>(O? Function(State<String> state) parse, String source) {
+  final result = tryParse(parse, source);
   return result.getResult();
 }
 
@@ -765,18 +760,14 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .map((e) => e.getErrorMessage(input, offset))
       .toList();
   String? message;
-  if (input is StringReader) {
-    if (input.hasSource) {
-      final source2 = _StringWrapper(
-        invalidChar: 32,
-        leftPadding: 0,
-        rightPadding: 0,
-        source: input.source,
-      );
-      message = _errorMessage(source2, offset, normalized);
-    } else {
-      message = _errorMessageWithoutSource(input, offset, normalized);
-    }
+  if (input is String) {
+    final source = _StringWrapper(
+      invalidChar: 32,
+      leftPadding: 0,
+      rightPadding: 0,
+      source: input,
+    );
+    message = _errorMessage(source, offset, normalized);
   } else if (input is ChunkedParsingSink) {
     final source2 = _StringWrapper(
       invalidChar: 32,
@@ -885,44 +876,6 @@ String _errorMessage(
   return sb.toString();
 }
 
-String _errorMessageWithoutSource(
-    StringReader input, int offset, List<ErrorMessage> errors) {
-  final sb = StringBuffer();
-  final errorInfoList = errors
-      .map((e) => (length: e.length, message: e.toString()))
-      .toSet()
-      .toList();
-  for (var i = 0; i < errorInfoList.length; i++) {
-    int max(int x, int y) => x > y ? x : y;
-    int min(int x, int y) => x < y ? x : y;
-    if (sb.isNotEmpty) {
-      sb.writeln();
-      sb.writeln();
-    }
-
-    final errorInfo = errorInfoList[i];
-    final length = errorInfo.length;
-    final message = errorInfo.message;
-    final start = min(offset + length, offset);
-    final end = max(offset + length, offset);
-    final inputLen = input.length;
-    final lineLimit = min(80, inputLen);
-    final start2 = start;
-    final end2 = min(start2 + lineLimit, end);
-    final errorLen = end2 - start;
-    final indicatorLen = max(1, errorLen);
-    var text = input.substring(start, lineLimit);
-    text = text.replaceAll('\n', ' ');
-    text = text.replaceAll('\r', ' ');
-    text = text.replaceAll('\t', ' ');
-    sb.writeln('offset $offset: $message');
-    sb.writeln(text);
-    sb.write('^' * indicatorLen);
-  }
-
-  return sb.toString();
-}
-
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -951,7 +904,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
     } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.position);
+      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -972,12 +925,6 @@ class AsyncResult<T> {
   void Function()? onComplete;
 
   T? value;
-}
-
-abstract interface class ByteReader {
-  int get length;
-
-  int readByte(int offset);
 }
 
 class ChunkedParsingSink implements Sink<String> {
@@ -1183,9 +1130,9 @@ class ErrorUnexpectedCharacter extends ParseError {
     var argument = '<?>';
     var char = this.char;
     if (offset != null && offset > 0) {
-      if (input is StringReader && input.hasSource) {
+      if (input is String) {
         if (offset < input.length) {
-          char = input.readChar(offset);
+          char = input.runeAt(offset);
         } else {
           argument = '<EOF>';
         }
@@ -1425,17 +1372,14 @@ class State<T> {
 
   @override
   String toString() {
-    if (input case final StringReader input) {
-      if (input.hasSource) {
-        final source = input.source;
-        if (pos >= source.length) {
-          return '$pos:';
-        }
-        var length = source.length - pos;
-        length = length > 40 ? 40 : length;
-        final string = source.substring(pos, pos + length);
-        return '$pos:$string';
+    if (input case final String input) {
+      if (pos >= input.length) {
+        return '$pos:';
       }
+      var length = input.length - pos;
+      length = length > 40 ? 40 : length;
+      final string = input.substring(pos, pos + length);
+      return '$pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
@@ -1469,101 +1413,6 @@ class State<T> {
     } else if (this.failPos > failPos) {
       this.errorCount = 0;
     }
-  }
-}
-
-abstract interface class StringReader {
-  factory StringReader(String source) {
-    return _StringReader(source);
-  }
-
-  int get count;
-
-  bool get hasSource;
-
-  int get length;
-
-  String get source;
-
-  int indexOf(String string, int start);
-
-  bool matchChar(int char, int offset);
-
-  int readChar(int offset);
-
-  bool startsWith(String string, [int index = 0]);
-
-  String substring(int start, [int? end]);
-}
-
-class _StringReader implements StringReader {
-  @override
-  final bool hasSource = true;
-
-  @override
-  final int length;
-
-  @override
-  int count = 0;
-
-  @override
-  final String source;
-
-  _StringReader(this.source) : length = source.length;
-
-  @override
-  int indexOf(String string, int start) {
-    return source.indexOf(string, start);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool matchChar(int char, int offset) {
-    if (offset < length) {
-      final c = source.runeAt(offset);
-      count = char > 0xffff ? 2 : 1;
-      if (c == char) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar(int offset) {
-    final result = source.runeAt(offset);
-    count = result > 0xffff ? 2 : 1;
-    return result;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  bool startsWith(String string, [int index = 0]) {
-    if (source.startsWith(string, index)) {
-      count = string.length;
-      return true;
-    }
-
-    return false;
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String substring(int start, [int? end]) {
-    final result = source.substring(start, end);
-    count = result.length;
-    return result;
-  }
-
-  @override
-  String toString() {
-    return source;
   }
 }
 

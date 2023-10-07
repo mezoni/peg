@@ -58,10 +58,10 @@ class CharacterClassGenerator
     const template = '''
 state.ok = state.pos < state.input.length;
 if (state.ok) {
-  final {{c}} = state.input.readChar(state.pos);
+  final {{c}} = state.input.runeAt(state.pos);
   state.ok = {{predicate}};
   if (state.ok) {
-    state.pos += state.input.count;
+    state.pos += {{c}} > 0xffff ? 2 : 1;
     {{assign_result}}
   } else {
     state.fail(const ErrorUnexpectedCharacter());

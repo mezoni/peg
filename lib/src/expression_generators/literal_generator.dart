@@ -143,9 +143,9 @@ if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
 
   String _generateEmptyString(String? variable) {
     final values = <String, String>{};
-    values['r'] = variable ?? '';
     var template = '';
     if (variable != null) {
+      values['r'] = variable;
       template = '''
 state.ok = true;
 if (state.ok) {

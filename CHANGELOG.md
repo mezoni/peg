@@ -1,7 +1,10 @@
+## 3.0.1
+
+- Since support for generation of streaming parsers has been implemented, support for parsing directly from files, without using `Stream"` is no longer supported. All relevant code will be removed, resulting in a reduction in runtime code size and a slight increase in parsing performance. Accordingly, support for parsing from `virtual` strings via `StringReader` will be removed and parsing will be done directly from `String` values.
+
 ## 3.0.0
 
 - Breaking and new features. Added implementation of automatic generation of converters. The converter is generated into a separate file. This required changes to the command line tools to unify the way classes and file names are named. To continue normal operation, it is need to rename the grammar file, removing the suffix `_parser` from the file name, if one would be used in the name of the grammar file (eg. rename `json_parser.peg` to `json.peg`).
-
 ## 2.0.2
 
 - Changes in the file `example_parse_from_stream.dart`.
