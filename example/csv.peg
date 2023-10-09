@@ -4,6 +4,7 @@ const CsvParser();
 
 %%
 
+@event
 Start = v:Rows Eof ;
 
 @inline

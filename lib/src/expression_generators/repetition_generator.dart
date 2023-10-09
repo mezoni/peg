@@ -29,227 +29,140 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
     final max = expression.max;
     final min = expression.min;
     if (min != null && max != null) {
       if (min != max) {
-        _generateAsyncMinMax(min, max);
+        return _generateAsyncMinMax(min, max);
       } else {
-        _generateAsyncN(min);
+        return _generateAsyncN(min);
       }
     } else if (min != null) {
       if (min == 0) {
-        _generateAsyncMin0();
+        return _generateAsyncMin0();
       } else {
-        _generateAsyncMin(min);
+        return _generateAsyncMin(min);
       }
     } else {
-      _generateAsyncMax(max!);
+      return _generateAsyncMax(max!);
     }
   }
 
-  void _generateAsyncMax(int n) {
-    final child = expression.expression;
+  String _generateAsyncMax(int n) {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final list = variable == null ? '' : allocateName();
-    final list2 = variable == null ? '' : allocateName();
-    final count = variable != null ? '' : allocateName();
-    final count2 = variable != null ? '' : allocateName();
-
+    ({String name, String value})? key;
     if (variable != null) {
-      ruleGenerator.allocateExpressionVariable(child);
-      asyncGenerator.addVariable(list, expression.resultType!);
-      asyncGenerator.writeln('$list = [];');
+      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
+      values['list_'] = allocateName();
+      values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
+      values['rv'] = getExpressionVariableWithNullCheck(child);
+      key = (name: values['list']!, value: '[]');
     } else {
-      asyncGenerator.addVariable(count, GenericType(name: 'int'));
-      asyncGenerator.writeln('$count = 0;');
+      values['count'] =
+          asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      values['count_'] = allocateName();
+      key = (name: values['count']!, value: '0');
     }
 
-    final state0 = asyncGenerator.moveToNewState();
-    asyncGenerator.loopLevel++;
-
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, true);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
-
-    asyncGenerator.loopLevel--;
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['n'] = '$n';
-      values['list2'] = list2;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['rv'] = getExpressionVariableWithNullCheck(child);
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
+    values['n'] = '$n';
+    values['p'] = asyncGenerator
+        .forceBuffering(() => generateAsyncExpression(child, true));
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    {{r1}} = null;
+    break;
+  }
+  final {{list_}} = {{list}}!;
+  {{list_}}.add({{rv}});
+  {{r1}} = null;
+  if ({{list_}}.length == {{n}}) {
+    break;
+  }
 }
-final {{list2}} = {{list}}!;
-{{list2}}.add({{rv}});
-{{state}} = {{list2}}.length < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      } else {
-        values['count'] = count;
-        values['count2'] = count2;
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
-}
-var {{count2}} = {{count}}!;
-{{count2}}++;
-{{count}} = {{count2}};
-{{state}} = {{count2}} < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-
-    {
-      final values = <String, String>{};
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['r'] = variable;
-        template = '''
 state.ok = true;
-{{r}} = {{list}};
+if (state.ok) {
+  {{r}} = {{list}};
+}
 {{list}} = null;''';
-      } else {
-        values['count'] = count;
-        template = '''
+    } else {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    break;
+  }
+  final {{count_}} = {{count}}! + 1;
+  {{count}} = {{count_}};
+  if ({{count_}} == {{n}}) {
+    break;
+  }
+}
 state.ok = true;''';
-      }
-
-      asyncGenerator.render(template, values);
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: false,
+      key: key,
+    );
   }
 
-  void _generateAsyncMin(int m) {
-    final child = expression.expression;
+  String _generateAsyncMin(int m) {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final pos = allocateName();
-    final list = variable == null ? '' : allocateName();
-    final list2 = variable == null ? '' : allocateName();
-    final count = variable != null ? '' : allocateName();
-    final count2 = variable != null ? '' : allocateName();
-
-    asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-    asyncGenerator.writeln('$pos = 0;');
-
+    ({String name, String value})? key;
     if (variable != null) {
-      ruleGenerator.allocateExpressionVariable(child);
-      asyncGenerator.addVariable(list, expression.resultType!);
-      asyncGenerator.writeln('$list = [];');
+      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
+      values['list_'] = allocateName();
+      values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
+      values['rv'] = getExpressionVariableWithNullCheck(child);
+      key = (name: values['list']!, value: '[]');
     } else {
-      asyncGenerator.addVariable(count, GenericType(name: 'int'));
-      asyncGenerator.writeln('$count = 0;');
+      values['count'] =
+          asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      values['count_'] = allocateName();
+      key = (name: values['count']!, value: '0');
     }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    final state0 = asyncGenerator.moveToNewState();
-
-    asyncGenerator.loopLevel++;
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        template = '''
-if ({{list}}!.length >= {{m}}) {
-  state.input.beginBuffering();
-}''';
-      } else {
-        values['count'] = count;
-        template = '''
-if ({{count}}! >= {{m}}) {
-  state.input.beginBuffering();
-}''';
-      }
-
-      asyncGenerator.render(template, values);
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    const initTemplate = '''
+{{pos}} = state.pos;
+state.input.beginBuffering();''';
+    final init = render(initTemplate, values);
+    values['m'] = '$m';
+    values['p'] = asyncGenerator
+        .forceBuffering(() => generateAsyncExpression(child, true));
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  {{p}}
+  final {{list_}} = {{list}}!;
+  if (!state.ok) {
+    if ({{list_}}.length < {{m}}) {
+      state.input.endBuffering(state.pos);
     }
-
-    generateAsyncExpression(child, true);
-
-    asyncGenerator.loopLevel--;
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      values['pos'] = pos;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['list2'] = list2;
-        values['rv'] = getExpressionVariableWithNullCheck(child);
-        template = '''
-if (!state.ok) {
-  state.input.endBuffering({{pos}}!);
-  {{state}} = {{state1}};
-  break;
+    break;
+  }
+  {{list_}}.add({{rv}});
+  {{r1}} = null;
+  if ({{list_}}.length == {{m}}) {
+    state.input.endBuffering(state.pos);
+  }
 }
-final {{list2}} = {{list}}!;
-{{list2}}.add({{rv}});
-if ({{list2}}.length >= {{m}}) {
-  state.input.endBuffering(state.pos);
-}
-{{state}} = {{state0}};
-break;''';
-      } else {
-        values['count'] = count;
-        values['count2'] = count2;
-        template = '''
-if (!state.ok) {
-  state.input.endBuffering({{pos}}!);
-  {{state}} = {{state1}};
-  break;
-}
-var {{count2}} = {{count}}!;
-{{count2}}++;
-{{count}} = {{count2}};
-if ({{count2}} >= {{m}}) {
-  state.input.endBuffering(state.pos);
-}
-{{state}} = {{state0}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      values['pos'] = pos;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['r'] = variable;
-        template = '''
 state.ok = {{list}}!.length >= {{m}};
 if (state.ok) {
   {{r}} = {{list}};
@@ -257,208 +170,140 @@ if (state.ok) {
 } else {
   state.pos = {{pos}}!;
 }''';
-      } else {
-        values['count'] = count;
-        template = '''
+    } else {
+      template = '''
+while (true) {
+  {{p}}
+  var {{count_}} = {{count}}!;
+  if (!state.ok) {
+    if ({{count_}} < {{m}}) {
+      state.input.endBuffering(state.pos);
+    }
+    break;
+  }
+  {{count_}}++;
+  {{count}} = {{count_}};
+  if ({{count_}} == {{m}}) {
+    state.input.endBuffering(state.pos);
+  }
+}
 state.ok = {{count}}! >= {{m}};
 if (!state.ok) {
   state.pos = {{pos}}!;
 }''';
-      }
-
-      asyncGenerator.render(template, values);
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: false,
+      key: key,
+      init: init,
+    );
   }
 
-  void _generateAsyncMin0() {
-    final child = expression.expression;
+  String _generateAsyncMin0() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final list = variable == null ? '' : allocateName();
-
+    ({String name, String value})? key;
     if (variable != null) {
-      ruleGenerator.allocateExpressionVariable(child);
-      asyncGenerator.addVariable(list, expression.resultType!);
-      asyncGenerator.writeln('$list = [];');
+      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
+      values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
+      values['rv'] = getExpressionVariableWithNullCheck(child);
+      key = (name: values['list']!, value: '[]');
     }
 
-    final state0 = asyncGenerator.moveToNewState();
-    asyncGenerator.loopLevel++;
-
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, true);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
-
-    asyncGenerator.loopLevel--;
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['rv'] = getExpressionVariableWithNullCheck(child);
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
+    values['p'] = asyncGenerator
+        .forceBuffering(() => generateAsyncExpression(child, true));
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    {{r1}} = null;
+    break;
+  }
+  {{list}}!.add({{rv}});
+  {{r1}} = null;
 }
-{{list}}!.add({{rv}});
-{{state}} = {{state0}};
-break;''';
-      } else {
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
-}
-{{state}} = {{state0}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-
-    {
-      final values = <String, String>{};
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['r'] = variable;
-        template = '''
 state.ok = true;
 if (state.ok) {
   {{r}} = {{list}};
-  {{list}} = null;
-}''';
-      } else {
-        template = '''
+}
+{{list}} = null;''';
+    } else {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    break;
+  }
+}
 state.ok = true;''';
-      }
-
-      asyncGenerator.render(template, values);
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: false,
+      key: key,
+    );
   }
 
-  void _generateAsyncMinMax(int m, int n) {
-    final child = expression.expression;
+  String _generateAsyncMinMax(int m, int n) {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final pos = allocateName();
-    final list = variable == null ? '' : allocateName();
-    final list2 = variable == null ? '' : allocateName();
-    final count = variable != null ? '' : allocateName();
-    final count2 = variable != null ? '' : allocateName();
-
-    asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-    asyncGenerator.writeln('$pos = 0;');
-
+    ({String name, String value})? key;
     if (variable != null) {
-      ruleGenerator.allocateExpressionVariable(child);
-      asyncGenerator.addVariable(list, expression.resultType!);
-      asyncGenerator.writeln('$list = [];');
+      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
+      values['list_'] = allocateName();
+      values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
+      values['rv'] = getExpressionVariableWithNullCheck(child);
+      key = (name: values['list']!, value: '[]');
     } else {
-      asyncGenerator.addVariable(count, GenericType(name: 'int'));
-      asyncGenerator.writeln('$count = 0;');
+      values['count'] =
+          asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      values['count_'] = allocateName();
+      key = (name: values['count']!, value: '0');
     }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    final state0 = asyncGenerator.moveToNewState();
-    asyncGenerator.loopLevel++;
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        template = '''
-if ({{list}}!.length >= {{m}}) {
-  state.input.beginBuffering();
-}''';
-      } else {
-        values['count'] = count;
-        template = '''
-if ({{count}}! >= {{m}}) {
-  state.input.beginBuffering();
-}''';
-      }
-
-      asyncGenerator.render(template, values);
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    const initTemplate = '''
+{{pos}} = state.pos;
+state.input.beginBuffering();''';
+    final init = render(initTemplate, values);
+    values['m'] = '$m';
+    values['n'] = '$n';
+    values['p'] = asyncGenerator
+        .forceBuffering(() => generateAsyncExpression(child, true));
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  {{p}}
+  final {{list_}} = {{list}}!;
+  if (!state.ok) {
+    if ({{list_}}.length < {{m}}) {
+      state.input.endBuffering(state.pos);
     }
-
-    generateAsyncExpression(child, true);
-
-    asyncGenerator.loopLevel--;
-
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      values['n'] = '$n';
-      values['pos'] = pos;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['list2'] = list2;
-        values['rv'] = getExpressionVariableWithNullCheck(child);
-        template = '''
-if (!state.ok) {
-  state.input.endBuffering({{pos}}!);
-  {{state}} = {{state1}};
-  break;
+    break;
+  }
+  {{list_}}.add({{rv}});
+  {{r1}} = null;
+  if ({{list_}}.length == {{m}}) {
+    state.input.endBuffering(state.pos);
+  }
+  if ({{list_}}.length == {{n}}) {
+    break;
+  }
 }
-final {{list2}} = {{list}}!;
-{{list2}}.add({{rv}});
-if ({{list2}}.length >= {{m}}) {
-  state.input.endBuffering(state.pos);
-}
-{{state}} = {{list2}}.length < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      } else {
-        values['count'] = count;
-        values['count2'] = count2;
-        template = '''
-if (!state.ok) {
-  state.input.endBuffering({{pos}}!);
-  {{state}} = {{state1}};
-  break;
-}
-var {{count2}} = {{count}}!;
-{{count2}}++;
-{{count}} = {{count2}};
-if ({{count2}} >= {{m}}) {
-  state.input.endBuffering(state.pos);
-}
-{{state}} = {{count2}} < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-
-    {
-      final values = <String, String>{};
-      values['m'] = '$m';
-      values['pos'] = pos;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['r'] = variable;
-        template = '''
 state.ok = {{list}}!.length >= {{m}};
 if (state.ok) {
   {{r}} = {{list}};
@@ -466,120 +311,118 @@ if (state.ok) {
 } else {
   state.pos = {{pos}}!;
 }''';
-      } else {
-        values['count'] = count;
-        template = '''
+    } else {
+      template = '''
+while (true) {
+  {{p}}
+  var {{count_}} = {{count}}!;
+  if (!state.ok) {
+    if ({{count_}} < {{m}}) {
+      state.input.endBuffering(state.pos);
+    }
+    break;
+  }
+  {{count_}}++;
+  {{count}} = {{count_}};
+  if ({{count_}} == {{m}}) {
+    state.input.endBuffering(state.pos);
+  }
+  if ({{count_}} == {{n}}) {
+    break;
+  }
+}
 state.ok = {{count}}! >= {{m}};
 if (!state.ok) {
   state.pos = {{pos}}!;
 }''';
-      }
-
-      asyncGenerator.render(template, values);
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: false,
+      key: key,
+      init: init,
+    );
   }
 
-  void _generateAsyncN(int n) {
-    final child = expression.expression;
+  String _generateAsyncN(int n) {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final pos = allocateName();
-    final list = variable == null ? '' : allocateName();
-    final list2 = variable == null ? '' : allocateName();
-    final count = variable != null ? '' : allocateName();
-    final count2 = variable != null ? '' : allocateName();
-
-    asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-    asyncGenerator.writeln('$pos = 0;');
-
+    ({String name, String value})? key;
     if (variable != null) {
-      ruleGenerator.allocateExpressionVariable(child);
-      asyncGenerator.addVariable(list, expression.resultType!);
-      asyncGenerator.writeln('$list = [];');
+      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
+      values['list_'] = allocateName();
+      values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
+      values['rv'] = getExpressionVariableWithNullCheck(child);
+      key = (name: values['list']!, value: '[]');
     } else {
-      asyncGenerator.addVariable(count, GenericType(name: 'int'));
-      asyncGenerator.writeln('$count = 0;');
+      values['count'] =
+          asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      values['count_'] = allocateName();
+      key = (name: values['count']!, value: '0');
     }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    final state0 = asyncGenerator.moveToNewState();
-    asyncGenerator.loopLevel++;
-
-    generateAsyncExpression(child, true);
-
-    asyncGenerator.loopLevel--;
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['n'] = '$n';
-      values['list2'] = list2;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['rv'] = getExpressionVariableWithNullCheck(child);
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    const initTemplate = '''
+{{pos}} = state.pos;''';
+    final init = render(initTemplate, values);
+    values['n'] = '$n';
+    asyncGenerator.buffering++;
+    values['p'] = generateAsyncExpression(child, true);
+    asyncGenerator.buffering--;
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    {{r1}} = null;
+    break;
+  }
+  final {{list_}} = {{list}}!;
+  {{list_}}.add({{rv}});
+  {{r1}} = null;
+  if ({{list_}}.length == {{n}}) {
+    break;
+  }
 }
-final {{list2}} = {{list}}!;
-{{list2}}.add({{rv}});
-{{state}} = {{list2}}.length < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      } else {
-        values['count'] = count;
-        values['count2'] = count2;
-        template = '''
-if (!state.ok) {
-  {{state}} = {{state1}};
-  break;
-}
-var {{count2}} = {{count}}!;
-{{count2}}++;
-{{count}} = {{count2}};
-{{state}} = {{count2}} < {{n}} ? {{state0}} : {{state1}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-
-    {
-      final values = <String, String>{};
-      values['n'] = '$n';
-      values['pos'] = pos;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['r'] = variable;
-        template = '''
 state.ok = {{list}}!.length == {{n}};
 if (state.ok) {
   {{r}} = {{list}};
   {{list}} = null;
 } else {
   state.pos = {{pos}}!;
+}''';
+    } else {
+      template = '''
+while (true) {
+  {{p}}
+  if (!state.ok) {
+    break;
+  }
+  final {{count_}} = {{count}}! + 1;
+  {{count}} = {{count_}};
+  if ({{count_}} == {{n}}) {
+    break;
+  }
 }
-state.input.endBuffering(state.pos);''';
-      } else {
-        values['count'] = count;
-        template = '''
-state.ok = {{count}}! == {{n}};
+state.ok = {{count}}!  == {{n}};
 if (!state.ok) {
   state.pos = {{pos}}!;
-}
-state.input.endBuffering(state.pos);''';
-      }
-
-      asyncGenerator.render(template, values);
+}''';
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+      key: key,
+      init: init,
+    );
   }
 
   String _generateMax(int n) {
@@ -591,8 +434,8 @@ state.input.endBuffering(state.pos);''';
     if (variable != null) {
       values['O'] = child.resultType.toString();
       values['list'] = allocateName();
-      ruleGenerator.allocateExpressionVariable(child);
       values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{list}} = <{{O}}>[];
@@ -635,8 +478,8 @@ state.ok = true;''';
     if (variable != null) {
       values['O'] = child.resultType.toString();
       values['list'] = allocateName();
-      ruleGenerator.allocateExpressionVariable(child);
       values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{pos}} = state.pos;
@@ -685,8 +528,8 @@ if (!state.ok) {
     if (variable != null) {
       values['O'] = child.resultType.toString();
       values['list'] = allocateName();
-      ruleGenerator.allocateExpressionVariable(child);
       values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{pos}} = state.pos;
@@ -735,8 +578,8 @@ if (!state.ok) {
     if (variable != null) {
       values['O'] = child.resultType.toString();
       values['list'] = allocateName();
-      ruleGenerator.allocateExpressionVariable(child);
       values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{pos}} = state.pos;
@@ -786,8 +629,8 @@ if (!state.ok) {
     if (variable != null) {
       values['O'] = child.resultType.toString();
       values['list'] = allocateName();
-      ruleGenerator.allocateExpressionVariable(child);
       values['r'] = variable;
+      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{pos}} = state.pos;

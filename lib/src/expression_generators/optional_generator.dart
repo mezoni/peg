@@ -10,8 +10,9 @@ class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
   @override
   String generate() {
     final values = <String, String>{};
+    final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
-    if (ruleGenerator.getExpressionVariable(expression) case final variable?) {
+    if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
@@ -23,25 +24,27 @@ state.ok = true;''';
   }
 
   @override
-  void generateAsync() {
-    final child = expression.expression;
+  String generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, false);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
-
-    {
-      final values = <String, String>{};
-      const template = '''
- if (!state.ok) {
+    asyncGenerator.buffering++;
+    values['p'] = generateAsyncExpression(child, false);
+    asyncGenerator.buffering--;
+    const template = '''
+{{p}}
+if (!state.ok) {
   state.ok = true;
 }''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 }

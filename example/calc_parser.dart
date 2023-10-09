@@ -90,13 +90,14 @@ class CalcParser {
   ///   ;
   void fastParseSpaces(State<String> state) {
     // [ \n\r\t]*
-    while (state.pos < state.input.length) {
-      final $1 = state.input.runeAt(state.pos);
+    final $2 = state.input;
+    while (state.pos < $2.length) {
+      final $1 = $2.codeUnitAt(state.pos);
       state.ok = $1 == 13 || $1 >= 9 && $1 <= 10 || $1 == 32;
       if (!state.ok) {
         break;
       }
-      state.pos += $1 > 0xffff ? 2 : 1;
+      state.pos++;
     }
     state.fail(const ErrorUnexpectedCharacter());
     state.ok = true;
@@ -388,13 +389,14 @@ class CalcParser {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          while (state.pos < state.input.length) {
-            final $8 = state.input.runeAt(state.pos);
+          final $9 = state.input;
+          while (state.pos < $9.length) {
+            final $8 = $9.codeUnitAt(state.pos);
             state.ok = $8 >= 48 && $8 <= 57;
             if (!state.ok) {
               break;
             }
-            state.pos += $8 > 0xffff ? 2 : 1;
+            state.pos++;
           }
           state.fail(const ErrorUnexpectedCharacter());
           state.ok = true;
@@ -405,7 +407,7 @@ class CalcParser {
       }
       if (state.ok) {
         // [.] [0-9]+
-        final $9 = state.pos;
+        final $10 = state.pos;
         state.ok = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 46;
         if (state.ok) {
@@ -414,38 +416,30 @@ class CalcParser {
           state.fail(const ErrorExpectedCharacter(46));
         }
         if (state.ok) {
-          var $10 = false;
-          while (true) {
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $11 = state.input.codeUnitAt(state.pos);
-              state.ok = $11 >= 48 && $11 <= 57;
-              if (state.ok) {
-                state.pos++;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
+          final $13 = state.pos;
+          final $12 = state.input;
+          while (state.pos < $12.length) {
+            final $11 = $12.codeUnitAt(state.pos);
+            state.ok = $11 >= 48 && $11 <= 57;
             if (!state.ok) {
               break;
             }
-            $10 = true;
+            state.pos++;
           }
-          state.ok = $10;
+          state.fail(const ErrorUnexpectedCharacter());
+          state.ok = state.pos > $13;
         }
         if (!state.ok) {
-          state.pos = $9;
+          state.pos = $10;
         }
         state.ok = true;
         if (state.ok) {
           // [eE] [-+]? [0-9]+
-          final $12 = state.pos;
+          final $14 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.codeUnitAt(state.pos);
-            state.ok = $13 == 69 || $13 == 101;
+            final $15 = state.input.codeUnitAt(state.pos);
+            state.ok = $15 == 69 || $15 == 101;
             if (state.ok) {
               state.pos++;
             } else {
@@ -457,8 +451,8 @@ class CalcParser {
           if (state.ok) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $14 = state.input.codeUnitAt(state.pos);
-              state.ok = $14 == 43 || $14 == 45;
+              final $16 = state.input.codeUnitAt(state.pos);
+              state.ok = $16 == 43 || $16 == 45;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -469,30 +463,22 @@ class CalcParser {
             }
             state.ok = true;
             if (state.ok) {
-              var $15 = false;
-              while (true) {
-                state.ok = state.pos < state.input.length;
-                if (state.ok) {
-                  final $16 = state.input.codeUnitAt(state.pos);
-                  state.ok = $16 >= 48 && $16 <= 57;
-                  if (state.ok) {
-                    state.pos++;
-                  } else {
-                    state.fail(const ErrorUnexpectedCharacter());
-                  }
-                } else {
-                  state.fail(const ErrorUnexpectedEndOfInput());
-                }
+              final $19 = state.pos;
+              final $18 = state.input;
+              while (state.pos < $18.length) {
+                final $17 = $18.codeUnitAt(state.pos);
+                state.ok = $17 >= 48 && $17 <= 57;
                 if (!state.ok) {
                   break;
                 }
-                $15 = true;
+                state.pos++;
               }
-              state.ok = $15;
+              state.fail(const ErrorUnexpectedCharacter());
+              state.ok = state.pos > $19;
             }
           }
           if (!state.ok) {
-            state.pos = $12;
+            state.pos = $14;
           }
           state.ok = true;
         }
@@ -739,6 +725,46 @@ class CalcParser {
       return string;
     }
     state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? readChar16Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    if (state.pos < input.end || input.isClosed) {
+      state.ok = state.pos < input.end;
+      if (state.pos >= input.start) {
+        if (state.ok) {
+          return input.data.codeUnitAt(state.pos - input.start);
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      } else {
+        state.fail(ErrorBacktracking(state.pos));
+      }
+      return -1;
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? readChar32Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    if (state.pos < input.end || input.isClosed) {
+      state.ok = state.pos < input.end;
+      if (state.pos >= input.start) {
+        if (state.ok) {
+          return input.data.runeAt(state.pos - input.start);
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      } else {
+        state.fail(ErrorBacktracking(state.pos));
+      }
+      return -1;
+    }
     return null;
   }
 }
@@ -1038,8 +1064,8 @@ class ChunkedParsingSink implements Sink<String> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void beginBuffering() {
-    _buffering++;
+  int beginBuffering() {
+    return _buffering++;
   }
 
   @override

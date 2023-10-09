@@ -27,15 +27,15 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
     final string = expression.string;
     final runes = string.runes.toList();
     if (string.isEmpty) {
-      _generateAsyncEmptyString();
+      return _generateAsyncEmptyString();
     } else if (runes.length == 1) {
-      _generateAsyncString1();
+      return _generateAsyncString1();
     } else {
-      _generateAsync();
+      return _generateAsync();
     }
   }
 
@@ -69,90 +69,86 @@ if (state.ok) {
     return render(template, values);
   }
 
-  void _generateAsync() {
+  String _generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
     final input = allocateName();
-
-    {
-      asyncGenerator.writeln('state.input.beginBuffering();');
-      asyncGenerator.moveToNewState();
+    values['handle'] = asyncGenerator.functionName;
+    values['input'] = input;
+    values['length'] = string.length.toString();
+    values['literal'] = helper.escapeString(string);
+    values['offset'] = (string.length - 1).toString();
+    if (variable != null) {
+      values['assign_result'] = '$variable = ';
+    } else {
+      values['assign_result'] = '';
     }
 
-    {
-      final values = <String, String>{};
-      values['handle'] = asyncGenerator.functionName;
-      values['input'] = input;
-      values['length'] = string.length.toString();
-      values['literal'] = helper.escapeString(string);
-      values['offset'] = (string.length - 1).toString();
-      if (variable != null) {
-        values['assign_result'] = '$variable = ';
-      } else {
-        values['assign_result'] = '';
-      }
-
-      const template = '''
+    const template = '''
 final {{input}} = state.input;
 if (state.pos + {{offset}} < {{input}}.end || {{input}}.isClosed) {
   const string = {{literal}};
   {{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-  {{input}}.endBuffering(state.pos);
 } else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 
-  void _generateAsyncEmptyString() {
+  String _generateAsyncEmptyString() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final asyncGenerator = ruleGenerator.asyncGenerator;
-    asyncGenerator.writeln('state.ok = true;');
     if (variable != null) {
-      asyncGenerator.writeln('$variable = \'\';');
+      values['assign_result'] = '$variable = \'\';';
+    } else {
+      values['assign_result'] = '';
     }
+
+    const template = '''
+state.ok = true;
+{{assign_result}}''';
+    return render(template, values);
   }
 
-  void _generateAsyncString1() {
+  String _generateAsyncString1() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
     final runes = string.runes.toList();
     final input = allocateName();
-
-    {
-      asyncGenerator.writeln('state.input.beginBuffering();');
-      asyncGenerator.moveToNewState();
+    values['char'] = runes[0].toString();
+    values['handle'] = asyncGenerator.functionName;
+    values['input'] = input;
+    values['literal'] = helper.escapeString(string);
+    if (variable != null) {
+      values['assign_result'] = '$variable = ';
+    } else {
+      values['assign_result'] = '';
     }
 
-    {
-      final values = <String, String>{};
-      values['char'] = runes[0].toString();
-      values['handle'] = asyncGenerator.functionName;
-      values['input'] = input;
-      values['literal'] = helper.escapeString(string);
-      if (variable != null) {
-        values['assign_result'] = '$variable = ';
-      } else {
-        values['assign_result'] = '';
-      }
-
-      const template = '''
+    const template = '''
 final {{input}} = state.input;
 if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchLiteral1Async(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));
-  {{input}}.endBuffering(state.pos);
+  {{assign_result}}matchLiteral1Async(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));  
 } else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 
   String _generateEmptyString(String? variable) {

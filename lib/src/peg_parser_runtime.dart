@@ -293,8 +293,8 @@ class ChunkedParsingSink implements Sink<String> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void beginBuffering() {
-    _buffering++;
+  int beginBuffering() {
+    return _buffering++;
   }
 
   @override

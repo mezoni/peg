@@ -17,8 +17,8 @@ if (state.ok) {
   @override
   String generate() {
     final values = <String, String>{};
-    final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     values['pos'] = allocateName();
     values['p'] = generateExpression(child, false);
     var template = '';
@@ -33,34 +33,40 @@ if (state.ok) {
   }
 
   @override
-  void generateAsync() {
-    final child = expression.expression;
+  String generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final pos = variable == null ? '' : allocateName();
+    String? init;
     if (variable != null) {
-      asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-    }
-
-    if (variable != null) {
-      asyncGenerator.writeln('$pos = state.pos;');
-    }
-
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, false);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
-
-    if (variable != null) {
-      final values = <String, String>{};
-      values['pos'] = pos;
+      values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
       values['r'] = variable;
-      const template = '''
- if (state.ok) {
+      init = '${values['pos']} = state.pos;';
+    }
+
+    asyncGenerator.buffering++;
+    values['p'] = generateAsyncExpression(child, false);
+    asyncGenerator.buffering--;
+    var template = '';
+    if (variable != null) {
+      template = '''
+{{p}}
+if (state.ok) {
   final input = state.input;
   final start = input.start;
   {{r}} = input.data.substring({{pos}}! - start, state.pos - start);
 }''';
-      asyncGenerator.render(template, values);
+    } else {
+      template = '''
+{{p}}''';
     }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+      init: init,
+    );
   }
 }

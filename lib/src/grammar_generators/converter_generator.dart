@@ -1,6 +1,6 @@
-import 'expressions/expression.dart';
-import 'grammar/grammar.dart';
-import 'helper.dart' as helper;
+import '../expressions/expression.dart';
+import '../grammar/grammar.dart';
+import '../helper.dart' as helper;
 
 class ConverterGenerator {
   final String converterName;

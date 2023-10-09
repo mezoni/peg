@@ -9,8 +9,8 @@ class BufferGenerator extends ExpressionGenerator<BufferExpression> {
 
   @override
   String generate() {
-    final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
@@ -19,16 +19,24 @@ class BufferGenerator extends ExpressionGenerator<BufferExpression> {
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
+    final values = <String, String>{};
+    final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, false);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
+    asyncGenerator.buffering++;
+    values['p'] = generateAsyncExpression(child, false);
+    asyncGenerator.buffering--;
+    const template = '''
+{{p}}''';
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 }

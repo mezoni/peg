@@ -49,8 +49,8 @@ class ProductionRuleGenerator extends ExpressionVisitor<String> {
     comment += ruleParts.join('\n/// ');
     final modes = [false, if (isAsync) true];
     for (final isAsync in modes) {
-      _isAsync = isAsync;
       _expressionVariables.clear();
+      _isAsync = isAsync;
       allocator.reset();
       var methodName = '';
       if (!isAsync) {
@@ -68,11 +68,10 @@ class ProductionRuleGenerator extends ExpressionVisitor<String> {
       String? asyncResult;
       if (isAsync) {
         asyncResult = allocator.allocate();
-        final stateVariable = allocator.allocate();
         final functionName = allocator.allocate();
         asyncGenerator = AsyncGenerator(
+          allocator: allocator,
           functionName: functionName,
-          stateVariable: stateVariable,
         );
         values['async_result'] = asyncResult;
         values['state_machine'] = asyncGenerator.functionName;
@@ -176,10 +175,9 @@ AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
       if (!isAsync) {
         values['expression'] = expression.accept(this);
       } else {
-        void generateLastAction() {
+        String generateLastAction() {
           final values = <String, String>{};
           values['ar'] = asyncResult!;
-          values['state'] = asyncGenerator.stateVariable;
           var template = '';
           if (isFast) {
             if (hasEvent) {
@@ -189,13 +187,11 @@ AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
 endEvent<{{type}}>({{event}}, null, state.ok);
 {{ar}}.isComplete = true;
 state.input.handle = {{ar}}.onComplete;
-{{state}} = -1;
 return;''';
             } else {
               template = '''
 {{ar}}.isComplete = true;
 state.input.handle = {{ar}}.onComplete;
-{{state}} = -1;
 return;''';
             }
           } else {
@@ -208,24 +204,28 @@ return;''';
 {{ar}}.value = {{r}};
 {{ar}}.isComplete = true;
 state.input.handle = {{ar}}.onComplete;
-{{state}} = -1;
 return;''';
             } else {
               template = '''
 {{ar}}.value = {{r}};
 {{ar}}.isComplete = true;
 state.input.handle = {{ar}}.onComplete;
-{{state}} = -1;
 return;''';
             }
           }
 
-          asyncGenerator.render(template, values);
+          return helper.render(template, values);
         }
 
-        expression.accept(this);
-        generateLastAction();
-        values['expression'] = asyncGenerator.generate();
+        final buffer = StringBuffer();
+        final source = expression.accept(this);
+        final action = generateLastAction();
+        buffer.writeln(asyncGenerator.generate());
+        buffer.writeln('void ${asyncGenerator.functionName}() {');
+        buffer.writeln(source);
+        buffer.writeln(action);
+        buffer.writeln('}');
+        values['expression'] = buffer.toString();
       }
 
       template = '$comment\n$template';
@@ -400,8 +400,7 @@ return;''';
       return generator.generate();
     }
 
-    generator.generateAsync();
-    return '';
+    return generator.generateAsync();
   }
 
   List<String> _productionRuleToPrintableList() {

@@ -9,8 +9,8 @@ class GroupGenerator extends ExpressionGenerator<GroupExpression> {
 
   @override
   String generate() {
-    final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
@@ -19,13 +19,13 @@ class GroupGenerator extends ExpressionGenerator<GroupExpression> {
   }
 
   @override
-  void generateAsync() {
-    final child = expression.expression;
+  String generateAsync() {
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    generateAsyncExpression(child, false);
+    return generateAsyncExpression(child, false);
   }
 }

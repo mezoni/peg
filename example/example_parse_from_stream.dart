@@ -89,6 +89,12 @@ class _MyParser extends JsonParser {
           break;
         case JsonParserEvent.startEvent:
           _saveObjects(true);
+          if (onComplete != null) {
+            Timer.run(() async {
+              await onComplete!();
+            });
+          }
+
           // Free memory
           result = null;
         default:

@@ -42,40 +42,37 @@ if ({{string}}.isEmpty) {
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final value = expression.value;
     final input = allocateName();
     final string = allocateName();
+    values['handle'] = asyncGenerator.functionName;
+    values['input'] = input;
+    values['string'] = string;
+    values['value'] = value;
+    if (variable != null) {
+      values['assign_result'] = '$variable = ';
+    } else {
+      values['assign_result'] = '';
+    }
 
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    asyncGenerator.moveToNewState();
-
-    {
-      final values = <String, String>{};
-      values['handle'] = asyncGenerator.functionName;
-      values['input'] = input;
-      values['string'] = string;
-      values['value'] = value;
-      if (variable != null) {
-        values['assign_result'] = '$variable = ';
-      } else {
-        values['assign_result'] = '';
-      }
-
-      const template = '''
+    const template = '''
 final {{input}} = state.input;
 final {{string}} = {{value}};
 if (state.pos + {{string}}.length - 1 < {{input}}.end || {{input}}.isClosed) {
   {{assign_result}}matchLiteralAsync(state, {{string}}, ErrorExpectedTags([{{string}}]));
-  {{input}}.endBuffering(state.pos);
 } else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 }

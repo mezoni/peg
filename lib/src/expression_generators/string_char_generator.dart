@@ -98,133 +98,148 @@ state.ok = true;''';
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
+    final values = <String, String>{};
+    final variable = ruleGenerator.getExpressionVariable(expression);
     final normalCharacters = expression.normalCharacters;
     final escapeCharacter = expression.escapeCharacter;
     final escape = expression.escape;
-    final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
-    final list = variable == null ? '' : allocateName();
-    final ok = allocateName();
+    values['state'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['key1'] = asyncGenerator
+        .allocateVariable(GenericType(name: 'Object').getNullableType());
+    values['key2'] = asyncGenerator
+        .allocateVariable(GenericType(name: 'Object').getNullableType());
     if (variable != null) {
       ruleGenerator.allocateExpressionVariable(normalCharacters);
       ruleGenerator.allocateExpressionVariable(escape);
-      asyncGenerator.addVariable(list,
+      values['list'] = asyncGenerator.allocateVariable(
           GenericType(name: 'List', arguments: [GenericType(name: 'String')]));
-      asyncGenerator.writeln('$list = [];');
+      values['str'] =
+          asyncGenerator.allocateVariable(GenericType(name: 'String'));
+      values['r'] = variable;
+      values['rv1'] = getExpressionVariableWithNullCheck(normalCharacters);
+      values['rv3'] = getExpressionVariableWithNullCheck(escape);
     }
 
-    asyncGenerator.addVariable(ok, GenericType(name: 'bool'));
-    final state0 = asyncGenerator.moveToNewState();
-
-    //asyncGenerator.loopLevel++;
-
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(normalCharacters, true);
-    asyncGenerator.writeln('state.input.endBuffering(state.pos);');
-
-    //asyncGenerator.loopLevel--;
-
-    final state1 = asyncGenerator.allocateState();
-
-    {
-      final values = <String, String>{};
-      values['ok'] = ok;
-      values['state'] = stateVariable;
-      values['state1'] = state1;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['rv'] = getExpressionVariableWithNullCheck(normalCharacters);
-        template = '''
-{{ok}} = state.ok;
-if (state.ok) {
-  {{list}}!.add({{rv}});
-}
-{{state}} = {{state1}};
-break;''';
-      } else {
-        template = '''
-{{ok}} = state.ok;
-{{state}} = {{state1}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state1);
-    final state2 = asyncGenerator.allocateState();
-    final pos = allocateName();
-    asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-    asyncGenerator.writeln('$pos = state.pos;');
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(escapeCharacter, false);
-
-    {
-      final values = <String, String>{};
-      values['ok'] = ok;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state2'] = state2;
-      const template = '''
-if (!state.ok) {
-  state.input.endBuffering(state.pos);
-  {{state}} = {{ok}} == true ? {{state0}} : {{state2}};
-  break;
-}''';
-
-      asyncGenerator.render(template, values);
-    }
-
-    generateAsyncExpression(escape, true);
-
-    {
-      final values = <String, String>{};
-      values['pos'] = pos;
-      values['state'] = stateVariable;
-      values['state0'] = state0;
-      values['state1'] = state1;
-      values['state2'] = state2;
-      var template = '';
-      if (variable != null) {
-        values['list'] = list;
-        values['rv'] = getExpressionVariableWithNullCheck(escape);
-        template = '''
-if (!state.ok) {
-  state.pos = {{pos}}!;
-  state.input.endBuffering(state.pos);
-  {{state}} = {{state2}};
-  break;
-}
-state.input.endBuffering(state.pos);
-{{list}}!.add({{rv}});
-{{state}} = {{state0}};
-break;''';
-      } else {
-        template = '''
-if (!state.ok) {
-  state.pos = {{pos}}!;
-  state.input.endBuffering(state.pos);
-  {{state}} = {{state2}};
-  break;
-}
-state.input.endBuffering(state.pos);
-{{state}} = {{state0}};
-break;''';
-      }
-
-      asyncGenerator.render(template, values);
-    }
-
-    asyncGenerator.beginState(state2);
-
+    asyncGenerator.buffering++;
+    values['p1'] = generateAsyncExpression(normalCharacters, true);
+    values['p2'] = generateAsyncExpression(escapeCharacter, false);
+    values['p3'] = generateAsyncExpression(escape, true);
+    asyncGenerator.buffering--;
+    var initTemplate = '';
     if (variable != null) {
-      asyncGenerator.writeln('$variable = ($list)!.join();');
-      asyncGenerator.writeln('$list = null;');
+      initTemplate = '''
+{{list}} = null;
+{{str}} = null;
+{{state}} = 0;''';
+    } else {
+      initTemplate = '''
+{{state}} = 0;''';
     }
 
-    asyncGenerator.writeln('state.ok = true;');
+    final init = render(initTemplate, values);
+    var template = '';
+    if (variable != null) {
+      template = '''
+while (true) {
+  if ({{state}} == 0) {
+    {{key1}} ??= state.input.beginBuffering();
+    {{p1}}
+    state.input.endBuffering(state.pos);
+    {{key1}} = null;
+    if (state.ok) {
+      final v = {{rv1}};
+      if ({{str}} == null) {
+        {{str}} = v;
+      } else if ({{list}} == null) {
+        {{list}} = [{{str}}!, v];
+      } else {
+        {{list}}!.add(v);
+      }
+    }
+    {{pos}} = state.pos;
+    {{state}} = 1;
+  }
+  if ({{state}} == 1) {
+    {{key2}} ??= state.input.beginBuffering();
+    {{p2}}
+    if (!state.ok) {
+      state.input.endBuffering(state.pos);
+      {{key2}} = null;
+      break;
+    }
+    {{state}} = 2;
+  }
+  if ({{state}} == 2) {
+    {{p3}}
+    state.input.endBuffering(state.pos);
+    {{key2}} = null;
+    if (!state.ok) {
+      state.pos = {{pos}}!;
+      break;
+    }
+    if ({{str}} == null) {
+      {{str}} = {{rv3}};
+    } else {
+      if ({{list}} == null) {
+        {{list}} = [{{str}}!, {{rv3}}];
+      } else {
+        {{list}}!.add({{rv3}});
+      }
+    }
+    {{state}} = 0;
+  }
+}
+state.ok = true;
+if ({{str}} == null) {
+  {{r}} = '';
+} else if ({{list}} == null) {
+  {{r}} = {{str}}!;
+} else {
+  {{r}} = {{list}}!.join();
+}''';
+    } else {
+      template = '''
+while (true) {
+  if ({{state}} == 0) {
+    {{key1}} ??= state.input.beginBuffering();
+    {{p1}}
+    state.input.endBuffering(state.pos);
+    {{key1}} = null;
+    {{pos}} = state.pos;
+    {{state}} = 1;
+  }
+  if ({{state}} == 1) {
+    {{key2}} ??= state.input.beginBuffering();
+    {{p2}}
+    if (!state.ok) {
+      state.input.endBuffering(state.pos);
+      {{key2}} = null;
+      break;
+    }
+    {{state}} = 2;
+  }
+  if ({{state}} == 2) {
+    {{p3}}
+    state.input.endBuffering(state.pos);
+    {{key2}} = null;
+    if (!state.ok) {
+      state.pos = {{pos}}!;
+      break;
+    }
+    {{state}} = 0;
+  }
+}
+state.ok = true;''';
+    }
+
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+      init: init,
+    );
   }
 }

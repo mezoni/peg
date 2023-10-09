@@ -1,5 +1,32 @@
 import 'dart:convert';
 
+String assignStatePos(String variable, List<(int, int)> ranges, bool negate) {
+  if (ranges.isEmpty) {
+    throw ArgumentError('Must not be empty', 'ranges');
+  }
+
+  if (negate) {
+    return 'state.pos += $variable > 0xffff ? 2 : 1;';
+  }
+
+  final has16Bit = ranges.any((e) => e.$1 <= 0xffff || e.$2 <= 0xffff);
+  final has32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
+  return switch ((has16Bit, has32Bit)) {
+    (false, false) => 'state.pos += $variable > 0xffff ? 2 : 1;',
+    (false, true) => 'state.pos += 2;',
+    (true, false) => 'state.pos++;',
+    (true, true) => 'state.pos += $variable > 0xffff ? 2 : 1;',
+  };
+}
+
+String charAt(List<(int, int)> ranges, bool negate) {
+  if (is32BitRanges(ranges, negate)) {
+    return 'runeAt';
+  }
+
+  return 'codeUnitAt';
+}
+
 void checkRange((int, int) range) {
   if (range.$1 > range.$2) {
     throw RangeError.range(range.$2, range.$1, null);
@@ -33,6 +60,18 @@ String escapeString(String text, [bool quote = true]) {
 
 (int, int) getUnicodeRange() {
   return const (0, 0x10ffff);
+}
+
+bool is32BitRanges(List<(int, int)> ranges, bool negate) {
+  if (ranges.isEmpty) {
+    throw ArgumentError('Must not be empty', 'ranges');
+  }
+
+  if (negate) {
+    return true;
+  }
+
+  return ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
 }
 
 bool isTypeNullable(String? type) {
@@ -217,7 +256,16 @@ String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
   return '!($result)';
 }
 
-String render(String template, Map<String, String> values) {
+String readCharAsync(List<(int, int)> ranges, bool negate) {
+  if (is32BitRanges(ranges, negate)) {
+    return 'readChar32Async';
+  }
+
+  return 'readChar16Async';
+}
+
+String render(String template, Map<String, String> values,
+    {bool removeEmptyLines = true}) {
   for (final entry in values.entries) {
     final key = entry.key;
     final value = entry.value;
@@ -228,16 +276,18 @@ String render(String template, Map<String, String> values) {
   final lines = const LineSplitter().convert(template);
   for (var i = 0; i < lines.length; i++) {
     final line = lines[i];
-    if (line.trim().isNotEmpty) {
-      if (i < lines.length - 1) {
-        buffer.writeln(line);
-      } else {
-        buffer.write(line);
-      }
+    if (line.trim().isEmpty && removeEmptyLines) {
+      continue;
+    }
+
+    if (i < lines.length - 1) {
+      buffer.writeln(line);
+    } else {
+      buffer.write(line);
     }
   }
 
-  return template;
+  return buffer.toString();
 }
 
 class _Code extends _Expression {

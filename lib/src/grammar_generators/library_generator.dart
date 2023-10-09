@@ -43,6 +43,6 @@ class LibraryGenerator {
     values['parser_events_enum'] = eventsGenerator.generate();
     final runtimeGenerator = RuntimeGenerator();
     values['runtime'] = runtimeGenerator.generate();
-    return helper.render(_template, values);
+    return helper.render(_template, values, removeEmptyLines: false);
   }
 }

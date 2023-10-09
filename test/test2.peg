@@ -12,6 +12,8 @@ Start =
   / (v:Buffer Buffer)
   / (v:CharacterClass CharacterClass)
   / (v:CharacterClassChar32 CharacterClassChar32)
+  / (v:CharacterClassCharNegate CharacterClassCharNegate)
+  / (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
   / (v:CharacterClassRange32 CharacterClassRange32)
   / (v:ErrorHandler ErrorHandler)
   / (v:Eof Eof)
@@ -56,6 +58,10 @@ Buffer = @buffer(([0] [1] [2])) / ([0] [1]) ;
 CharacterClass = [0-9] ;
 
 CharacterClassChar32 = [🚀] ;
+
+CharacterClassCharNegate = [^0] ;
+
+CharacterClassCharNegate32 = [^🚀] ;
 
 CharacterClassRange32 = [ -🚀] ;
 

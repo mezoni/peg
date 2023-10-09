@@ -57,7 +57,7 @@ if (!state.ok) {
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
     final children = expression.expressions;
     if (children.isEmpty) {
       throw StateError(
@@ -66,43 +66,52 @@ if (!state.ok) {
 
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final stateVariable = asyncGenerator.stateVariable;
     if (children.length == 1) {
       final child = children[0];
       if (variable != null) {
         ruleGenerator.setExpressionVariable(child, variable);
       }
 
-      generateAsyncExpression(child, false);
+      return generateAsyncExpression(child, false);
     } else {
-      final endState = asyncGenerator.allocateState();
+      final state = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      final init = '$state = 0;';
+      final buffer = StringBuffer();
       for (var i = 0; i < children.length; i++) {
         final values = <String, String>{};
+        values['index'] = '$i';
+        values['next_index'] = '${i + 1}';
+        values['state'] = state;
         final child = children[i];
         if (variable != null) {
           ruleGenerator.setExpressionVariable(child, variable);
         }
 
-        generateAsyncExpression(child, false);
-        values['end'] = endState;
-        values['state'] = stateVariable;
+        values['p'] = generateAsyncExpression(child, false);
         var template = '';
         if (i < children.length - 1) {
           template = '''
-if (state.ok) {
-  {{state}} = {{end}};
-  break;
+if ({{state}} == {{index}}) {
+  {{p}}
+  {{state}} = state.ok ? -1 : {{next_index}};
 }''';
         } else {
           template = '''
-{{state}} = {{end}};
-break;''';
+if ({{state}} == {{index}}) {
+  {{p}}
+  {{state}} = -1;
+}''';
         }
 
-        asyncGenerator.render(template, values);
+        final source = render(template, values);
+        buffer.writeln(source);
       }
 
-      asyncGenerator.beginState(endState);
+      return asyncGenerator.renderAction(
+        buffer.toString(),
+        buffering: false,
+        init: init,
+      );
     }
   }
 }

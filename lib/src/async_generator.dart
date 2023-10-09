@@ -1,108 +1,167 @@
+import 'allocator.dart';
 import 'expressions/expression.dart';
 import 'helper.dart' as helper;
 
 class AsyncGenerator {
+  static const _maxBits = 16;
+
+  final Allocator allocator;
+
+  int buffering = 0;
+
   final String functionName;
 
-  int loopLevel = 0;
+  ({String name, int bit})? _flag;
 
-  final String stateVariable;
-
-  StringBuffer _buffer = StringBuffer();
-
-  String _currentState = '0';
-
-  bool _isNewState = true;
-
-  int _state = 0;
-
-  final List<(String, ResultType)> _variables = [];
+  final List<({String name, ResultType type, String? value})> _variables = [];
 
   AsyncGenerator({
+    required this.allocator,
     required this.functionName,
-    required this.stateVariable,
   });
 
-  String get currentState => _currentState;
-
-  bool get isEmptyState => _isNewState;
-
-  void addVariable(String name, ResultType type) {
-    _variables.add((name, type));
+  String addVariable(String name, ResultType type, [String? value]) {
+    final variable = (name: name, type: type, value: value);
+    _variables.add(variable);
+    return name;
   }
 
-  String allocateState() {
-    final state = ++_state;
-    return '$state';
+  ({String name, int bit}) allocateFlag() {
+    if (_flag == null) {
+      final variable = allocateVariable(GenericType(name: 'int'), '0');
+      _flag = (name: variable, bit: 1);
+      return _flag!;
+    }
+
+    var flag = _flag!;
+    if (flag.bit >= _maxBits) {
+      final variable = allocateVariable(GenericType(name: 'int'), '0');
+      flag = (name: variable, bit: 1);
+    } else {
+      flag = (name: flag.name, bit: flag.bit + 1);
+    }
+
+    _flag = flag;
+    return flag;
   }
 
-  void beginState(String state) {
-    _buffer.writeln('case $state:');
-    _currentState = state;
-    _isNewState = true;
+  String allocateVariable(ResultType type, [String? value]) {
+    final name = allocator.allocate();
+    return addVariable(name, type, value);
   }
 
-  String generate() {
+  String forceBuffering(String Function() f) {
     final values = <String, String>{};
-    final variables = <String>[];
-    for (final variable in _variables) {
-      final name = variable.$1;
-      final type = variable.$2.getNullableType();
-      final source = '$type $name;';
-      variables.add(source);
+    buffering++;
+    final source = f();
+    buffering--;
+    var template = '';
+    if (buffering == 0) {
+      values['key'] =
+          allocateVariable(GenericType(name: 'Object').getNullableType());
+      values['source'] = source;
+      template = '''
+{{key}} ??= state.input.beginBuffering();
+{{source}}
+state.input.endBuffering(state.pos);
+{{key}} = null;''';
+    } else {
+      template = source;
     }
 
-    variables.add('var $stateVariable = 0;');
-    values['variables'] = variables.join('\n');
-    values['name'] = functionName;
-    values['state'] = stateVariable;
-    values['cases'] = _buffer.toString().trim();
-    const template = '''
-{{variables}}
-void {{name}}() {
-  while (true) {
-    switch ({{state}}) {
-      case 0:
-      {{cases}}
-      default:
-        throw StateError('Invalid state: \${{{state}}}');
-    }
-  }
-}''';
     return helper.render(template, values);
   }
 
-  String moveToNewState() {
-    final state = allocateState();
-    writeln('$stateVariable = $state;');
-    writeln('break;');
-    beginState(state);
-    return state;
+  String generate() {
+    final buffer = StringBuffer();
+    for (var i = 0; i < _variables.length; i++) {
+      final variable = _variables[i];
+      final name = variable.name;
+      final type = variable.type;
+      final value = variable.value;
+      if (value != null) {
+        buffer.writeln('$type $name = $value;');
+      } else {
+        final type2 = variable.type.getNullableType();
+        buffer.writeln('$type2 $name;');
+      }
+    }
+
+    return buffer.toString();
   }
 
-  void render(String template, Map<String, String> values) {
-    final source = helper.render(template, values);
-    writeln(source);
-  }
+  String renderAction(
+    String source, {
+    required bool buffering,
+    ({String name, String value})? key,
+    String? init,
+  }) {
+    final values = <String, String>{};
+    values['source'] = source;
+    init ??= '';
+    if (init.trim().isNotEmpty) {
+      values['init'] = init;
+    } else {
+      values['init'] = '';
+    }
 
-  void reset() {
-    _buffer = StringBuffer();
-    _currentState = '0';
-    _state = 0;
-    _variables.clear();
-  }
+    if (buffering) {
+      values['begin_buffering'] = 'state.input.beginBuffering();';
+      values['end_buffering'] = 'state.input.endBuffering(state.pos);';
+    } else {
+      values['begin_buffering'] = '';
+      values['end_buffering'] = '';
+    }
 
-  void write(String source) {
-    _buffer.write(source);
-    _isNewState = false;
-  }
+    var template = '';
+    if (init.isEmpty && !buffering && key == null) {
+      template = source;
+    } else if (init.isEmpty && buffering && key == null) {
+      values['key'] =
+          allocateVariable(GenericType(name: 'Object').getNullableType());
+      template = '''
+{{key}} ??= {{begin_buffering}}
+{{source}}
+{{end_buffering}}
+{{key}} = null;''';
+    } else if (init.isEmpty && !buffering && key != null) {
+      values['key'] = key.name;
+      values['value'] = key.value;
+      template = '''
+{{key}} ??= {{value}};
+{{source}}
+{{key}} = null;''';
+    } else {
+      if (key != null) {
+        final name = key.name;
+        final value = key.value;
+        values['test_key'] = '$name == null';
+        values['assign_key'] = '$name = $value;';
+        values['reset_key'] = '$name = null;';
+      } else {
+        final flag = allocateFlag();
+        final name = flag.name;
+        final bit = flag.bit;
+        final x = 1 << (bit - 1);
+        final hexX = x.toRadixString(16);
+        final mask = ((1 << _maxBits) - 1).toRadixString(16);
+        final z = '~0x$hexX & 0x$mask';
+        values['test_key'] = '$name & 0x$hexX == 0';
+        values['assign_key'] = '$name |= 0x$hexX;';
+        values['reset_key'] = '$name &= $z;';
+      }
 
-  void writeComment(String source) {
-    _buffer.writeln(' // $source');
-  }
+      template = '''
+if ({{test_key}}) {
+  {{assign_key}}
+  {{begin_buffering}}
+  {{init}}
+}
+{{source}}
+{{end_buffering}}
+{{reset_key}}''';
+    }
 
-  void writeln(String source) {
-    _buffer.writeln(source);
-    _isNewState = false;
+    return helper.render(template, values);
   }
 }

@@ -17,6 +17,10 @@ Start =
   / (v:SepBy SepBy)
   / (v:Verify41 Verify41)
   / (v:VerifyFlag VerifyFlag)
+  / (v:ZeroOrMore16 ZeroOrMore16)
+  / (v:ZeroOrMore1632 ZeroOrMore1632)
+  / (v:ZeroOrMore32 ZeroOrMore32)
+  / (v:ZeroOrMore3232 ZeroOrMore3232)
   ;
 
 int
@@ -51,3 +55,11 @@ Verify41 = @verify(Integer, {
 VerifyFlag = @verify('', {
     if (!flag) { error = ErrorMessage(state.pos - pos, 'error'); }
   }) ;
+
+ZeroOrMore16 = [0]* ;
+
+ZeroOrMore1632 = [ -🚀]* ;
+
+ZeroOrMore32 = [🚀]* ;
+
+ZeroOrMore3232 = [🚀-🚁]* ;

@@ -33,21 +33,17 @@ state.pos = {{pos}};''';
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
+    final values = <String, String>{};
     final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final pos = allocateName();
-    asyncGenerator.addVariable(pos, GenericType(name: 'int'));
-
-    asyncGenerator.writeln('$pos = state.pos;');
-    asyncGenerator.writeln('state.input.beginBuffering();');
-    generateAsyncExpression(child, false);
-    asyncGenerator.writeln('state.input.endBuffering($pos!);');
-
-    {
-      final values = <String, String>{};
-      values['pos'] = pos;
-      const template = '''
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    asyncGenerator.buffering++;
+    values['p'] = generateAsyncExpression(child, false);
+    asyncGenerator.buffering--;
+    final init = '${values['pos']} = state.pos;';
+    const template = '''
+{{p}}
 state.ok = !state.ok;
 if (!state.ok) {
   final length = {{pos}}! - state.pos;
@@ -59,7 +55,11 @@ if (!state.ok) {
       });
 }
 state.pos = {{pos}}!;''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+      init: init,
+    );
   }
 }

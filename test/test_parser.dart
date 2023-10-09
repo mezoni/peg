@@ -1,6 +1,5 @@
 class TestParser {
   bool flag = false;
-
   String text = '';
 
   /// int
@@ -11,26 +10,18 @@ class TestParser {
     // v:$[0-9]+ <int>{}
     String? $1;
     final $2 = state.pos;
-    var $3 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $4 = state.input.codeUnitAt(state.pos);
-        state.ok = $4 >= 48 && $4 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final $5 = state.pos;
+    final $4 = state.input;
+    while (state.pos < $4.length) {
+      final $3 = $4.codeUnitAt(state.pos);
+      state.ok = $3 >= 48 && $3 <= 57;
       if (!state.ok) {
         break;
       }
-      $3 = true;
+      state.pos++;
     }
-    state.ok = $3;
+    state.fail(const ErrorUnexpectedCharacter());
+    state.ok = state.pos > $5;
     if (state.ok) {
       $1 = state.input.substring($2, state.pos);
     }
@@ -127,31 +118,27 @@ class TestParser {
   ///   ;
   void fastParseSepBy(State<String> state) {
     // @sepBy(Integer, ',')
-    // Integer
-    // Integer
-    fastParseInteger(state);
-    if (state.ok) {
-      while (true) {
-        final $1 = state.pos;
-        // ','
-        const $4 = ',';
-        state.ok = state.pos < state.input.length &&
-            state.input.codeUnitAt(state.pos) == 44;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorExpectedTags([$4]));
-        }
-        if (!state.ok) {
-          break;
-        }
-        // Integer
-        // Integer
-        fastParseInteger(state);
-        if (!state.ok) {
-          state.pos = $1;
-          break;
-        }
+    var $1 = state.pos;
+    while (true) {
+      // Integer
+      // Integer
+      fastParseInteger(state);
+      if (!state.ok) {
+        state.pos = $1;
+        break;
+      }
+      $1 = state.pos;
+      // ','
+      const $4 = ',';
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 44;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
+      if (!state.ok) {
+        break;
       }
     }
     state.ok = true;
@@ -285,6 +272,78 @@ class TestParser {
     }
   }
 
+  /// ZeroOrMore16 =
+  ///   [0]*
+  ///   ;
+  void fastParseZeroOrMore16(State<String> state) {
+    // [0]*
+    final $2 = state.input;
+    while (state.pos < $2.length) {
+      final $1 = $2.codeUnitAt(state.pos);
+      state.ok = $1 == 48;
+      if (!state.ok) {
+        break;
+      }
+      state.pos++;
+    }
+    state.fail(const ErrorExpectedCharacter(48));
+    state.ok = true;
+  }
+
+  /// ZeroOrMore1632 =
+  ///   [ -\u{1f680}]*
+  ///   ;
+  void fastParseZeroOrMore1632(State<String> state) {
+    // [ -\u{1f680}]*
+    final $2 = state.input;
+    while (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
+      state.ok = $1 >= 32 && $1 <= 128640;
+      if (!state.ok) {
+        break;
+      }
+      state.pos += $1 > 0xffff ? 2 : 1;
+    }
+    state.fail(const ErrorUnexpectedCharacter());
+    state.ok = true;
+  }
+
+  /// ZeroOrMore32 =
+  ///   [\u{1f680}]*
+  ///   ;
+  void fastParseZeroOrMore32(State<String> state) {
+    // [\u{1f680}]*
+    final $2 = state.input;
+    while (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
+      state.ok = $1 == 128640;
+      if (!state.ok) {
+        break;
+      }
+      state.pos += 2;
+    }
+    state.fail(const ErrorExpectedCharacter(128640));
+    state.ok = true;
+  }
+
+  /// ZeroOrMore3232 =
+  ///   [\u{1f680}-\u{1f681}]*
+  ///   ;
+  void fastParseZeroOrMore3232(State<String> state) {
+    // [\u{1f680}-\u{1f681}]*
+    final $2 = state.input;
+    while (state.pos < $2.length) {
+      final $1 = $2.runeAt(state.pos);
+      state.ok = $1 >= 128640 && $1 <= 128641;
+      if (!state.ok) {
+        break;
+      }
+      state.pos += 2;
+    }
+    state.fail(const ErrorUnexpectedCharacter());
+    state.ok = true;
+  }
+
   /// int
   /// Integer =
   ///   v:$[0-9]+ <int>{}
@@ -294,26 +353,18 @@ class TestParser {
     // v:$[0-9]+ <int>{}
     String? $2;
     final $3 = state.pos;
-    var $4 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 >= 48 && $5 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final $6 = state.pos;
+    final $5 = state.input;
+    while (state.pos < $5.length) {
+      final $4 = $5.codeUnitAt(state.pos);
+      state.ok = $4 >= 48 && $4 <= 57;
       if (!state.ok) {
         break;
       }
-      $4 = true;
+      state.pos++;
     }
-    state.ok = $4;
+    state.fail(const ErrorUnexpectedCharacter());
+    state.ok = state.pos > $6;
     if (state.ok) {
       $2 = state.input.substring($3, state.pos);
     }
@@ -425,41 +476,35 @@ class TestParser {
   List<int>? parseSepBy(State<String> state) {
     List<int>? $0;
     // @sepBy(Integer, ',')
-    final $3 = <int>[];
-    int? $4;
-    // Integer
-    // Integer
-    $4 = parseInteger(state);
-    if (state.ok) {
-      $3.add($4!);
-      while (true) {
-        final $2 = state.pos;
-        // ','
-        const $7 = ',';
-        state.ok = state.pos < state.input.length &&
-            state.input.codeUnitAt(state.pos) == 44;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorExpectedTags([$7]));
-        }
-        if (!state.ok) {
-          $0 = $3;
-          break;
-        }
-        // Integer
-        // Integer
-        $4 = parseInteger(state);
-        if (!state.ok) {
-          state.pos = $2;
-          break;
-        }
-        $3.add($4!);
+    final $2 = <int>[];
+    var $4 = state.pos;
+    while (true) {
+      int? $3;
+      // Integer
+      // Integer
+      $3 = parseInteger(state);
+      if (!state.ok) {
+        state.pos = $4;
+        break;
+      }
+      $2.add($3!);
+      $4 = state.pos;
+      // ','
+      const $7 = ',';
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 44;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedTags([$7]));
+      }
+      if (!state.ok) {
+        break;
       }
     }
     state.ok = true;
     if (state.ok) {
-      $0 = $3;
+      $0 = $2;
     }
     return $0;
   }
@@ -597,6 +642,10 @@ class TestParser {
   ///   / (v:SepBy SepBy)
   ///   / (v:Verify41 Verify41)
   ///   / (v:VerifyFlag VerifyFlag)
+  ///   / (v:ZeroOrMore16 ZeroOrMore16)
+  ///   / (v:ZeroOrMore1632 ZeroOrMore1632)
+  ///   / (v:ZeroOrMore32 ZeroOrMore32)
+  ///   / (v:ZeroOrMore3232 ZeroOrMore3232)
   ///   ;
   Object? parseStart(State<String> state) {
     Object? $0;
@@ -769,6 +818,78 @@ class TestParser {
                       if (!state.ok) {
                         state.pos = $29;
                       }
+                      if (!state.ok) {
+                        // (v:ZeroOrMore16 ZeroOrMore16)
+                        // v:ZeroOrMore16 ZeroOrMore16
+                        final $32 = state.pos;
+                        List<int>? $33;
+                        // ZeroOrMore16
+                        $33 = parseZeroOrMore16(state);
+                        if (state.ok) {
+                          // ZeroOrMore16
+                          fastParseZeroOrMore16(state);
+                          if (state.ok) {
+                            $0 = $33;
+                          }
+                        }
+                        if (!state.ok) {
+                          state.pos = $32;
+                        }
+                        if (!state.ok) {
+                          // (v:ZeroOrMore1632 ZeroOrMore1632)
+                          // v:ZeroOrMore1632 ZeroOrMore1632
+                          final $35 = state.pos;
+                          List<int>? $36;
+                          // ZeroOrMore1632
+                          $36 = parseZeroOrMore1632(state);
+                          if (state.ok) {
+                            // ZeroOrMore1632
+                            fastParseZeroOrMore1632(state);
+                            if (state.ok) {
+                              $0 = $36;
+                            }
+                          }
+                          if (!state.ok) {
+                            state.pos = $35;
+                          }
+                          if (!state.ok) {
+                            // (v:ZeroOrMore32 ZeroOrMore32)
+                            // v:ZeroOrMore32 ZeroOrMore32
+                            final $38 = state.pos;
+                            List<int>? $39;
+                            // ZeroOrMore32
+                            $39 = parseZeroOrMore32(state);
+                            if (state.ok) {
+                              // ZeroOrMore32
+                              fastParseZeroOrMore32(state);
+                              if (state.ok) {
+                                $0 = $39;
+                              }
+                            }
+                            if (!state.ok) {
+                              state.pos = $38;
+                            }
+                            if (!state.ok) {
+                              // (v:ZeroOrMore3232 ZeroOrMore3232)
+                              // v:ZeroOrMore3232 ZeroOrMore3232
+                              final $41 = state.pos;
+                              List<int>? $42;
+                              // ZeroOrMore3232
+                              $42 = parseZeroOrMore3232(state);
+                              if (state.ok) {
+                                // ZeroOrMore3232
+                                fastParseZeroOrMore3232(state);
+                                if (state.ok) {
+                                  $0 = $42;
+                                }
+                              }
+                              if (!state.ok) {
+                                state.pos = $41;
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -852,7 +973,6 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      $0 = null;
       state.pos = $4;
     }
     return $0;
@@ -889,8 +1009,133 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      $0 = null;
       state.pos = $4;
+    }
+    return $0;
+  }
+
+  /// ZeroOrMore16 =
+  ///   [0]*
+  ///   ;
+  List<int>? parseZeroOrMore16(State<String> state) {
+    List<int>? $0;
+    // [0]*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $3 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
+    }
+    return $0;
+  }
+
+  /// ZeroOrMore1632 =
+  ///   [ -\u{1f680}]*
+  ///   ;
+  List<int>? parseZeroOrMore1632(State<String> state) {
+    List<int>? $0;
+    // [ -\u{1f680}]*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.runeAt(state.pos);
+        state.ok = $4 >= 32 && $4 <= 128640;
+        if (state.ok) {
+          state.pos += $4 > 0xffff ? 2 : 1;
+          $3 = $4;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
+    }
+    return $0;
+  }
+
+  /// ZeroOrMore32 =
+  ///   [\u{1f680}]*
+  ///   ;
+  List<int>? parseZeroOrMore32(State<String> state) {
+    List<int>? $0;
+    // [\u{1f680}]*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $3 = 128640;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
+    }
+    return $0;
+  }
+
+  /// ZeroOrMore3232 =
+  ///   [\u{1f680}-\u{1f681}]*
+  ///   ;
+  List<int>? parseZeroOrMore3232(State<String> state) {
+    List<int>? $0;
+    // [\u{1f680}-\u{1f681}]*
+    final $2 = <int>[];
+    while (true) {
+      int? $3;
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.runeAt(state.pos);
+        state.ok = $4 >= 128640 && $4 <= 128641;
+        if (state.ok) {
+          state.pos += 2;
+          $3 = $4;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        state.ok = true;
+        break;
+      }
+      $2.add($3!);
+    }
+    if (state.ok) {
+      $0 = $2;
     }
     return $0;
   }
@@ -999,6 +1244,27 @@ class TestParser {
     state.fail(error);
     return null;
   }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? readCharAsync(State<ChunkedParsingSink> state, void Function() handle) {
+    final input = state.input;
+    if (state.pos < input.end || input.isClosed) {
+      if (state.pos >= input.start) {
+        if (state.pos < input.end) {
+          return input.data.runeAt(state.pos - input.start);
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      } else {
+        state.fail(ErrorBacktracking(state.pos));
+      }
+      return -1;
+    }
+    input.sleep = true;
+    input.handle = handle;
+    return null;
+  }
 }
 
 void fastParseString(
@@ -1024,7 +1290,6 @@ Sink<String> parseAsync<O>(
   } else {
     result.onComplete = complete;
   }
-
   return input;
 }
 
@@ -1049,7 +1314,6 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       result: result,
     );
   }
-
   final offset = state.failPos;
   final normalized = _normalize(input, offset, state.getErrors())
       .map((e) => e.getErrorMessage(input, offset))
@@ -1074,7 +1338,6 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
   } else {
     message = normalized.join('\n');
   }
-
   return ParseResult(
     errors: normalized,
     failPos: state.failPos,
@@ -1101,7 +1364,6 @@ String _errorMessage(
       sb.writeln();
       sb.writeln();
     }
-
     final errorInfo = errorInfoList[i];
     final length = errorInfo.length;
     final message = errorInfo.message;
@@ -1125,7 +1387,6 @@ String _errorMessage(
         }
       }
     }
-
     final inputLen = source.length;
     final lineLimit = min(80, inputLen);
     final start2 = start;
@@ -1145,10 +1406,8 @@ String _errorMessage(
           index--;
         }
       }
-
       list.add(cc);
     }
-
     final column = start - lineStart + 1;
     final left = String.fromCharCodes(list.reversed);
     final end3 = min(inputLen, start2 + (lineLimit - leftLen));
@@ -1163,11 +1422,9 @@ String _errorMessage(
     } else {
       sb.writeln('offset $start: $message');
     }
-
     sb.writeln(text);
     sb.write(' ' * leftLen + '^' * indicatorLen);
   }
-
   return sb.toString();
 }
 
@@ -1180,13 +1437,11 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     for (final error in expectedTags) {
       tags.addAll(error.tags);
     }
-
     final tagList = tags.toList();
     tagList.sort();
     final error = ErrorExpectedTags(tagList);
     errorList.add(error);
   }
-
   final errorMap = <Object?, ParseError>{};
   for (final error in errorList) {
     Object key = error;
@@ -1201,10 +1456,8 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorBacktracking) {
       key = (ErrorBacktracking, error.length);
     }
-
     errorMap[key] = error;
   }
-
   return errorMap.values.toList();
 }
 
@@ -1216,60 +1469,43 @@ ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
 
 class AsyncResult<T> {
   bool isComplete = false;
-
   void Function()? onComplete;
-
   T? value;
 }
 
 class ChunkedParsingSink implements Sink<String> {
   int bufferLoad = 0;
-
   String data = '';
-
   int end = 0;
-
   void Function()? handle;
-
   bool sleep = false;
-
   int start = 0;
-
   int _buffering = 0;
-
   bool _isClosed = false;
-
   int _lastPosition = 0;
-
   bool get isClosed => _isClosed;
-
   @override
   void add(String data) {
     if (_isClosed) {
       throw StateError('Chunked data sink already closed');
     }
-
     if (_lastPosition > start) {
       if (_lastPosition == end) {
         this.data = '';
       } else {
         this.data = this.data.substring(_lastPosition - start);
       }
-
       start = _lastPosition;
     }
-
     if (this.data.isEmpty) {
       this.data = data;
     } else {
       this.data = '${this.data}$data';
     }
-
     end = start + this.data.length;
     if (bufferLoad < this.data.length) {
       bufferLoad = this.data.length;
     }
-
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -1277,10 +1513,8 @@ class ChunkedParsingSink implements Sink<String> {
       if (h == null) {
         break;
       }
-
       h();
     }
-
     if (_buffering == 0) {
       if (_lastPosition > start) {
         if (_lastPosition == end) {
@@ -1288,7 +1522,6 @@ class ChunkedParsingSink implements Sink<String> {
         } else {
           this.data = this.data.substring(_lastPosition - start);
         }
-
         start = _lastPosition;
       }
     }
@@ -1296,8 +1529,8 @@ class ChunkedParsingSink implements Sink<String> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void beginBuffering() {
-    _buffering++;
+  int beginBuffering() {
+    return _buffering++;
   }
 
   @override
@@ -1305,7 +1538,6 @@ class ChunkedParsingSink implements Sink<String> {
     if (_isClosed) {
       return;
     }
-
     _isClosed = true;
     sleep = false;
     while (!sleep) {
@@ -1314,14 +1546,11 @@ class ChunkedParsingSink implements Sink<String> {
       if (h == null) {
         break;
       }
-
       h();
     }
-
     if (_buffering != 0) {
       throw StateError('On closing, an incomplete buffering was detected');
     }
-
     if (data.isNotEmpty) {
       data = '';
     }
@@ -1343,11 +1572,8 @@ class ChunkedParsingSink implements Sink<String> {
 
 class ErrorBacktracking extends ParseError {
   static const message = 'Backtracking error to position {{0}}';
-
   final int position;
-
   const ErrorBacktracking(this.position);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(0, ErrorBacktracking.message, [position]);
@@ -1356,11 +1582,8 @@ class ErrorBacktracking extends ParseError {
 
 class ErrorExpectedCharacter extends ParseError {
   static const message = 'Expected a character {0}';
-
   final int char;
-
   const ErrorExpectedCharacter(this.char);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     final value = ParseError.escape(char);
@@ -1372,11 +1595,8 @@ class ErrorExpectedCharacter extends ParseError {
 
 class ErrorExpectedTags extends ParseError {
   static const message = 'Expected: {0}';
-
   final List<String> tags;
-
   const ErrorExpectedTags(this.tags);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     final list = tags.map(ParseError.escape).toList();
@@ -1388,14 +1608,10 @@ class ErrorExpectedTags extends ParseError {
 
 class ErrorMessage extends ParseError {
   final List<Object?> arguments;
-
   @override
   final int length;
-
   final String text;
-
   const ErrorMessage(this.length, this.text, [this.arguments = const []]);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return this;
@@ -1408,18 +1624,14 @@ class ErrorMessage extends ParseError {
       final argument = arguments[i];
       result = result.replaceAll('{$i}', argument.toString());
     }
-
     return result;
   }
 }
 
 class ErrorUnexpectedCharacter extends ParseError {
   static const message = 'Unexpected character {0}';
-
   final int? char;
-
   const ErrorUnexpectedCharacter([this.char]);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     var argument = '<?>';
@@ -1451,22 +1663,18 @@ class ErrorUnexpectedCharacter extends ParseError {
         }
       }
     }
-
     if (char != null) {
       final hexValue = char.toRadixString(16);
       final value = ParseError.escape(char);
       argument = '$value (0x$hexValue)';
     }
-
     return ErrorMessage(0, ErrorUnexpectedCharacter.message, [argument]);
   }
 }
 
 class ErrorUnexpectedEndOfInput extends ParseError {
   static const message = 'Unexpected end of input';
-
   const ErrorUnexpectedEndOfInput();
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(length, ErrorUnexpectedEndOfInput.message);
@@ -1475,12 +1683,9 @@ class ErrorUnexpectedEndOfInput extends ParseError {
 
 class ErrorUnexpectedInput extends ParseError {
   static const message = 'Unexpected input data';
-
   @override
   final int length;
-
   const ErrorUnexpectedInput(this.length);
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(length, ErrorUnexpectedInput.message);
@@ -1489,9 +1694,7 @@ class ErrorUnexpectedInput extends ParseError {
 
 class ErrorUnknownError extends ParseError {
   static const message = 'Unknown error';
-
   const ErrorUnknownError();
-
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return const ErrorMessage(0, ErrorUnknownError.message);
@@ -1500,11 +1703,8 @@ class ErrorUnknownError extends ParseError {
 
 abstract class ParseError {
   const ParseError();
-
   int get length => 0;
-
   ErrorMessage getErrorMessage(Object? input, int? offset);
-
   @override
   String toString() {
     final message = getErrorMessage(null, null);
@@ -1522,7 +1722,6 @@ abstract class ParseError {
     } else if (value is! String) {
       return value.toString();
     }
-
     final map = {
       '\b': '\\b',
       '\f': '\\f',
@@ -1544,19 +1743,12 @@ abstract class ParseError {
 
 class ParseResult<I, O> {
   final String errorMessage;
-
   final List<ErrorMessage> errors;
-
   final int failPos;
-
   final I input;
-
   final bool ok;
-
   final int pos;
-
   final O? result;
-
   ParseResult({
     this.errorMessage = '',
     this.errors = const [],
@@ -1566,33 +1758,23 @@ class ParseResult<I, O> {
     required this.pos,
     required this.result,
   });
-
   O getResult() {
     if (!ok) {
       throw FormatException(errorMessage);
     }
-
     return result as O;
   }
 }
 
 class State<T> {
   Object? context;
-
   final List<ParseError?> errors = List.filled(64, null, growable: false);
-
   int errorCount = 0;
-
   int failPos = 0;
-
   final T input;
-
   bool ok = false;
-
   int pos = 0;
-
   State(this.input);
-
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
@@ -1686,7 +1868,6 @@ class State<T> {
       final string = source.substring(pos, pos + length);
       return '$pos:$string';
     }
-
     return super.toString();
   }
 
@@ -1713,32 +1894,24 @@ class State<T> {
 
 class _StringWrapper {
   final int invalidChar;
-
   final int leftPadding;
-
   final int length;
-
   final int rightPadding;
-
   final String source;
-
   _StringWrapper({
     required this.invalidChar,
     required this.leftPadding,
     required this.rightPadding,
     required this.source,
   }) : length = leftPadding + source.length + rightPadding;
-
   int codeUnitAt(int index) {
     if (index < 0 || index > length - 1) {
       throw RangeError.range(index, 0, length, 'index');
     }
-
     final offset = index - leftPadding;
     if (offset >= 0 && offset < source.length) {
       return source.codeUnitAt(offset);
     }
-
     return invalidChar;
   }
 
@@ -1746,7 +1919,6 @@ class _StringWrapper {
     if (index < 0 || index > length - 1) {
       throw RangeError.range(index, 0, length, 'index');
     }
-
     return index >= leftPadding && index <= rightPadding && source.isNotEmpty;
   }
 
@@ -1768,11 +1940,9 @@ class _StringWrapper {
     if (start < 0 || start > length) {
       throw RangeError.range(start, 0, length, 'index');
     }
-
     if (end < start || end > length) {
       throw RangeError.range(end, start, length, 'end');
     }
-
     final codeUnits = List.generate(end - start, (i) => codeUnitAt(start + i));
     return String.fromCharCodes(codeUnits);
   }

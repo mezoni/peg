@@ -21,27 +21,24 @@ abstract class ExpressionGenerator<T extends Expression> {
 
   String generate();
 
-  void generateAsync() {
+  String generateAsync() {
     throw UnimplementedError('generateAsync()');
   }
 
-  void generateAsyncExpression(Expression expression, bool declareVariable) {
+  String generateAsyncExpression(Expression expression, bool declareVariable) {
+    final buffer = StringBuffer();
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    asyncGenerator.writeComment(' // $expression');
+    buffer.writeln(' // $expression');
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       if (declareVariable) {
         asyncGenerator.addVariable(variable, expression.resultType!);
       }
-
-      if (asyncGenerator.loopLevel != 0) {
-        if (!isAsyncVariableSelfResetSupported()) {
-          asyncGenerator.writeln('$variable = null;');
-        }
-      }
     }
 
-    expression.accept(ruleGenerator);
+    final source = expression.accept(ruleGenerator);
+    buffer.writeln(source);
+    return buffer.toString();
   }
 
   String generateExpression(Expression expression, bool declareVariable) {
@@ -88,11 +85,8 @@ abstract class ExpressionGenerator<T extends Expression> {
     return '$variable!';
   }
 
-  bool isAsyncVariableSelfResetSupported() {
-    return false;
-  }
-
-  String render(String template, Map<String, String> values) {
+  String render(String template, Map<String, String> values,
+      {bool removeEmptyLines = true}) {
     return helper.render(template, values);
   }
 }

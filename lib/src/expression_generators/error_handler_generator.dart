@@ -46,38 +46,27 @@ if (!state.ok && state._canHandleError({{failPos}}, {{errorCount}})) {
   }
 
   @override
-  void generateAsync() {
-    final child = expression.expression;
+  String generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    final handler = expression.handler.trim();
-    final failPos = allocateName();
-    final errorCount = allocateName();
-    asyncGenerator.addVariable(failPos, GenericType(name: 'int'));
-    asyncGenerator.addVariable(errorCount, GenericType(name: 'int'));
-
-    {
-      final values = <String, String>{};
-      values['errorCount'] = errorCount;
-      values['failPos'] = failPos;
-      const template = '''
+    values['handler'] = expression.handler.trim();
+    values['errorCount'] =
+        asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['failPos'] =
+        asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    const initTemplate = '''
 {{failPos}} = state.failPos;
 {{errorCount}} = state.errorCount;''';
-      asyncGenerator.render(template, values);
-    }
-
-    generateAsyncExpression(child, false);
-
-    {
-      final values = <String, String>{};
-      values['errorCount'] = errorCount;
-      values['failPos'] = failPos;
-      values['handler'] = handler;
-      const template = '''
+    final init = render(initTemplate, values);
+    values['p'] = generateAsyncExpression(child, false);
+    const template = '''
+{{p}}
 if (!state.ok && state._canHandleError({{failPos}}!, {{errorCount}}!)) {
   ParseError? error;
   // ignore: prefer_final_locals
@@ -95,8 +84,11 @@ if (!state.ok && state._canHandleError({{failPos}}!, {{errorCount}}!)) {
     state.failAt(state.failPos, error);
   }
 }''';
-
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: false,
+      init: init,
+    );
   }
 }

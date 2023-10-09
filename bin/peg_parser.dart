@@ -1333,39 +1333,30 @@ class PegParser {
     if (state.ok) {
       String? $2;
       final $4 = state.pos;
-      var $5 = false;
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $6 = state.input.codeUnitAt(state.pos);
-          state.ok = $6 <= 90
-              ? $6 >= 48 && $6 <= 57 || $6 >= 65
-              : $6 >= 97 && $6 <= 122;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
+      final $7 = state.pos;
+      final $6 = state.input;
+      while (state.pos < $6.length) {
+        final $5 = $6.codeUnitAt(state.pos);
+        state.ok =
+            $5 <= 90 ? $5 >= 48 && $5 <= 57 || $5 >= 65 : $5 >= 97 && $5 <= 122;
         if (!state.ok) {
           break;
         }
-        $5 = true;
+        state.pos++;
       }
-      state.ok = $5;
+      state.fail(const ErrorUnexpectedCharacter());
+      state.ok = state.pos > $7;
       if (state.ok) {
         $2 = state.input.substring($4, state.pos);
       }
       if (state.ok) {
-        const $7 = '}';
+        const $8 = '}';
         state.ok = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 125;
         if (state.ok) {
           state.pos++;
         } else {
-          state.fail(const ErrorExpectedTags([$7]));
+          state.fail(const ErrorExpectedTags([$8]));
         }
         if (state.ok) {
           int? $$;
@@ -1406,15 +1397,16 @@ class PegParser {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
-      while (state.pos < state.input.length) {
-        final $6 = state.input.runeAt(state.pos);
+      final $7 = state.input;
+      while (state.pos < $7.length) {
+        final $6 = $7.codeUnitAt(state.pos);
         state.ok = $6 <= 90
             ? $6 >= 48 && $6 <= 57 || $6 >= 65
             : $6 == 95 || $6 >= 97 && $6 <= 122;
         if (!state.ok) {
           break;
         }
-        state.pos += $6 > 0xffff ? 2 : 1;
+        state.pos++;
       }
       state.fail(const ErrorUnexpectedCharacter());
       state.ok = true;
@@ -1447,26 +1439,18 @@ class PegParser {
     // v:$[0-9]+ {}
     String? $2;
     final $3 = state.pos;
-    var $4 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 >= 48 && $5 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final $6 = state.pos;
+    final $5 = state.input;
+    while (state.pos < $5.length) {
+      final $4 = $5.codeUnitAt(state.pos);
+      state.ok = $4 >= 48 && $4 <= 57;
       if (!state.ok) {
         break;
       }
-      $4 = true;
+      state.pos++;
     }
-    state.ok = $4;
+    state.fail(const ErrorUnexpectedCharacter());
+    state.ok = state.pos > $6;
     if (state.ok) {
       $2 = state.input.substring($3, state.pos);
     }
@@ -2092,8 +2076,9 @@ class PegParser {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
-      while (state.pos < state.input.length) {
-        final $6 = state.input.runeAt(state.pos);
+      final $7 = state.input;
+      while (state.pos < $7.length) {
+        final $6 = $7.codeUnitAt(state.pos);
         state.ok = $6 <= 90
             ? $6 <= 57
                 ? $6 == 36 || $6 >= 48
@@ -2102,7 +2087,7 @@ class PegParser {
         if (!state.ok) {
           break;
         }
-        state.pos += $6 > 0xffff ? 2 : 1;
+        state.pos++;
       }
       state.fail(const ErrorUnexpectedCharacter());
       state.ok = true;

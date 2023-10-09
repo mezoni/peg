@@ -24,7 +24,7 @@ class CharacterClassGenerator
   }
 
   @override
-  void generateAsync() {
+  String generateAsync() {
     final ranges = expression.ranges;
     final negate = expression.negate;
     int? char;
@@ -36,9 +36,9 @@ class CharacterClassGenerator
     }
 
     if (char == null) {
-      _generateAsync();
+      return _generateAsync();
     } else {
-      _generateAsyncChar(char);
+      return _generateAsyncChar(char);
     }
   }
 
@@ -46,25 +46,23 @@ class CharacterClassGenerator
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final c = allocateName();
-    final predicate = helper.rangesToPredicate(c, ranges, negate);
-    final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
     values['c'] = c;
-    values['predicate'] = predicate;
+    values['assign_state_pos'] = helper.assignStatePos(c, ranges, negate);
+    values['char_at'] = helper.charAt(ranges, negate);
+    values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
     if (variable != null) {
       values['assign_result'] = '$variable = $c;';
     } else {
       values['assign_result'] = '';
     }
 
-    var template = '';
-    if (is32Bit) {
-      template = '''
+    const template = '''
 state.ok = state.pos < state.input.length;
 if (state.ok) {
-  final {{c}} = state.input.runeAt(state.pos);
+  final {{c}} = state.input.{{char_at}}(state.pos);
   state.ok = {{predicate}};
   if (state.ok) {
-    state.pos += {{c}} > 0xffff ? 2 : 1;
+    {{assign_state_pos}}
     {{assign_result}}
   } else {
     state.fail(const ErrorUnexpectedCharacter());
@@ -72,114 +70,83 @@ if (state.ok) {
 } else {
   state.fail(const ErrorUnexpectedEndOfInput());
 }''';
-    } else {
-      template = '''
-state.ok = state.pos < state.input.length;
-if (state.ok) {
-  final {{c}} = state.input.codeUnitAt(state.pos);
-  state.ok = {{predicate}};
-  if (state.ok) {
-    state.pos++;
-    {{assign_result}}
-  } else {
-    state.fail(const ErrorUnexpectedCharacter());
-  }
-} else {
-  state.fail(const ErrorUnexpectedEndOfInput());
-}''';
-    }
-
     return render(template, values);
   }
 
-  void _generateAsync() {
+  String _generateAsync() {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final asyncGenerator = ruleGenerator.asyncGenerator;
     final ranges = expression.ranges;
     final negate = expression.negate;
-
-    {
-      asyncGenerator.writeln('state.input.beginBuffering();');
-      asyncGenerator.moveToNewState();
-    }
-
-    {
-      final values = <String, String>{};
-      values['handle'] = asyncGenerator.functionName;
-      values['input'] = allocateName();
-      values['predicate'] = helper.rangesToPredicate('c', ranges, negate);
-      if (variable != null) {
-        values['assign_result'] = '$variable = c;';
-        values['clear_result'] = '$variable = null;';
-      } else {
-        values['assign_result'] = '';
-        values['clear_result'] = '';
-      }
-
-      const template = '''
-final {{input}} = state.input;
-if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
-  {{clear_result}}
-  state.ok = state.pos < {{input}}.end;
-  if (state.pos >= {{input}}.start) {
-    if (state.ok) {
-      final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
-      state.ok = {{predicate}};
-      if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
-        {{assign_result}}
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+    final c = allocateName();
+    values['c'] = c;
+    values['handle'] = asyncGenerator.functionName;
+    values['input'] = allocateName();
+    values['assign_state_pos'] = helper.assignStatePos(c, ranges, negate);
+    values['read_char_async'] = helper.readCharAsync(ranges, negate);
+    values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
+    if (variable != null) {
+      values['assign_result'] = '$variable = $c;';
+      values['clear_result'] = '$variable = null;';
     } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+      values['assign_result'] = '';
+      values['clear_result'] = '';
     }
-  } else {
-    state.fail(ErrorBacktracking(state.pos));
-  }
-  {{input}}.endBuffering(state.pos);
-} else {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
+
+    const template = '''
+final {{input}} = state.input;
+final {{c}} = {{read_char_async}}(state);
+{{clear_result}}
+switch ({{c}}) {
+  case null:
+    {{input}}.sleep = true;
+    {{input}}.handle = {{handle}};
+    return;
+  case >= 0:
+    state.ok = {{predicate}};
+    if (state.ok) {
+      {{assign_state_pos}}
+      {{assign_result}}
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
 }''';
 
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 
-  void _generateAsyncChar(int char) {
+  String _generateAsyncChar(int char) {
+    final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-
-    {
-      asyncGenerator.writeln('state.input.beginBuffering();');
-      asyncGenerator.moveToNewState();
+    values['char'] = '$char';
+    values['handle'] = asyncGenerator.functionName;
+    values['input'] = allocateName();
+    if (variable != null) {
+      values['assign_result'] = '$variable = ';
+    } else {
+      values['assign_result'] = '';
     }
 
-    {
-      final values = <String, String>{};
-      values['char'] = '$char';
-      values['handle'] = asyncGenerator.functionName;
-      values['input'] = allocateName();
-      if (variable != null) {
-        values['assign_result'] = '$variable = ';
-      } else {
-        values['assign_result'] = '';
-      }
-
-      const template = '''
+    const template = '''
 final {{input}} = state.input;
-if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
+if (state.pos < {{input}}.end || {{input}}.isClosed) {
   {{assign_result}}matchCharAsync(state, {{char}}, const ErrorExpectedCharacter({{char}}));
-  state.input.endBuffering(state.pos);
 } else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }''';
-      asyncGenerator.render(template, values);
-    }
+    final source = render(template, values);
+    return asyncGenerator.renderAction(
+      source,
+      buffering: asyncGenerator.buffering == 0,
+    );
   }
 
   String _generateChar(int char) {

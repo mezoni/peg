@@ -117,6 +117,46 @@ class {{className}} {
     state.fail(error);
     return null;
   }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? readChar16Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    if (state.pos < input.end || input.isClosed) {
+      state.ok = state.pos < input.end;
+      if (state.pos >= input.start) {
+        if (state.ok) {
+          return input.data.codeUnitAt(state.pos - input.start);
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      } else {
+        state.fail(ErrorBacktracking(state.pos));
+      }
+      return -1;
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? readChar32Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    if (state.pos < input.end || input.isClosed) {
+      state.ok = state.pos < input.end;
+      if (state.pos >= input.start) {
+        if (state.ok) {
+          return input.data.runeAt(state.pos - input.start);
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      } else {
+        state.fail(ErrorBacktracking(state.pos));
+      }
+      return -1;
+    }
+    return null;
+  }
 }''';
 
   static const _templateEvents = '''
@@ -181,6 +221,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
       values['events'] = '';
     }
 
-    return helper.render(_template, values);
+    return helper.render(_template, values, removeEmptyLines: false);
   }
 }

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
-import 'package:peg/src/converter_generator.dart';
+import 'package:peg/src/grammar_generators/converter_generator.dart';
 import 'package:peg/src/grammar_generators/library_generator.dart';
 import 'package:strings/strings.dart';
 

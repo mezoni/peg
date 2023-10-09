@@ -359,6 +359,90 @@ void _testCharacterClass() {
     }
 
     {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCharacterClassCharNegate,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate$Async,
+        parse: _parser.parseCharacterClassCharNegate,
+        parseAsync: _parser.parseCharacterClassCharNegate$Async,
+        pos: 1,
+        result: 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseCharacterClassCharNegate,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate$Async,
+        parse: _parser.parseCharacterClassCharNegate,
+        parseAsync: _parser.parseCharacterClassCharNegate$Async,
+        pos: 2,
+        result: 0x1f680,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseCharacterClassCharNegate,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate$Async,
+        parse: _parser.parseCharacterClassCharNegate,
+        parseAsync: _parser.parseCharacterClassCharNegate$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCharacterClassCharNegate32,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate32$Async,
+        parse: _parser.parseCharacterClassCharNegate32,
+        parseAsync: _parser.parseCharacterClassCharNegate32$Async,
+        pos: 1,
+        result: 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚁';
+      await __testSuccess(
+        fastParse: _parser.fastParseCharacterClassCharNegate32,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate32$Async,
+        parse: _parser.parseCharacterClassCharNegate32,
+        parseAsync: _parser.parseCharacterClassCharNegate32$Async,
+        pos: 2,
+        result: 0x1f681,
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀';
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseCharacterClassCharNegate32,
+        fastParseAsync: _parser.fastParseCharacterClassCharNegate32$Async,
+        parse: _parser.parseCharacterClassCharNegate32,
+        parseAsync: _parser.parseCharacterClassCharNegate32$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
       const source = '🚀';
       await __testSuccess(
         fastParse: _parser.fastParseCharacterClassRange32,
