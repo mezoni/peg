@@ -820,9 +820,9 @@ Verify = @verify(Integer, { if ($$ > 0xff) { error = ErrorMessage(state.pos - po
 ## Examples of parsers
 
 List of parser examples:  
-[CSV parser](https://github.com/mezoni/peg/blob/main/example/csv_parser.peg)  
-[Calc parser](https://github.com/mezoni/peg/blob/main/example/calc_parser.peg)  
-[JSON parser](https://github.com/mezoni/peg/blob/main/example/json_parser.peg)  
+[CSV parser](https://github.com/mezoni/peg/blob/main/example/csv.peg)  
+[Calc parser](https://github.com/mezoni/peg/blob/main/example/calc.peg)  
+[JSON parser](https://github.com/mezoni/peg/blob/main/example/json.peg)  
 
 ## Parsing
 
