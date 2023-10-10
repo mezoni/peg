@@ -115,37 +115,34 @@ class Test2Parser {
         if ($5 == 0) {
           // [0]
           final $7 = state.input;
-          if (state.pos < $7.end || $7.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $7.end && !$7.isClosed) {
             $7.sleep = true;
             $7.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
           // [1]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
           // [2]
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $5 = -1;
         }
         if (!state.ok) {
@@ -163,13 +160,12 @@ class Test2Parser {
         // [0]
         $12 ??= state.input.beginBuffering();
         final $11 = state.input;
-        if (state.pos < $11.end || $11.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $11.end && !$11.isClosed) {
           $11.sleep = true;
           $11.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $12 = null;
         $2 = state.ok ? 2 : -1;
@@ -178,13 +174,12 @@ class Test2Parser {
         // [1]
         $14 ??= state.input.beginBuffering();
         final $13 = state.input;
-        if (state.pos < $13.end || $13.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $13.end && !$13.isClosed) {
           $13.sleep = true;
           $13.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $14 = null;
         $2 = state.ok ? 3 : -1;
@@ -193,13 +188,12 @@ class Test2Parser {
         // [2]
         $16 ??= state.input.beginBuffering();
         final $15 = state.input;
-        if (state.pos < $15.end || $15.isClosed) {
-          matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-        } else {
+        if (state.pos >= $15.end && !$15.isClosed) {
           $15.sleep = true;
           $15.handle = $1;
           return;
         }
+        matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
         state.input.endBuffering(state.pos);
         $16 = null;
         $2 = -1;
@@ -238,31 +232,24 @@ class Test2Parser {
   AsyncResult<Object?> fastParseAnyCharacter$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $3;
+    Object? $4;
     void $1() {
       // .
       // .
-      $3 ??= state.input.beginBuffering();
-      final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        if (state.pos >= $2.start) {
-          state.ok = state.pos < $2.end;
-          if (state.ok) {
-            final c = $2.data.runeAt(state.pos - $2.start);
-            state.pos += c > 0xffff ? 2 : 1;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        } else {
-          state.fail(ErrorBacktracking(state.pos));
-        }
-      } else {
-        $2.sleep = true;
-        $2.handle = $1;
+      $4 ??= state.input.beginBuffering();
+      final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
         return;
       }
+      final $2 = readChar32Async(state);
+      state.ok = $2 >= 0;
+      if (state.ok) {
+        state.pos += $2 > 0xffff ? 2 : 1;
+      }
       state.input.endBuffering(state.pos);
-      $3 = null;
+      $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -372,37 +359,34 @@ class Test2Parser {
         if ($3 == 0) {
           // [0]
           final $5 = state.input;
-          if (state.pos < $5.end || $5.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $5.end && !$5.isClosed) {
             $5.sleep = true;
             $5.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
           // [1]
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $3 = state.ok ? 2 : -1;
         }
         if ($3 == 2) {
           // [2]
           final $7 = state.input;
-          if (state.pos < $7.end || $7.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $7.end && !$7.isClosed) {
             $7.sleep = true;
             $7.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $3 = -1;
         }
         if (!state.ok) {
@@ -427,13 +411,12 @@ class Test2Parser {
           // [0]
           $13 ??= state.input.beginBuffering();
           final $12 = state.input;
-          if (state.pos < $12.end || $12.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $12.end && !$12.isClosed) {
             $12.sleep = true;
             $12.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           state.input.endBuffering(state.pos);
           $13 = null;
           $10 = state.ok ? 1 : -1;
@@ -442,13 +425,12 @@ class Test2Parser {
           // [1]
           $15 ??= state.input.beginBuffering();
           final $14 = state.input;
-          if (state.pos < $14.end || $14.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $14.end && !$14.isClosed) {
             $14.sleep = true;
             $14.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           state.input.endBuffering(state.pos);
           $15 = null;
           $10 = -1;
@@ -500,19 +482,19 @@ class Test2Parser {
       // [0-9]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
+        return;
+      }
       final $2 = readChar16Async(state);
-      switch ($2) {
-        case null:
-          $3.sleep = true;
-          $3.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $2 >= 48 && $2 <= 57;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($2 >= 0) {
+        state.ok = $2 >= 48 && $2 <= 57;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $4 = null;
@@ -551,13 +533,12 @@ class Test2Parser {
       // [\u{1f680}]
       $3 ??= state.input.beginBuffering();
       final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-      } else {
+      if (state.pos >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
+      matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
       state.input.endBuffering(state.pos);
       $3 = null;
       $0.isComplete = true;
@@ -600,19 +581,19 @@ class Test2Parser {
       // [^0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
+        return;
+      }
       final $2 = readChar32Async(state);
-      switch ($2) {
-        case null:
-          $3.sleep = true;
-          $3.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $2 != 48;
-          if (state.ok) {
-            state.pos += $2 > 0xffff ? 2 : 1;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($2 >= 0) {
+        state.ok = $2 != 48;
+        if (state.ok) {
+          state.pos += $2 > 0xffff ? 2 : 1;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $4 = null;
@@ -656,19 +637,19 @@ class Test2Parser {
       // [^\u{1f680}]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
+        return;
+      }
       final $2 = readChar32Async(state);
-      switch ($2) {
-        case null:
-          $3.sleep = true;
-          $3.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $2 != 128640;
-          if (state.ok) {
-            state.pos += $2 > 0xffff ? 2 : 1;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($2 >= 0) {
+        state.ok = $2 != 128640;
+        if (state.ok) {
+          state.pos += $2 > 0xffff ? 2 : 1;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $4 = null;
@@ -712,19 +693,19 @@ class Test2Parser {
       // [ -\u{1f680}]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
+        return;
+      }
       final $2 = readChar32Async(state);
-      switch ($2) {
-        case null:
-          $3.sleep = true;
-          $3.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $2 >= 32 && $2 <= 128640;
-          if (state.ok) {
-            state.pos += $2 > 0xffff ? 2 : 1;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($2 >= 0) {
+        state.ok = $2 >= 32 && $2 <= 128640;
+        if (state.ok) {
+          state.pos += $2 > 0xffff ? 2 : 1;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $4 = null;
@@ -786,11 +767,11 @@ class Test2Parser {
     int? $3;
     Object? $5;
     int? $6;
-    int $8 = 0;
+    int $9 = 0;
     void $1() {
       // [0] !.
-      if ($8 & 0x2 == 0) {
-        $8 |= 0x2;
+      if ($9 & 0x2 == 0) {
+        $9 |= 0x2;
         $2 = 0;
         $3 = state.pos;
       }
@@ -798,42 +779,34 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
         // !.
-        if ($8 & 0x1 == 0) {
-          $8 |= 0x1;
+        if ($9 & 0x1 == 0) {
+          $9 |= 0x1;
           state.input.beginBuffering();
           $6 = state.pos;
         }
         // .
-        final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          if (state.pos >= $7.start) {
-            state.ok = state.pos < $7.end;
-            if (state.ok) {
-              final c = $7.data.runeAt(state.pos - $7.start);
-              state.pos += c > 0xffff ? 2 : 1;
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-          } else {
-            state.fail(ErrorBacktracking(state.pos));
-          }
-        } else {
-          $7.sleep = true;
-          $7.handle = $1;
+        final $8 = state.input;
+        if (state.pos >= $8.end && !$8.isClosed) {
+          $8.sleep = true;
+          $8.handle = $1;
           return;
+        }
+        final $7 = readChar32Async(state);
+        state.ok = $7 >= 0;
+        if (state.ok) {
+          state.pos += $7 > 0xffff ? 2 : 1;
         }
         state.ok = !state.ok;
         if (!state.ok) {
@@ -847,13 +820,13 @@ class Test2Parser {
         }
         state.pos = $6!;
         state.input.endBuffering(state.pos);
-        $8 &= ~0x1 & 0xffff;
+        $9 &= ~0x1 & 0xffff;
         $2 = -1;
       }
       if (!state.ok) {
         state.pos = $3!;
       }
-      $8 &= ~0x2 & 0xffff;
+      $9 &= ~0x2 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -921,13 +894,12 @@ class Test2Parser {
       // [0]
       $5 ??= state.input.beginBuffering();
       final $4 = state.input;
-      if (state.pos < $4.end || $4.isClosed) {
-        matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $4.end && !$4.isClosed) {
         $4.sleep = true;
         $4.handle = $1;
         return;
       }
+      matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $5 = null;
       if (!state.ok && state._canHandleError($3!, $2!)) {
@@ -991,13 +963,7 @@ class Test2Parser {
   void fastParseLiteral1(State<String> state) {
     // '0'
     const $1 = '0';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 48;
-    if (state.ok) {
-      state.pos++;
-    } else {
-      state.fail(const ErrorExpectedTags([$1]));
-    }
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
   }
 
   /// Literal1 =
@@ -1006,21 +972,22 @@ class Test2Parser {
   AsyncResult<Object?> fastParseLiteral1$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $3;
+    Object? $4;
     void $1() {
       // '0'
       // '0'
-      $3 ??= state.input.beginBuffering();
+      $4 ??= state.input.beginBuffering();
+      const $3 = '0';
       final $2 = state.input;
-      if (state.pos + 1 < $2.end || $2.isClosed) {
-        matchLiteral1Async(state, 48, '0', const ErrorExpectedTags(['0']));
+      if (state.pos < $2.end || $2.isClosed) {
+        matchLiteral1Async(state, $3, const ErrorExpectedTags([$3]));
       } else {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
       state.input.endBuffering(state.pos);
-      $3 = null;
+      $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1036,14 +1003,7 @@ class Test2Parser {
   void fastParseLiteral2(State<String> state) {
     // '01'
     const $1 = '01';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 48 &&
-        state.input.startsWith($1, state.pos);
-    if (state.ok) {
-      state.pos += 2;
-    } else {
-      state.fail(const ErrorExpectedTags([$1]));
-    }
+    matchLiteral2(state, $1, const ErrorExpectedTags([$1]));
   }
 
   /// Literal2 =
@@ -1052,22 +1012,22 @@ class Test2Parser {
   AsyncResult<Object?> fastParseLiteral2$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $3;
+    Object? $4;
     void $1() {
       // '01'
       // '01'
-      $3 ??= state.input.beginBuffering();
+      $4 ??= state.input.beginBuffering();
+      const $3 = '01';
       final $2 = state.input;
       if (state.pos + 1 < $2.end || $2.isClosed) {
-        const string = '01';
-        matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        matchLiteral2Async(state, $3, const ErrorExpectedTags([$3]));
       } else {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
       state.input.endBuffering(state.pos);
-      $3 = null;
+      $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1118,11 +1078,11 @@ class Test2Parser {
     final $0 = AsyncResult<Object?>();
     int? $2;
     Object? $4;
-    Object? $6;
-    int $7 = 0;
+    Object? $7;
+    int $8 = 0;
     void $1() {
-      if ($7 & 0x1 == 0) {
-        $7 |= 0x1;
+      if ($8 & 0x1 == 0) {
+        $8 |= 0x1;
         $2 = 0;
       }
       if ($2 == 0) {
@@ -1145,21 +1105,21 @@ class Test2Parser {
       if ($2 == 1) {
         // '01'
         // '01'
-        $6 ??= state.input.beginBuffering();
+        $7 ??= state.input.beginBuffering();
+        const $6 = '01';
         final $5 = state.input;
         if (state.pos + 1 < $5.end || $5.isClosed) {
-          const string = '01';
-          matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+          matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
         } else {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
         state.input.endBuffering(state.pos);
-        $6 = null;
+        $7 = null;
         $2 = -1;
       }
-      $7 &= ~0x1 & 0xffff;
+      $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1330,37 +1290,34 @@ class Test2Parser {
         if ($5 == 0) {
           // [0]
           final $7 = state.input;
-          if (state.pos < $7.end || $7.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $7.end && !$7.isClosed) {
             $7.sleep = true;
             $7.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
           // [1]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
           // [2]
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $5 = -1;
         }
         if (!state.ok) {
@@ -1386,13 +1343,12 @@ class Test2Parser {
         // [0]
         $12 ??= state.input.beginBuffering();
         final $11 = state.input;
-        if (state.pos < $11.end || $11.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $11.end && !$11.isClosed) {
           $11.sleep = true;
           $11.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $12 = null;
         $2 = state.ok ? 2 : -1;
@@ -1401,13 +1357,12 @@ class Test2Parser {
         // [1]
         $14 ??= state.input.beginBuffering();
         final $13 = state.input;
-        if (state.pos < $13.end || $13.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $13.end && !$13.isClosed) {
           $13.sleep = true;
           $13.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $14 = null;
         $2 = -1;
@@ -1460,13 +1415,12 @@ class Test2Parser {
         $4 ??= state.input.beginBuffering();
         // [0]
         final $3 = state.input;
-        if (state.pos < $3.end || $3.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $3.end && !$3.isClosed) {
           $3.sleep = true;
           $3.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $4 = null;
         if (!state.ok) {
@@ -1536,13 +1490,12 @@ class Test2Parser {
         $5 ??= state.input.beginBuffering();
         // [0]
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         if (!state.ok) {
           state.ok = true;
         }
@@ -1554,13 +1507,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $2 = -1;
@@ -1624,13 +1576,12 @@ class Test2Parser {
         // [0]
         $4 ??= state.input.beginBuffering();
         final $3 = state.input;
-        if (state.pos < $3.end || $3.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $3.end && !$3.isClosed) {
           $3.sleep = true;
           $3.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $4 = null;
         $2 = state.ok ? -1 : 1;
@@ -1640,13 +1591,12 @@ class Test2Parser {
         // [1]
         $6 ??= state.input.beginBuffering();
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $6 = null;
         $2 = -1;
@@ -1720,13 +1670,12 @@ class Test2Parser {
         // [0]
         $4 ??= state.input.beginBuffering();
         final $3 = state.input;
-        if (state.pos < $3.end || $3.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $3.end && !$3.isClosed) {
           $3.sleep = true;
           $3.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $4 = null;
         $2 = state.ok ? -1 : 1;
@@ -1736,13 +1685,12 @@ class Test2Parser {
         // [1]
         $6 ??= state.input.beginBuffering();
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $6 = null;
         $2 = state.ok ? -1 : 2;
@@ -1752,13 +1700,12 @@ class Test2Parser {
         // [2]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
         state.input.endBuffering(state.pos);
         $8 = null;
         $2 = -1;
@@ -1811,13 +1758,12 @@ class Test2Parser {
         $5 ??= state.input.beginBuffering();
         // [\u{1f680}]
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $5 = null;
         if (!state.ok) {
@@ -1907,13 +1853,12 @@ class Test2Parser {
           $7 ??= state.input.beginBuffering();
           // [\u{1f680}]
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
           state.input.endBuffering(state.pos);
           $7 = null;
           var $4 = $3!;
@@ -1941,13 +1886,12 @@ class Test2Parser {
         // [\u{1f680}]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $9 = null;
         $2 = -1;
@@ -2029,13 +1973,12 @@ class Test2Parser {
           $7 ??= state.input.beginBuffering();
           // [\u{1f680}]
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
           state.input.endBuffering(state.pos);
           $7 = null;
           var $4 = $3!;
@@ -2066,13 +2009,12 @@ class Test2Parser {
         // [\u{1f680}]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $9 = null;
         $2 = -1;
@@ -2152,13 +2094,12 @@ class Test2Parser {
         while (true) {
           // [\u{1f680}]
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
           if (!state.ok) {
             break;
           }
@@ -2181,13 +2122,12 @@ class Test2Parser {
         // [\u{1f680}]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $8 = null;
         $2 = -1;
@@ -2263,13 +2203,12 @@ class Test2Parser {
           // [0]
           $7 ??= state.input.beginBuffering();
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           state.input.endBuffering(state.pos);
           $7 = null;
           if (!state.ok) {
@@ -2290,13 +2229,12 @@ class Test2Parser {
           // [,]
           $9 ??= state.input.beginBuffering();
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            matchCharAsync(state, 44, const ErrorExpectedCharacter(44));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
           state.input.endBuffering(state.pos);
           $9 = null;
           $3 = null;
@@ -2344,13 +2282,12 @@ class Test2Parser {
       // [0]
       $3 ??= state.input.beginBuffering();
       final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
+      matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $3 = null;
       $0.isComplete = true;
@@ -2393,13 +2330,12 @@ class Test2Parser {
       // [0]
       $3 ??= state.input.beginBuffering();
       final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
+      matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $3 = null;
       if (state.ok) {
@@ -2442,13 +2378,12 @@ class Test2Parser {
       // [0]
       $3 ??= state.input.beginBuffering();
       final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
+      matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $3 = null;
       $0.isComplete = true;
@@ -2495,13 +2430,12 @@ class Test2Parser {
       // [0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $4 = null;
       if (state.ok) {
@@ -2568,13 +2502,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $2 = state.ok ? 1 : -1;
@@ -2583,13 +2516,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $2 = -1;
@@ -2661,13 +2593,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $2 = state.ok ? 1 : -1;
@@ -2676,13 +2607,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $2 = -1;
@@ -2753,13 +2683,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $2 = state.ok ? 1 : -1;
@@ -2768,13 +2697,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $2 = -1;
@@ -2850,13 +2778,12 @@ class Test2Parser {
         // [0]
         $6 ??= state.input.beginBuffering();
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $6 = null;
         $3 = state.ok ? 1 : -1;
@@ -2865,13 +2792,12 @@ class Test2Parser {
         // [1]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $8 = null;
         $3 = -1;
@@ -2943,13 +2869,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $2 = state.ok ? 1 : -1;
@@ -2958,13 +2883,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $2 = -1;
@@ -3044,13 +2968,12 @@ class Test2Parser {
         // [0]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $7 = null;
         $4 = state.ok ? 1 : -1;
@@ -3059,13 +2982,12 @@ class Test2Parser {
         // [1]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          $3 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $9 = null;
         $4 = -1;
@@ -3185,37 +3107,34 @@ class Test2Parser {
         if ($3 == 0) {
           // [0]
           final $5 = state.input;
-          if (state.pos < $5.end || $5.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $5.end && !$5.isClosed) {
             $5.sleep = true;
             $5.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
           // [1]
           final $6 = state.input;
-          if (state.pos < $6.end || $6.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $6.end && !$6.isClosed) {
             $6.sleep = true;
             $6.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $3 = state.ok ? 2 : -1;
         }
         if ($3 == 2) {
           // [2]
           final $7 = state.input;
-          if (state.pos < $7.end || $7.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $7.end && !$7.isClosed) {
             $7.sleep = true;
             $7.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $3 = -1;
         }
         if (!state.ok) {
@@ -3241,25 +3160,23 @@ class Test2Parser {
         if ($10 == 0) {
           // [0]
           final $12 = state.input;
-          if (state.pos < $12.end || $12.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $12.end && !$12.isClosed) {
             $12.sleep = true;
             $12.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $10 = state.ok ? 1 : -1;
         }
         if ($10 == 1) {
           // [1]
           final $13 = state.input;
-          if (state.pos < $13.end || $13.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $13.end && !$13.isClosed) {
             $13.sleep = true;
             $13.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $10 = -1;
         }
         if (!state.ok) {
@@ -3364,19 +3281,19 @@ class Test2Parser {
           while (true) {
             // [0-9]
             final $8 = state.input;
+            if (state.pos >= $8.end && !$8.isClosed) {
+              $8.sleep = true;
+              $8.handle = $1;
+              return;
+            }
             final $7 = readChar16Async(state);
-            switch ($7) {
-              case null:
-                $8.sleep = true;
-                $8.handle = $1;
-                return;
-              case >= 0:
-                state.ok = $7 >= 48 && $7 <= 57;
-                if (state.ok) {
-                  state.pos++;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
+            if ($7 >= 0) {
+              state.ok = $7 >= 48 && $7 <= 57;
+              if (state.ok) {
+                state.pos++;
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
             }
             if (!state.ok) {
               break;
@@ -3396,13 +3313,12 @@ class Test2Parser {
           // [\\]
           // [\\]
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            matchCharAsync(state, 92, const ErrorExpectedCharacter(92));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          matchChar16Async(state, 92, const ErrorExpectedCharacter(92));
           if (!state.ok) {
             state.input.endBuffering(state.pos);
             $5 = null;
@@ -3415,13 +3331,12 @@ class Test2Parser {
           // [t] <String>{}
           // [t]
           final $10 = state.input;
-          if (state.pos < $10.end || $10.isClosed) {
-            matchCharAsync(state, 116, const ErrorExpectedCharacter(116));
-          } else {
+          if (state.pos >= $10.end && !$10.isClosed) {
             $10.sleep = true;
             $10.handle = $1;
             return;
           }
+          matchChar16Async(state, 116, const ErrorExpectedCharacter(116));
           if (state.ok) {
             // ignore: unused_local_variable
             String? $$;
@@ -3497,12 +3412,12 @@ class Test2Parser {
     int? $4;
     int? $5;
     int? $2;
-    int $7 = 0;
+    int $8 = 0;
     void $1() {
       // @verify(.)
       // @verify(.)
-      if ($7 & 0x1 == 0) {
-        $7 |= 0x1;
+      if ($8 & 0x1 == 0) {
+        $8 |= 0x1;
         state.input.beginBuffering();
         $3 = state.pos;
         $4 = state.failPos;
@@ -3511,25 +3426,17 @@ class Test2Parser {
       // .
       // .
       // .
-      final $6 = state.input;
-      if (state.pos < $6.end || $6.isClosed) {
-        $2 = null;
-        if (state.pos >= $6.start) {
-          state.ok = state.pos < $6.end;
-          if (state.ok) {
-            final c = $6.data.runeAt(state.pos - $6.start);
-            state.pos += c > 0xffff ? 2 : 1;
-            $2 = c;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        } else {
-          state.fail(ErrorBacktracking(state.pos));
-        }
-      } else {
-        $6.sleep = true;
-        $6.handle = $1;
+      final $7 = state.input;
+      if (state.pos >= $7.end && !$7.isClosed) {
+        $7.sleep = true;
+        $7.handle = $1;
         return;
+      }
+      final $6 = readChar32Async(state);
+      state.ok = $6 >= 0;
+      if (state.ok) {
+        state.pos += $6 > 0xffff ? 2 : 1;
+        $2 = $6;
       }
       if (state.ok) {
         final pos = $3!;
@@ -3551,7 +3458,7 @@ class Test2Parser {
         state.pos = $3!;
       }
       state.input.endBuffering(state.pos);
-      $7 &= ~0x1 & 0xffff;
+      $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -3593,13 +3500,12 @@ class Test2Parser {
         $3 ??= state.input.beginBuffering();
         // [0]
         final $2 = state.input;
-        if (state.pos < $2.end || $2.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $2.end && !$2.isClosed) {
           $2.sleep = true;
           $2.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $3 = null;
         if (!state.ok) {
@@ -3757,37 +3663,34 @@ class Test2Parser {
         if ($13 == 0) {
           // [0]
           final $15 = state.input;
-          if (state.pos < $15.end || $15.isClosed) {
-            $10 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $15.end && !$15.isClosed) {
             $15.sleep = true;
             $15.handle = $1;
             return;
           }
+          $10 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $13 = state.ok ? 1 : -1;
         }
         if ($13 == 1) {
           // [1]
           final $16 = state.input;
-          if (state.pos < $16.end || $16.isClosed) {
-            $11 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $16.end && !$16.isClosed) {
             $16.sleep = true;
             $16.handle = $1;
             return;
           }
+          $11 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $13 = state.ok ? 2 : -1;
         }
         if ($13 == 2) {
           // [2]
           final $17 = state.input;
-          if (state.pos < $17.end || $17.isClosed) {
-            $12 = matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $17.end && !$17.isClosed) {
             $17.sleep = true;
             $17.handle = $1;
             return;
           }
+          $12 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $13 = -1;
         }
         if (state.ok) {
@@ -3807,13 +3710,12 @@ class Test2Parser {
         // [0]
         $20 ??= state.input.beginBuffering();
         final $19 = state.input;
-        if (state.pos < $19.end || $19.isClosed) {
-          $4 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $19.end && !$19.isClosed) {
           $19.sleep = true;
           $19.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $20 = null;
         $7 = state.ok ? 2 : -1;
@@ -3822,13 +3724,12 @@ class Test2Parser {
         // [1]
         $22 ??= state.input.beginBuffering();
         final $21 = state.input;
-        if (state.pos < $21.end || $21.isClosed) {
-          $5 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $21.end && !$21.isClosed) {
           $21.sleep = true;
           $21.handle = $1;
           return;
         }
+        $5 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $22 = null;
         $7 = state.ok ? 3 : -1;
@@ -3837,13 +3738,12 @@ class Test2Parser {
         // [2]
         $24 ??= state.input.beginBuffering();
         final $23 = state.input;
-        if (state.pos < $23.end || $23.isClosed) {
-          $6 = matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-        } else {
+        if (state.pos >= $23.end && !$23.isClosed) {
           $23.sleep = true;
           $23.handle = $1;
           return;
         }
+        $6 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
         state.input.endBuffering(state.pos);
         $24 = null;
         $7 = -1;
@@ -3888,33 +3788,25 @@ class Test2Parser {
   AsyncResult<int> parseAnyCharacter$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<int>();
     int? $2;
-    Object? $4;
+    Object? $5;
     void $1() {
       // .
       // .
-      $4 ??= state.input.beginBuffering();
-      final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = null;
-        if (state.pos >= $3.start) {
-          state.ok = state.pos < $3.end;
-          if (state.ok) {
-            final c = $3.data.runeAt(state.pos - $3.start);
-            state.pos += c > 0xffff ? 2 : 1;
-            $2 = c;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        } else {
-          state.fail(ErrorBacktracking(state.pos));
-        }
-      } else {
-        $3.sleep = true;
-        $3.handle = $1;
+      $5 ??= state.input.beginBuffering();
+      final $4 = state.input;
+      if (state.pos >= $4.end && !$4.isClosed) {
+        $4.sleep = true;
+        $4.handle = $1;
         return;
       }
+      final $3 = readChar32Async(state);
+      state.ok = $3 >= 0;
+      if (state.ok) {
+        state.pos += $3 > 0xffff ? 2 : 1;
+        $2 = $3;
+      }
       state.input.endBuffering(state.pos);
-      $4 = null;
+      $5 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4050,37 +3942,34 @@ class Test2Parser {
         if ($7 == 0) {
           // [0]
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            $4 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $7 = state.ok ? 1 : -1;
         }
         if ($7 == 1) {
           // [1]
           final $10 = state.input;
-          if (state.pos < $10.end || $10.isClosed) {
-            $5 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $10.end && !$10.isClosed) {
             $10.sleep = true;
             $10.handle = $1;
             return;
           }
+          $5 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $7 = state.ok ? 2 : -1;
         }
         if ($7 == 2) {
           // [2]
           final $11 = state.input;
-          if (state.pos < $11.end || $11.isClosed) {
-            $6 = matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $11.end && !$11.isClosed) {
             $11.sleep = true;
             $11.handle = $1;
             return;
           }
+          $6 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $7 = -1;
         }
         if (state.ok) {
@@ -4107,13 +3996,12 @@ class Test2Parser {
           // [0]
           $19 ??= state.input.beginBuffering();
           final $18 = state.input;
-          if (state.pos < $18.end || $18.isClosed) {
-            $14 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $18.end && !$18.isClosed) {
             $18.sleep = true;
             $18.handle = $1;
             return;
           }
+          $14 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           state.input.endBuffering(state.pos);
           $19 = null;
           $16 = state.ok ? 1 : -1;
@@ -4122,13 +4010,12 @@ class Test2Parser {
           // [1]
           $21 ??= state.input.beginBuffering();
           final $20 = state.input;
-          if (state.pos < $20.end || $20.isClosed) {
-            $15 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $20.end && !$20.isClosed) {
             $20.sleep = true;
             $20.handle = $1;
             return;
           }
+          $15 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           state.input.endBuffering(state.pos);
           $21 = null;
           $16 = -1;
@@ -4186,21 +4073,20 @@ class Test2Parser {
       // [0-9]
       $5 ??= state.input.beginBuffering();
       final $4 = state.input;
+      if (state.pos >= $4.end && !$4.isClosed) {
+        $4.sleep = true;
+        $4.handle = $1;
+        return;
+      }
       final $3 = readChar16Async(state);
-      $2 = null;
-      switch ($3) {
-        case null:
-          $4.sleep = true;
-          $4.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $3 >= 48 && $3 <= 57;
-          if (state.ok) {
-            state.pos++;
-            $2 = $3;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($3 >= 0) {
+        state.ok = $3 >= 48 && $3 <= 57;
+        if (state.ok) {
+          state.pos++;
+          $2 = $3;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $5 = null;
@@ -4244,14 +4130,13 @@ class Test2Parser {
       // [\u{1f680}]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 =
-            matchCharAsync(state, 128640, const ErrorExpectedCharacter(128640));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      $2 =
+          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
       state.input.endBuffering(state.pos);
       $4 = null;
       $0.value = $2;
@@ -4299,21 +4184,20 @@ class Test2Parser {
       // [^0]
       $5 ??= state.input.beginBuffering();
       final $4 = state.input;
+      if (state.pos >= $4.end && !$4.isClosed) {
+        $4.sleep = true;
+        $4.handle = $1;
+        return;
+      }
       final $3 = readChar32Async(state);
-      $2 = null;
-      switch ($3) {
-        case null:
-          $4.sleep = true;
-          $4.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $3 != 48;
-          if (state.ok) {
-            state.pos += $3 > 0xffff ? 2 : 1;
-            $2 = $3;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($3 >= 0) {
+        state.ok = $3 != 48;
+        if (state.ok) {
+          state.pos += $3 > 0xffff ? 2 : 1;
+          $2 = $3;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $5 = null;
@@ -4362,21 +4246,20 @@ class Test2Parser {
       // [^\u{1f680}]
       $5 ??= state.input.beginBuffering();
       final $4 = state.input;
+      if (state.pos >= $4.end && !$4.isClosed) {
+        $4.sleep = true;
+        $4.handle = $1;
+        return;
+      }
       final $3 = readChar32Async(state);
-      $2 = null;
-      switch ($3) {
-        case null:
-          $4.sleep = true;
-          $4.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $3 != 128640;
-          if (state.ok) {
-            state.pos += $3 > 0xffff ? 2 : 1;
-            $2 = $3;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($3 >= 0) {
+        state.ok = $3 != 128640;
+        if (state.ok) {
+          state.pos += $3 > 0xffff ? 2 : 1;
+          $2 = $3;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $5 = null;
@@ -4425,21 +4308,20 @@ class Test2Parser {
       // [ -\u{1f680}]
       $5 ??= state.input.beginBuffering();
       final $4 = state.input;
+      if (state.pos >= $4.end && !$4.isClosed) {
+        $4.sleep = true;
+        $4.handle = $1;
+        return;
+      }
       final $3 = readChar32Async(state);
-      $2 = null;
-      switch ($3) {
-        case null:
-          $4.sleep = true;
-          $4.handle = $1;
-          return;
-        case >= 0:
-          state.ok = $3 >= 32 && $3 <= 128640;
-          if (state.ok) {
-            state.pos += $3 > 0xffff ? 2 : 1;
-            $2 = $3;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
+      if ($3 >= 0) {
+        state.ok = $3 >= 32 && $3 <= 128640;
+        if (state.ok) {
+          state.pos += $3 > 0xffff ? 2 : 1;
+          $2 = $3;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       state.input.endBuffering(state.pos);
       $5 = null;
@@ -4513,11 +4395,11 @@ class Test2Parser {
     Object? $8;
     Object? $4;
     int? $9;
-    int $11 = 0;
+    int $12 = 0;
     void $1() {
       // [0] !.
-      if ($11 & 0x2 == 0) {
-        $11 |= 0x2;
+      if ($12 & 0x2 == 0) {
+        $12 |= 0x2;
         $5 = 0;
         $6 = state.pos;
       }
@@ -4525,42 +4407,34 @@ class Test2Parser {
         // [0]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $8 = null;
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
         // !.
-        if ($11 & 0x1 == 0) {
-          $11 |= 0x1;
+        if ($12 & 0x1 == 0) {
+          $12 |= 0x1;
           state.input.beginBuffering();
           $9 = state.pos;
         }
         // .
-        final $10 = state.input;
-        if (state.pos < $10.end || $10.isClosed) {
-          if (state.pos >= $10.start) {
-            state.ok = state.pos < $10.end;
-            if (state.ok) {
-              final c = $10.data.runeAt(state.pos - $10.start);
-              state.pos += c > 0xffff ? 2 : 1;
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-          } else {
-            state.fail(ErrorBacktracking(state.pos));
-          }
-        } else {
-          $10.sleep = true;
-          $10.handle = $1;
+        final $11 = state.input;
+        if (state.pos >= $11.end && !$11.isClosed) {
+          $11.sleep = true;
+          $11.handle = $1;
           return;
+        }
+        final $10 = readChar32Async(state);
+        state.ok = $10 >= 0;
+        if (state.ok) {
+          state.pos += $10 > 0xffff ? 2 : 1;
         }
         state.ok = !state.ok;
         if (!state.ok) {
@@ -4574,7 +4448,7 @@ class Test2Parser {
         }
         state.pos = $9!;
         state.input.endBuffering(state.pos);
-        $11 &= ~0x1 & 0xffff;
+        $12 &= ~0x1 & 0xffff;
         $5 = -1;
       }
       if (state.ok) {
@@ -4582,7 +4456,7 @@ class Test2Parser {
       } else {
         state.pos = $6!;
       }
-      $11 &= ~0x2 & 0xffff;
+      $12 &= ~0x2 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4654,13 +4528,12 @@ class Test2Parser {
       // [0]
       $6 ??= state.input.beginBuffering();
       final $5 = state.input;
-      if (state.pos < $5.end || $5.isClosed) {
-        $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $5.end && !$5.isClosed) {
         $5.sleep = true;
         $5.handle = $1;
         return;
       }
+      $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $6 = null;
       if (!state.ok && state._canHandleError($4!, $3!)) {
@@ -4733,14 +4606,7 @@ class Test2Parser {
     String? $0;
     // '0'
     const $2 = '0';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 48;
-    if (state.ok) {
-      state.pos++;
-      $0 = $2;
-    } else {
-      state.fail(const ErrorExpectedTags([$2]));
-    }
+    $0 = matchLiteral1(state, $2, const ErrorExpectedTags([$2]));
     return $0;
   }
 
@@ -4750,21 +4616,22 @@ class Test2Parser {
   AsyncResult<String> parseLiteral1$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<String>();
     String? $2;
-    Object? $4;
+    Object? $5;
     void $1() {
       // '0'
       // '0'
-      $4 ??= state.input.beginBuffering();
+      $5 ??= state.input.beginBuffering();
+      const $4 = '0';
       final $3 = state.input;
-      if (state.pos + 1 < $3.end || $3.isClosed) {
-        $2 = matchLiteral1Async(state, 48, '0', const ErrorExpectedTags(['0']));
+      if (state.pos < $3.end || $3.isClosed) {
+        $2 = matchLiteral1Async(state, $4, const ErrorExpectedTags([$4]));
       } else {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
       state.input.endBuffering(state.pos);
-      $4 = null;
+      $5 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4782,15 +4649,7 @@ class Test2Parser {
     String? $0;
     // '01'
     const $2 = '01';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 48 &&
-        state.input.startsWith($2, state.pos);
-    if (state.ok) {
-      state.pos += 2;
-      $0 = $2;
-    } else {
-      state.fail(const ErrorExpectedTags([$2]));
-    }
+    $0 = matchLiteral2(state, $2, const ErrorExpectedTags([$2]));
     return $0;
   }
 
@@ -4800,23 +4659,22 @@ class Test2Parser {
   AsyncResult<String> parseLiteral2$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<String>();
     String? $2;
-    Object? $4;
+    Object? $5;
     void $1() {
       // '01'
       // '01'
-      $4 ??= state.input.beginBuffering();
+      $5 ??= state.input.beginBuffering();
+      const $4 = '01';
       final $3 = state.input;
       if (state.pos + 1 < $3.end || $3.isClosed) {
-        const string = '01';
-        $2 =
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        $2 = matchLiteral2Async(state, $4, const ErrorExpectedTags([$4]));
       } else {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
       state.input.endBuffering(state.pos);
-      $4 = null;
+      $5 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4872,11 +4730,11 @@ class Test2Parser {
     String? $2;
     int? $3;
     Object? $5;
-    Object? $7;
-    int $8 = 0;
+    Object? $8;
+    int $9 = 0;
     void $1() {
-      if ($8 & 0x1 == 0) {
-        $8 |= 0x1;
+      if ($9 & 0x1 == 0) {
+        $9 |= 0x1;
         $3 = 0;
       }
       if ($3 == 0) {
@@ -4900,22 +4758,21 @@ class Test2Parser {
       if ($3 == 1) {
         // '01'
         // '01'
-        $7 ??= state.input.beginBuffering();
+        $8 ??= state.input.beginBuffering();
+        const $7 = '01';
         final $6 = state.input;
         if (state.pos + 1 < $6.end || $6.isClosed) {
-          const string = '01';
-          $2 = matchLiteralAsync(
-              state, string, const ErrorExpectedTags([string]));
+          $2 = matchLiteral2Async(state, $7, const ErrorExpectedTags([$7]));
         } else {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
         state.input.endBuffering(state.pos);
-        $7 = null;
+        $8 = null;
         $3 = -1;
       }
-      $8 &= ~0x1 & 0xffff;
+      $9 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -5106,37 +4963,34 @@ class Test2Parser {
         if ($9 == 0) {
           // [0]
           final $11 = state.input;
-          if (state.pos < $11.end || $11.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $11.end && !$11.isClosed) {
             $11.sleep = true;
             $11.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $9 = state.ok ? 1 : -1;
         }
         if ($9 == 1) {
           // [1]
           final $12 = state.input;
-          if (state.pos < $12.end || $12.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $12.end && !$12.isClosed) {
             $12.sleep = true;
             $12.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $9 = state.ok ? 2 : -1;
         }
         if ($9 == 2) {
           // [2]
           final $13 = state.input;
-          if (state.pos < $13.end || $13.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $13.end && !$13.isClosed) {
             $13.sleep = true;
             $13.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $9 = -1;
         }
         if (!state.ok) {
@@ -5162,13 +5016,12 @@ class Test2Parser {
         // [0]
         $16 ??= state.input.beginBuffering();
         final $15 = state.input;
-        if (state.pos < $15.end || $15.isClosed) {
-          $4 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $15.end && !$15.isClosed) {
           $15.sleep = true;
           $15.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $16 = null;
         $6 = state.ok ? 2 : -1;
@@ -5177,13 +5030,12 @@ class Test2Parser {
         // [1]
         $18 ??= state.input.beginBuffering();
         final $17 = state.input;
-        if (state.pos < $17.end || $17.isClosed) {
-          $5 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $17.end && !$17.isClosed) {
           $17.sleep = true;
           $17.handle = $1;
           return;
         }
+        $5 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $18 = null;
         $6 = -1;
@@ -5250,13 +5102,12 @@ class Test2Parser {
         $6 ??= state.input.beginBuffering();
         // [0]
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          $4 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $6 = null;
         if (!state.ok) {
@@ -5345,13 +5196,12 @@ class Test2Parser {
         $8 ??= state.input.beginBuffering();
         // [0]
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         if (!state.ok) {
           state.ok = true;
         }
@@ -5363,13 +5213,12 @@ class Test2Parser {
         // [1]
         $10 ??= state.input.beginBuffering();
         final $9 = state.input;
-        if (state.pos < $9.end || $9.isClosed) {
-          $4 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $9.end && !$9.isClosed) {
           $9.sleep = true;
           $9.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $10 = null;
         $5 = -1;
@@ -5440,13 +5289,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $3 = state.ok ? -1 : 1;
@@ -5456,13 +5304,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $2 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $3 = -1;
@@ -5542,13 +5389,12 @@ class Test2Parser {
         // [0]
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos < $4.end || $4.isClosed) {
-          $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $5 = null;
         $3 = state.ok ? -1 : 1;
@@ -5558,13 +5404,12 @@ class Test2Parser {
         // [1]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $2 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $7 = null;
         $3 = state.ok ? -1 : 2;
@@ -5574,13 +5419,12 @@ class Test2Parser {
         // [2]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          $2 = matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        $2 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
         state.input.endBuffering(state.pos);
         $9 = null;
         $3 = -1;
@@ -5643,14 +5487,13 @@ class Test2Parser {
         $7 ??= state.input.beginBuffering();
         // [\u{1f680}]
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $5 = matchCharAsync(
-              state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $5 = matchChar32Async(
+            state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $7 = null;
         if (!state.ok) {
@@ -5756,14 +5599,13 @@ class Test2Parser {
           $9 ??= state.input.beginBuffering();
           // [\u{1f680}]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            $6 = matchCharAsync(
-                state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          $6 = matchChar32Async(
+              state, 128640, const ErrorExpectedCharacter(128640));
           state.input.endBuffering(state.pos);
           $9 = null;
           final $5 = $4!;
@@ -5794,14 +5636,13 @@ class Test2Parser {
         // [\u{1f680}]
         $11 ??= state.input.beginBuffering();
         final $10 = state.input;
-        if (state.pos < $10.end || $10.isClosed) {
-          $2 = matchCharAsync(
-              state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $10.end && !$10.isClosed) {
           $10.sleep = true;
           $10.handle = $1;
           return;
         }
+        $2 = matchChar32Async(
+            state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $11 = null;
         $3 = -1;
@@ -5893,14 +5734,13 @@ class Test2Parser {
           $9 ??= state.input.beginBuffering();
           // [\u{1f680}]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            $6 = matchCharAsync(
-                state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          $6 = matchChar32Async(
+              state, 128640, const ErrorExpectedCharacter(128640));
           state.input.endBuffering(state.pos);
           $9 = null;
           final $5 = $4!;
@@ -5934,14 +5774,13 @@ class Test2Parser {
         // [\u{1f680}]
         $11 ??= state.input.beginBuffering();
         final $10 = state.input;
-        if (state.pos < $10.end || $10.isClosed) {
-          $2 = matchCharAsync(
-              state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $10.end && !$10.isClosed) {
           $10.sleep = true;
           $10.handle = $1;
           return;
         }
+        $2 = matchChar32Async(
+            state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $11 = null;
         $3 = -1;
@@ -6030,14 +5869,13 @@ class Test2Parser {
         while (true) {
           // [\u{1f680}]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            $6 = matchCharAsync(
-                state, 128640, const ErrorExpectedCharacter(128640));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          $6 = matchChar32Async(
+              state, 128640, const ErrorExpectedCharacter(128640));
           if (!state.ok) {
             $6 = null;
             break;
@@ -6065,14 +5903,13 @@ class Test2Parser {
         // [\u{1f680}]
         $10 ??= state.input.beginBuffering();
         final $9 = state.input;
-        if (state.pos < $9.end || $9.isClosed) {
-          $2 = matchCharAsync(
-              state, 128640, const ErrorExpectedCharacter(128640));
-        } else {
+        if (state.pos >= $9.end && !$9.isClosed) {
           $9.sleep = true;
           $9.handle = $1;
           return;
         }
+        $2 = matchChar32Async(
+            state, 128640, const ErrorExpectedCharacter(128640));
         state.input.endBuffering(state.pos);
         $10 = null;
         $3 = -1;
@@ -6162,13 +5999,12 @@ class Test2Parser {
           // [0]
           $10 ??= state.input.beginBuffering();
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            $7 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          $7 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           state.input.endBuffering(state.pos);
           $10 = null;
           if (!state.ok) {
@@ -6192,13 +6028,12 @@ class Test2Parser {
           // [,]
           $12 ??= state.input.beginBuffering();
           final $11 = state.input;
-          if (state.pos < $11.end || $11.isClosed) {
-            matchCharAsync(state, 44, const ErrorExpectedCharacter(44));
-          } else {
+          if (state.pos >= $11.end && !$11.isClosed) {
             $11.sleep = true;
             $11.handle = $1;
             return;
           }
+          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
           state.input.endBuffering(state.pos);
           $12 = null;
           $4 = null;
@@ -6254,13 +6089,12 @@ class Test2Parser {
       // [0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $4 = null;
       $0.value = $2;
@@ -6307,13 +6141,12 @@ class Test2Parser {
       // [0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $4 = null;
       if (state.ok) {
@@ -6361,13 +6194,12 @@ class Test2Parser {
       // [0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $4 = null;
       $0.value = $2;
@@ -6416,13 +6248,12 @@ class Test2Parser {
       // [0]
       $4 ??= state.input.beginBuffering();
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
+      $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
       state.input.endBuffering(state.pos);
       $4 = null;
       if (state.ok) {
@@ -6502,13 +6333,12 @@ class Test2Parser {
         // [0]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $8 = null;
         $5 = state.ok ? 1 : -1;
@@ -6517,13 +6347,12 @@ class Test2Parser {
         // [1]
         $10 ??= state.input.beginBuffering();
         final $9 = state.input;
-        if (state.pos < $9.end || $9.isClosed) {
-          $4 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $9.end && !$9.isClosed) {
           $9.sleep = true;
           $9.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $10 = null;
         $5 = -1;
@@ -6601,13 +6430,12 @@ class Test2Parser {
         // [0]
         $6 ??= state.input.beginBuffering();
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $6 = null;
         $3 = state.ok ? 1 : -1;
@@ -6616,13 +6444,12 @@ class Test2Parser {
         // [1]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $8 = null;
         $3 = -1;
@@ -6703,13 +6530,12 @@ class Test2Parser {
         // [0]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $7 = null;
         $4 = state.ok ? 1 : -1;
@@ -6718,13 +6544,12 @@ class Test2Parser {
         // [1]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $9 = null;
         $4 = -1;
@@ -6806,13 +6631,12 @@ class Test2Parser {
         // [0]
         $7 ??= state.input.beginBuffering();
         final $6 = state.input;
-        if (state.pos < $6.end || $6.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $7 = null;
         $4 = state.ok ? 1 : -1;
@@ -6821,13 +6645,12 @@ class Test2Parser {
         // [1]
         $9 ??= state.input.beginBuffering();
         final $8 = state.input;
-        if (state.pos < $8.end || $8.isClosed) {
-          matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $8.end && !$8.isClosed) {
           $8.sleep = true;
           $8.handle = $1;
           return;
         }
+        matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $9 = null;
         $4 = -1;
@@ -6912,13 +6735,12 @@ class Test2Parser {
         // [0]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $8 = null;
         $5 = state.ok ? 1 : -1;
@@ -6927,13 +6749,12 @@ class Test2Parser {
         // [1]
         $10 ??= state.input.beginBuffering();
         final $9 = state.input;
-        if (state.pos < $9.end || $9.isClosed) {
-          $4 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $9.end && !$9.isClosed) {
           $9.sleep = true;
           $9.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $10 = null;
         $5 = -1;
@@ -7019,13 +6840,12 @@ class Test2Parser {
         // [0]
         $8 ??= state.input.beginBuffering();
         final $7 = state.input;
-        if (state.pos < $7.end || $7.isClosed) {
-          $3 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
           $7.handle = $1;
           return;
         }
+        $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $8 = null;
         $5 = state.ok ? 1 : -1;
@@ -7034,13 +6854,12 @@ class Test2Parser {
         // [1]
         $10 ??= state.input.beginBuffering();
         final $9 = state.input;
-        if (state.pos < $9.end || $9.isClosed) {
-          $4 = matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-        } else {
+        if (state.pos >= $9.end && !$9.isClosed) {
           $9.sleep = true;
           $9.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
         state.input.endBuffering(state.pos);
         $10 = null;
         $5 = -1;
@@ -7176,37 +6995,34 @@ class Test2Parser {
         if ($5 == 0) {
           // [0]
           final $7 = state.input;
-          if (state.pos < $7.end || $7.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $7.end && !$7.isClosed) {
             $7.sleep = true;
             $7.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
           // [1]
           final $8 = state.input;
-          if (state.pos < $8.end || $8.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
           // [2]
           final $9 = state.input;
-          if (state.pos < $9.end || $9.isClosed) {
-            matchCharAsync(state, 50, const ErrorExpectedCharacter(50));
-          } else {
+          if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
           $5 = -1;
         }
         if (!state.ok) {
@@ -7241,25 +7057,23 @@ class Test2Parser {
         if ($12 == 0) {
           // [0]
           final $14 = state.input;
-          if (state.pos < $14.end || $14.isClosed) {
-            matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-          } else {
+          if (state.pos >= $14.end && !$14.isClosed) {
             $14.sleep = true;
             $14.handle = $1;
             return;
           }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
           $12 = state.ok ? 1 : -1;
         }
         if ($12 == 1) {
           // [1]
           final $15 = state.input;
-          if (state.pos < $15.end || $15.isClosed) {
-            matchCharAsync(state, 49, const ErrorExpectedCharacter(49));
-          } else {
+          if (state.pos >= $15.end && !$15.isClosed) {
             $15.sleep = true;
             $15.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
           $12 = -1;
         }
         if (!state.ok) {
@@ -10409,19 +10223,19 @@ class Test2Parser {
           while (true) {
             // [0-9]
             final $14 = state.input;
+            if (state.pos >= $14.end && !$14.isClosed) {
+              $14.sleep = true;
+              $14.handle = $1;
+              return;
+            }
             final $13 = readChar16Async(state);
-            switch ($13) {
-              case null:
-                $14.sleep = true;
-                $14.handle = $1;
-                return;
-              case >= 0:
-                state.ok = $13 >= 48 && $13 <= 57;
-                if (state.ok) {
-                  state.pos++;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
-                }
+            if ($13 >= 0) {
+              state.ok = $13 >= 48 && $13 <= 57;
+              if (state.ok) {
+                state.pos++;
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
             }
             if (!state.ok) {
               break;
@@ -10457,13 +10271,12 @@ class Test2Parser {
           // [\\]
           // [\\]
           final $16 = state.input;
-          if (state.pos < $16.end || $16.isClosed) {
-            matchCharAsync(state, 92, const ErrorExpectedCharacter(92));
-          } else {
+          if (state.pos >= $16.end && !$16.isClosed) {
             $16.sleep = true;
             $16.handle = $1;
             return;
           }
+          matchChar16Async(state, 92, const ErrorExpectedCharacter(92));
           if (!state.ok) {
             state.input.endBuffering(state.pos);
             $6 = null;
@@ -10476,13 +10289,12 @@ class Test2Parser {
           // [t] <String>{}
           // [t]
           final $17 = state.input;
-          if (state.pos < $17.end || $17.isClosed) {
-            matchCharAsync(state, 116, const ErrorExpectedCharacter(116));
-          } else {
+          if (state.pos >= $17.end && !$17.isClosed) {
             $17.sleep = true;
             $17.handle = $1;
             return;
           }
+          matchChar16Async(state, 116, const ErrorExpectedCharacter(116));
           if (state.ok) {
             String? $$;
             $$ = '\t';
@@ -10576,12 +10388,12 @@ class Test2Parser {
     int? $3;
     int? $4;
     int? $5;
-    int $7 = 0;
+    int $8 = 0;
     void $1() {
       // @verify(.)
       // @verify(.)
-      if ($7 & 0x1 == 0) {
-        $7 |= 0x1;
+      if ($8 & 0x1 == 0) {
+        $8 |= 0x1;
         state.input.beginBuffering();
         $3 = state.pos;
         $4 = state.failPos;
@@ -10590,25 +10402,17 @@ class Test2Parser {
       // .
       // .
       // .
-      final $6 = state.input;
-      if (state.pos < $6.end || $6.isClosed) {
-        $2 = null;
-        if (state.pos >= $6.start) {
-          state.ok = state.pos < $6.end;
-          if (state.ok) {
-            final c = $6.data.runeAt(state.pos - $6.start);
-            state.pos += c > 0xffff ? 2 : 1;
-            $2 = c;
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
-          }
-        } else {
-          state.fail(ErrorBacktracking(state.pos));
-        }
-      } else {
-        $6.sleep = true;
-        $6.handle = $1;
+      final $7 = state.input;
+      if (state.pos >= $7.end && !$7.isClosed) {
+        $7.sleep = true;
+        $7.handle = $1;
         return;
+      }
+      final $6 = readChar32Async(state);
+      state.ok = $6 >= 0;
+      if (state.ok) {
+        state.pos += $6 > 0xffff ? 2 : 1;
+        $2 = $6;
       }
       if (state.ok) {
         final pos = $3!;
@@ -10631,7 +10435,7 @@ class Test2Parser {
         state.pos = $3!;
       }
       state.input.endBuffering(state.pos);
-      $7 &= ~0x1 & 0xffff;
+      $8 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -10689,13 +10493,12 @@ class Test2Parser {
         $6 ??= state.input.beginBuffering();
         // [0]
         final $5 = state.input;
-        if (state.pos < $5.end || $5.isClosed) {
-          $4 = matchCharAsync(state, 48, const ErrorExpectedCharacter(48));
-        } else {
+        if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
+        $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
         state.input.endBuffering(state.pos);
         $6 = null;
         if (!state.ok) {
@@ -10723,9 +10526,51 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<String> state, int char, ParseError error) {
+  int? matchChar16(State<String> state, int char, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
+    if (state.ok) {
+      state.pos++;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16Async(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    state.ok = pos < input.end;
+    if (state.ok) {
+      final c = input.data.codeUnitAt(pos - start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(State<String> state, int char, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.runeAt(pos) == char;
     if (state.ok) {
       state.pos += char > 0xffff ? 2 : 1;
       return char;
@@ -10737,16 +10582,18 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchCharAsync(
+  int? matchChar32Async(
       State<ChunkedParsingSink> state, int char, ParseError error) {
     final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
       return null;
     }
-    state.ok = state.pos < input.end;
+    state.ok = pos < input.end;
     if (state.ok) {
-      final c = input.data.runeAt(state.pos - input.start);
+      final c = input.data.runeAt(pos - start);
       state.ok = c == char;
       if (state.ok) {
         state.pos += c > 0xffff ? 2 : 1;
@@ -10763,7 +10610,14 @@ class Test2Parser {
   @pragma('dart2js:tryInline')
   String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = input.startsWith(string, state.pos);
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
     if (state.ok) {
       state.pos += string.length;
       return string;
@@ -10775,12 +10629,13 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral1(
-      State<String> state, int char, String string, ParseError error) {
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
+      state.pos++;
       state.ok = true;
       return string;
     }
@@ -10790,17 +10645,60 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
-      String string, ParseError error) {
+  String? matchLiteral2(State<String> state, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
+    final pos = state.pos;
+    state.ok = pos + 1 < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.codeUnitAt(pos + 1) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
       return null;
     }
-    state.ok = state.pos < input.end &&
-        input.data.runeAt(state.pos - input.start) == char;
+    state.ok = pos < input.end &&
+        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
     if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
+      state.pos++;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral2Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    final data = input.data;
+    final pos2 = pos - start;
+    state.ok = pos + 1 < input.end &&
+        data.codeUnitAt(pos2) == string.codeUnitAt(0) &&
+        data.codeUnitAt(pos2 + 1) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
       return string;
     }
     state.fail(error);
@@ -10812,12 +10710,20 @@ class Test2Parser {
   String? matchLiteralAsync(
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
       return null;
     }
-    state.ok = state.pos <= input.end &&
-        input.data.startsWith(string, state.pos - input.start);
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final data = input.data;
+    state.ok = pos <= input.end &&
+        data.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        data.startsWith(string, pos - start);
     if (state.ok) {
       state.pos += string.length;
       return string;
@@ -10828,42 +10734,38 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? readChar16Async(State<ChunkedParsingSink> state) {
+  int readChar16Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.codeUnitAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
+    final pos = state.pos;
+    final start = input.start;
+    if (pos >= start) {
+      if (pos < input.end) {
+        return input.data.codeUnitAt(pos - start);
       } else {
-        state.fail(ErrorBacktracking(state.pos));
+        state.fail(const ErrorUnexpectedEndOfInput());
       }
-      return -1;
+    } else {
+      state.fail(ErrorBacktracking(pos));
     }
-    return null;
+    return -1;
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? readChar32Async(State<ChunkedParsingSink> state) {
+  int readChar32Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.runeAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
+    final pos = state.pos;
+    final start = input.start;
+    if (pos >= start) {
+      if (pos < input.end) {
+        return input.data.runeAt(pos - start);
       } else {
-        state.fail(ErrorBacktracking(state.pos));
+        state.fail(const ErrorUnexpectedEndOfInput());
       }
-      return -1;
+    } else {
+      state.fail(ErrorBacktracking(pos));
     }
-    return null;
+    return -1;
   }
 }
 
@@ -11115,25 +11017,16 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_lastPosition - start);
-      }
-
-      start = _lastPosition;
-    }
-
     if (this.data.isEmpty) {
       this.data = data;
     } else {
       this.data = '${this.data}$data';
     }
 
-    end = start + this.data.length;
-    if (bufferLoad < this.data.length) {
-      bufferLoad = this.data.length;
+    final length = this.data.length;
+    end = start + length;
+    if (bufferLoad < length) {
+      bufferLoad = length;
     }
 
     sleep = false;
@@ -11147,16 +11040,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_buffering == 0) {
-      if (_lastPosition > start) {
-        if (_lastPosition == end) {
-          this.data = '';
-        } else {
-          this.data = this.data.substring(_lastPosition - start);
-        }
-
-        start = _lastPosition;
+    if (_lastPosition > start) {
+      if (_lastPosition == end) {
+        this.data = '';
+      } else {
+        this.data = this.data.substring(_lastPosition - start);
       }
+
+      start = _lastPosition;
     }
   }
 

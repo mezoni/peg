@@ -83,6 +83,14 @@ bool isTypeNullable(String? type) {
   return type.endsWith('?') || type == 'dynamic';
 }
 
+String matchCharAsync(List<(int, int)> ranges) {
+  if (is32BitRanges(ranges, false)) {
+    return 'matchChar32Async';
+  }
+
+  return 'matchChar16Async';
+}
+
 List<(int, int)> normalizeRanges(List<(int, int)> ranges) {
   final result = <(int, int)>[];
   final temp = ranges.toList();

@@ -12,151 +12,6 @@ class {{className}} {
   {{events}}
 
   {{methods}}
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar(State<String> state, int char, ParseError error) {
-    final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return char;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchCharAsync(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end;
-    if (state.ok) {
-      final c = input.data.runeAt(state.pos - input.start);
-      state.ok = c == char;
-      if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
-        return char;
-      }
-    }
-    if (!state.ok) {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    state.ok = input.startsWith(string, state.pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(
-      State<String> state, int char, String string, ParseError error) {
-    final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      state.ok = true;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
-      String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end &&
-        input.data.runeAt(state.pos - input.start) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteralAsync(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos <= input.end &&
-        input.data.startsWith(string, state.pos - input.start);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? readChar16Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.codeUnitAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      } else {
-        state.fail(ErrorBacktracking(state.pos));
-      }
-      return -1;
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? readChar32Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.runeAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      } else {
-        state.fail(ErrorBacktracking(state.pos));
-      }
-      return -1;
-    }
-    return null;
-  }
 }''';
 
   static const _templateEvents = '''
@@ -211,7 +66,7 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
       methods.add(source);
     }
 
-    values['methods'] = methods.join('\n\n');
+    values['methods'] = _addInternalMethods(methods.join('\n\n'));
     grammar.rules.any((e) => e.hasEvent());
     final hasEvents = grammar.rules.any((e) => e.hasEvent());
     if (hasEvents) {
@@ -222,5 +77,264 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     }
 
     return helper.render(_template, values, removeEmptyLines: false);
+  }
+
+  String _addInternalMethods(String source) {
+    const methods = {
+      'matchChar16': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(State<String> state, int char, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
+    if (state.ok) {
+      state.pos++;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }''',
+      'matchChar16Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16Async(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    state.ok = pos < input.end;
+    if (state.ok) {
+      final c = input.data.codeUnitAt(pos - start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }''',
+      'matchChar32': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(State<String> state, int char, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.runeAt(pos) == char;
+    if (state.ok) {
+      state.pos += char > 0xffff ? 2 : 1;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }''',
+      'matchChar32Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32Async(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    state.ok = pos < input.end;
+    if (state.ok) {
+      final c = input.data.runeAt(pos - start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos += c > 0xffff ? 2 : 1;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }''',
+      'matchLiteral': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }''',
+      'matchLiteral1': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
+    if (state.ok) {
+      state.pos++;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }''',
+      'matchLiteral2': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral2(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos + 1 < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.codeUnitAt(pos + 1) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }''',
+      'matchLiteral1Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    state.ok = pos < input.end &&
+        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
+    if (state.ok) {
+      state.pos++;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }''',
+      'matchLiteral2Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral2Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    final data = input.data;
+    final pos2 = pos - start;
+    state.ok = pos + 1 < input.end &&
+        data.codeUnitAt(pos2) == string.codeUnitAt(0) &&
+        data.codeUnitAt(pos2 + 1) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }''',
+      'matchLiteralAsync': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteralAsync(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < start) {
+      state.fail(ErrorBacktracking(pos));
+      return null;
+    }
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final data = input.data;
+    state.ok = pos <= input.end &&
+        data.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        data.startsWith(string, pos - start);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }''',
+      'readChar16Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int readChar16Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    final pos = state.pos;
+    final start = input.start;
+    if (pos >= start) {
+      if (pos < input.end) {
+        return input.data.codeUnitAt(pos - start);
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+    } else {
+      state.fail(ErrorBacktracking(pos));
+    }
+    return -1;
+  }''',
+      'readChar32Async': '''
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int readChar32Async(State<ChunkedParsingSink> state) {
+    final input = state.input;
+    final pos = state.pos;
+    final start = input.start;
+    if (pos >= start) {
+      if (pos < input.end) {
+        return input.data.runeAt(pos - start);
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+    } else {
+      state.fail(ErrorBacktracking(pos));
+    }
+    return -1;
+  }''',
+    };
+    final list = <String>[source.trim()];
+    for (final entry in methods.entries) {
+      final key = entry.key;
+      final value = entry.value;
+      if (source.contains(key)) {
+        list.add(value);
+      }
+    }
+
+    return list.join('\n\n');
   }
 }

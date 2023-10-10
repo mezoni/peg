@@ -246,25 +246,16 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_lastPosition - start);
-      }
-
-      start = _lastPosition;
-    }
-
     if (this.data.isEmpty) {
       this.data = data;
     } else {
       this.data = '${this.data}$data';
     }
 
-    end = start + this.data.length;
-    if (bufferLoad < this.data.length) {
-      bufferLoad = this.data.length;
+    final length = this.data.length;
+    end = start + length;
+    if (bufferLoad < length) {
+      bufferLoad = length;
     }
 
     sleep = false;
@@ -278,16 +269,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_buffering == 0) {
-      if (_lastPosition > start) {
-        if (_lastPosition == end) {
-          this.data = '';
-        } else {
-          this.data = this.data.substring(_lastPosition - start);
-        }
-
-        start = _lastPosition;
+    if (_lastPosition > start) {
+      if (_lastPosition == end) {
+        this.data = '';
+      } else {
+        this.data = this.data.substring(_lastPosition - start);
       }
+
+      start = _lastPosition;
     }
   }
 

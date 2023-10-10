@@ -16,10 +16,9 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
 
     final variable = ruleGenerator.getExpressionVariable(expression);
     final string = expression.string;
-    final runes = string.runes.toList();
     if (string.isEmpty) {
       return _generateEmptyString(variable);
-    } else if (runes.length == 1) {
+    } else if (string.length == 1 || string.length == 2) {
       return _generateString1(string, variable);
     }
 
@@ -29,10 +28,9 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
   @override
   String generateAsync() {
     final string = expression.string;
-    final runes = string.runes.toList();
     if (string.isEmpty) {
       return _generateAsyncEmptyString();
-    } else if (runes.length == 1) {
+    } else if (string.length == 1 || string.length == 2) {
       return _generateAsyncString1();
     } else {
       return _generateAsync();
@@ -123,27 +121,42 @@ state.ok = true;
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
-    final runes = string.runes.toList();
     final input = allocateName();
-    values['char'] = runes[0].toString();
     values['handle'] = asyncGenerator.functionName;
     values['input'] = input;
-    values['literal'] = helper.escapeString(string);
+    values['string'] = helper.escapeString(string);
+    values['literal'] = allocateName();
     if (variable != null) {
       values['assign_result'] = '$variable = ';
     } else {
       values['assign_result'] = '';
     }
 
-    const template = '''
+    var template = '';
+    if (string.length == 1) {
+      template = '''
+const {{literal}} = {{string}};
 final {{input}} = state.input;
-if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchLiteral1Async(state, {{char}}, {{literal}}, const ErrorExpectedTags([{{literal}}]));  
+if (state.pos < {{input}}.end || {{input}}.isClosed) {
+  {{assign_result}}matchLiteral1Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));
 } else {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }''';
+    } else {
+      template = '''
+const {{literal}} = {{string}};
+final {{input}} = state.input;
+if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
+  {{assign_result}}matchLiteral2Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));
+} else {
+  {{input}}.sleep = true;
+  {{input}}.handle = {{handle}};
+  return;
+}''';
+    }
+
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
@@ -170,42 +183,24 @@ state.ok = true;''';
 
   String _generateString1(String string, String? variable) {
     final values = <String, String>{};
-    final runes = string.runes.toList();
-    final char = runes[0];
     final literal = allocateName();
-    final is32Bit = char > 0xffff;
-    values['char'] = '$char';
     values['literal'] = literal;
     values['string'] = helper.escapeString(string);
-    values['char'] = '$char';
     if (variable != null) {
-      values['assign_result'] = '$variable = $literal;';
+      values['assign_result'] = '$variable = ';
     } else {
       values['assign_result'] = '';
     }
 
     var template = '';
-    if (is32Bit) {
+    if (string.length == 1) {
       template = '''
 const {{literal}} = {{string}};
-state.ok = state.pos < state.input.length &&
-    state.input.runeAt(state.pos) == {{char}};
-if (state.ok) {
-  state.pos += 2;
-  {{assign_result}}
-} else {
-  state.fail(const ErrorExpectedTags([{{literal}}]));
-}''';
+{{assign_result}}matchLiteral1(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
     } else {
       template = '''
 const {{literal}} = {{string}};
-state.ok = state.pos < state.input.length && state.input.codeUnitAt(state.pos) == {{char}};
-if (state.ok) {
-  state.pos++;
-  {{assign_result}}
-} else {
-  state.fail(const ErrorExpectedTags([{{literal}}]));
-}''';
+{{assign_result}}matchLiteral2(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
     }
 
     return render(template, values);

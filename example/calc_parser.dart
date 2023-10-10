@@ -46,13 +46,7 @@ class CalcParser {
     // ')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 41;
-    if (state.ok) {
-      state.pos++;
-    } else {
-      state.fail(const ErrorExpectedTags([$1]));
-    }
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -69,13 +63,7 @@ class CalcParser {
     // '(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 40;
-    if (state.ok) {
-      state.pos++;
-    } else {
-      state.fail(const ErrorExpectedTags([$1]));
-    }
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -516,14 +504,7 @@ class CalcParser {
     final $1 = state.pos;
     String? $2;
     const $4 = '-';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 45;
-    if (state.ok) {
-      state.pos++;
-      $2 = $4;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+    $2 = matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
     state.ok = true;
     if (state.ok) {
       num? $3;
@@ -625,47 +606,16 @@ class CalcParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<String> state, int char, ParseError error) {
-    final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return char;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchCharAsync(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end;
-    if (state.ok) {
-      final c = input.data.runeAt(state.pos - input.start);
-      state.ok = c == char;
-      if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
-        return char;
-      }
-    }
-    if (!state.ok) {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = input.startsWith(string, state.pos);
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
     if (state.ok) {
       state.pos += string.length;
       return string;
@@ -677,94 +627,17 @@ class CalcParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral1(
-      State<String> state, int char, String string, ParseError error) {
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
+      state.pos++;
       state.ok = true;
       return string;
     }
     state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
-      String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end &&
-        input.data.runeAt(state.pos - input.start) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteralAsync(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos <= input.end &&
-        input.data.startsWith(string, state.pos - input.start);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? readChar16Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.codeUnitAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      } else {
-        state.fail(ErrorBacktracking(state.pos));
-      }
-      return -1;
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? readChar32Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      state.ok = state.pos < input.end;
-      if (state.pos >= input.start) {
-        if (state.ok) {
-          return input.data.runeAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      } else {
-        state.fail(ErrorBacktracking(state.pos));
-      }
-      return -1;
-    }
     return null;
   }
 }
@@ -1017,25 +890,16 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_lastPosition - start);
-      }
-
-      start = _lastPosition;
-    }
-
     if (this.data.isEmpty) {
       this.data = data;
     } else {
       this.data = '${this.data}$data';
     }
 
-    end = start + this.data.length;
-    if (bufferLoad < this.data.length) {
-      bufferLoad = this.data.length;
+    final length = this.data.length;
+    end = start + length;
+    if (bufferLoad < length) {
+      bufferLoad = length;
     }
 
     sleep = false;
@@ -1049,16 +913,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_buffering == 0) {
-      if (_lastPosition > start) {
-        if (_lastPosition == end) {
-          this.data = '';
-        } else {
-          this.data = this.data.substring(_lastPosition - start);
-        }
-
-        start = _lastPosition;
+    if (_lastPosition > start) {
+      if (_lastPosition == end) {
+        this.data = '';
+      } else {
+        this.data = this.data.substring(_lastPosition - start);
       }
+
+      start = _lastPosition;
     }
   }
 

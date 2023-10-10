@@ -1,5 +1,6 @@
 class TestParser {
   bool flag = false;
+
   String text = '';
 
   /// int
@@ -130,13 +131,7 @@ class TestParser {
       $1 = state.pos;
       // ','
       const $4 = ',';
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 44;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorExpectedTags([$4]));
-      }
+      matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
       if (!state.ok) {
         break;
       }
@@ -491,13 +486,7 @@ class TestParser {
       $4 = state.pos;
       // ','
       const $7 = ',';
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 44;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorExpectedTags([$7]));
-      }
+      matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
       if (!state.ok) {
         break;
       }
@@ -1142,47 +1131,16 @@ class TestParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar(State<String> state, int char, ParseError error) {
-    final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return char;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchCharAsync(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end;
-    if (state.ok) {
-      final c = input.data.runeAt(state.pos - input.start);
-      state.ok = c == char;
-      if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
-        return char;
-      }
-    }
-    if (!state.ok) {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   String? matchLiteral(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = input.startsWith(string, state.pos);
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
     if (state.ok) {
       state.pos += string.length;
       return string;
@@ -1194,75 +1152,17 @@ class TestParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral1(
-      State<String> state, int char, String string, ParseError error) {
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
     final input = state.input;
-    state.ok = state.pos < input.length && input.runeAt(state.pos) == char;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
+      state.pos++;
       state.ok = true;
       return string;
     }
     state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(State<ChunkedParsingSink> state, int char,
-      String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos < input.end &&
-        input.data.runeAt(state.pos - input.start) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteralAsync(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    if (state.pos < input.start) {
-      state.fail(ErrorBacktracking(state.pos));
-      return null;
-    }
-    state.ok = state.pos <= input.end &&
-        input.data.startsWith(string, state.pos - input.start);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? readCharAsync(State<ChunkedParsingSink> state, void Function() handle) {
-    final input = state.input;
-    if (state.pos < input.end || input.isClosed) {
-      if (state.pos >= input.start) {
-        if (state.pos < input.end) {
-          return input.data.runeAt(state.pos - input.start);
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-      } else {
-        state.fail(ErrorBacktracking(state.pos));
-      }
-      return -1;
-    }
-    input.sleep = true;
-    input.handle = handle;
     return null;
   }
 }
@@ -1290,6 +1190,7 @@ Sink<String> parseAsync<O>(
   } else {
     result.onComplete = complete;
   }
+
   return input;
 }
 
@@ -1314,6 +1215,7 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       result: result,
     );
   }
+
   final offset = state.failPos;
   final normalized = _normalize(input, offset, state.getErrors())
       .map((e) => e.getErrorMessage(input, offset))
@@ -1338,6 +1240,7 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
   } else {
     message = normalized.join('\n');
   }
+
   return ParseResult(
     errors: normalized,
     failPos: state.failPos,
@@ -1364,6 +1267,7 @@ String _errorMessage(
       sb.writeln();
       sb.writeln();
     }
+
     final errorInfo = errorInfoList[i];
     final length = errorInfo.length;
     final message = errorInfo.message;
@@ -1387,6 +1291,7 @@ String _errorMessage(
         }
       }
     }
+
     final inputLen = source.length;
     final lineLimit = min(80, inputLen);
     final start2 = start;
@@ -1406,8 +1311,10 @@ String _errorMessage(
           index--;
         }
       }
+
       list.add(cc);
     }
+
     final column = start - lineStart + 1;
     final left = String.fromCharCodes(list.reversed);
     final end3 = min(inputLen, start2 + (lineLimit - leftLen));
@@ -1422,9 +1329,11 @@ String _errorMessage(
     } else {
       sb.writeln('offset $start: $message');
     }
+
     sb.writeln(text);
     sb.write(' ' * leftLen + '^' * indicatorLen);
   }
+
   return sb.toString();
 }
 
@@ -1437,11 +1346,13 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     for (final error in expectedTags) {
       tags.addAll(error.tags);
     }
+
     final tagList = tags.toList();
     tagList.sort();
     final error = ErrorExpectedTags(tagList);
     errorList.add(error);
   }
+
   final errorMap = <Object?, ParseError>{};
   for (final error in errorList) {
     Object key = error;
@@ -1456,8 +1367,10 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
     } else if (error is ErrorBacktracking) {
       key = (ErrorBacktracking, error.length);
     }
+
     errorMap[key] = error;
   }
+
   return errorMap.values.toList();
 }
 
@@ -1469,43 +1382,51 @@ ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
 
 class AsyncResult<T> {
   bool isComplete = false;
+
   void Function()? onComplete;
+
   T? value;
 }
 
 class ChunkedParsingSink implements Sink<String> {
   int bufferLoad = 0;
+
   String data = '';
+
   int end = 0;
+
   void Function()? handle;
+
   bool sleep = false;
+
   int start = 0;
+
   int _buffering = 0;
+
   bool _isClosed = false;
+
   int _lastPosition = 0;
+
   bool get isClosed => _isClosed;
+
   @override
   void add(String data) {
     if (_isClosed) {
       throw StateError('Chunked data sink already closed');
     }
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_lastPosition - start);
-      }
-      start = _lastPosition;
-    }
+
     if (this.data.isEmpty) {
       this.data = data;
     } else {
       this.data = '${this.data}$data';
     }
-    end = start + this.data.length;
-    if (bufferLoad < this.data.length) {
-      bufferLoad = this.data.length;
+
+    final length = this.data.length;
+    end = start + length;
+    if (bufferLoad < length) {
+      bufferLoad = length;
     }
+
     sleep = false;
     while (!sleep) {
       final h = handle;
@@ -1513,17 +1434,18 @@ class ChunkedParsingSink implements Sink<String> {
       if (h == null) {
         break;
       }
+
       h();
     }
-    if (_buffering == 0) {
-      if (_lastPosition > start) {
-        if (_lastPosition == end) {
-          this.data = '';
-        } else {
-          this.data = this.data.substring(_lastPosition - start);
-        }
-        start = _lastPosition;
+
+    if (_lastPosition > start) {
+      if (_lastPosition == end) {
+        this.data = '';
+      } else {
+        this.data = this.data.substring(_lastPosition - start);
       }
+
+      start = _lastPosition;
     }
   }
 
@@ -1538,6 +1460,7 @@ class ChunkedParsingSink implements Sink<String> {
     if (_isClosed) {
       return;
     }
+
     _isClosed = true;
     sleep = false;
     while (!sleep) {
@@ -1546,11 +1469,14 @@ class ChunkedParsingSink implements Sink<String> {
       if (h == null) {
         break;
       }
+
       h();
     }
+
     if (_buffering != 0) {
       throw StateError('On closing, an incomplete buffering was detected');
     }
+
     if (data.isNotEmpty) {
       data = '';
     }
@@ -1572,8 +1498,11 @@ class ChunkedParsingSink implements Sink<String> {
 
 class ErrorBacktracking extends ParseError {
   static const message = 'Backtracking error to position {{0}}';
+
   final int position;
+
   const ErrorBacktracking(this.position);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(0, ErrorBacktracking.message, [position]);
@@ -1582,8 +1511,11 @@ class ErrorBacktracking extends ParseError {
 
 class ErrorExpectedCharacter extends ParseError {
   static const message = 'Expected a character {0}';
+
   final int char;
+
   const ErrorExpectedCharacter(this.char);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     final value = ParseError.escape(char);
@@ -1595,8 +1527,11 @@ class ErrorExpectedCharacter extends ParseError {
 
 class ErrorExpectedTags extends ParseError {
   static const message = 'Expected: {0}';
+
   final List<String> tags;
+
   const ErrorExpectedTags(this.tags);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     final list = tags.map(ParseError.escape).toList();
@@ -1608,10 +1543,14 @@ class ErrorExpectedTags extends ParseError {
 
 class ErrorMessage extends ParseError {
   final List<Object?> arguments;
+
   @override
   final int length;
+
   final String text;
+
   const ErrorMessage(this.length, this.text, [this.arguments = const []]);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return this;
@@ -1624,14 +1563,18 @@ class ErrorMessage extends ParseError {
       final argument = arguments[i];
       result = result.replaceAll('{$i}', argument.toString());
     }
+
     return result;
   }
 }
 
 class ErrorUnexpectedCharacter extends ParseError {
   static const message = 'Unexpected character {0}';
+
   final int? char;
+
   const ErrorUnexpectedCharacter([this.char]);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     var argument = '<?>';
@@ -1663,18 +1606,22 @@ class ErrorUnexpectedCharacter extends ParseError {
         }
       }
     }
+
     if (char != null) {
       final hexValue = char.toRadixString(16);
       final value = ParseError.escape(char);
       argument = '$value (0x$hexValue)';
     }
+
     return ErrorMessage(0, ErrorUnexpectedCharacter.message, [argument]);
   }
 }
 
 class ErrorUnexpectedEndOfInput extends ParseError {
   static const message = 'Unexpected end of input';
+
   const ErrorUnexpectedEndOfInput();
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(length, ErrorUnexpectedEndOfInput.message);
@@ -1683,9 +1630,12 @@ class ErrorUnexpectedEndOfInput extends ParseError {
 
 class ErrorUnexpectedInput extends ParseError {
   static const message = 'Unexpected input data';
+
   @override
   final int length;
+
   const ErrorUnexpectedInput(this.length);
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return ErrorMessage(length, ErrorUnexpectedInput.message);
@@ -1694,7 +1644,9 @@ class ErrorUnexpectedInput extends ParseError {
 
 class ErrorUnknownError extends ParseError {
   static const message = 'Unknown error';
+
   const ErrorUnknownError();
+
   @override
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     return const ErrorMessage(0, ErrorUnknownError.message);
@@ -1703,8 +1655,11 @@ class ErrorUnknownError extends ParseError {
 
 abstract class ParseError {
   const ParseError();
+
   int get length => 0;
+
   ErrorMessage getErrorMessage(Object? input, int? offset);
+
   @override
   String toString() {
     final message = getErrorMessage(null, null);
@@ -1722,6 +1677,7 @@ abstract class ParseError {
     } else if (value is! String) {
       return value.toString();
     }
+
     final map = {
       '\b': '\\b',
       '\f': '\\f',
@@ -1743,12 +1699,19 @@ abstract class ParseError {
 
 class ParseResult<I, O> {
   final String errorMessage;
+
   final List<ErrorMessage> errors;
+
   final int failPos;
+
   final I input;
+
   final bool ok;
+
   final int pos;
+
   final O? result;
+
   ParseResult({
     this.errorMessage = '',
     this.errors = const [],
@@ -1758,23 +1721,33 @@ class ParseResult<I, O> {
     required this.pos,
     required this.result,
   });
+
   O getResult() {
     if (!ok) {
       throw FormatException(errorMessage);
     }
+
     return result as O;
   }
 }
 
 class State<T> {
   Object? context;
+
   final List<ParseError?> errors = List.filled(64, null, growable: false);
+
   int errorCount = 0;
+
   int failPos = 0;
+
   final T input;
+
   bool ok = false;
+
   int pos = 0;
+
   State(this.input);
+
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
@@ -1868,6 +1841,7 @@ class State<T> {
       final string = source.substring(pos, pos + length);
       return '$pos:$string';
     }
+
     return super.toString();
   }
 
@@ -1894,24 +1868,32 @@ class State<T> {
 
 class _StringWrapper {
   final int invalidChar;
+
   final int leftPadding;
+
   final int length;
+
   final int rightPadding;
+
   final String source;
+
   _StringWrapper({
     required this.invalidChar,
     required this.leftPadding,
     required this.rightPadding,
     required this.source,
   }) : length = leftPadding + source.length + rightPadding;
+
   int codeUnitAt(int index) {
     if (index < 0 || index > length - 1) {
       throw RangeError.range(index, 0, length, 'index');
     }
+
     final offset = index - leftPadding;
     if (offset >= 0 && offset < source.length) {
       return source.codeUnitAt(offset);
     }
+
     return invalidChar;
   }
 
@@ -1919,6 +1901,7 @@ class _StringWrapper {
     if (index < 0 || index > length - 1) {
       throw RangeError.range(index, 0, length, 'index');
     }
+
     return index >= leftPadding && index <= rightPadding && source.isNotEmpty;
   }
 
@@ -1940,9 +1923,11 @@ class _StringWrapper {
     if (start < 0 || start > length) {
       throw RangeError.range(start, 0, length, 'index');
     }
+
     if (end < start || end > length) {
       throw RangeError.range(end, start, length, 'end');
     }
+
     final codeUnits = List.generate(end - start, (i) => codeUnitAt(start + i));
     return String.fromCharCodes(codeUnits);
   }

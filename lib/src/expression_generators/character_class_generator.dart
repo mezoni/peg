@@ -96,21 +96,20 @@ if (state.ok) {
 
     const template = '''
 final {{input}} = state.input;
+if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
+  {{input}}.sleep = true;
+  {{input}}.handle = {{handle}};
+  return;
+}
 final {{c}} = {{read_char_async}}(state);
-{{clear_result}}
-switch ({{c}}) {
-  case null:
-    {{input}}.sleep = true;
-    {{input}}.handle = {{handle}};
-    return;
-  case >= 0:
-    state.ok = {{predicate}};
-    if (state.ok) {
-      {{assign_state_pos}}
-      {{assign_result}}
-    } else {
-      state.fail(const ErrorUnexpectedCharacter());
-    }
+if ({{c}} >= 0) {
+  state.ok = {{predicate}};
+  if (state.ok) {
+    {{assign_state_pos}}
+    {{assign_result}}
+  } else {
+    state.fail(const ErrorUnexpectedCharacter());
+  }
 }''';
 
     final source = render(template, values);
@@ -127,6 +126,7 @@ switch ({{c}}) {
     values['char'] = '$char';
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
+    values['match_char_async'] = helper.matchCharAsync([(char, char)]);
     if (variable != null) {
       values['assign_result'] = '$variable = ';
     } else {
@@ -135,13 +135,12 @@ switch ({{c}}) {
 
     const template = '''
 final {{input}} = state.input;
-if (state.pos < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchCharAsync(state, {{char}}, const ErrorExpectedCharacter({{char}}));
-} else {
+if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}''';
+}
+{{assign_result}}{{match_char_async}}(state, {{char}}, const ErrorExpectedCharacter({{char}}));''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,

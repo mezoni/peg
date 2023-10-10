@@ -1,6 +1,7 @@
 ## 3.0.4
 
 - Changes in the file `README.md`.
+- The implementation of methods for parsing characters and strings has been reworked and improved. Also, unused methods of this type are not included in the source code of the generated parser if they are not used.
 
 ## 3.0.3
 

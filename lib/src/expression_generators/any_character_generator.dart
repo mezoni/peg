@@ -1,4 +1,5 @@
 import '../expressions/expressions.dart';
+import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
 class AnyCharacterGenerator
@@ -36,13 +37,18 @@ if (state.pos < {{input}}.length) {
 
   @override
   String generateAsync() {
+    const ranges = [(0, 0x10ffff)];
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
+    final c = allocateName();
+    values['c'] = c;
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
+    values['read_char_async'] = helper.readCharAsync(ranges, false);
+    values['assign_state_pos'] = helper.assignStatePos(c, ranges, false);
     if (variable != null) {
-      values['assign_result'] = '$variable = c;';
+      values['assign_result'] = '$variable = $c;';
       values['clear_result'] = '$variable = null;';
     } else {
       values['assign_result'] = '';
@@ -51,24 +57,16 @@ if (state.pos < {{input}}.length) {
 
     const template = '''
 final {{input}} = state.input;
-if (state.pos < {{input}}.end || {{input}}.isClosed) {
-  {{clear_result}}
-  if (state.pos >= {{input}}.start) {
-    state.ok = state.pos < {{input}}.end;
-    if (state.ok) {
-      final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
-      state.pos += c > 0xffff ? 2 : 1;
-      {{assign_result}}
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-  } else {
-    state.fail(ErrorBacktracking(state.pos));
-  }
-} else {
+if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
+}
+final {{c}} = {{read_char_async}}(state);
+state.ok = {{c}} >= 0;
+if (state.ok) {
+  {{assign_state_pos}}
+  {{assign_result}}
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
