@@ -617,10 +617,13 @@ The second specificity is not too easy to solve and requires special attention. 
 
 ### What is buffering of input data
 
+Buffering does not mean accumulating parsing results, buffering means accumulating input data.  
 Buffering is a way to ensure that sufficient input data is available.  
 At the same time, buffering solves two tasks:
 1. Accumulation of sufficient input data to perform parsing by expression
-2. Caching input data for backtracking if expression parsing fails
+2. Caching the input data parsed by the previous expression for backtracking if parsing of the previous expression fails
+
+This is necessary because the data comes in chunks in the stream.
 
 Accumulation of sufficient input data is a fairly simple task.  
 All expressions in this sense are self-sufficient and cope with this work themselves.
@@ -660,7 +663,9 @@ Below is a list of expressions and meta expressions and what they buffer.
 - The `Verify` meta expression buffers the child expression
 - The `ZeroOrMore` expression does not buffer itself, buffers only the current child expression in the iteration
 
-
+A little more words about the expression `Repetition`.  
+This expression buffers the input data until the minimum number of iterations (required for parsing to complete successfully) is reached, to ensure a safe rollback (for subsequent backtracking) to the starting position without losing the input data.  
+After this, the input data is buffered only when parsing the last expression, since not all expressions buffer themselves.
 
 How then to implement the possibility of backtracking?  
 The answer to this question lies in the question itself (to a large extent).  
@@ -687,7 +692,7 @@ C = 'c' ;
 X = 'x' ;
 ```
 
-If parsing the expression `#1` fails to parse the expression `C`, then the expression `#2` may be left without input data if the buffer does not contain the required data (`ab`). Because they have already been successfully parsed during the partially unsuccessful parsing of the expression `#1` and quite possibly also flushed from the buffer.  
+If parsing the expression `#1` fails to parse the expression `C`, then the expression `#2` may be left without input data if the buffer does not contain the required data (`ab`). Because they have already been successfully parsed during the partially unsuccessful parsing of the expression `#1` and it is quite possible that the required input data (for parsing by expression `#2`) is no longer in the parse buffer.   
 At the same time, this will not have any effect on the parsing of the `X` expression.  
 
 In this case, this is solved simply, which in principle does not mean that taking this into account is just as simple.
