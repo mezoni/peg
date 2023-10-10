@@ -623,7 +623,7 @@ At the same time, buffering solves two tasks:
 1. Accumulation of sufficient input data to perform parsing by expression
 2. Caching the input data parsed by the previous expression for backtracking if parsing of the previous expression fails
 
-This is necessary because the data comes in chunks in the stream.
+This is necessary because the input data arrives in chunks to the chunked parsing sink.
 
 Accumulation of sufficient input data is a fairly simple task.  
 All expressions in this sense are self-sufficient and cope with this work themselves.
