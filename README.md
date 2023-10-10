@@ -55,7 +55,7 @@ The grammar declaration uses its own syntax.
 
 This generator generates itself from a grammar written using its own syntax.  
 For a more detailed acquaintance with the syntax, it is recommended to familiarize yourself with the syntax of the grammar used to generate this PEG parser.  
-https://github.com/mezoni/peg/blob/main/bin/peg_parser.peg
+https://github.com/mezoni/peg/blob/main/bin/peg.peg
 
 Grammar declaration is made using sections, like sections for a preprocessor, but at the same time, it should be noted that preprocessing is not performed and grammar processing (parsing) occurs in one stage.  
 
@@ -102,7 +102,6 @@ The concept of metadata differs from that used in the Dart language and is used 
 Example of a production rule declaration with result type and metadata:
 
 ```
-- Metadata
 bool
 False = 'false' Spaces { $$ = false; } ;
 
