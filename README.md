@@ -339,7 +339,7 @@ Example:
 ![a-z]+
 ```
 
-## Cut
+### Cut
 
 Name: `Cut`  
 Operator: `↑`  
