@@ -18,10 +18,13 @@ class AndPredicateGenerator
     }
 
     values['pos'] = allocateName();
+    values['cuttingPos'] = allocateName();
     values['p'] = generateExpression(child, false);
     const template = '''
 final {{pos}} = state.pos;
+final {{cuttingPos}} = state.cuttingPos;
 {{p}}
+state.cuttingPos = {{cuttingPos}};
 if (state.ok) {
   state.pos = {{pos}};
 }''';
@@ -39,13 +42,19 @@ if (state.ok) {
 
     final values = <String, String>{};
     final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    final init = '$pos = state.pos;';
+    final cuttingPos =
+        asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    final init = '''
+$pos = state.pos;
+$cuttingPos = state.cuttingPos;''';
+    values['cuttingPos'] = cuttingPos;
     values['pos'] = pos;
     asyncGenerator.buffering++;
     values['p'] = generateAsyncExpression(child, false);
     asyncGenerator.buffering--;
     const template = '''
 {{p}}
+state.cuttingPos = {{cuttingPos}}!;
 if (state.ok) {
   state.pos = {{pos}}!;
 }''';

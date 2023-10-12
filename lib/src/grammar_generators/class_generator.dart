@@ -44,29 +44,34 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     values['className'] = parserName;
     values['members'] = grammar.members ?? '';
     final start = grammar.start!;
-    final generatedRules = <String, String>{};
+    final methods = <String, String>{};
     ProductionRuleGenerator(
             allocator: Allocator(),
-            generatedRules: generatedRules,
+            generatedRules: methods,
             isFast: false,
             isAsync: isAsync,
             parserName: parserName,
             rule: start)
         .generate();
-    final methodNames = generatedRules.keys;
+    _addInternalMethods(methods);
+    if (isAsync) {
+      _addAsyncMethods(methods);
+    }
+
+    final methodNames = methods.keys;
     final publicMethodNames =
         methodNames.where((e) => !e.startsWith('_')).toList();
     final privateMethodNames =
         methodNames.where((e) => e.startsWith('_')).toList();
     publicMethodNames.sort();
     privateMethodNames.sort();
-    final methods = <String>[];
+    final methodList = <String>[];
     for (final name in [...publicMethodNames, ...privateMethodNames]) {
-      final source = generatedRules[name]!;
-      methods.add(source);
+      final source = methods[name]!;
+      methodList.add(source);
     }
 
-    values['methods'] = _addInternalMethods(methods.join('\n\n'));
+    values['methods'] = methodList.join('\n\n');
     grammar.rules.any((e) => e.hasEvent());
     final hasEvents = grammar.rules.any((e) => e.hasEvent());
     if (hasEvents) {
@@ -79,8 +84,8 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     return helper.render(_template, values, removeEmptyLines: false);
   }
 
-  String _addInternalMethods(String source) {
-    const methods = {
+  void _addInternalMethods(Map<String, String> methods) {
+    const methodMap = {
       'matchChar16': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -104,10 +109,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
     state.ok = pos < input.end;
     if (state.ok) {
       final c = input.data.codeUnitAt(pos - start);
@@ -145,10 +146,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
     state.ok = pos < input.end;
     if (state.ok) {
       final c = input.data.runeAt(pos - start);
@@ -167,11 +164,11 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String? matchLiteral(State<String> state, String string, ParseError error) {
-    final input = state.input;
     if (string.isEmpty) {
       state.ok = true;
       return '';
     }
+    final input = state.input;
     final pos = state.pos;
     state.ok = pos < input.length &&
         input.codeUnitAt(pos) == string.codeUnitAt(0) &&
@@ -206,9 +203,10 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   String? matchLiteral2(State<String> state, String string, ParseError error) {
     final input = state.input;
     final pos = state.pos;
-    state.ok = pos + 1 < input.length &&
+    final pos2 = pos + 1;
+    state.ok = pos2 < input.length &&
         input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.codeUnitAt(pos + 1) == string.codeUnitAt(1);
+        input.codeUnitAt(pos2) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
       state.ok = true;
@@ -225,10 +223,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
     state.ok = pos < input.end &&
         input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
     if (state.ok) {
@@ -245,16 +239,12 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
       State<ChunkedParsingSink> state, String string, ParseError error) {
     final input = state.input;
     final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
     final data = input.data;
-    final pos2 = pos - start;
+    final pos = state.pos;
+    final index = pos - start;
     state.ok = pos + 1 < input.end &&
-        data.codeUnitAt(pos2) == string.codeUnitAt(0) &&
-        data.codeUnitAt(pos2 + 1) == string.codeUnitAt(1);
+        data.codeUnitAt(index) == string.codeUnitAt(0) &&
+        data.codeUnitAt(index + 1) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
       return string;
@@ -267,21 +257,18 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   @pragma('dart2js:tryInline')
   String? matchLiteralAsync(
       State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
     if (string.isEmpty) {
       state.ok = true;
       return '';
     }
+    final input = state.input;
+    final start = input.start;
     final data = input.data;
+    final pos = state.pos;
+    final index = pos - start;
     state.ok = pos <= input.end &&
-        data.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        data.startsWith(string, pos - start);
+        data.codeUnitAt(index) == string.codeUnitAt(0) &&
+        data.startsWith(string, index);
     if (state.ok) {
       state.pos += string.length;
       return string;
@@ -294,16 +281,12 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   @pragma('dart2js:tryInline')
   int readChar16Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    final pos = state.pos;
     final start = input.start;
-    if (pos >= start) {
-      if (pos < input.end) {
-        return input.data.codeUnitAt(pos - start);
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final pos = state.pos;
+    if (pos < input.end) {
+      return input.data.codeUnitAt(pos - start);
     } else {
-      state.fail(ErrorBacktracking(pos));
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return -1;
   }''',
@@ -312,29 +295,27 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   @pragma('dart2js:tryInline')
   int readChar32Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    final pos = state.pos;
     final start = input.start;
-    if (pos >= start) {
-      if (pos < input.end) {
-        return input.data.runeAt(pos - start);
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final pos = state.pos;
+    if (pos < input.end) {
+      return input.data.runeAt(pos - start);
     } else {
-      state.fail(ErrorBacktracking(pos));
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return -1;
   }''',
     };
-    final list = <String>[source.trim()];
-    for (final entry in methods.entries) {
+    final source = methods.values.join('\n\n');
+    for (final entry in methodMap.entries) {
       final key = entry.key;
       final value = entry.value;
       if (source.contains(key)) {
-        list.add(value);
+        methods[key] = value;
       }
     }
+  }
 
-    return list.join('\n\n');
+  void _addAsyncMethods(Map<String, String> methods) {
+    //
   }
 }

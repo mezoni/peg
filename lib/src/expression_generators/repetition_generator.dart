@@ -70,8 +70,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
     }
 
     values['n'] = '$n';
-    values['p'] = asyncGenerator
-        .forceBuffering(() => generateAsyncExpression(child, true));
+    values['p'] = generateAsyncExpression(child, true);
     var template = '';
     if (variable != null) {
       template = '''
@@ -88,7 +87,7 @@ while (true) {
     break;
   }
 }
-state.ok = true;
+state.setOk(true);
 if (state.ok) {
   {{r}} = {{list}};
 }
@@ -106,7 +105,7 @@ while (true) {
     break;
   }
 }
-state.ok = true;''';
+state.setOk(true);''';
     }
 
     final source = render(template, values);
@@ -125,7 +124,6 @@ state.ok = true;''';
     ({String name, String value})? key;
     if (variable != null) {
       values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
-      values['list_'] = allocateName();
       values['r'] = variable;
       values['r1'] = ruleGenerator.allocateExpressionVariable(child);
       values['rv'] = getExpressionVariableWithNullCheck(child);
@@ -133,63 +131,45 @@ state.ok = true;''';
     } else {
       values['count'] =
           asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      values['count_'] = allocateName();
       key = (name: values['count']!, value: '0');
     }
 
     values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
     const initTemplate = '''
-{{pos}} = state.pos;
-state.input.beginBuffering();''';
+{{pos}} = state.pos;''';
     final init = render(initTemplate, values);
     values['m'] = '$m';
-    values['p'] = asyncGenerator
-        .forceBuffering(() => generateAsyncExpression(child, true));
+    values['p'] = generateAsyncExpression(child, true);
     var template = '';
     if (variable != null) {
       template = '''
 while (true) {
   {{p}}
-  final {{list_}} = {{list}}!;
   if (!state.ok) {
-    if ({{list_}}.length < {{m}}) {
-      state.input.endBuffering(state.pos);
-    }
     break;
   }
-  {{list_}}.add({{rv}});
+  {{list}}!.add({{rv}});
   {{r1}} = null;
-  if ({{list_}}.length == {{m}}) {
-    state.input.endBuffering(state.pos);
-  }
 }
-state.ok = {{list}}!.length >= {{m}};
+state.setOk({{list}}!.length >= {{m}});
 if (state.ok) {
   {{r}} = {{list}};
   {{list}} = null;
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     } else {
       template = '''
 while (true) {
   {{p}}
-  var {{count_}} = {{count}}!;
   if (!state.ok) {
-    if ({{count_}} < {{m}}) {
-      state.input.endBuffering(state.pos);
-    }
     break;
   }
-  {{count_}}++;
-  {{count}} = {{count_}};
-  if ({{count_}} == {{m}}) {
-    state.input.endBuffering(state.pos);
-  }
+  {{count}} = {{count}}! + 1;
 }
-state.ok = {{count}}! >= {{m}};
+state.setOk({{count}}! >= {{m}});
 if (!state.ok) {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     }
 
@@ -216,8 +196,7 @@ if (!state.ok) {
       key = (name: values['list']!, value: '[]');
     }
 
-    values['p'] = asyncGenerator
-        .forceBuffering(() => generateAsyncExpression(child, true));
+    values['p'] = generateAsyncExpression(child, true);
     var template = '';
     if (variable != null) {
       template = '''
@@ -230,7 +209,7 @@ while (true) {
   {{list}}!.add({{rv}});
   {{r1}} = null;
 }
-state.ok = true;
+state.setOk(true);
 if (state.ok) {
   {{r}} = {{list}};
 }
@@ -243,7 +222,7 @@ while (true) {
     break;
   }
 }
-state.ok = true;''';
+state.setOk(true);''';
     }
 
     final source = render(template, values);
@@ -276,64 +255,50 @@ state.ok = true;''';
 
     values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
     const initTemplate = '''
-{{pos}} = state.pos;
-state.input.beginBuffering();''';
+{{pos}} = state.pos;''';
     final init = render(initTemplate, values);
     values['m'] = '$m';
     values['n'] = '$n';
-    values['p'] = asyncGenerator
-        .forceBuffering(() => generateAsyncExpression(child, true));
+    values['p'] = generateAsyncExpression(child, true);
     var template = '';
     if (variable != null) {
       template = '''
 while (true) {
   {{p}}
-  final {{list_}} = {{list}}!;
   if (!state.ok) {
-    if ({{list_}}.length < {{m}}) {
-      state.input.endBuffering(state.pos);
-    }
     break;
   }
+  final {{list_}} = {{list}}!;
   {{list_}}.add({{rv}});
   {{r1}} = null;
-  if ({{list_}}.length == {{m}}) {
-    state.input.endBuffering(state.pos);
-  }
   if ({{list_}}.length == {{n}}) {
     break;
   }
 }
-state.ok = {{list}}!.length >= {{m}};
+state.setOk({{list}}!.length >= {{m}});
 if (state.ok) {
   {{r}} = {{list}};
   {{list}} = null;
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     } else {
       template = '''
 while (true) {
   {{p}}
-  var {{count_}} = {{count}}!;
   if (!state.ok) {
-    if ({{count_}} < {{m}}) {
-      state.input.endBuffering(state.pos);
-    }
     break;
   }
+  var {{count_}} = {{count}}!;
   {{count_}}++;
   {{count}} = {{count_}};
-  if ({{count_}} == {{m}}) {
-    state.input.endBuffering(state.pos);
-  }
   if ({{count_}} == {{n}}) {
     break;
   }
 }
-state.ok = {{count}}! >= {{m}};
+state.setOk({{count}}! >= {{m}});
 if (!state.ok) {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     }
 
@@ -371,9 +336,7 @@ if (!state.ok) {
 {{pos}} = state.pos;''';
     final init = render(initTemplate, values);
     values['n'] = '$n';
-    asyncGenerator.buffering++;
     values['p'] = generateAsyncExpression(child, true);
-    asyncGenerator.buffering--;
     var template = '';
     if (variable != null) {
       template = '''
@@ -390,12 +353,12 @@ while (true) {
     break;
   }
 }
-state.ok = {{list}}!.length == {{n}};
+state.setOk({{list}}!.length == {{n}});
 if (state.ok) {
   {{r}} = {{list}};
   {{list}} = null;
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     } else {
       template = '''
@@ -410,16 +373,16 @@ while (true) {
     break;
   }
 }
-state.ok = {{count}}!  == {{n}};
+state.setOk({{count}}!  == {{n}});
 if (!state.ok) {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     }
 
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
       key: key,
       init: init,
     );
@@ -446,7 +409,7 @@ while ({{list}}.length < {{n}}) {
   }
   {{list}}.add({{rv}});
 }
-state.ok = true;
+state.setOk(true);
 if (state.ok) {
  {{r}} = {{list}};
 }''';
@@ -461,7 +424,7 @@ while ({{count}} < {{n}}) {
   }
   {{count}}++;
 }
-state.ok = true;''';
+state.setOk(true);''';
     }
 
     values['p'] = generateExpression(child, true);
@@ -491,11 +454,11 @@ while (true) {
   }
   {{list}}.add({{rv}});
 }
-state.ok = {{list}}.length >= {{m}};
+state.setOk({{list}}.length >= {{m}});
 if (state.ok) {
  {{r}} = {{list}};
 } else {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     } else {
       values['count'] = allocateName();
@@ -509,9 +472,9 @@ while (true) {
   }
   {{count}}++;
 }
-state.ok = {{count}} >= {{m}};
+state.setOk({{count}} >= {{m}});
 if (!state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     }
 
@@ -541,11 +504,11 @@ while (true) {
   }
   {{list}}.add({{rv}});
 }
-state.ok = true;
+state.setOk(true);
 if (state.ok) {
  {{r}} = {{list}};
 } else {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     } else {
       template = '''
@@ -557,9 +520,9 @@ while (true) {
   }
   {{count}}++;
 }
-state.ok = true;
+state.setOk(true);
 if (!state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     }
 
@@ -591,11 +554,11 @@ while ({{list}}.length < {{n}}) {
   }
   {{list}}.add({{rv}});
 }
-state.ok = {{list}}.length >= {{m}};
+state.setOk({{list}}.length >= {{m}});
 if (state.ok) {
  {{r}} = {{list}};
 } else {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     } else {
       values['count'] = allocateName();
@@ -609,9 +572,9 @@ while ({{count}} < {{n}}) {
   }
   {{count}}++;
 }
-state.ok = {{count}} >= {{m}};
+state.setOk({{count}} >= {{m}});
 if (!state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     }
 
@@ -642,11 +605,11 @@ while ({{list}}.length < {{n}}) {
   }
   {{list}}.add({{rv}});
 }
-state.ok = {{list}}.length == {{n}};
+state.setOk({{list}}.length == {{n}});
 if (state.ok) {
  {{r}} = {{list}};
 } else {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     } else {
       values['count'] = allocateName();
@@ -660,9 +623,9 @@ while ({{count}} < {{n}}) {
   }
   {{count}}++;
 }
-state.ok = {{count}} == {{n}};
+state.setOk({{count}} == {{n}});
 if (!state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     }
 

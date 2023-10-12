@@ -40,7 +40,7 @@ void main(List<String> args) {
 Start = Spaces v:Value !. ;
 
 @event
-Array = OpenBracket v:Values CloseBracket ;
+Array = OpenBracket ↑ v:Values CloseBracket ;
 
 @inline
 CloseBrace = v:'}' Spaces ;
@@ -79,9 +79,9 @@ Key = String ;
 
 @event
 MapEntry<String, Object?>
-KeyValue = k:Key Colon v:Value { $$ = MapEntry(k, v); };
+KeyValue = k:Key Colon ↑ v:Value { $$ = MapEntry(k, v); };
 
-KeyValues = @sepBy(KeyValue, Comma);
+KeyValues = @sepBy(KeyValue, Comma ↑);
 
 @inline
 Object?
@@ -97,7 +97,7 @@ Number = v:$(
 
 @event
 Map<String, Object?>
-Object = OpenBrace kv:KeyValues CloseBrace { $$ = kv.isEmpty ? const {} : Map.fromEntries(kv); };
+Object = OpenBrace ↑ kv:KeyValues CloseBrace { $$ = kv.isEmpty ? const {} : Map.fromEntries(kv); };
 
 @inline
 OpenBrace = v:'{' Spaces ;
@@ -118,7 +118,7 @@ StringChars = @stringChars(
   ) ;
 
 String
-String = '"' v:StringChars Quote ;
+String = '"' ↑ v:StringChars Quote ;
 
 @inline
 bool
@@ -134,4 +134,4 @@ Value = Array
   / False
   / Null ;
 
-Values = @sepBy(Value, Comma);
+Values = @sepBy(Value, Comma ↑) ;

@@ -63,7 +63,7 @@ class AsyncGenerator {
       template = '''
 {{key}} ??= state.input.beginBuffering();
 {{source}}
-state.input.endBuffering(state.pos);
+state.input.endBuffering();
 {{key}} = null;''';
     } else {
       template = source;
@@ -107,7 +107,7 @@ state.input.endBuffering(state.pos);
 
     if (buffering) {
       values['begin_buffering'] = 'state.input.beginBuffering();';
-      values['end_buffering'] = 'state.input.endBuffering(state.pos);';
+      values['end_buffering'] = 'state.input.endBuffering();';
     } else {
       values['begin_buffering'] = '';
       values['end_buffering'] = '';

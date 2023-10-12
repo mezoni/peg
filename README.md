@@ -2,7 +2,7 @@
 
 A command line tool for generating (streaming, chunk, file) top-down parsers from a parsing expression grammars (PEG).
 
-Version: 3.0.4
+Version: 4.0.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -339,6 +339,28 @@ Example:
 ![a-z]+
 ```
 
+## Cut
+
+Name: `Cut`  
+Operator: `↑`  
+Number of operands: 0
+
+Sets the internal parsing state such that parsing of input data before the current position becomes impossible.  
+That is, it effectively disables the ability to backtrack to any position less than the current (at the time this expression is executed) position.  
+This expression is also used when creating grammars to parse input data asynchronously.
+
+Example:
+
+```
+@sepBy1(Field, ',' ↑)
+```
+
+An example of data cutting during asynchronous parsing, to implement the ability to remove unnecessary data from the buffer.
+
+```
+OpenQuote ↑ v:Chars CloseQuote { $$ = v.join(); }
+```
+
 ## Meta expressions
 
 Grammar parsing expressions has a fairly extensive set of expressions, which is quite enough to create complex grammars. But, given the fact that grammar is the basis for generating a top-down parser, the existing set of expressions is not enough to describe a complex parser. Meta expressions, in this case, are a means to describe the behavior of the generated parser. Meta expressions extend the grammar with capabilities that are not present in it.  
@@ -348,6 +370,7 @@ The following meta expression exist in the current version.
 - `@errorHandler`
 - `@matchString`
 - `@sepBy`
+- `@sepBy1`
 - `@stringChars`
 - `@verify`
 
@@ -399,13 +422,37 @@ The meta expression `@sepBy` parses zero or more occurrences of `element`, separ
 Example:
 
 ```
-Elements = @sepBy(Element, Separator) ;
+Elements = @sepBy(Element, Separator ↑) ;
 ```
 
 This was an example of an optimized version of the following expression.
 
 ```
-v:(h:Element t:(Separator v:Element)* { $$ = [h, ...t]; })? { $$ = v ?? const []; }
+v:h:Element t:(Separator v:Element ↑)* { $$ = v == null ? [] : [h, ...t]; }
+```
+
+Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
+As a result, the grammar becomes more readable, and the generated parser code works more efficiently.
+
+### @sepBy1
+
+Name: `@sepBy1`  
+Parameters:
+- An expression representing an `element`
+- An expression representing an `separator`
+
+The meta expression `@sepBy` parses one or more occurrences of `element`, separated by `separator` and returns a list of elements as a result.
+
+Example:
+
+```
+Elements = @sepBy1(Element, Separator ↑) ;
+```
+
+This was an example of an optimized version of the following expression.
+
+```
+v:h:Element t:(Separator v:Element)* { $$ = [h, ...t]; }
 ```
 
 Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
@@ -601,144 +648,45 @@ The `@memoize` instruction is not implemented in the current version.
 
 ## Streaming parsing
 
-### A few words as an introduction
-
 The term `streaming parsing` means the possibility of asynchronous data parsing.  
 The term `asynchronous parsing` means the possibility of parsing data by chunks.  
-The term `chunked parsing` means analyzing data in parts as those parts become available.  
+The term `chunked parsing` means parsing data in chunks as those data chunks become available.  
 
-The implementation of data parsing in parts differs from regular parsing in at least two ways:
-1. The entire input data for parsing is not available
-2. Backtracking is not possible without buffering of input data
+Generating a stream parser requires specifying the `async` command line tool option.  
 
-The first specificity is not a difficult task to solve, since it can be solved using special parsing algorithms.  
-That is, it can be solved without any action on the part of the grammar developer.  
-The second specificity is not too easy to solve and requires special attention. In this case, buffering certain data. Both automatic and forced buffering.
+Example.
 
-### What is buffering of input data
-
-Buffering does not mean accumulating parsing results, buffering means accumulating input data.  
-Buffering is a way to ensure that sufficient input data is available.  
-At the same time, buffering solves two tasks:
-1. Accumulation of sufficient input data to perform parsing by expression
-2. Caching the input data parsed by the previous expression for backtracking if parsing of the previous expression fails
-
-This is necessary because the input data arrives in chunks to the chunked parsing sink.
-
-Accumulation of sufficient input data is a fairly simple task.  
-All expressions in this sense are self-sufficient and cope with this work themselves.
-
-Caching input data for backtracking is not a trivial task.  
-The main problem is that not all expressions buffer input data and, in this case, there will simply be no (buffered) input data to perform backtracking.  
-But this does not mean that this is a difficult or insoluble task.
-
-### How and what do expressions buffer?
-
-Expressions buffer only the data necessary to ensure a backtracking if parsing fails.  
-But what would happen if all expressions were able to provide this?  
-If this happens then this would defeat the purpose of implementing streaming parsing and would result in the buffer gradually filling up with entire input data.
-
-To minimize buffer overload, not all expressions buffer input data.
-
-Below is a list of expressions and meta expressions and what they buffer.
-- The `AndPredicate` expression buffers the child expression
-- The `AnyCharacter` expression buffers itself
-- The `Buffer` expression buffers the child expression
-- The `CharacterClass` expression buffers itself
-- The `ErrorHandlerClass` meta expression does not buffer anything
-- The `Literal` expression buffers itself
-- The `NotPredicate` expression buffers the child expression
-- The `OneOrMore` expression does not buffer itself, buffers only the current child expression in the iteration
-- The `Optional` expression buffers the child expression
-- The `OrderedChoice` expression does not buffer anything
-- The `Repetition{m,}` at the beginning the expression buffers itself up to `m` iterations, and after that it buffers only the current child expression in the iteration
-- The `Repetition{m,n}` at the beginning the expression buffers itself up to `m` iterations, and after that it buffers only the current child expression in the iteration
-- The `Repetition{,n}` expression does not buffer itself, buffers only the current child expression in the iteration
-- The `Repetition{n}` expression buffers itself
-- The `SepBy` meta expression does not buffer itself, buffers only the current child expressions in the iteration
-- The `Sequence` expression does not buffer anything
-- The `Slice` expression buffers the child expression
-- The `StringChars` meta expression does not buffer itself, buffers only the current child expression (combination) in the iteration
-- The `Symbol` expression does not buffer anything
-- The `Verify` meta expression buffers the child expression
-- The `ZeroOrMore` expression does not buffer itself, buffers only the current child expression in the iteration
-
-A little more words about the expression `Repetition`.  
-This expression buffers the input data until the minimum number of iterations (required for parsing to complete successfully) is reached, to ensure a safe rollback (for subsequent backtracking) to the starting position without losing the input data.  
-After this, the input data is buffered only when parsing the last expression, since not all expressions buffer themselves.
-
-How then to implement the possibility of backtracking?  
-The answer to this question lies in the question itself (to a large extent).  
-If you need it, then force it.  
-It's not difficult to force it. The meta expression `Buffer` serves this purpose.  
-It would seem that everything is simple, but the question remains unclear in what cases to use forced buffering.  
-
-### The reason to use forced buffering
-
-If one of the previous (alternative) expressions in the expression `OrderedChoice` can fail not at the current parse position, but after moving forward, then in this case such an expression must be buffered forcibly.  
-This must be done only directly in the expression `OrderedChoice` in accordance with the logic of the work of only this expression `OrderedChoice`.
-
-The simplest example.
-
-```
-Choice =
-    A B C # 1
-  / A B   # 2
-  / X     # 3
-  ;
-A = 'a' ;
-B = 'b' ;
-C = 'c' ;
-X = 'x' ;
+```bash
+dart pub global run peg --async example/json.peg
 ```
 
-If parsing the expression `#1` fails to parse the expression `C`, then the expression `#2` may be left without input data if the buffer does not contain the required data (`ab`). Because they have already been successfully parsed during the partially unsuccessful parsing of the expression `#1` and it is quite possible that the required input data (for parsing by expression `#2`) is no longer in the parse buffer.   
-At the same time, this will not have any effect on the parsing of the `X` expression.  
+In order for stream parsing to work and to work effectively requires adding the expression(s) `cut` to the grammar.  
+Expressions `cut`(`↑`) very quickly inform the input data buffer that, starting from the specified (current) position, the input data will no longer be needed for parsing and can be removed from the buffer buffer during the next operation to `clean` the buffer from unnecessary data.  
+Such expressions can be called `markers` if they are used solely for buffer clearing purposes.  
+Where and how many such markers need to be specified in the grammar for asynchronous parsing to work effectively is determined by the grammar developer.  
 
-In this case, this is solved simply, which in principle does not mean that taking this into account is just as simple.
+But they should be used wisely and should not be overused.  
 
-```
-Choice =
-   @buffer(A B C)
-  / A B
-  / X
-  ;
-A = 'a' ;
-B = 'b' ;
-C = 'c' ;
-X = 'x' ;
-```
-
-That is, always in such cases.
+Some examples of good and suitable places to use them.  
+In all cases. Unloading the buffer and generating correct error messages.
 
 ```
-Choice =
-    @buffer(A B C)
-  / @buffer(A B)
-  / A
-  / M N
-  / @buffer(XY)
-  / X
-  ;
-
-XY = X Y ;
+Values = @sepBy(Value, Comma ↑) ;
 ```
 
-In principle, this can be done in a way that is more convenient.  
-For example like this.
+In case of asynchronous parsing (to unload the buffer).
 
 ```
-Choice =
-    XY
-  / X
-  ;
+Array = OpenBracket ↑ v:Values CloseBracket ;
 
-XY = @buffer(X Y) ;
+KeyValue = k:Key Colon ↑ v:Value { $$ = MapEntry(k, v); };
+
+Object = OpenBrace ↑ kv:KeyValues CloseBrace { $$ = kv.isEmpty ? const {} : Map.fromEntries(kv); };
+
+String = '"' ↑ v:StringChars Quote ;
 ```
 
-That is, if the subsequent expression begins with the same character as the previous one, then it is necessary to buffer the previous expression.  
-Perhaps in subsequent versions this will be implemented at the generator level, but nevertheless, the most reliable solution is to do this explicitly in the description of the grammar.  
-
+That is, use them, if possible, inside data structures delimited by opening and closing tags immediately after the opening tag. Implementing this approach works very effectively.
 
 ## Code snippets
 

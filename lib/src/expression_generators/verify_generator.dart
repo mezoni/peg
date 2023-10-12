@@ -47,7 +47,7 @@ if (state.ok) {
 }
 if (!state.ok) {
   {{clear_result}}
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
 
     return render(template, values);
@@ -100,7 +100,7 @@ if (state.ok) {
 }
 if (!state.ok) {
   {{clear_result}}
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(

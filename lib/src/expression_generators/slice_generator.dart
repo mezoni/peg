@@ -38,11 +38,17 @@ if (state.ok) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
+    var pos = '';
+
+    if (variable != null) {
+      pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+      values['r'] = variable;
+      values['pos'] = pos;
+    }
+
     String? init;
     if (variable != null) {
-      values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      values['r'] = variable;
-      init = '${values['pos']} = state.pos;';
+      init = '$pos = state.pos;';
     }
 
     asyncGenerator.buffering++;
@@ -55,7 +61,8 @@ if (state.ok) {
 if (state.ok) {
   final input = state.input;
   final start = input.start;
-  {{r}} = input.data.substring({{pos}}! - start, state.pos - start);
+  final pos = {{pos}}!;
+  {{r}} = input.data.substring(pos - start, state.pos - start);
 }''';
     } else {
       template = '''

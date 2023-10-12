@@ -1,8 +1,8 @@
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
-class SepByGenerator extends ExpressionGenerator<SepByExpression> {
-  SepByGenerator({
+class SepBy1Generator extends ExpressionGenerator<SepBy1Expression> {
+  SepBy1Generator({
     required super.expression,
     required super.ruleGenerator,
   });
@@ -19,6 +19,8 @@ class SepByGenerator extends ExpressionGenerator<SepByExpression> {
       ruleGenerator.allocateExpressionVariable(element);
       values['r'] = variable;
       values['rv'] = getExpressionVariableWithNullCheck(element);
+    } else {
+      values['ok'] = allocateName();
     }
 
     values['pos'] = allocateName();
@@ -42,12 +44,15 @@ while (true) {
     break;
   }
 }
-state.setOk(true);
+state.setOk({{list}}.isNotEmpty);
 if (state.ok) {
   {{r}} = {{list}};
+} else {
+
 }''';
     } else {
       template = '''
+var {{ok}} = false;
 var {{pos}} = state.pos;
 while (true) {
   {{p1}}
@@ -55,13 +60,14 @@ while (true) {
     state.backtrack({{pos}});
     break;
   }
+  {{ok}} = true;
   {{pos}} = state.pos;
   {{p2}}
   if (!state.ok) {
     break;
   }
 }
-state.setOk(true);''';
+state.setOk({{ok}});''';
     }
 
     return render(template, values);
@@ -82,6 +88,8 @@ state.setOk(true);''';
       values['r1'] = ruleGenerator.allocateExpressionVariable(element);
       values['r'] = variable;
       values['rv'] = getExpressionVariableWithNullCheck(element);
+    } else {
+      values['ok'] = asyncGenerator.allocateVariable(GenericType(name: 'bool'));
     }
 
     values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
@@ -95,6 +103,7 @@ state.setOk(true);''';
 {{state}} = 0;''';
     } else {
       initTemplate = '''
+{{ok}} = false;
 {{pos}} = state.pos;
 {{state}} = 0;''';
     }
@@ -124,7 +133,7 @@ while (true) {
     {{state}} = 0;
   }
 }
-state.setOk(true);
+state.setOk({{list}}!.isNotEmpty);
 if (state.ok) {
   {{r}} = {{list}};
   {{list}} = null;
@@ -138,6 +147,7 @@ while (true) {
       state.backtrack({{pos}}!);
       break;
     }
+    {{ok}} = true;
     {{pos}} = state.pos;
     {{state}} = 1;
   }
@@ -149,7 +159,7 @@ while (true) {
     {{state}} = 0;
   }
 }
-state.setOk(true);''';
+state.setOk({{ok}}!);''';
     }
 
     final source = render(template, values);

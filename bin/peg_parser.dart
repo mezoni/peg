@@ -66,20 +66,20 @@ class PegParser {
     }
   }
 
-  /// AtSign =
-  ///   v:'@' Spaces
+  /// Apostrophe =
+  ///   v:'\'' Spaces
   ///   ;
-  void fastParseAtSign(State<String> state) {
-    // v:'@' Spaces
+  void fastParseApostrophe(State<String> state) {
+    // v:'\'' Spaces
     final $0 = state.pos;
-    const $1 = '@';
+    const $1 = '\'';
     matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -97,25 +97,25 @@ class PegParser {
         // BlockBody
         fastParseBlockBody(state);
         if (!state.ok) {
-          state.ok = true;
           break;
         }
       }
+      state.setOk(true);
       if (state.ok) {
         const $2 = '}';
         matchLiteral1(state, $2, const ErrorExpectedTags([$2]));
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // !'}' .
       final $3 = state.pos;
       final $4 = state.pos;
-      const $6 = '}';
-      matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
-      state.ok = !state.ok;
+      const $5 = '}';
+      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
+      state.setOk(!state.ok);
       if (!state.ok) {
         final length = $4 - state.pos;
         state.fail(switch (length) {
@@ -124,72 +124,21 @@ class PegParser {
           2 => const ErrorUnexpectedInput(2),
           _ => ErrorUnexpectedInput(length)
         });
+        state.backtrack($4);
       }
-      state.pos = $4;
       if (state.ok) {
-        final $8 = state.input;
-        if (state.pos < $8.length) {
-          final $7 = $8.runeAt(state.pos);
-          state.pos += $7 > 0xffff ? 2 : 1;
+        final $7 = state.input;
+        if (state.pos < $7.length) {
+          final $6 = $7.runeAt(state.pos);
+          state.pos += $6 > 0xffff ? 2 : 1;
           state.ok = true;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
       }
       if (!state.ok) {
-        state.pos = $3;
+        state.backtrack($3);
       }
-    }
-  }
-
-  /// CloseBrace =
-  ///   v:'}' Spaces
-  ///   ;
-  void fastParseCloseBrace(State<String> state) {
-    // v:'}' Spaces
-    final $0 = state.pos;
-    const $1 = '}';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// CloseBracket =
-  ///   v:']' Spaces
-  ///   ;
-  void fastParseCloseBracket(State<String> state) {
-    // v:']' Spaces
-    final $0 = state.pos;
-    const $1 = ']';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// CloseParenthesis =
-  ///   v:')' Spaces
-  ///   ;
-  void fastParseCloseParenthesis(State<String> state) {
-    // v:')' Spaces
-    final $0 = state.pos;
-    const $1 = ')';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
     }
   }
 
@@ -206,7 +155,7 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -223,7 +172,7 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -242,8 +191,8 @@ class PegParser {
         final $3 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $5 = state.input.codeUnitAt(state.pos);
-          state.ok = $5 == 10 || $5 == 13;
+          final $4 = state.input.codeUnitAt(state.pos);
+          state.ok = $4 == 10 || $4 == 13;
           if (state.ok) {
             state.pos++;
           } else {
@@ -252,7 +201,7 @@ class PegParser {
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
-        state.ok = !state.ok;
+        state.setOk(!state.ok);
         if (!state.ok) {
           final length = $3 - state.pos;
           state.fail(switch (length) {
@@ -261,53 +210,53 @@ class PegParser {
             2 => const ErrorUnexpectedInput(2),
             _ => ErrorUnexpectedInput(length)
           });
+          state.backtrack($3);
         }
-        state.pos = $3;
         if (state.ok) {
-          final $7 = state.input;
-          if (state.pos < $7.length) {
-            final $6 = $7.runeAt(state.pos);
-            state.pos += $6 > 0xffff ? 2 : 1;
+          final $6 = state.input;
+          if (state.pos < $6.length) {
+            final $5 = $6.runeAt(state.pos);
+            state.pos += $5 > 0xffff ? 2 : 1;
             state.ok = true;
           } else {
             state.fail(const ErrorUnexpectedEndOfInput());
           }
         }
         if (!state.ok) {
-          state.pos = $2;
+          state.backtrack($2);
         }
         if (!state.ok) {
-          state.ok = true;
           break;
         }
       }
+      state.setOk(true);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// Dot =
-  ///   v:'.' Spaces
+  /// CommercialAt =
+  ///   v:'@' Spaces
   ///   ;
-  void fastParseDot(State<String> state) {
-    // v:'.' Spaces
+  void fastParseCommercialAt(State<String> state) {
+    // v:'@' Spaces
     final $0 = state.pos;
-    const $1 = '.';
+    const $1 = '@';
     matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// Equal =
+  /// EqualsSign =
   ///   v:'=' Spaces
   ///   ;
-  void fastParseEqual(State<String> state) {
+  void fastParseEqualsSign(State<String> state) {
     // v:'=' Spaces
     final $0 = state.pos;
     const $1 = '=';
@@ -317,14 +266,31 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// Greater =
+  /// FullStop =
+  ///   v:'.' Spaces
+  ///   ;
+  void fastParseFullStop(State<String> state) {
+    // v:'.' Spaces
+    final $0 = state.pos;
+    const $1 = '.';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// GreaterThanSign =
   ///   v:'>' Spaces
   ///   ;
-  void fastParseGreater(State<String> state) {
+  void fastParseGreaterThanSign(State<String> state) {
     // v:'>' Spaces
     final $0 = state.pos;
     const $1 = '>';
@@ -334,31 +300,14 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// Less =
-  ///   v:'<' Spaces
-  ///   ;
-  void fastParseLess(State<String> state) {
-    // v:'<' Spaces
-    final $0 = state.pos;
-    const $1 = '<';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// OpenBrace =
+  /// LeftCurlyBracket =
   ///   v:'{' Spaces
   ///   ;
-  void fastParseOpenBrace(State<String> state) {
+  void fastParseLeftCurlyBracket(State<String> state) {
     // v:'{' Spaces
     final $0 = state.pos;
     const $1 = '{';
@@ -368,14 +317,14 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// OpenParenthesis =
+  /// LeftParenthesis =
   ///   v:'(' Spaces
   ///   ;
-  void fastParseOpenParenthesis(State<String> state) {
+  void fastParseLeftParenthesis(State<String> state) {
     // v:'(' Spaces
     final $0 = state.pos;
     const $1 = '(';
@@ -385,7 +334,75 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
+    }
+  }
+
+  /// LessThanSign =
+  ///   v:'<' Spaces
+  ///   ;
+  void fastParseLessThanSign(State<String> state) {
+    // v:'<' Spaces
+    final $0 = state.pos;
+    const $1 = '<';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// RightCurlyBracket =
+  ///   v:'}' Spaces
+  ///   ;
+  void fastParseRightCurlyBracket(State<String> state) {
+    // v:'}' Spaces
+    final $0 = state.pos;
+    const $1 = '}';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// RightParenthesis =
+  ///   v:')' Spaces
+  ///   ;
+  void fastParseRightParenthesis(State<String> state) {
+    // v:')' Spaces
+    final $0 = state.pos;
+    const $1 = ')';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// RightSquareBracket =
+  ///   v:']' Spaces
+  ///   ;
+  void fastParseRightSquareBracket(State<String> state) {
+    // v:']' Spaces
+    final $0 = state.pos;
+    const $1 = ']';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
     }
   }
 
@@ -402,31 +419,14 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
-  /// SingleQuote =
-  ///   v:'\'' Spaces
-  ///   ;
-  void fastParseSingleQuote(State<String> state) {
-    // v:'\'' Spaces
-    final $0 = state.pos;
-    const $1 = '\'';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-    }
-    if (!state.ok) {
-      state.pos = $0;
-    }
-  }
-
-  /// Slash =
+  /// Solidus =
   ///   v:'/' Spaces
   ///   ;
-  void fastParseSlash(State<String> state) {
+  void fastParseSolidus(State<String> state) {
     // v:'/' Spaces
     final $0 = state.pos;
     const $1 = '/';
@@ -436,7 +436,7 @@ class PegParser {
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -449,15 +449,32 @@ class PegParser {
       // WhiteSpace
       // WhiteSpace
       fastParseWhiteSpace(state);
-      if (!state.ok) {
+      if (!state.ok && state.isRecoverable) {
         // Comment
         // Comment
         fastParseComment(state);
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
+    }
+    state.setOk(true);
+  }
+
+  /// UpwardsArrow =
+  ///   v:'↑' Spaces
+  ///   ;
+  void fastParseUpwardsArrow(State<String> state) {
+    // v:'↑' Spaces
+    final $0 = state.pos;
+    const $1 = '↑';
+    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
     }
   }
 
@@ -478,2501 +495,6 @@ class PegParser {
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
-  }
-
-  /// SemanticAction
-  /// Action =
-  ///   t:(Less v:Type Greater)? b:Block {}
-  ///   ;
-  SemanticAction? parseAction(State<String> state) {
-    SemanticAction? $0;
-    // t:(Less v:Type Greater)? b:Block {}
-    final $1 = state.pos;
-    ResultType? $2;
-    // Less v:Type Greater
-    final $4 = state.pos;
-    // Less
-    fastParseLess(state);
-    if (state.ok) {
-      ResultType? $5;
-      // Type
-      $5 = parseType(state);
-      if (state.ok) {
-        // Greater
-        fastParseGreater(state);
-        if (state.ok) {
-          $2 = $5;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $4;
-    }
-    state.ok = true;
-    if (state.ok) {
-      String? $3;
-      // Block
-      $3 = parseBlock(state);
-      if (state.ok) {
-        SemanticAction? $$;
-        final t = $2;
-        final b = $3!;
-        $$ = SemanticAction(source: b, resultType: t);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Ampersand =
-  ///   v:'&' Spaces
-  ///   ;
-  String? parseAmpersand(State<String> state) {
-    String? $0;
-    // v:'&' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '&';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// AnyCharacter =
-  ///   Dot {}
-  ///   ;
-  Expression? parseAnyCharacter(State<String> state) {
-    Expression? $0;
-    // Dot {}
-    // Dot
-    fastParseDot(state);
-    if (state.ok) {
-      Expression? $$;
-      $$ = AnyCharacterExpression();
-      $0 = $$;
-    }
-    return $0;
-  }
-
-  /// Asterisk =
-  ///   v:'*' Spaces
-  ///   ;
-  String? parseAsterisk(State<String> state) {
-    String? $0;
-    // v:'*' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '*';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Block =
-  ///   '{' v:$BlockBody* CloseBrace
-  ///   ;
-  String? parseBlock(State<String> state) {
-    String? $0;
-    // '{' v:$BlockBody* CloseBrace
-    final $1 = state.pos;
-    const $3 = '{';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      String? $2;
-      final $4 = state.pos;
-      while (true) {
-        // BlockBody
-        fastParseBlockBody(state);
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-      }
-      if (state.ok) {
-        $2 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        // CloseBrace
-        fastParseCloseBrace(state);
-        if (state.ok) {
-          $0 = $2;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Buffer =
-  ///   '@buffer' OpenParenthesis e:Expression CloseParenthesis {}
-  ///   ;
-  Expression? parseBuffer(State<String> state) {
-    Expression? $0;
-    // '@buffer' OpenParenthesis e:Expression CloseParenthesis {}
-    final $1 = state.pos;
-    const $3 = '@buffer';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($3, state.pos);
-    if (state.ok) {
-      state.pos += 7;
-    } else {
-      state.fail(const ErrorExpectedTags([$3]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        Expression? $2;
-        // Expression
-        $2 = parseExpression(state);
-        if (state.ok) {
-          // CloseParenthesis
-          fastParseCloseParenthesis(state);
-          if (state.ok) {
-            Expression? $$;
-            final e = $2!;
-            $$ = BufferExpression(expression: e);
-            $0 = $$;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// CharacterClass =
-  ///     '[^' r:(!']' v:Range)+ CloseBracket {}
-  ///   / '[' r:(!']' v:Range)+ CloseBracket {}
-  ///   ;
-  Expression? parseCharacterClass(State<String> state) {
-    Expression? $0;
-    // '[^' r:(!']' v:Range)+ CloseBracket {}
-    final $1 = state.pos;
-    const $3 = '[^';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      List<(int, int)>? $2;
-      final $4 = <(int, int)>[];
-      while (true) {
-        (int, int)? $5;
-        // !']' v:Range
-        final $6 = state.pos;
-        final $8 = state.pos;
-        const $10 = ']';
-        matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
-        state.ok = !state.ok;
-        if (!state.ok) {
-          final length = $8 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-        }
-        state.pos = $8;
-        if (state.ok) {
-          (int, int)? $7;
-          // Range
-          $7 = parseRange(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          break;
-        }
-        $4.add($5!);
-      }
-      state.ok = $4.isNotEmpty;
-      if (state.ok) {
-        $2 = $4;
-      }
-      if (state.ok) {
-        // CloseBracket
-        fastParseCloseBracket(state);
-        if (state.ok) {
-          Expression? $$;
-          final r = $2!;
-          $$ = CharacterClassExpression(ranges: r, negate: true);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // '[' r:(!']' v:Range)+ CloseBracket {}
-      final $11 = state.pos;
-      const $13 = '[';
-      matchLiteral1(state, $13, const ErrorExpectedTags([$13]));
-      if (state.ok) {
-        List<(int, int)>? $12;
-        final $14 = <(int, int)>[];
-        while (true) {
-          (int, int)? $15;
-          // !']' v:Range
-          final $16 = state.pos;
-          final $18 = state.pos;
-          const $20 = ']';
-          matchLiteral1(state, $20, const ErrorExpectedTags([$20]));
-          state.ok = !state.ok;
-          if (!state.ok) {
-            final length = $18 - state.pos;
-            state.fail(switch (length) {
-              0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(1),
-              2 => const ErrorUnexpectedInput(2),
-              _ => ErrorUnexpectedInput(length)
-            });
-          }
-          state.pos = $18;
-          if (state.ok) {
-            (int, int)? $17;
-            // Range
-            $17 = parseRange(state);
-            if (state.ok) {
-              $15 = $17;
-            }
-          }
-          if (!state.ok) {
-            state.pos = $16;
-          }
-          if (!state.ok) {
-            break;
-          }
-          $14.add($15!);
-        }
-        state.ok = $14.isNotEmpty;
-        if (state.ok) {
-          $12 = $14;
-        }
-        if (state.ok) {
-          // CloseBracket
-          fastParseCloseBracket(state);
-          if (state.ok) {
-            Expression? $$;
-            final r = $12!;
-            $$ = CharacterClassExpression(ranges: r);
-            $0 = $$;
-          }
-        }
-      }
-      if (!state.ok) {
-        state.pos = $11;
-      }
-    }
-    return $0;
-  }
-
-  /// ProductionRule
-  /// Definition =
-  ///     m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon {}
-  ///   / m:Metadata? i:Identifier Equal e:Expression Semicolon {}
-  ///   ;
-  ProductionRule? parseDefinition(State<String> state) {
-    ProductionRule? $0;
-    // m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon {}
-    final $1 = state.pos;
-    List<({String name, List<Object?> arguments})>? $2;
-    // Metadata
-    $2 = parseMetadata(state);
-    state.ok = true;
-    if (state.ok) {
-      ResultType? $3;
-      // Type
-      $3 = parseType(state);
-      state.ok = true;
-      if (state.ok) {
-        String? $4;
-        // Identifier
-        $4 = parseIdentifier(state);
-        if (state.ok) {
-          // Equal
-          fastParseEqual(state);
-          if (state.ok) {
-            Expression? $5;
-            // Expression
-            $5 = parseExpression(state);
-            if (state.ok) {
-              // Semicolon
-              fastParseSemicolon(state);
-              if (state.ok) {
-                ProductionRule? $$;
-                final m = $2;
-                final t = $3;
-                final i = $4!;
-                final e = $5!;
-                $$ = ProductionRule(
-                    name: i,
-                    expression: e as OrderedChoiceExpression,
-                    resultType: t,
-                    metadata: m);
-                $0 = $$;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // m:Metadata? i:Identifier Equal e:Expression Semicolon {}
-      final $6 = state.pos;
-      List<({String name, List<Object?> arguments})>? $7;
-      // Metadata
-      $7 = parseMetadata(state);
-      state.ok = true;
-      if (state.ok) {
-        String? $8;
-        // Identifier
-        $8 = parseIdentifier(state);
-        if (state.ok) {
-          // Equal
-          fastParseEqual(state);
-          if (state.ok) {
-            Expression? $9;
-            // Expression
-            $9 = parseExpression(state);
-            if (state.ok) {
-              // Semicolon
-              fastParseSemicolon(state);
-              if (state.ok) {
-                ProductionRule? $$;
-                final m = $7;
-                final i = $8!;
-                final e = $9!;
-                $$ = ProductionRule(
-                    name: i,
-                    expression: e as OrderedChoiceExpression,
-                    metadata: m);
-                $0 = $$;
-              }
-            }
-          }
-        }
-      }
-      if (!state.ok) {
-        state.pos = $6;
-      }
-    }
-    return $0;
-  }
-
-  /// Dollar =
-  ///   v:'\$' Spaces
-  ///   ;
-  String? parseDollar(State<String> state) {
-    String? $0;
-    // v:'\$' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '\$';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// ErrorHandler =
-  ///   '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis {}
-  ///   ;
-  Expression? parseErrorHandler(State<String> state) {
-    Expression? $0;
-    // '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis {}
-    final $1 = state.pos;
-    const $4 = '@errorHandler';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 13;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        Expression? $2;
-        // Expression
-        $2 = parseExpression(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            String? $3;
-            // Block
-            $3 = parseBlock(state);
-            if (state.ok) {
-              // CloseParenthesis
-              fastParseCloseParenthesis(state);
-              if (state.ok) {
-                Expression? $$;
-                final e = $2!;
-                final a = $3!;
-                $$ = ErrorHandlerExpression(expression: e, handler: a);
-                $0 = $$;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Exclamation =
-  ///   v:'!' Spaces
-  ///   ;
-  String? parseExclamation(State<String> state) {
-    String? $0;
-    // v:'!' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '!';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression =
-  ///   OrderedChoice
-  ///   ;
-  Expression? parseExpression(State<String> state) {
-    Expression? $0;
-    // OrderedChoice
-    // OrderedChoice
-    $0 = parseOrderedChoice(state);
-    return $0;
-  }
-
-  /// ResultType
-  /// GenericType =
-  ///     i:NativeIdentifier Less p:TypeArguments Greater {}
-  ///   / i:NativeIdentifier {}
-  ///   ;
-  ResultType? parseGenericType(State<String> state) {
-    ResultType? $0;
-    // i:NativeIdentifier Less p:TypeArguments Greater {}
-    final $1 = state.pos;
-    String? $2;
-    // NativeIdentifier
-    $2 = parseNativeIdentifier(state);
-    if (state.ok) {
-      // Less
-      fastParseLess(state);
-      if (state.ok) {
-        List<ResultType>? $3;
-        // TypeArguments
-        $3 = parseTypeArguments(state);
-        if (state.ok) {
-          // Greater
-          fastParseGreater(state);
-          if (state.ok) {
-            ResultType? $$;
-            final i = $2!;
-            final p = $3!;
-            $$ = GenericType(name: i, arguments: p);
-            $0 = $$;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // i:NativeIdentifier {}
-      String? $5;
-      // NativeIdentifier
-      $5 = parseNativeIdentifier(state);
-      if (state.ok) {
-        ResultType? $$;
-        final i = $5!;
-        $$ = GenericType(name: i);
-        $0 = $$;
-      }
-    }
-    return $0;
-  }
-
-  /// Globals =
-  ///   '%{' v:$(!'}%' v:.)* '}%' Spaces
-  ///   ;
-  String? parseGlobals(State<String> state) {
-    String? $0;
-    // '%{' v:$(!'}%' v:.)* '}%' Spaces
-    final $1 = state.pos;
-    const $3 = '%{';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      String? $2;
-      final $4 = state.pos;
-      const $6 = '}%';
-      final $5 = state.input.indexOf($6, state.pos);
-      state.ok = $5 != -1;
-      if (state.ok) {
-        state.pos = $5;
-      } else {
-        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
-      }
-      if (state.ok) {
-        $2 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        const $7 = '}%';
-        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
-        if (state.ok) {
-          // Spaces
-          fastParseSpaces(state);
-          if (state.ok) {
-            $0 = $2;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Group =
-  ///   OpenParenthesis e:Expression CloseParenthesis {}
-  ///   ;
-  Expression? parseGroup(State<String> state) {
-    Expression? $0;
-    // OpenParenthesis e:Expression CloseParenthesis {}
-    final $1 = state.pos;
-    // OpenParenthesis
-    fastParseOpenParenthesis(state);
-    if (state.ok) {
-      Expression? $2;
-      // Expression
-      $2 = parseExpression(state);
-      if (state.ok) {
-        // CloseParenthesis
-        fastParseCloseParenthesis(state);
-        if (state.ok) {
-          Expression? $$;
-          final e = $2!;
-          $$ = GroupExpression(expression: e);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// int
-  /// HexChar =
-  ///   'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
-  ///   ;
-  int? parseHexChar(State<String> state) {
-    int? $0;
-    // 'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
-    final $1 = state.pos;
-    const $3 = 'u{';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      String? $2;
-      final $4 = state.pos;
-      final $7 = state.pos;
-      final $6 = state.input;
-      while (state.pos < $6.length) {
-        final $5 = $6.codeUnitAt(state.pos);
-        state.ok =
-            $5 <= 90 ? $5 >= 48 && $5 <= 57 || $5 >= 65 : $5 >= 97 && $5 <= 122;
-        if (!state.ok) {
-          break;
-        }
-        state.pos++;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-      state.ok = state.pos > $7;
-      if (state.ok) {
-        $2 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        const $8 = '}';
-        matchLiteral1(state, $8, const ErrorExpectedTags([$8]));
-        if (state.ok) {
-          int? $$;
-          final v = $2!;
-          $$ = int.parse(v, radix: 16);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// String
-  /// Identifier =
-  ///   i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
-  ///   ;
-  String? parseIdentifier(State<String> state) {
-    String? $0;
-    // i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
-    final $1 = state.pos;
-    String? $2;
-    final $3 = state.pos;
-    // [a-zA-Z] [a-zA-Z_0-9]*
-    final $4 = state.pos;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
-      final $5 = state.input.codeUnitAt(state.pos);
-      state.ok = $5 >= 65 && $5 <= 90 || $5 >= 97 && $5 <= 122;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    if (state.ok) {
-      final $7 = state.input;
-      while (state.pos < $7.length) {
-        final $6 = $7.codeUnitAt(state.pos);
-        state.ok = $6 <= 90
-            ? $6 >= 48 && $6 <= 57 || $6 >= 65
-            : $6 == 95 || $6 >= 97 && $6 <= 122;
-        if (!state.ok) {
-          break;
-        }
-        state.pos++;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-      state.ok = true;
-    }
-    if (!state.ok) {
-      state.pos = $4;
-    }
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// int
-  /// Integer =
-  ///   v:$[0-9]+ {}
-  ///   ;
-  int? parseInteger(State<String> state) {
-    int? $0;
-    // v:$[0-9]+ {}
-    String? $2;
-    final $3 = state.pos;
-    final $6 = state.pos;
-    final $5 = state.input;
-    while (state.pos < $5.length) {
-      final $4 = $5.codeUnitAt(state.pos);
-      state.ok = $4 >= 48 && $4 <= 57;
-      if (!state.ok) {
-        break;
-      }
-      state.pos++;
-    }
-    state.fail(const ErrorUnexpectedCharacter());
-    state.ok = state.pos > $6;
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      int? $$;
-      final v = $2!;
-      $$ = int.parse(v);
-      $0 = $$;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Literal =
-  ///   '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
-  ///   ;
-  Expression? parseLiteral(State<String> state) {
-    Expression? $0;
-    // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
-    final $1 = state.pos;
-    const $3 = '\'';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      List<int>? $2;
-      final $4 = <int>[];
-      while (true) {
-        int? $5;
-        // !'\'' c:StringChar
-        final $6 = state.pos;
-        final $8 = state.pos;
-        const $10 = '\'';
-        matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
-        state.ok = !state.ok;
-        if (!state.ok) {
-          final length = $8 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-        }
-        state.pos = $8;
-        if (state.ok) {
-          int? $7;
-          // StringChar
-          $7 = parseStringChar(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $2 = $4;
-      }
-      if (state.ok) {
-        const $11 = '\'';
-        matchLiteral1(state, $11, const ErrorExpectedTags([$11]));
-        if (state.ok) {
-          // Spaces
-          fastParseSpaces(state);
-          if (state.ok) {
-            Expression? $$;
-            final cs = $2!;
-            $$ = LiteralExpression(string: String.fromCharCodes(cs));
-            $0 = $$;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// MatchString =
-  ///   '@matchString' OpenParenthesis b:Block CloseParenthesis {}
-  ///   ;
-  Expression? parseMatchString(State<String> state) {
-    Expression? $0;
-    // '@matchString' OpenParenthesis b:Block CloseParenthesis {}
-    final $1 = state.pos;
-    const $3 = '@matchString';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($3, state.pos);
-    if (state.ok) {
-      state.pos += 12;
-    } else {
-      state.fail(const ErrorExpectedTags([$3]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        String? $2;
-        // Block
-        $2 = parseBlock(state);
-        if (state.ok) {
-          // CloseParenthesis
-          fastParseCloseParenthesis(state);
-          if (state.ok) {
-            Expression? $$;
-            final b = $2!;
-            $$ = MatchStringExpression(value: b);
-            $0 = $$;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Members =
-  ///   '%%' v:$(!'%%' v:.)* '%%' Spaces
-  ///   ;
-  String? parseMembers(State<String> state) {
-    String? $0;
-    // '%%' v:$(!'%%' v:.)* '%%' Spaces
-    final $1 = state.pos;
-    const $3 = '%%';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      String? $2;
-      final $4 = state.pos;
-      const $6 = '%%';
-      final $5 = state.input.indexOf($6, state.pos);
-      state.ok = $5 != -1;
-      if (state.ok) {
-        state.pos = $5;
-      } else {
-        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
-      }
-      if (state.ok) {
-        $2 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        const $7 = '%%';
-        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
-        if (state.ok) {
-          // Spaces
-          fastParseSpaces(state);
-          if (state.ok) {
-            $0 = $2;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<({String name, List<Object?> arguments})>
-  /// Metadata =
-  ///   h:MetadataElement t:(Spaces v:MetadataElement)* {}
-  ///   ;
-  List<({String name, List<Object?> arguments})>? parseMetadata(
-      State<String> state) {
-    List<({String name, List<Object?> arguments})>? $0;
-    // h:MetadataElement t:(Spaces v:MetadataElement)* {}
-    final $1 = state.pos;
-    ({String name, List<Object?> arguments})? $2;
-    // MetadataElement
-    $2 = parseMetadataElement(state);
-    if (state.ok) {
-      List<({String name, List<Object?> arguments})>? $3;
-      final $4 = <({String name, List<Object?> arguments})>[];
-      while (true) {
-        ({String name, List<Object?> arguments})? $5;
-        // Spaces v:MetadataElement
-        final $6 = state.pos;
-        // Spaces
-        fastParseSpaces(state);
-        if (state.ok) {
-          ({String name, List<Object?> arguments})? $7;
-          // MetadataElement
-          $7 = parseMetadataElement(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<({String name, List<Object?> arguments})>? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// MetadataArgument =
-  ///   '\'' v:StringChar* SingleQuote {}
-  ///   ;
-  Object? parseMetadataArgument(State<String> state) {
-    Object? $0;
-    // '\'' v:StringChar* SingleQuote {}
-    final $1 = state.pos;
-    const $3 = '\'';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      List<int>? $2;
-      final $4 = <int>[];
-      while (true) {
-        int? $5;
-        // StringChar
-        $5 = parseStringChar(state);
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $2 = $4;
-      }
-      if (state.ok) {
-        // SingleQuote
-        fastParseSingleQuote(state);
-        if (state.ok) {
-          Object? $$;
-          final v = $2!;
-          $$ = String.fromCharCodes(v);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<Object?>
-  /// MetadataArgumentList =
-  ///   h:MetadataArgument t:(Comma v:MetadataArgument)* {}
-  ///   ;
-  List<Object?>? parseMetadataArgumentList(State<String> state) {
-    List<Object?>? $0;
-    // h:MetadataArgument t:(Comma v:MetadataArgument)* {}
-    final $1 = state.pos;
-    Object? $2;
-    // MetadataArgument
-    $2 = parseMetadataArgument(state);
-    if (state.ok) {
-      List<Object?>? $3;
-      final $4 = <Object?>[];
-      while (true) {
-        Object? $5;
-        // Comma v:MetadataArgument
-        final $6 = state.pos;
-        // Comma
-        fastParseComma(state);
-        if (state.ok) {
-          Object? $7;
-          // MetadataArgument
-          $7 = parseMetadataArgument(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<Object?>? $$;
-        final h = $2;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<Object?>
-  /// MetadataArguments =
-  ///   OpenParenthesis v:MetadataArgumentList? CloseParenthesis {}
-  ///   ;
-  List<Object?>? parseMetadataArguments(State<String> state) {
-    List<Object?>? $0;
-    // OpenParenthesis v:MetadataArgumentList? CloseParenthesis {}
-    final $1 = state.pos;
-    // OpenParenthesis
-    fastParseOpenParenthesis(state);
-    if (state.ok) {
-      List<Object?>? $2;
-      // MetadataArgumentList
-      $2 = parseMetadataArgumentList(state);
-      state.ok = true;
-      if (state.ok) {
-        // CloseParenthesis
-        fastParseCloseParenthesis(state);
-        if (state.ok) {
-          List<Object?>? $$;
-          final v = $2;
-          $$ = v ?? const [];
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// ({String name, List<Object?> arguments})
-  /// MetadataElement =
-  ///   AtSign i:Identifier a:MetadataArguments? {}
-  ///   ;
-  ({String name, List<Object?> arguments})? parseMetadataElement(
-      State<String> state) {
-    ({String name, List<Object?> arguments})? $0;
-    // AtSign i:Identifier a:MetadataArguments? {}
-    final $1 = state.pos;
-    // AtSign
-    fastParseAtSign(state);
-    if (state.ok) {
-      String? $2;
-      // Identifier
-      $2 = parseIdentifier(state);
-      if (state.ok) {
-        List<Object?>? $3;
-        // MetadataArguments
-        $3 = parseMetadataArguments(state);
-        state.ok = true;
-        if (state.ok) {
-          ({String name, List<Object?> arguments})? $$;
-          final i = $2!;
-          final a = $3;
-          $$ = (name: '@$i', arguments: a ?? const []);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// (int?, int?)
-  /// MinMax =
-  ///     m:Integer Comma n:Integer {}
-  ///   / Comma n:Integer {}
-  ///   / m:Integer Comma {}
-  ///   / n:Integer {}
-  ///   ;
-  (int?, int?)? parseMinMax(State<String> state) {
-    (int?, int?)? $0;
-    // m:Integer Comma n:Integer {}
-    final $1 = state.pos;
-    int? $2;
-    // Integer
-    $2 = parseInteger(state);
-    if (state.ok) {
-      // Comma
-      fastParseComma(state);
-      if (state.ok) {
-        int? $3;
-        // Integer
-        $3 = parseInteger(state);
-        if (state.ok) {
-          (int?, int?)? $$;
-          final m = $2!;
-          final n = $3!;
-          $$ = (m, n);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // Comma n:Integer {}
-      final $4 = state.pos;
-      // Comma
-      fastParseComma(state);
-      if (state.ok) {
-        int? $5;
-        // Integer
-        $5 = parseInteger(state);
-        if (state.ok) {
-          (int?, int?)? $$;
-          final n = $5!;
-          $$ = (null, n);
-          $0 = $$;
-        }
-      }
-      if (!state.ok) {
-        state.pos = $4;
-      }
-      if (!state.ok) {
-        // m:Integer Comma {}
-        final $6 = state.pos;
-        int? $7;
-        // Integer
-        $7 = parseInteger(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            (int?, int?)? $$;
-            final m = $7!;
-            $$ = (m, null);
-            $0 = $$;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          // n:Integer {}
-          int? $9;
-          // Integer
-          $9 = parseInteger(state);
-          if (state.ok) {
-            (int?, int?)? $$;
-            final n = $9!;
-            $$ = (n, n);
-            $0 = $$;
-          }
-        }
-      }
-    }
-    return $0;
-  }
-
-  /// ({ResultType type, String name})
-  /// NamedField =
-  ///   type:Type name:NativeIdentifier
-  ///   ;
-  ({ResultType type, String name})? parseNamedField(State<String> state) {
-    ({ResultType type, String name})? $0;
-    // type:Type name:NativeIdentifier
-    final $1 = state.pos;
-    ResultType? $2;
-    // Type
-    $2 = parseType(state);
-    if (state.ok) {
-      String? $3;
-      // NativeIdentifier
-      $3 = parseNativeIdentifier(state);
-      if (state.ok) {
-        $0 = (type: $2!, name: $3!);
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<({ResultType type, String name})>
-  /// NamedFields =
-  ///   OpenBrace h:NamedField t:(Comma v:NamedField)* CloseBrace {}
-  ///   ;
-  List<({ResultType type, String name})>? parseNamedFields(
-      State<String> state) {
-    List<({ResultType type, String name})>? $0;
-    // OpenBrace h:NamedField t:(Comma v:NamedField)* CloseBrace {}
-    final $1 = state.pos;
-    // OpenBrace
-    fastParseOpenBrace(state);
-    if (state.ok) {
-      ({ResultType type, String name})? $2;
-      // NamedField
-      $2 = parseNamedField(state);
-      if (state.ok) {
-        List<({ResultType type, String name})>? $3;
-        final $4 = <({ResultType type, String name})>[];
-        while (true) {
-          ({ResultType type, String name})? $5;
-          // Comma v:NamedField
-          final $6 = state.pos;
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            ({ResultType type, String name})? $7;
-            // NamedField
-            $7 = parseNamedField(state);
-            if (state.ok) {
-              $5 = $7;
-            }
-          }
-          if (!state.ok) {
-            state.pos = $6;
-          }
-          if (!state.ok) {
-            state.ok = true;
-            break;
-          }
-          $4.add($5!);
-        }
-        if (state.ok) {
-          $3 = $4;
-        }
-        if (state.ok) {
-          // CloseBrace
-          fastParseCloseBrace(state);
-          if (state.ok) {
-            List<({ResultType type, String name})>? $$;
-            final h = $2!;
-            final t = $3!;
-            $$ = [h, ...t];
-            $0 = $$;
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// String
-  /// NativeIdentifier =
-  ///   i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
-  ///   ;
-  String? parseNativeIdentifier(State<String> state) {
-    String? $0;
-    // i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
-    final $1 = state.pos;
-    String? $2;
-    final $3 = state.pos;
-    // [$a-zA-Z_] [$0-9a-zA-Z_]*
-    final $4 = state.pos;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
-      final $5 = state.input.codeUnitAt(state.pos);
-      state.ok =
-          $5 <= 90 ? $5 == 36 || $5 >= 65 : $5 == 95 || $5 >= 97 && $5 <= 122;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    if (state.ok) {
-      final $7 = state.input;
-      while (state.pos < $7.length) {
-        final $6 = $7.codeUnitAt(state.pos);
-        state.ok = $6 <= 90
-            ? $6 <= 57
-                ? $6 == 36 || $6 >= 48
-                : $6 >= 65
-            : $6 == 95 || $6 >= 97 && $6 <= 122;
-        if (!state.ok) {
-          break;
-        }
-        state.pos++;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-      state.ok = true;
-    }
-    if (!state.ok) {
-      state.pos = $4;
-    }
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// OrderedChoice =
-  ///   h:Sequence t:(Slash v:Sequence)* {}
-  ///   ;
-  Expression? parseOrderedChoice(State<String> state) {
-    Expression? $0;
-    // h:Sequence t:(Slash v:Sequence)* {}
-    final $1 = state.pos;
-    Expression? $2;
-    // Sequence
-    $2 = parseSequence(state);
-    if (state.ok) {
-      List<Expression>? $3;
-      final $4 = <Expression>[];
-      while (true) {
-        Expression? $5;
-        // Slash v:Sequence
-        final $6 = state.pos;
-        // Slash
-        fastParseSlash(state);
-        if (state.ok) {
-          Expression? $7;
-          // Sequence
-          $7 = parseSequence(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        Expression? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = OrderedChoiceExpression(expressions: [h, ...t]);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Plus =
-  ///   v:'+' Spaces
-  ///   ;
-  String? parsePlus(State<String> state) {
-    String? $0;
-    // v:'+' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '+';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// ({ResultType type, String? name})
-  /// PositionalField =
-  ///   type:Type name:NativeIdentifier?
-  ///   ;
-  ({ResultType type, String? name})? parsePositionalField(State<String> state) {
-    ({ResultType type, String? name})? $0;
-    // type:Type name:NativeIdentifier?
-    final $1 = state.pos;
-    ResultType? $2;
-    // Type
-    $2 = parseType(state);
-    if (state.ok) {
-      String? $3;
-      // NativeIdentifier
-      $3 = parseNativeIdentifier(state);
-      state.ok = true;
-      if (state.ok) {
-        $0 = (type: $2!, name: $3);
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<({ResultType type, String? name})>
-  /// PositionalFields =
-  ///   h:PositionalField t:(Comma v:PositionalField)* {}
-  ///   ;
-  List<({ResultType type, String? name})>? parsePositionalFields(
-      State<String> state) {
-    List<({ResultType type, String? name})>? $0;
-    // h:PositionalField t:(Comma v:PositionalField)* {}
-    final $1 = state.pos;
-    ({ResultType type, String? name})? $2;
-    // PositionalField
-    $2 = parsePositionalField(state);
-    if (state.ok) {
-      List<({ResultType type, String? name})>? $3;
-      final $4 = <({ResultType type, String? name})>[];
-      while (true) {
-        ({ResultType type, String? name})? $5;
-        // Comma v:PositionalField
-        final $6 = state.pos;
-        // Comma
-        fastParseComma(state);
-        if (state.ok) {
-          ({ResultType type, String? name})? $7;
-          // PositionalField
-          $7 = parsePositionalField(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<({ResultType type, String? name})>? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Prefix =
-  ///   p:(Dollar / Ampersand / Exclamation)? s:Suffix {}
-  ///   ;
-  Expression? parsePrefix(State<String> state) {
-    Expression? $0;
-    // p:(Dollar / Ampersand / Exclamation)? s:Suffix {}
-    final $1 = state.pos;
-    String? $2;
-    // Dollar
-    // Dollar
-    $2 = parseDollar(state);
-    if (!state.ok) {
-      // Ampersand
-      // Ampersand
-      $2 = parseAmpersand(state);
-      if (!state.ok) {
-        // Exclamation
-        // Exclamation
-        $2 = parseExclamation(state);
-      }
-    }
-    state.ok = true;
-    if (state.ok) {
-      Expression? $3;
-      // Suffix
-      $3 = parseSuffix(state);
-      if (state.ok) {
-        Expression? $$;
-        final p = $2;
-        final s = $3!;
-        $$ = _buildPrefix(p, s);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Primary =
-  ///     Symbol
-  ///   / CharacterClass
-  ///   / Literal
-  ///   / CharacterClass
-  ///   / AnyCharacter
-  ///   / Group
-  ///   / Buffer
-  ///   / ErrorHandler
-  ///   / MatchString
-  ///   / SepBy
-  ///   / StringChars
-  ///   / Verify
-  ///   ;
-  Expression? parsePrimary(State<String> state) {
-    Expression? $0;
-    // Symbol
-    // Symbol
-    $0 = parseSymbol(state);
-    if (!state.ok) {
-      // CharacterClass
-      // CharacterClass
-      $0 = parseCharacterClass(state);
-      if (!state.ok) {
-        // Literal
-        // Literal
-        $0 = parseLiteral(state);
-        if (!state.ok) {
-          // CharacterClass
-          // CharacterClass
-          $0 = parseCharacterClass(state);
-          if (!state.ok) {
-            // AnyCharacter
-            // AnyCharacter
-            $0 = parseAnyCharacter(state);
-            if (!state.ok) {
-              // Group
-              // Group
-              $0 = parseGroup(state);
-              if (!state.ok) {
-                // Buffer
-                // Buffer
-                $0 = parseBuffer(state);
-                if (!state.ok) {
-                  // ErrorHandler
-                  // ErrorHandler
-                  $0 = parseErrorHandler(state);
-                  if (!state.ok) {
-                    // MatchString
-                    // MatchString
-                    $0 = parseMatchString(state);
-                    if (!state.ok) {
-                      // SepBy
-                      // SepBy
-                      $0 = parseSepBy(state);
-                      if (!state.ok) {
-                        // StringChars
-                        // StringChars
-                        $0 = parseStringChars(state);
-                        if (!state.ok) {
-                          // Verify
-                          // Verify
-                          $0 = parseVerify(state);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    return $0;
-  }
-
-  /// Question =
-  ///   v:'?' Spaces
-  ///   ;
-  String? parseQuestion(State<String> state) {
-    String? $0;
-    // v:'?' Spaces
-    final $1 = state.pos;
-    String? $2;
-    const $3 = '?';
-    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      // Spaces
-      fastParseSpaces(state);
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// (int, int)
-  /// Range =
-  ///     s:RangeChar '-' e:RangeChar {}
-  ///   / s:RangeChar {}
-  ///   ;
-  (int, int)? parseRange(State<String> state) {
-    (int, int)? $0;
-    // s:RangeChar '-' e:RangeChar {}
-    final $1 = state.pos;
-    int? $2;
-    // RangeChar
-    $2 = parseRangeChar(state);
-    if (state.ok) {
-      const $4 = '-';
-      matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
-      if (state.ok) {
-        int? $3;
-        // RangeChar
-        $3 = parseRangeChar(state);
-        if (state.ok) {
-          (int, int)? $$;
-          final s = $2!;
-          final e = $3!;
-          $$ = (s, e);
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // s:RangeChar {}
-      int? $6;
-      // RangeChar
-      $6 = parseRangeChar(state);
-      if (state.ok) {
-        (int, int)? $$;
-        final s = $6!;
-        $$ = (s, s);
-        $0 = $$;
-      }
-    }
-    return $0;
-  }
-
-  /// int
-  /// RangeChar =
-  ///     '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
-  ///   / !'\\' c:.
-  ///   ;
-  int? parseRangeChar(State<String> state) {
-    int? $0;
-    // '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
-    final $1 = state.pos;
-    const $3 = '\\';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
-    if (state.ok) {
-      int? $2;
-      // c:[-nrt\]\\^] <int>{}
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 == 110 ||
-            ($5 < 110
-                ? $5 <= 94
-                    ? $5 == 45 || $5 >= 92
-                    : false
-                : $5 == 114 || $5 == 116);
-        if (state.ok) {
-          state.pos++;
-          $2 = $5;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (state.ok) {
-        int? $$;
-        final c = $2!;
-        $$ = _escape(c);
-        $2 = $$;
-      }
-      if (!state.ok) {
-        // HexChar
-        // HexChar
-        $2 = parseHexChar(state);
-      }
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // !'\\' c:.
-      final $7 = state.pos;
-      final $9 = state.pos;
-      const $11 = '\\';
-      matchLiteral1(state, $11, const ErrorExpectedTags([$11]));
-      state.ok = !state.ok;
-      if (!state.ok) {
-        final length = $9 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(1),
-          2 => const ErrorUnexpectedInput(2),
-          _ => ErrorUnexpectedInput(length)
-        });
-      }
-      state.pos = $9;
-      if (state.ok) {
-        int? $8;
-        final $13 = state.input;
-        if (state.pos < $13.length) {
-          final $12 = $13.runeAt(state.pos);
-          state.pos += $12 > 0xffff ? 2 : 1;
-          state.ok = true;
-          $8 = $12;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (state.ok) {
-          $0 = $8;
-        }
-      }
-      if (!state.ok) {
-        state.pos = $7;
-      }
-    }
-    return $0;
-  }
-
-  /// ResultType
-  /// RecordType =
-  ///   OpenParenthesis v:(n:NamedFields <RecordType>{} / p:PositionalFields Comma n:NamedFields <RecordType>{} / h:PositionalField Comma t:PositionalFields <RecordType>{} / t:PositionalField Comma <RecordType>{}) CloseParenthesis
-  ///   ;
-  ResultType? parseRecordType(State<String> state) {
-    ResultType? $0;
-    // OpenParenthesis v:(n:NamedFields <RecordType>{} / p:PositionalFields Comma n:NamedFields <RecordType>{} / h:PositionalField Comma t:PositionalFields <RecordType>{} / t:PositionalField Comma <RecordType>{}) CloseParenthesis
-    final $1 = state.pos;
-    // OpenParenthesis
-    fastParseOpenParenthesis(state);
-    if (state.ok) {
-      RecordType? $2;
-      // n:NamedFields <RecordType>{}
-      List<({ResultType type, String name})>? $4;
-      // NamedFields
-      $4 = parseNamedFields(state);
-      if (state.ok) {
-        RecordType? $$;
-        final n = $4!;
-        $$ = RecordType(named: n);
-        $2 = $$;
-      }
-      if (!state.ok) {
-        // p:PositionalFields Comma n:NamedFields <RecordType>{}
-        final $5 = state.pos;
-        List<({ResultType type, String? name})>? $6;
-        // PositionalFields
-        $6 = parsePositionalFields(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            List<({ResultType type, String name})>? $7;
-            // NamedFields
-            $7 = parseNamedFields(state);
-            if (state.ok) {
-              RecordType? $$;
-              final p = $6!;
-              final n = $7!;
-              $$ = RecordType(positional: p, named: n);
-              $2 = $$;
-            }
-          }
-        }
-        if (!state.ok) {
-          state.pos = $5;
-        }
-        if (!state.ok) {
-          // h:PositionalField Comma t:PositionalFields <RecordType>{}
-          final $8 = state.pos;
-          ({ResultType type, String? name})? $9;
-          // PositionalField
-          $9 = parsePositionalField(state);
-          if (state.ok) {
-            // Comma
-            fastParseComma(state);
-            if (state.ok) {
-              List<({ResultType type, String? name})>? $10;
-              // PositionalFields
-              $10 = parsePositionalFields(state);
-              if (state.ok) {
-                RecordType? $$;
-                final h = $9!;
-                final t = $10!;
-                $$ = RecordType(positional: [h, ...t]);
-                $2 = $$;
-              }
-            }
-          }
-          if (!state.ok) {
-            state.pos = $8;
-          }
-          if (!state.ok) {
-            // t:PositionalField Comma <RecordType>{}
-            final $11 = state.pos;
-            ({ResultType type, String? name})? $12;
-            // PositionalField
-            $12 = parsePositionalField(state);
-            if (state.ok) {
-              // Comma
-              fastParseComma(state);
-              if (state.ok) {
-                RecordType? $$;
-                final t = $12!;
-                $$ = RecordType(positional: [t]);
-                $2 = $$;
-              }
-            }
-            if (!state.ok) {
-              state.pos = $11;
-            }
-          }
-        }
-      }
-      if (state.ok) {
-        // CloseParenthesis
-        fastParseCloseParenthesis(state);
-        if (state.ok) {
-          $0 = $2;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// SepBy =
-  ///   '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis {}
-  ///   ;
-  Expression? parseSepBy(State<String> state) {
-    Expression? $0;
-    // '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis {}
-    final $1 = state.pos;
-    const $4 = '@sepBy';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 6;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        Expression? $2;
-        // Expression
-        $2 = parseExpression(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            Expression? $3;
-            // Expression
-            $3 = parseExpression(state);
-            if (state.ok) {
-              // CloseParenthesis
-              fastParseCloseParenthesis(state);
-              if (state.ok) {
-                Expression? $$;
-                final e = $2!;
-                final s = $3!;
-                $$ = SepByExpression(expression: e, separator: s);
-                $0 = $$;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Sequence =
-  ///   e:SequenceElement+ a:Action? {}
-  ///   ;
-  Expression? parseSequence(State<String> state) {
-    Expression? $0;
-    // e:SequenceElement+ a:Action? {}
-    final $1 = state.pos;
-    List<Expression>? $2;
-    final $4 = <Expression>[];
-    while (true) {
-      Expression? $5;
-      // SequenceElement
-      $5 = parseSequenceElement(state);
-      if (!state.ok) {
-        break;
-      }
-      $4.add($5!);
-    }
-    state.ok = $4.isNotEmpty;
-    if (state.ok) {
-      $2 = $4;
-    }
-    if (state.ok) {
-      SemanticAction? $3;
-      // Action
-      $3 = parseAction(state);
-      state.ok = true;
-      if (state.ok) {
-        Expression? $$;
-        final e = $2!;
-        final a = $3;
-        $$ = SequenceExpression(expressions: e, action: a);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// SequenceElement =
-  ///     i:Identifier Colon p:Prefix <Expression>{}
-  ///   / Prefix
-  ///   ;
-  Expression? parseSequenceElement(State<String> state) {
-    Expression? $0;
-    // i:Identifier Colon p:Prefix <Expression>{}
-    final $1 = state.pos;
-    String? $2;
-    // Identifier
-    $2 = parseIdentifier(state);
-    if (state.ok) {
-      // Colon
-      fastParseColon(state);
-      if (state.ok) {
-        Expression? $3;
-        // Prefix
-        $3 = parsePrefix(state);
-        if (state.ok) {
-          Expression? $$;
-          final i = $2!;
-          final p = $3!;
-          $$ = p..semanticVariable = i;
-          $0 = $$;
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // Prefix
-      // Prefix
-      $0 = parsePrefix(state);
-    }
-    return $0;
-  }
-
-  /// Grammar
-  /// Start =
-  ///   Spaces g:Globals? m:Members? d:Definition* !. {}
-  ///   ;
-  Grammar? parseStart(State<String> state) {
-    Grammar? $0;
-    // Spaces g:Globals? m:Members? d:Definition* !. {}
-    final $1 = state.pos;
-    // Spaces
-    fastParseSpaces(state);
-    if (state.ok) {
-      String? $2;
-      // Globals
-      $2 = parseGlobals(state);
-      state.ok = true;
-      if (state.ok) {
-        String? $3;
-        // Members
-        $3 = parseMembers(state);
-        state.ok = true;
-        if (state.ok) {
-          List<ProductionRule>? $4;
-          final $5 = <ProductionRule>[];
-          while (true) {
-            ProductionRule? $6;
-            // Definition
-            $6 = parseDefinition(state);
-            if (!state.ok) {
-              state.ok = true;
-              break;
-            }
-            $5.add($6!);
-          }
-          if (state.ok) {
-            $4 = $5;
-          }
-          if (state.ok) {
-            final $7 = state.pos;
-            final $10 = state.input;
-            if (state.pos < $10.length) {
-              final $9 = $10.runeAt(state.pos);
-              state.pos += $9 > 0xffff ? 2 : 1;
-              state.ok = true;
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            state.ok = !state.ok;
-            if (!state.ok) {
-              final length = $7 - state.pos;
-              state.fail(switch (length) {
-                0 => const ErrorUnexpectedInput(0),
-                1 => const ErrorUnexpectedInput(1),
-                2 => const ErrorUnexpectedInput(2),
-                _ => ErrorUnexpectedInput(length)
-              });
-            }
-            state.pos = $7;
-            if (state.ok) {
-              Grammar? $$;
-              final g = $2;
-              final m = $3;
-              final d = $4!;
-              $$ = Grammar(rules: d, globals: g, members: m);
-              $0 = $$;
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// int
-  /// StringChar =
-  ///     [ -[\]-\u{10ffff}]
-  ///   / '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
-  ///   ;
-  int? parseStringChar(State<String> state) {
-    int? $0;
-    // [ -[\]-\u{10ffff}]
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
-      final $2 = state.input.runeAt(state.pos);
-      state.ok = $2 >= 32 && $2 <= 91 || $2 >= 93 && $2 <= 1114111;
-      if (state.ok) {
-        state.pos += $2 > 0xffff ? 2 : 1;
-        $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
-      }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    if (!state.ok) {
-      // '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
-      final $3 = state.pos;
-      const $5 = '\\';
-      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
-      if (state.ok) {
-        int? $4;
-        // c:[rnt'"\\] <int>{}
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $7 = state.input.codeUnitAt(state.pos);
-          state.ok = $7 == 92 ||
-              ($7 < 92
-                  ? $7 == 39 || $7 == 34
-                  : $7 == 114 || ($7 < 114 ? $7 == 110 : $7 == 116));
-          if (state.ok) {
-            state.pos++;
-            $4 = $7;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (state.ok) {
-          int? $$;
-          final c = $4!;
-          $$ = _escape(c);
-          $4 = $$;
-        }
-        if (!state.ok) {
-          // HexChar
-          // HexChar
-          $4 = parseHexChar(state);
-        }
-        if (state.ok) {
-          $0 = $4;
-        }
-      }
-      if (!state.ok) {
-        state.pos = $3;
-      }
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// StringChars =
-  ///   '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis {}
-  ///   ;
-  Expression? parseStringChars(State<String> state) {
-    Expression? $0;
-    // '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis {}
-    final $1 = state.pos;
-    const $5 = '@stringChars';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($5, state.pos);
-    if (state.ok) {
-      state.pos += 12;
-    } else {
-      state.fail(const ErrorExpectedTags([$5]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        Expression? $2;
-        // Expression
-        $2 = parseExpression(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            Expression? $3;
-            // Expression
-            $3 = parseExpression(state);
-            if (state.ok) {
-              // Comma
-              fastParseComma(state);
-              if (state.ok) {
-                Expression? $4;
-                // Expression
-                $4 = parseExpression(state);
-                if (state.ok) {
-                  // CloseParenthesis
-                  fastParseCloseParenthesis(state);
-                  if (state.ok) {
-                    Expression? $$;
-                    final n = $2!;
-                    final c = $3!;
-                    final e = $4!;
-                    $$ = StringCharsExpression(
-                        normalCharacters: n, escapeCharacter: c, escape: e);
-                    $0 = $$;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Suffix =
-  ///   p:Primary s:(Asterisk / Question / Plus / OpenBrace v:MinMax CloseBrace)? {}
-  ///   ;
-  Expression? parseSuffix(State<String> state) {
-    Expression? $0;
-    // p:Primary s:(Asterisk / Question / Plus / OpenBrace v:MinMax CloseBrace)? {}
-    final $1 = state.pos;
-    Expression? $2;
-    // Primary
-    $2 = parsePrimary(state);
-    if (state.ok) {
-      Object? $3;
-      // Asterisk
-      // Asterisk
-      $3 = parseAsterisk(state);
-      if (!state.ok) {
-        // Question
-        // Question
-        $3 = parseQuestion(state);
-        if (!state.ok) {
-          // Plus
-          // Plus
-          $3 = parsePlus(state);
-          if (!state.ok) {
-            // OpenBrace v:MinMax CloseBrace
-            final $7 = state.pos;
-            // OpenBrace
-            fastParseOpenBrace(state);
-            if (state.ok) {
-              (int?, int?)? $8;
-              // MinMax
-              $8 = parseMinMax(state);
-              if (state.ok) {
-                // CloseBrace
-                fastParseCloseBrace(state);
-                if (state.ok) {
-                  $3 = $8;
-                }
-              }
-            }
-            if (!state.ok) {
-              state.pos = $7;
-            }
-          }
-        }
-      }
-      state.ok = true;
-      if (state.ok) {
-        Expression? $$;
-        final p = $2!;
-        final s = $3;
-        $$ = _buildSuffix(s, p);
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Symbol =
-  ///   i:Identifier {}
-  ///   ;
-  Expression? parseSymbol(State<String> state) {
-    Expression? $0;
-    // i:Identifier {}
-    String? $2;
-    // Identifier
-    $2 = parseIdentifier(state);
-    if (state.ok) {
-      Expression? $$;
-      final i = $2!;
-      $$ = SymbolExpression(name: i);
-      $0 = $$;
-    }
-    return $0;
-  }
-
-  /// ResultType
-  /// Type =
-  ///   t:(GenericType / RecordType) q:Question? {}
-  ///   ;
-  ResultType? parseType(State<String> state) {
-    ResultType? $0;
-    // t:(GenericType / RecordType) q:Question? {}
-    final $1 = state.pos;
-    ResultType? $2;
-    // GenericType
-    // GenericType
-    $2 = parseGenericType(state);
-    if (!state.ok) {
-      // RecordType
-      // RecordType
-      $2 = parseRecordType(state);
-    }
-    if (state.ok) {
-      String? $3;
-      // Question
-      $3 = parseQuestion(state);
-      state.ok = true;
-      if (state.ok) {
-        ResultType? $$;
-        final t = $2!;
-        final q = $3;
-        $$ = q == null ? t : t.getNullableType();
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// List<ResultType>
-  /// TypeArguments =
-  ///   h:Type t:(Comma v:Type)* {}
-  ///   ;
-  List<ResultType>? parseTypeArguments(State<String> state) {
-    List<ResultType>? $0;
-    // h:Type t:(Comma v:Type)* {}
-    final $1 = state.pos;
-    ResultType? $2;
-    // Type
-    $2 = parseType(state);
-    if (state.ok) {
-      List<ResultType>? $3;
-      final $4 = <ResultType>[];
-      while (true) {
-        ResultType? $5;
-        // Comma v:Type
-        final $6 = state.pos;
-        // Comma
-        fastParseComma(state);
-        if (state.ok) {
-          ResultType? $7;
-          // Type
-          $7 = parseType(state);
-          if (state.ok) {
-            $5 = $7;
-          }
-        }
-        if (!state.ok) {
-          state.pos = $6;
-        }
-        if (!state.ok) {
-          state.ok = true;
-          break;
-        }
-        $4.add($5!);
-      }
-      if (state.ok) {
-        $3 = $4;
-      }
-      if (state.ok) {
-        List<ResultType>? $$;
-        final h = $2!;
-        final t = $3!;
-        $$ = [h, ...t];
-        $0 = $$;
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// Verify =
-  ///   '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis {}
-  ///   ;
-  Expression? parseVerify(State<String> state) {
-    Expression? $0;
-    // '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis {}
-    final $1 = state.pos;
-    const $4 = '@verify';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 7;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
-    if (state.ok) {
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        Expression? $2;
-        // Expression
-        $2 = parseExpression(state);
-        if (state.ok) {
-          // Comma
-          fastParseComma(state);
-          if (state.ok) {
-            String? $3;
-            // Block
-            $3 = parseBlock(state);
-            if (state.ok) {
-              // CloseParenthesis
-              fastParseCloseParenthesis(state);
-              if (state.ok) {
-                Expression? $$;
-                final e = $2!;
-                final a = $3!;
-                $$ = VerifyExpression(expression: e, handler: a);
-                $0 = $$;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (!state.ok) {
-      state.pos = $1;
-    }
-    return $0;
   }
 
   @pragma('vm:prefer-inline')
@@ -3027,6 +549,2639 @@ class PegParser {
     }
     state.fail(error);
     return null;
+  }
+
+  /// SemanticAction
+  /// Action =
+  ///   t:(LessThanSign v:Type GreaterThanSign)? b:Block {}
+  ///   ;
+  SemanticAction? parseAction(State<String> state) {
+    SemanticAction? $0;
+    // t:(LessThanSign v:Type GreaterThanSign)? b:Block {}
+    final $1 = state.pos;
+    ResultType? $2;
+    // LessThanSign v:Type GreaterThanSign
+    final $4 = state.pos;
+    // LessThanSign
+    fastParseLessThanSign(state);
+    if (state.ok) {
+      ResultType? $5;
+      // Type
+      $5 = parseType(state);
+      if (state.ok) {
+        // GreaterThanSign
+        fastParseGreaterThanSign(state);
+        if (state.ok) {
+          $2 = $5;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($4);
+    }
+    if (!state.ok) {
+      state.setOk(true);
+    }
+    if (state.ok) {
+      String? $3;
+      // Block
+      $3 = parseBlock(state);
+      if (state.ok) {
+        SemanticAction? $$;
+        final t = $2;
+        final b = $3!;
+        $$ = SemanticAction(source: b, resultType: t);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Ampersand =
+  ///   v:'&' Spaces
+  ///   ;
+  String? parseAmpersand(State<String> state) {
+    String? $0;
+    // v:'&' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '&';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// AnyCharacter =
+  ///   FullStop {}
+  ///   ;
+  Expression? parseAnyCharacter(State<String> state) {
+    Expression? $0;
+    // FullStop {}
+    // FullStop
+    fastParseFullStop(state);
+    if (state.ok) {
+      Expression? $$;
+      $$ = AnyCharacterExpression();
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// Asterisk =
+  ///   v:'*' Spaces
+  ///   ;
+  String? parseAsterisk(State<String> state) {
+    String? $0;
+    // v:'*' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '*';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Block =
+  ///   '{' v:$BlockBody* RightCurlyBracket
+  ///   ;
+  String? parseBlock(State<String> state) {
+    String? $0;
+    // '{' v:$BlockBody* RightCurlyBracket
+    final $1 = state.pos;
+    const $3 = '{';
+    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      while (true) {
+        // BlockBody
+        fastParseBlockBody(state);
+        if (!state.ok) {
+          break;
+        }
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        // RightCurlyBracket
+        fastParseRightCurlyBracket(state);
+        if (state.ok) {
+          $0 = $2;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Buffer =
+  ///   '@buffer' LeftParenthesis e:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseBuffer(State<String> state) {
+    Expression? $0;
+    // '@buffer' LeftParenthesis e:Expression RightParenthesis {}
+    final $1 = state.pos;
+    const $3 = '@buffer';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($3, state.pos);
+    if (state.ok) {
+      state.pos += 7;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // RightParenthesis
+          fastParseRightParenthesis(state);
+          if (state.ok) {
+            Expression? $$;
+            final e = $2!;
+            $$ = BufferExpression(expression: e);
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// CharacterClass =
+  ///     '[^' r:(!']' v:Range)+ RightSquareBracket {}
+  ///   / '[' r:(!']' v:Range)+ RightSquareBracket {}
+  ///   ;
+  Expression? parseCharacterClass(State<String> state) {
+    Expression? $0;
+    // '[^' r:(!']' v:Range)+ RightSquareBracket {}
+    final $1 = state.pos;
+    const $3 = '[^';
+    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      List<(int, int)>? $2;
+      final $4 = <(int, int)>[];
+      while (true) {
+        (int, int)? $5;
+        // !']' v:Range
+        final $6 = state.pos;
+        final $8 = state.pos;
+        const $9 = ']';
+        matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
+        state.setOk(!state.ok);
+        if (!state.ok) {
+          final length = $8 - state.pos;
+          state.fail(switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+          state.backtrack($8);
+        }
+        if (state.ok) {
+          (int, int)? $7;
+          // Range
+          $7 = parseRange(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk($4.isNotEmpty);
+      if (state.ok) {
+        $2 = $4;
+      }
+      if (state.ok) {
+        // RightSquareBracket
+        fastParseRightSquareBracket(state);
+        if (state.ok) {
+          Expression? $$;
+          final r = $2!;
+          $$ = CharacterClassExpression(ranges: r, negate: true);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // '[' r:(!']' v:Range)+ RightSquareBracket {}
+      final $10 = state.pos;
+      const $12 = '[';
+      matchLiteral1(state, $12, const ErrorExpectedTags([$12]));
+      if (state.ok) {
+        List<(int, int)>? $11;
+        final $13 = <(int, int)>[];
+        while (true) {
+          (int, int)? $14;
+          // !']' v:Range
+          final $15 = state.pos;
+          final $17 = state.pos;
+          const $18 = ']';
+          matchLiteral1(state, $18, const ErrorExpectedTags([$18]));
+          state.setOk(!state.ok);
+          if (!state.ok) {
+            final length = $17 - state.pos;
+            state.fail(switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(1),
+              2 => const ErrorUnexpectedInput(2),
+              _ => ErrorUnexpectedInput(length)
+            });
+            state.backtrack($17);
+          }
+          if (state.ok) {
+            (int, int)? $16;
+            // Range
+            $16 = parseRange(state);
+            if (state.ok) {
+              $14 = $16;
+            }
+          }
+          if (!state.ok) {
+            state.backtrack($15);
+          }
+          if (!state.ok) {
+            break;
+          }
+          $13.add($14!);
+        }
+        state.setOk($13.isNotEmpty);
+        if (state.ok) {
+          $11 = $13;
+        }
+        if (state.ok) {
+          // RightSquareBracket
+          fastParseRightSquareBracket(state);
+          if (state.ok) {
+            Expression? $$;
+            final r = $11!;
+            $$ = CharacterClassExpression(ranges: r);
+            $0 = $$;
+          }
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($10);
+      }
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Cut =
+  ///   UpwardsArrow {}
+  ///   ;
+  Expression? parseCut(State<String> state) {
+    Expression? $0;
+    // UpwardsArrow {}
+    // UpwardsArrow
+    fastParseUpwardsArrow(state);
+    if (state.ok) {
+      Expression? $$;
+      $$ = CutExpression();
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// ProductionRule
+  /// Definition =
+  ///     m:Metadata? t:Type? i:Identifier EqualsSign e:Expression Semicolon {}
+  ///   / m:Metadata? i:Identifier EqualsSign e:Expression Semicolon {}
+  ///   ;
+  ProductionRule? parseDefinition(State<String> state) {
+    ProductionRule? $0;
+    // m:Metadata? t:Type? i:Identifier EqualsSign e:Expression Semicolon {}
+    final $1 = state.pos;
+    List<({String name, List<Object?> arguments})>? $2;
+    // Metadata
+    $2 = parseMetadata(state);
+    if (!state.ok) {
+      state.setOk(true);
+    }
+    if (state.ok) {
+      ResultType? $3;
+      // Type
+      $3 = parseType(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        String? $4;
+        // Identifier
+        $4 = parseIdentifier(state);
+        if (state.ok) {
+          // EqualsSign
+          fastParseEqualsSign(state);
+          if (state.ok) {
+            Expression? $5;
+            // Expression
+            $5 = parseExpression(state);
+            if (state.ok) {
+              // Semicolon
+              fastParseSemicolon(state);
+              if (state.ok) {
+                ProductionRule? $$;
+                final m = $2;
+                final t = $3;
+                final i = $4!;
+                final e = $5!;
+                $$ = ProductionRule(
+                    name: i,
+                    expression: e as OrderedChoiceExpression,
+                    resultType: t,
+                    metadata: m);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // m:Metadata? i:Identifier EqualsSign e:Expression Semicolon {}
+      final $6 = state.pos;
+      List<({String name, List<Object?> arguments})>? $7;
+      // Metadata
+      $7 = parseMetadata(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        String? $8;
+        // Identifier
+        $8 = parseIdentifier(state);
+        if (state.ok) {
+          // EqualsSign
+          fastParseEqualsSign(state);
+          if (state.ok) {
+            Expression? $9;
+            // Expression
+            $9 = parseExpression(state);
+            if (state.ok) {
+              // Semicolon
+              fastParseSemicolon(state);
+              if (state.ok) {
+                ProductionRule? $$;
+                final m = $7;
+                final i = $8!;
+                final e = $9!;
+                $$ = ProductionRule(
+                    name: i,
+                    expression: e as OrderedChoiceExpression,
+                    metadata: m);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($6);
+      }
+    }
+    return $0;
+  }
+
+  /// DollarSign =
+  ///   v:'\$' Spaces
+  ///   ;
+  String? parseDollarSign(State<String> state) {
+    String? $0;
+    // v:'\$' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '\$';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// ErrorHandler =
+  ///   '@errorHandler' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
+  ///   ;
+  Expression? parseErrorHandler(State<String> state) {
+    Expression? $0;
+    // '@errorHandler' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
+    final $1 = state.pos;
+    const $4 = '@errorHandler';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($4, state.pos);
+    if (state.ok) {
+      state.pos += 13;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            String? $3;
+            // Block
+            $3 = parseBlock(state);
+            if (state.ok) {
+              // RightParenthesis
+              fastParseRightParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final a = $3!;
+                $$ = ErrorHandlerExpression(expression: e, handler: a);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// ExclamationMark =
+  ///   v:'!' Spaces
+  ///   ;
+  String? parseExclamationMark(State<String> state) {
+    String? $0;
+    // v:'!' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '!';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression =
+  ///   OrderedChoice
+  ///   ;
+  Expression? parseExpression(State<String> state) {
+    Expression? $0;
+    // OrderedChoice
+    // OrderedChoice
+    $0 = parseOrderedChoice(state);
+    return $0;
+  }
+
+  /// ResultType
+  /// GenericType =
+  ///     i:NativeIdentifier LessThanSign p:TypeArguments GreaterThanSign {}
+  ///   / i:NativeIdentifier {}
+  ///   ;
+  ResultType? parseGenericType(State<String> state) {
+    ResultType? $0;
+    // i:NativeIdentifier LessThanSign p:TypeArguments GreaterThanSign {}
+    final $1 = state.pos;
+    String? $2;
+    // NativeIdentifier
+    $2 = parseNativeIdentifier(state);
+    if (state.ok) {
+      // LessThanSign
+      fastParseLessThanSign(state);
+      if (state.ok) {
+        List<ResultType>? $3;
+        // TypeArguments
+        $3 = parseTypeArguments(state);
+        if (state.ok) {
+          // GreaterThanSign
+          fastParseGreaterThanSign(state);
+          if (state.ok) {
+            ResultType? $$;
+            final i = $2!;
+            final p = $3!;
+            $$ = GenericType(name: i, arguments: p);
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // i:NativeIdentifier {}
+      String? $5;
+      // NativeIdentifier
+      $5 = parseNativeIdentifier(state);
+      if (state.ok) {
+        ResultType? $$;
+        final i = $5!;
+        $$ = GenericType(name: i);
+        $0 = $$;
+      }
+    }
+    return $0;
+  }
+
+  /// Globals =
+  ///   '%{' v:$(!'}%' v:.)* '}%' Spaces
+  ///   ;
+  String? parseGlobals(State<String> state) {
+    String? $0;
+    // '%{' v:$(!'}%' v:.)* '}%' Spaces
+    final $1 = state.pos;
+    const $3 = '%{';
+    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      const $6 = '}%';
+      final $5 = state.input.indexOf($6, state.pos);
+      state.ok = $5 != -1;
+      if (state.ok) {
+        state.pos = $5;
+      } else {
+        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
+      }
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        const $7 = '}%';
+        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
+        if (state.ok) {
+          // Spaces
+          fastParseSpaces(state);
+          if (state.ok) {
+            $0 = $2;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Group =
+  ///   LeftParenthesis e:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseGroup(State<String> state) {
+    Expression? $0;
+    // LeftParenthesis e:Expression RightParenthesis {}
+    final $1 = state.pos;
+    // LeftParenthesis
+    fastParseLeftParenthesis(state);
+    if (state.ok) {
+      Expression? $2;
+      // Expression
+      $2 = parseExpression(state);
+      if (state.ok) {
+        // RightParenthesis
+        fastParseRightParenthesis(state);
+        if (state.ok) {
+          Expression? $$;
+          final e = $2!;
+          $$ = GroupExpression(expression: e);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// int
+  /// HexChar =
+  ///   'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
+  ///   ;
+  int? parseHexChar(State<String> state) {
+    int? $0;
+    // 'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
+    final $1 = state.pos;
+    const $3 = 'u{';
+    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      var $5 = false;
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.codeUnitAt(state.pos);
+          state.ok = $6 <= 90
+              ? $6 >= 48 && $6 <= 57 || $6 >= 65
+              : $6 >= 97 && $6 <= 122;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          break;
+        }
+        $5 = true;
+      }
+      state.setOk($5);
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        const $7 = '}';
+        matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
+        if (state.ok) {
+          int? $$;
+          final v = $2!;
+          $$ = int.parse(v, radix: 16);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// String
+  /// Identifier =
+  ///   i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
+  ///   ;
+  String? parseIdentifier(State<String> state) {
+    String? $0;
+    // i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces
+    final $1 = state.pos;
+    String? $2;
+    final $3 = state.pos;
+    // [a-zA-Z] [a-zA-Z_0-9]*
+    final $4 = state.pos;
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $5 = state.input.codeUnitAt(state.pos);
+      state.ok = $5 >= 65 && $5 <= 90 || $5 >= 97 && $5 <= 122;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.codeUnitAt(state.pos);
+          state.ok = $6 <= 90
+              ? $6 >= 48 && $6 <= 57 || $6 >= 65
+              : $6 == 95 || $6 >= 97 && $6 <= 122;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          break;
+        }
+      }
+      state.setOk(true);
+    }
+    if (!state.ok) {
+      state.backtrack($4);
+    }
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// int
+  /// Integer =
+  ///   v:$[0-9]+ {}
+  ///   ;
+  int? parseInteger(State<String> state) {
+    int? $0;
+    // v:$[0-9]+ {}
+    String? $2;
+    final $3 = state.pos;
+    var $4 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $5 = state.input.codeUnitAt(state.pos);
+        state.ok = $5 >= 48 && $5 <= 57;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        break;
+      }
+      $4 = true;
+    }
+    state.setOk($4);
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      int? $$;
+      final v = $2!;
+      $$ = int.parse(v);
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Literal =
+  ///   '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
+  ///   ;
+  Expression? parseLiteral(State<String> state) {
+    Expression? $0;
+    // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
+    final $1 = state.pos;
+    const $3 = '\'';
+    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      List<int>? $2;
+      final $4 = <int>[];
+      while (true) {
+        int? $5;
+        // !'\'' c:StringChar
+        final $6 = state.pos;
+        final $8 = state.pos;
+        const $9 = '\'';
+        matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
+        state.setOk(!state.ok);
+        if (!state.ok) {
+          final length = $8 - state.pos;
+          state.fail(switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+          state.backtrack($8);
+        }
+        if (state.ok) {
+          int? $7;
+          // StringChar
+          $7 = parseStringChar(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $2 = $4;
+      }
+      if (state.ok) {
+        const $10 = '\'';
+        matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
+        if (state.ok) {
+          // Spaces
+          fastParseSpaces(state);
+          if (state.ok) {
+            Expression? $$;
+            final cs = $2!;
+            $$ = LiteralExpression(string: String.fromCharCodes(cs));
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// MatchString =
+  ///   '@matchString' LeftParenthesis b:Block RightParenthesis {}
+  ///   ;
+  Expression? parseMatchString(State<String> state) {
+    Expression? $0;
+    // '@matchString' LeftParenthesis b:Block RightParenthesis {}
+    final $1 = state.pos;
+    const $3 = '@matchString';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($3, state.pos);
+    if (state.ok) {
+      state.pos += 12;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        String? $2;
+        // Block
+        $2 = parseBlock(state);
+        if (state.ok) {
+          // RightParenthesis
+          fastParseRightParenthesis(state);
+          if (state.ok) {
+            Expression? $$;
+            final b = $2!;
+            $$ = MatchStringExpression(value: b);
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Members =
+  ///   '%%' v:$(!'%%' v:.)* '%%' Spaces
+  ///   ;
+  String? parseMembers(State<String> state) {
+    String? $0;
+    // '%%' v:$(!'%%' v:.)* '%%' Spaces
+    final $1 = state.pos;
+    const $3 = '%%';
+    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      String? $2;
+      final $4 = state.pos;
+      const $6 = '%%';
+      final $5 = state.input.indexOf($6, state.pos);
+      state.ok = $5 != -1;
+      if (state.ok) {
+        state.pos = $5;
+      } else {
+        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
+      }
+      if (state.ok) {
+        $2 = state.input.substring($4, state.pos);
+      }
+      if (state.ok) {
+        const $7 = '%%';
+        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
+        if (state.ok) {
+          // Spaces
+          fastParseSpaces(state);
+          if (state.ok) {
+            $0 = $2;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<({String name, List<Object?> arguments})>
+  /// Metadata =
+  ///   h:MetadataElement t:(Spaces v:MetadataElement)* {}
+  ///   ;
+  List<({String name, List<Object?> arguments})>? parseMetadata(
+      State<String> state) {
+    List<({String name, List<Object?> arguments})>? $0;
+    // h:MetadataElement t:(Spaces v:MetadataElement)* {}
+    final $1 = state.pos;
+    ({String name, List<Object?> arguments})? $2;
+    // MetadataElement
+    $2 = parseMetadataElement(state);
+    if (state.ok) {
+      List<({String name, List<Object?> arguments})>? $3;
+      final $4 = <({String name, List<Object?> arguments})>[];
+      while (true) {
+        ({String name, List<Object?> arguments})? $5;
+        // Spaces v:MetadataElement
+        final $6 = state.pos;
+        // Spaces
+        fastParseSpaces(state);
+        if (state.ok) {
+          ({String name, List<Object?> arguments})? $7;
+          // MetadataElement
+          $7 = parseMetadataElement(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $3 = $4;
+      }
+      if (state.ok) {
+        List<({String name, List<Object?> arguments})>? $$;
+        final h = $2!;
+        final t = $3!;
+        $$ = [h, ...t];
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// MetadataArgument =
+  ///   '\'' v:StringChar* Apostrophe {}
+  ///   ;
+  Object? parseMetadataArgument(State<String> state) {
+    Object? $0;
+    // '\'' v:StringChar* Apostrophe {}
+    final $1 = state.pos;
+    const $3 = '\'';
+    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      List<int>? $2;
+      final $4 = <int>[];
+      while (true) {
+        int? $5;
+        // StringChar
+        $5 = parseStringChar(state);
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $2 = $4;
+      }
+      if (state.ok) {
+        // Apostrophe
+        fastParseApostrophe(state);
+        if (state.ok) {
+          Object? $$;
+          final v = $2!;
+          $$ = String.fromCharCodes(v);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<Object?>
+  /// MetadataArgumentList =
+  ///   h:MetadataArgument t:(Comma v:MetadataArgument)* {}
+  ///   ;
+  List<Object?>? parseMetadataArgumentList(State<String> state) {
+    List<Object?>? $0;
+    // h:MetadataArgument t:(Comma v:MetadataArgument)* {}
+    final $1 = state.pos;
+    Object? $2;
+    // MetadataArgument
+    $2 = parseMetadataArgument(state);
+    if (state.ok) {
+      List<Object?>? $3;
+      final $4 = <Object?>[];
+      while (true) {
+        Object? $5;
+        // Comma v:MetadataArgument
+        final $6 = state.pos;
+        // Comma
+        fastParseComma(state);
+        if (state.ok) {
+          Object? $7;
+          // MetadataArgument
+          $7 = parseMetadataArgument(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $3 = $4;
+      }
+      if (state.ok) {
+        List<Object?>? $$;
+        final h = $2;
+        final t = $3!;
+        $$ = [h, ...t];
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<Object?>
+  /// MetadataArguments =
+  ///   LeftParenthesis v:MetadataArgumentList? RightParenthesis {}
+  ///   ;
+  List<Object?>? parseMetadataArguments(State<String> state) {
+    List<Object?>? $0;
+    // LeftParenthesis v:MetadataArgumentList? RightParenthesis {}
+    final $1 = state.pos;
+    // LeftParenthesis
+    fastParseLeftParenthesis(state);
+    if (state.ok) {
+      List<Object?>? $2;
+      // MetadataArgumentList
+      $2 = parseMetadataArgumentList(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        // RightParenthesis
+        fastParseRightParenthesis(state);
+        if (state.ok) {
+          List<Object?>? $$;
+          final v = $2;
+          $$ = v ?? const [];
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// ({String name, List<Object?> arguments})
+  /// MetadataElement =
+  ///   CommercialAt i:Identifier a:MetadataArguments? {}
+  ///   ;
+  ({String name, List<Object?> arguments})? parseMetadataElement(
+      State<String> state) {
+    ({String name, List<Object?> arguments})? $0;
+    // CommercialAt i:Identifier a:MetadataArguments? {}
+    final $1 = state.pos;
+    // CommercialAt
+    fastParseCommercialAt(state);
+    if (state.ok) {
+      String? $2;
+      // Identifier
+      $2 = parseIdentifier(state);
+      if (state.ok) {
+        List<Object?>? $3;
+        // MetadataArguments
+        $3 = parseMetadataArguments(state);
+        if (!state.ok) {
+          state.setOk(true);
+        }
+        if (state.ok) {
+          ({String name, List<Object?> arguments})? $$;
+          final i = $2!;
+          final a = $3;
+          $$ = (name: '@$i', arguments: a ?? const []);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// (int?, int?)
+  /// MinMax =
+  ///     m:Integer Comma n:Integer {}
+  ///   / Comma n:Integer {}
+  ///   / m:Integer Comma {}
+  ///   / n:Integer {}
+  ///   ;
+  (int?, int?)? parseMinMax(State<String> state) {
+    (int?, int?)? $0;
+    // m:Integer Comma n:Integer {}
+    final $1 = state.pos;
+    int? $2;
+    // Integer
+    $2 = parseInteger(state);
+    if (state.ok) {
+      // Comma
+      fastParseComma(state);
+      if (state.ok) {
+        int? $3;
+        // Integer
+        $3 = parseInteger(state);
+        if (state.ok) {
+          (int?, int?)? $$;
+          final m = $2!;
+          final n = $3!;
+          $$ = (m, n);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // Comma n:Integer {}
+      final $4 = state.pos;
+      // Comma
+      fastParseComma(state);
+      if (state.ok) {
+        int? $5;
+        // Integer
+        $5 = parseInteger(state);
+        if (state.ok) {
+          (int?, int?)? $$;
+          final n = $5!;
+          $$ = (null, n);
+          $0 = $$;
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($4);
+      }
+      if (!state.ok && state.isRecoverable) {
+        // m:Integer Comma {}
+        final $6 = state.pos;
+        int? $7;
+        // Integer
+        $7 = parseInteger(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            (int?, int?)? $$;
+            final m = $7!;
+            $$ = (m, null);
+            $0 = $$;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok && state.isRecoverable) {
+          // n:Integer {}
+          int? $9;
+          // Integer
+          $9 = parseInteger(state);
+          if (state.ok) {
+            (int?, int?)? $$;
+            final n = $9!;
+            $$ = (n, n);
+            $0 = $$;
+          }
+        }
+      }
+    }
+    return $0;
+  }
+
+  /// ({ResultType type, String name})
+  /// NamedField =
+  ///   type:Type name:NativeIdentifier
+  ///   ;
+  ({ResultType type, String name})? parseNamedField(State<String> state) {
+    ({ResultType type, String name})? $0;
+    // type:Type name:NativeIdentifier
+    final $1 = state.pos;
+    ResultType? $2;
+    // Type
+    $2 = parseType(state);
+    if (state.ok) {
+      String? $3;
+      // NativeIdentifier
+      $3 = parseNativeIdentifier(state);
+      if (state.ok) {
+        $0 = (type: $2!, name: $3!);
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<({ResultType type, String name})>
+  /// NamedFields =
+  ///   LeftCurlyBracket h:NamedField t:(Comma v:NamedField)* RightCurlyBracket {}
+  ///   ;
+  List<({ResultType type, String name})>? parseNamedFields(
+      State<String> state) {
+    List<({ResultType type, String name})>? $0;
+    // LeftCurlyBracket h:NamedField t:(Comma v:NamedField)* RightCurlyBracket {}
+    final $1 = state.pos;
+    // LeftCurlyBracket
+    fastParseLeftCurlyBracket(state);
+    if (state.ok) {
+      ({ResultType type, String name})? $2;
+      // NamedField
+      $2 = parseNamedField(state);
+      if (state.ok) {
+        List<({ResultType type, String name})>? $3;
+        final $4 = <({ResultType type, String name})>[];
+        while (true) {
+          ({ResultType type, String name})? $5;
+          // Comma v:NamedField
+          final $6 = state.pos;
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            ({ResultType type, String name})? $7;
+            // NamedField
+            $7 = parseNamedField(state);
+            if (state.ok) {
+              $5 = $7;
+            }
+          }
+          if (!state.ok) {
+            state.backtrack($6);
+          }
+          if (!state.ok) {
+            break;
+          }
+          $4.add($5!);
+        }
+        state.setOk(true);
+        if (state.ok) {
+          $3 = $4;
+        }
+        if (state.ok) {
+          // RightCurlyBracket
+          fastParseRightCurlyBracket(state);
+          if (state.ok) {
+            List<({ResultType type, String name})>? $$;
+            final h = $2!;
+            final t = $3!;
+            $$ = [h, ...t];
+            $0 = $$;
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// String
+  /// NativeIdentifier =
+  ///   i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
+  ///   ;
+  String? parseNativeIdentifier(State<String> state) {
+    String? $0;
+    // i:$([$a-zA-Z_] [$0-9a-zA-Z_]*) Spaces
+    final $1 = state.pos;
+    String? $2;
+    final $3 = state.pos;
+    // [$a-zA-Z_] [$0-9a-zA-Z_]*
+    final $4 = state.pos;
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $5 = state.input.codeUnitAt(state.pos);
+      state.ok =
+          $5 <= 90 ? $5 == 36 || $5 >= 65 : $5 == 95 || $5 >= 97 && $5 <= 122;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.codeUnitAt(state.pos);
+          state.ok = $6 <= 90
+              ? $6 <= 57
+                  ? $6 == 36 || $6 >= 48
+                  : $6 >= 65
+              : $6 == 95 || $6 >= 97 && $6 <= 122;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          break;
+        }
+      }
+      state.setOk(true);
+    }
+    if (!state.ok) {
+      state.backtrack($4);
+    }
+    if (state.ok) {
+      $2 = state.input.substring($3, state.pos);
+    }
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// OrderedChoice =
+  ///   h:Sequence t:(Solidus v:Sequence)* {}
+  ///   ;
+  Expression? parseOrderedChoice(State<String> state) {
+    Expression? $0;
+    // h:Sequence t:(Solidus v:Sequence)* {}
+    final $1 = state.pos;
+    Expression? $2;
+    // Sequence
+    $2 = parseSequence(state);
+    if (state.ok) {
+      List<Expression>? $3;
+      final $4 = <Expression>[];
+      while (true) {
+        Expression? $5;
+        // Solidus v:Sequence
+        final $6 = state.pos;
+        // Solidus
+        fastParseSolidus(state);
+        if (state.ok) {
+          Expression? $7;
+          // Sequence
+          $7 = parseSequence(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $3 = $4;
+      }
+      if (state.ok) {
+        Expression? $$;
+        final h = $2!;
+        final t = $3!;
+        $$ = OrderedChoiceExpression(expressions: [h, ...t]);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// PlusSign =
+  ///   v:'+' Spaces
+  ///   ;
+  String? parsePlusSign(State<String> state) {
+    String? $0;
+    // v:'+' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '+';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// ({ResultType type, String? name})
+  /// PositionalField =
+  ///   type:Type name:NativeIdentifier?
+  ///   ;
+  ({ResultType type, String? name})? parsePositionalField(State<String> state) {
+    ({ResultType type, String? name})? $0;
+    // type:Type name:NativeIdentifier?
+    final $1 = state.pos;
+    ResultType? $2;
+    // Type
+    $2 = parseType(state);
+    if (state.ok) {
+      String? $3;
+      // NativeIdentifier
+      $3 = parseNativeIdentifier(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        $0 = (type: $2!, name: $3);
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<({ResultType type, String? name})>
+  /// PositionalFields =
+  ///   h:PositionalField t:(Comma v:PositionalField)* {}
+  ///   ;
+  List<({ResultType type, String? name})>? parsePositionalFields(
+      State<String> state) {
+    List<({ResultType type, String? name})>? $0;
+    // h:PositionalField t:(Comma v:PositionalField)* {}
+    final $1 = state.pos;
+    ({ResultType type, String? name})? $2;
+    // PositionalField
+    $2 = parsePositionalField(state);
+    if (state.ok) {
+      List<({ResultType type, String? name})>? $3;
+      final $4 = <({ResultType type, String? name})>[];
+      while (true) {
+        ({ResultType type, String? name})? $5;
+        // Comma v:PositionalField
+        final $6 = state.pos;
+        // Comma
+        fastParseComma(state);
+        if (state.ok) {
+          ({ResultType type, String? name})? $7;
+          // PositionalField
+          $7 = parsePositionalField(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $3 = $4;
+      }
+      if (state.ok) {
+        List<({ResultType type, String? name})>? $$;
+        final h = $2!;
+        final t = $3!;
+        $$ = [h, ...t];
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Prefix =
+  ///   p:(DollarSign / Ampersand / ExclamationMark)? s:Suffix {}
+  ///   ;
+  Expression? parsePrefix(State<String> state) {
+    Expression? $0;
+    // p:(DollarSign / Ampersand / ExclamationMark)? s:Suffix {}
+    final $1 = state.pos;
+    String? $2;
+    // DollarSign
+    // DollarSign
+    $2 = parseDollarSign(state);
+    if (!state.ok && state.isRecoverable) {
+      // Ampersand
+      // Ampersand
+      $2 = parseAmpersand(state);
+      if (!state.ok && state.isRecoverable) {
+        // ExclamationMark
+        // ExclamationMark
+        $2 = parseExclamationMark(state);
+      }
+    }
+    if (!state.ok) {
+      state.setOk(true);
+    }
+    if (state.ok) {
+      Expression? $3;
+      // Suffix
+      $3 = parseSuffix(state);
+      if (state.ok) {
+        Expression? $$;
+        final p = $2;
+        final s = $3!;
+        $$ = _buildPrefix(p, s);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Primary =
+  ///     Symbol
+  ///   / CharacterClass
+  ///   / Literal
+  ///   / CharacterClass
+  ///   / AnyCharacter
+  ///   / Group
+  ///   / Cut
+  ///   / Buffer
+  ///   / ErrorHandler
+  ///   / MatchString
+  ///   / SepBy
+  ///   / SepBy1
+  ///   / StringChars
+  ///   / Verify
+  ///   ;
+  Expression? parsePrimary(State<String> state) {
+    Expression? $0;
+    // Symbol
+    // Symbol
+    $0 = parseSymbol(state);
+    if (!state.ok && state.isRecoverable) {
+      // CharacterClass
+      // CharacterClass
+      $0 = parseCharacterClass(state);
+      if (!state.ok && state.isRecoverable) {
+        // Literal
+        // Literal
+        $0 = parseLiteral(state);
+        if (!state.ok && state.isRecoverable) {
+          // CharacterClass
+          // CharacterClass
+          $0 = parseCharacterClass(state);
+          if (!state.ok && state.isRecoverable) {
+            // AnyCharacter
+            // AnyCharacter
+            $0 = parseAnyCharacter(state);
+            if (!state.ok && state.isRecoverable) {
+              // Group
+              // Group
+              $0 = parseGroup(state);
+              if (!state.ok && state.isRecoverable) {
+                // Cut
+                // Cut
+                $0 = parseCut(state);
+                if (!state.ok && state.isRecoverable) {
+                  // Buffer
+                  // Buffer
+                  $0 = parseBuffer(state);
+                  if (!state.ok && state.isRecoverable) {
+                    // ErrorHandler
+                    // ErrorHandler
+                    $0 = parseErrorHandler(state);
+                    if (!state.ok && state.isRecoverable) {
+                      // MatchString
+                      // MatchString
+                      $0 = parseMatchString(state);
+                      if (!state.ok && state.isRecoverable) {
+                        // SepBy
+                        // SepBy
+                        $0 = parseSepBy(state);
+                        if (!state.ok && state.isRecoverable) {
+                          // SepBy1
+                          // SepBy1
+                          $0 = parseSepBy1(state);
+                          if (!state.ok && state.isRecoverable) {
+                            // StringChars
+                            // StringChars
+                            $0 = parseStringChars(state);
+                            if (!state.ok && state.isRecoverable) {
+                              // Verify
+                              // Verify
+                              $0 = parseVerify(state);
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return $0;
+  }
+
+  /// QuestionMark =
+  ///   v:'?' Spaces
+  ///   ;
+  String? parseQuestionMark(State<String> state) {
+    String? $0;
+    // v:'?' Spaces
+    final $1 = state.pos;
+    String? $2;
+    const $3 = '?';
+    $2 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      // Spaces
+      fastParseSpaces(state);
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// (int, int)
+  /// Range =
+  ///     s:RangeChar '-' e:RangeChar {}
+  ///   / s:RangeChar {}
+  ///   ;
+  (int, int)? parseRange(State<String> state) {
+    (int, int)? $0;
+    // s:RangeChar '-' e:RangeChar {}
+    final $1 = state.pos;
+    int? $2;
+    // RangeChar
+    $2 = parseRangeChar(state);
+    if (state.ok) {
+      const $4 = '-';
+      matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
+      if (state.ok) {
+        int? $3;
+        // RangeChar
+        $3 = parseRangeChar(state);
+        if (state.ok) {
+          (int, int)? $$;
+          final s = $2!;
+          final e = $3!;
+          $$ = (s, e);
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // s:RangeChar {}
+      int? $6;
+      // RangeChar
+      $6 = parseRangeChar(state);
+      if (state.ok) {
+        (int, int)? $$;
+        final s = $6!;
+        $$ = (s, s);
+        $0 = $$;
+      }
+    }
+    return $0;
+  }
+
+  /// int
+  /// RangeChar =
+  ///     '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
+  ///   / !'\\' c:.
+  ///   ;
+  int? parseRangeChar(State<String> state) {
+    int? $0;
+    // '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
+    final $1 = state.pos;
+    const $3 = '\\';
+    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    if (state.ok) {
+      int? $2;
+      // c:[-nrt\]\\^] <int>{}
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $5 = state.input.codeUnitAt(state.pos);
+        state.ok = $5 == 110 ||
+            ($5 < 110
+                ? $5 <= 94
+                    ? $5 == 45 || $5 >= 92
+                    : false
+                : $5 == 114 || $5 == 116);
+        if (state.ok) {
+          state.pos++;
+          $2 = $5;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (state.ok) {
+        int? $$;
+        final c = $2!;
+        $$ = _escape(c);
+        $2 = $$;
+      }
+      if (!state.ok && state.isRecoverable) {
+        // HexChar
+        // HexChar
+        $2 = parseHexChar(state);
+      }
+      if (state.ok) {
+        $0 = $2;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // !'\\' c:.
+      final $7 = state.pos;
+      final $9 = state.pos;
+      const $10 = '\\';
+      matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
+      state.setOk(!state.ok);
+      if (!state.ok) {
+        final length = $9 - state.pos;
+        state.fail(switch (length) {
+          0 => const ErrorUnexpectedInput(0),
+          1 => const ErrorUnexpectedInput(1),
+          2 => const ErrorUnexpectedInput(2),
+          _ => ErrorUnexpectedInput(length)
+        });
+        state.backtrack($9);
+      }
+      if (state.ok) {
+        int? $8;
+        final $12 = state.input;
+        if (state.pos < $12.length) {
+          final $11 = $12.runeAt(state.pos);
+          state.pos += $11 > 0xffff ? 2 : 1;
+          state.ok = true;
+          $8 = $11;
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          $0 = $8;
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($7);
+      }
+    }
+    return $0;
+  }
+
+  /// ResultType
+  /// RecordType =
+  ///   LeftParenthesis v:(n:NamedFields <RecordType>{} / p:PositionalFields Comma n:NamedFields <RecordType>{} / h:PositionalField Comma t:PositionalFields <RecordType>{} / t:PositionalField Comma <RecordType>{}) RightParenthesis
+  ///   ;
+  ResultType? parseRecordType(State<String> state) {
+    ResultType? $0;
+    // LeftParenthesis v:(n:NamedFields <RecordType>{} / p:PositionalFields Comma n:NamedFields <RecordType>{} / h:PositionalField Comma t:PositionalFields <RecordType>{} / t:PositionalField Comma <RecordType>{}) RightParenthesis
+    final $1 = state.pos;
+    // LeftParenthesis
+    fastParseLeftParenthesis(state);
+    if (state.ok) {
+      RecordType? $2;
+      // n:NamedFields <RecordType>{}
+      List<({ResultType type, String name})>? $4;
+      // NamedFields
+      $4 = parseNamedFields(state);
+      if (state.ok) {
+        RecordType? $$;
+        final n = $4!;
+        $$ = RecordType(named: n);
+        $2 = $$;
+      }
+      if (!state.ok && state.isRecoverable) {
+        // p:PositionalFields Comma n:NamedFields <RecordType>{}
+        final $5 = state.pos;
+        List<({ResultType type, String? name})>? $6;
+        // PositionalFields
+        $6 = parsePositionalFields(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            List<({ResultType type, String name})>? $7;
+            // NamedFields
+            $7 = parseNamedFields(state);
+            if (state.ok) {
+              RecordType? $$;
+              final p = $6!;
+              final n = $7!;
+              $$ = RecordType(positional: p, named: n);
+              $2 = $$;
+            }
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($5);
+        }
+        if (!state.ok && state.isRecoverable) {
+          // h:PositionalField Comma t:PositionalFields <RecordType>{}
+          final $8 = state.pos;
+          ({ResultType type, String? name})? $9;
+          // PositionalField
+          $9 = parsePositionalField(state);
+          if (state.ok) {
+            // Comma
+            fastParseComma(state);
+            if (state.ok) {
+              List<({ResultType type, String? name})>? $10;
+              // PositionalFields
+              $10 = parsePositionalFields(state);
+              if (state.ok) {
+                RecordType? $$;
+                final h = $9!;
+                final t = $10!;
+                $$ = RecordType(positional: [h, ...t]);
+                $2 = $$;
+              }
+            }
+          }
+          if (!state.ok) {
+            state.backtrack($8);
+          }
+          if (!state.ok && state.isRecoverable) {
+            // t:PositionalField Comma <RecordType>{}
+            final $11 = state.pos;
+            ({ResultType type, String? name})? $12;
+            // PositionalField
+            $12 = parsePositionalField(state);
+            if (state.ok) {
+              // Comma
+              fastParseComma(state);
+              if (state.ok) {
+                RecordType? $$;
+                final t = $12!;
+                $$ = RecordType(positional: [t]);
+                $2 = $$;
+              }
+            }
+            if (!state.ok) {
+              state.backtrack($11);
+            }
+          }
+        }
+      }
+      if (state.ok) {
+        // RightParenthesis
+        fastParseRightParenthesis(state);
+        if (state.ok) {
+          $0 = $2;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// SepBy =
+  ///   '@sepBy' LeftParenthesis e:Expression Comma s:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseSepBy(State<String> state) {
+    Expression? $0;
+    // '@sepBy' LeftParenthesis e:Expression Comma s:Expression RightParenthesis {}
+    final $1 = state.pos;
+    const $4 = '@sepBy';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($4, state.pos);
+    if (state.ok) {
+      state.pos += 6;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            Expression? $3;
+            // Expression
+            $3 = parseExpression(state);
+            if (state.ok) {
+              // RightParenthesis
+              fastParseRightParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final s = $3!;
+                $$ = SepByExpression(expression: e, separator: s);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// SepBy1 =
+  ///   '@sepBy1' LeftParenthesis e:Expression Comma s:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseSepBy1(State<String> state) {
+    Expression? $0;
+    // '@sepBy1' LeftParenthesis e:Expression Comma s:Expression RightParenthesis {}
+    final $1 = state.pos;
+    const $4 = '@sepBy1';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($4, state.pos);
+    if (state.ok) {
+      state.pos += 7;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            Expression? $3;
+            // Expression
+            $3 = parseExpression(state);
+            if (state.ok) {
+              // RightParenthesis
+              fastParseRightParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final s = $3!;
+                $$ = SepBy1Expression(expression: e, separator: s);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Sequence =
+  ///   e:SequenceElement+ a:Action? {}
+  ///   ;
+  Expression? parseSequence(State<String> state) {
+    Expression? $0;
+    // e:SequenceElement+ a:Action? {}
+    final $1 = state.pos;
+    List<Expression>? $2;
+    final $4 = <Expression>[];
+    while (true) {
+      Expression? $5;
+      // SequenceElement
+      $5 = parseSequenceElement(state);
+      if (!state.ok) {
+        break;
+      }
+      $4.add($5!);
+    }
+    state.setOk($4.isNotEmpty);
+    if (state.ok) {
+      $2 = $4;
+    }
+    if (state.ok) {
+      SemanticAction? $3;
+      // Action
+      $3 = parseAction(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        Expression? $$;
+        final e = $2!;
+        final a = $3;
+        $$ = SequenceExpression(expressions: e, action: a);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// SequenceElement =
+  ///     i:Identifier Colon p:Prefix <Expression>{}
+  ///   / Prefix
+  ///   ;
+  Expression? parseSequenceElement(State<String> state) {
+    Expression? $0;
+    // i:Identifier Colon p:Prefix <Expression>{}
+    final $1 = state.pos;
+    String? $2;
+    // Identifier
+    $2 = parseIdentifier(state);
+    if (state.ok) {
+      // Colon
+      fastParseColon(state);
+      if (state.ok) {
+        Expression? $3;
+        // Prefix
+        $3 = parsePrefix(state);
+        if (state.ok) {
+          Expression? $$;
+          final i = $2!;
+          final p = $3!;
+          $$ = p..semanticVariable = i;
+          $0 = $$;
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // Prefix
+      // Prefix
+      $0 = parsePrefix(state);
+    }
+    return $0;
+  }
+
+  /// Grammar
+  /// Start =
+  ///   Spaces g:Globals? m:Members? d:Definition* !. {}
+  ///   ;
+  Grammar? parseStart(State<String> state) {
+    Grammar? $0;
+    // Spaces g:Globals? m:Members? d:Definition* !. {}
+    final $1 = state.pos;
+    // Spaces
+    fastParseSpaces(state);
+    if (state.ok) {
+      String? $2;
+      // Globals
+      $2 = parseGlobals(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        String? $3;
+        // Members
+        $3 = parseMembers(state);
+        if (!state.ok) {
+          state.setOk(true);
+        }
+        if (state.ok) {
+          List<ProductionRule>? $4;
+          final $5 = <ProductionRule>[];
+          while (true) {
+            ProductionRule? $6;
+            // Definition
+            $6 = parseDefinition(state);
+            if (!state.ok) {
+              break;
+            }
+            $5.add($6!);
+          }
+          state.setOk(true);
+          if (state.ok) {
+            $4 = $5;
+          }
+          if (state.ok) {
+            final $7 = state.pos;
+            final $9 = state.input;
+            if (state.pos < $9.length) {
+              final $8 = $9.runeAt(state.pos);
+              state.pos += $8 > 0xffff ? 2 : 1;
+              state.ok = true;
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            state.setOk(!state.ok);
+            if (!state.ok) {
+              final length = $7 - state.pos;
+              state.fail(switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(1),
+                2 => const ErrorUnexpectedInput(2),
+                _ => ErrorUnexpectedInput(length)
+              });
+              state.backtrack($7);
+            }
+            if (state.ok) {
+              Grammar? $$;
+              final g = $2;
+              final m = $3;
+              final d = $4!;
+              $$ = Grammar(rules: d, globals: g, members: m);
+              $0 = $$;
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// int
+  /// StringChar =
+  ///     [ -[\]-\u{10ffff}]
+  ///   / '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
+  ///   ;
+  int? parseStringChar(State<String> state) {
+    int? $0;
+    // [ -[\]-\u{10ffff}]
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $2 = state.input.runeAt(state.pos);
+      state.ok = $2 >= 32 && $2 <= 91 || $2 >= 93 && $2 <= 1114111;
+      if (state.ok) {
+        state.pos += $2 > 0xffff ? 2 : 1;
+        $0 = $2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok && state.isRecoverable) {
+      // '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
+      final $3 = state.pos;
+      const $5 = '\\';
+      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
+      if (state.ok) {
+        int? $4;
+        // c:[rnt'"\\] <int>{}
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $7 = state.input.codeUnitAt(state.pos);
+          state.ok = $7 == 92 ||
+              ($7 < 92
+                  ? $7 == 39 || $7 == 34
+                  : $7 == 114 || ($7 < 114 ? $7 == 110 : $7 == 116));
+          if (state.ok) {
+            state.pos++;
+            $4 = $7;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          int? $$;
+          final c = $4!;
+          $$ = _escape(c);
+          $4 = $$;
+        }
+        if (!state.ok && state.isRecoverable) {
+          // HexChar
+          // HexChar
+          $4 = parseHexChar(state);
+        }
+        if (state.ok) {
+          $0 = $4;
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($3);
+      }
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// StringChars =
+  ///   '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseStringChars(State<String> state) {
+    Expression? $0;
+    // '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
+    final $1 = state.pos;
+    const $5 = '@stringChars';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($5, state.pos);
+    if (state.ok) {
+      state.pos += 12;
+    } else {
+      state.fail(const ErrorExpectedTags([$5]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            Expression? $3;
+            // Expression
+            $3 = parseExpression(state);
+            if (state.ok) {
+              // Comma
+              fastParseComma(state);
+              if (state.ok) {
+                Expression? $4;
+                // Expression
+                $4 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final n = $2!;
+                    final c = $3!;
+                    final e = $4!;
+                    $$ = StringCharsExpression(
+                        normalCharacters: n, escapeCharacter: c, escape: e);
+                    $0 = $$;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Suffix =
+  ///   p:Primary s:(Asterisk / QuestionMark / PlusSign / LeftCurlyBracket v:MinMax RightCurlyBracket)? {}
+  ///   ;
+  Expression? parseSuffix(State<String> state) {
+    Expression? $0;
+    // p:Primary s:(Asterisk / QuestionMark / PlusSign / LeftCurlyBracket v:MinMax RightCurlyBracket)? {}
+    final $1 = state.pos;
+    Expression? $2;
+    // Primary
+    $2 = parsePrimary(state);
+    if (state.ok) {
+      Object? $3;
+      // Asterisk
+      // Asterisk
+      $3 = parseAsterisk(state);
+      if (!state.ok && state.isRecoverable) {
+        // QuestionMark
+        // QuestionMark
+        $3 = parseQuestionMark(state);
+        if (!state.ok && state.isRecoverable) {
+          // PlusSign
+          // PlusSign
+          $3 = parsePlusSign(state);
+          if (!state.ok && state.isRecoverable) {
+            // LeftCurlyBracket v:MinMax RightCurlyBracket
+            final $7 = state.pos;
+            // LeftCurlyBracket
+            fastParseLeftCurlyBracket(state);
+            if (state.ok) {
+              (int?, int?)? $8;
+              // MinMax
+              $8 = parseMinMax(state);
+              if (state.ok) {
+                // RightCurlyBracket
+                fastParseRightCurlyBracket(state);
+                if (state.ok) {
+                  $3 = $8;
+                }
+              }
+            }
+            if (!state.ok) {
+              state.backtrack($7);
+            }
+          }
+        }
+      }
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        Expression? $$;
+        final p = $2!;
+        final s = $3;
+        $$ = _buildSuffix(s, p);
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Symbol =
+  ///   i:Identifier {}
+  ///   ;
+  Expression? parseSymbol(State<String> state) {
+    Expression? $0;
+    // i:Identifier {}
+    String? $2;
+    // Identifier
+    $2 = parseIdentifier(state);
+    if (state.ok) {
+      Expression? $$;
+      final i = $2!;
+      $$ = SymbolExpression(name: i);
+      $0 = $$;
+    }
+    return $0;
+  }
+
+  /// ResultType
+  /// Type =
+  ///   t:(GenericType / RecordType) q:QuestionMark? {}
+  ///   ;
+  ResultType? parseType(State<String> state) {
+    ResultType? $0;
+    // t:(GenericType / RecordType) q:QuestionMark? {}
+    final $1 = state.pos;
+    ResultType? $2;
+    // GenericType
+    // GenericType
+    $2 = parseGenericType(state);
+    if (!state.ok && state.isRecoverable) {
+      // RecordType
+      // RecordType
+      $2 = parseRecordType(state);
+    }
+    if (state.ok) {
+      String? $3;
+      // QuestionMark
+      $3 = parseQuestionMark(state);
+      if (!state.ok) {
+        state.setOk(true);
+      }
+      if (state.ok) {
+        ResultType? $$;
+        final t = $2!;
+        final q = $3;
+        $$ = q == null ? t : t.getNullableType();
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// List<ResultType>
+  /// TypeArguments =
+  ///   h:Type t:(Comma v:Type)* {}
+  ///   ;
+  List<ResultType>? parseTypeArguments(State<String> state) {
+    List<ResultType>? $0;
+    // h:Type t:(Comma v:Type)* {}
+    final $1 = state.pos;
+    ResultType? $2;
+    // Type
+    $2 = parseType(state);
+    if (state.ok) {
+      List<ResultType>? $3;
+      final $4 = <ResultType>[];
+      while (true) {
+        ResultType? $5;
+        // Comma v:Type
+        final $6 = state.pos;
+        // Comma
+        fastParseComma(state);
+        if (state.ok) {
+          ResultType? $7;
+          // Type
+          $7 = parseType(state);
+          if (state.ok) {
+            $5 = $7;
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($6);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $4.add($5!);
+      }
+      state.setOk(true);
+      if (state.ok) {
+        $3 = $4;
+      }
+      if (state.ok) {
+        List<ResultType>? $$;
+        final h = $2!;
+        final t = $3!;
+        $$ = [h, ...t];
+        $0 = $$;
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Verify =
+  ///   '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
+  ///   ;
+  Expression? parseVerify(State<String> state) {
+    Expression? $0;
+    // '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
+    final $1 = state.pos;
+    const $4 = '@verify';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64 &&
+        state.input.startsWith($4, state.pos);
+    if (state.ok) {
+      state.pos += 7;
+    } else {
+      state.fail(const ErrorExpectedTags([$4]));
+    }
+    if (state.ok) {
+      // LeftParenthesis
+      fastParseLeftParenthesis(state);
+      if (state.ok) {
+        Expression? $2;
+        // Expression
+        $2 = parseExpression(state);
+        if (state.ok) {
+          // Comma
+          fastParseComma(state);
+          if (state.ok) {
+            String? $3;
+            // Block
+            $3 = parseBlock(state);
+            if (state.ok) {
+              // RightParenthesis
+              fastParseRightParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final e = $2!;
+                final a = $3!;
+                $$ = VerifyExpression(expression: e, handler: a);
+                $0 = $$;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    return $0;
   }
 }
 
@@ -3188,7 +3343,7 @@ String _errorMessage(
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
     if (hasFullSource) {
-      sb.writeln('line $row, column $column: $message');
+      sb.writeln('line $row, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -3227,8 +3382,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
       key = ErrorUnknownError;
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
-    } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -3254,6 +3407,8 @@ class AsyncResult<T> {
 class ChunkedParsingSink implements Sink<String> {
   int bufferLoad = 0;
 
+  int _cuttingPosition = 0;
+
   String data = '';
 
   int end = 0;
@@ -3267,8 +3422,6 @@ class ChunkedParsingSink implements Sink<String> {
   int _buffering = 0;
 
   bool _isClosed = false;
-
-  int _lastPosition = 0;
 
   bool get isClosed => _isClosed;
 
@@ -3301,14 +3454,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
+    if (_cuttingPosition > start) {
+      if (_cuttingPosition == end) {
         this.data = '';
       } else {
-        this.data = this.data.substring(_lastPosition - start);
+        this.data = this.data.substring(_cuttingPosition - start);
       }
 
-      start = _lastPosition;
+      start = _cuttingPosition;
     }
   }
 
@@ -3345,30 +3498,22 @@ class ChunkedParsingSink implements Sink<String> {
     }
   }
 
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void endBuffering(int position) {
-    _buffering--;
+  void cut(int position) {
+    if (position < start || position > end) {
+      throw RangeError.range(position, start, end, 'position');
+    }
+
     if (_buffering == 0) {
-      if (_lastPosition < position) {
-        _lastPosition = position;
-      }
-    } else if (_buffering < 0) {
-      throw StateError('Inconsistent buffering completion detected.');
+      _cuttingPosition = position;
     }
   }
-}
 
-class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error to position {{0}}';
-
-  final int position;
-
-  const ErrorBacktracking(this.position);
-
-  @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorBacktracking.message, [position]);
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endBuffering() {
+    if (--_buffering < 0) {
+      throw StateError('Inconsistent buffering completion detected.');
+    }
   }
 }
 
@@ -3597,6 +3742,8 @@ class ParseResult<I, O> {
 class State<T> {
   Object? context;
 
+  int cuttingPos = 0;
+
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -3605,11 +3752,31 @@ class State<T> {
 
   final T input;
 
+  bool isRecoverable = true;
+
   bool ok = false;
 
   int pos = 0;
 
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void backtrack(int pos) {
+    if (pos >= cuttingPos) {
+      this.pos = pos;
+      return;
+    }
+    isRecoverable = false;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void cut(int pos) {
+    if (cuttingPos < pos) {
+      cuttingPos = pos;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -3681,6 +3848,12 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void setOk(bool ok) {
+    this.ok = !ok ? false : isRecoverable;
   }
 
   @override

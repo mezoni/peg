@@ -19,7 +19,9 @@ class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
     values['p'] = generateExpression(child, false);
     const template = '''
 {{p}}
-state.ok = true;''';
+if (!state.ok) {
+  state.setOk(true);
+}''';
     return render(template, values);
   }
 
@@ -33,18 +35,16 @@ state.ok = true;''';
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    asyncGenerator.buffering++;
     values['p'] = generateAsyncExpression(child, false);
-    asyncGenerator.buffering--;
     const template = '''
 {{p}}
 if (!state.ok) {
-  state.ok = true;
+  state.setOk(true);
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
     );
   }
 }

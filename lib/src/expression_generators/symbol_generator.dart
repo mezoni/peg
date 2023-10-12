@@ -76,17 +76,18 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
             parserName: ruleGenerator.parserName,
             rule: reference)
         .generate();
-    values['ar'] = asyncGenerator.allocateVariable(isFast
+    final ar = asyncGenerator.allocateVariable(isFast
         ? GenericType(
             name: 'AsyncResult',
             arguments: [GenericType(name: 'Object').getNullableType()])
         : GenericType(name: 'AsyncResult', arguments: [resultType]));
+    values['ar'] = ar;
     values['ar_'] = allocateName();
     values['handle'] = asyncGenerator.functionName;
     values['name'] = ruleGenerator.getAsyncMethodName(reference, isFast);
     var assignResult = '';
     if (variable != null) {
-      assignResult = '$variable = ${values['ar']}!.value;';
+      assignResult = '$variable = $ar!.value;';
     }
 
     const initTemplate = '''

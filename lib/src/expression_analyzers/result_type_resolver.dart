@@ -1,7 +1,7 @@
 import '../expressions/expressions.dart';
 import '../grammar/production_rule.dart';
 
-class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
+class ResultTypesResolver extends ExpressionVisitor<void> {
   static final ResultType _dynamicListType =
       GenericType(name: 'List', arguments: [_nullableObjectType]);
 
@@ -50,6 +50,12 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
     _setResultType(node, GenericType(name: 'int'));
+  }
+
+  @override
+  void visitCut(CutExpression node) {
+    node.visitChildren(this);
+    _setResultType(node, _nullableObjectType);
   }
 
   @override
@@ -133,6 +139,13 @@ class ExpressionResultTypeResolver extends ExpressionVisitor<void> {
 
   @override
   void visitSepBy(SepByExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getListResultType(_getResultType(child)));
+  }
+
+  @override
+  void visitSepBy1(SepBy1Expression node) {
     node.visitChildren(this);
     final child = node.expression;
     _setResultType(node, _getListResultType(_getResultType(child)));

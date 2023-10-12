@@ -54,6 +54,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitCut(CutExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitErrorHandler(ErrorHandlerExpression node) {
     _initializeNode(node);
   }
@@ -100,6 +105,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   @override
   void visitSepBy(SepByExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitSepBy1(SepBy1Expression node) {
     _initializeNode(node);
   }
 

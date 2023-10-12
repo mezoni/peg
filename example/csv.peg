@@ -20,7 +20,7 @@ Eol = '\n' / '\r\n' / '\r' ;
 
 @event
 @inline
-Field = String / Text ;
+Field = @buffer(String) / Text ;
 
 @inline
 OpenQuote = Spaces '"' ;
@@ -29,13 +29,13 @@ OpenQuote = Spaces '"' ;
 RowEnding = Eol !Eof ;
 
 @event
-Row = @sepBy(Field, ',') ;
+Row = @sepBy1(Field, ',' ↑) ;
 
-Rows = v:@sepBy(Row, RowEnding) Eol? ;
+Rows = v:@sepBy1(Row, RowEnding ↑) Eol? ;
 
 Spaces = [ \t]* ;
 
 String
-String = OpenQuote v:Chars CloseQuote { $$ = v.join(); } ;
+String = OpenQuote ↑ v:Chars CloseQuote { $$ = v.join(); } ;
 
 Text = $[^,"\n\r]* ;

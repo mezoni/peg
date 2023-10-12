@@ -79,7 +79,7 @@ Globals = '%{' v:$(!'}%' v:. )* '}%' Spaces ;
 
 Members = '%%' v:$(!'%%' v:. )* '%%' Spaces ;
 
-Block = '{' v:$BlockBody* CloseBrace ;
+Block = '{' v:$BlockBody* RightCurlyBracket ;
 
 BlockBody =
     '{' v:BlockBody* '}'
@@ -87,17 +87,17 @@ BlockBody =
 
 ProductionRule
 Definition =
-    m:Metadata? t:Type? i:Identifier Equal e:Expression Semicolon
+    m:Metadata? t:Type? i:Identifier EqualsSign e:Expression Semicolon
       { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, resultType: t, metadata: m); }
-  / m:Metadata? i:Identifier Equal e:Expression Semicolon
+  / m:Metadata? i:Identifier EqualsSign e:Expression Semicolon
       { $$ = ProductionRule(name: i, expression: e as OrderedChoiceExpression, metadata: m); } ;
 
 ResultType
-Type = t:(GenericType / RecordType) q:Question? { $$ = q == null ? t : t.getNullableType(); } ;
+Type = t:(GenericType / RecordType) q:QuestionMark? { $$ = q == null ? t : t.getNullableType(); } ;
 
 ResultType
 GenericType =
-   i:NativeIdentifier Less p:TypeArguments Greater { $$ = GenericType(name: i, arguments: p); }
+   i:NativeIdentifier LessThanSign p:TypeArguments GreaterThanSign { $$ = GenericType(name: i, arguments: p); }
   / i:NativeIdentifier { $$ = GenericType(name: i); } ;
 
 String
@@ -108,17 +108,17 @@ TypeArguments = h:Type t:(Comma v:Type)* { $$ = [h, ...t]; } ;
 
 ResultType
 RecordType =
-  OpenParenthesis
+  LeftParenthesis
   v:(
       n:NamedFields <RecordType>{ $$ = RecordType(named: n); }
     / p:PositionalFields Comma n:NamedFields <RecordType>{ $$ = RecordType(positional: p, named: n); }
     / h:PositionalField Comma t:PositionalFields <RecordType>{ $$ = RecordType(positional: [h, ...t]); }
     / t:PositionalField Comma <RecordType>{ $$ = RecordType(positional: [t]); }
   )
-  CloseParenthesis ;
+  RightParenthesis ;
 
 List<({ResultType type, String name})>
-NamedFields = OpenBrace h:NamedField t:(Comma v:NamedField)* CloseBrace { $$ = [h, ...t];  } ;
+NamedFields = LeftCurlyBracket h:NamedField t:(Comma v:NamedField)* RightCurlyBracket { $$ = [h, ...t];  } ;
 
 ({ResultType type, String name})
 NamedField = type:Type name:NativeIdentifier ;
@@ -133,20 +133,20 @@ List<({String name, List<Object?> arguments})>
 Metadata = h:MetadataElement t:(Spaces v:MetadataElement)* { $$ = [h, ...t]; } ;
 
 ({String name, List<Object?> arguments})
-MetadataElement = AtSign i:Identifier a:MetadataArguments? { $$ = (name: '@$i', arguments: a ?? const []); } ;
+MetadataElement = CommercialAt i:Identifier a:MetadataArguments? { $$ = (name: '@$i', arguments: a ?? const []); } ;
 
 List<Object?>
-MetadataArguments = OpenParenthesis v:MetadataArgumentList? CloseParenthesis { $$ = v ?? const []; } ;
+MetadataArguments = LeftParenthesis v:MetadataArgumentList? RightParenthesis { $$ = v ?? const []; } ;
 
 List<Object?>
 MetadataArgumentList =  h:MetadataArgument t:(Comma v:MetadataArgument)* { $$ = [h, ...t]; } ;
 
-MetadataArgument = '\'' v:StringChar* SingleQuote { $$ = String.fromCharCodes(v); } ;
+MetadataArgument = '\'' v:StringChar* Apostrophe { $$ = String.fromCharCodes(v); } ;
 
 Expression = OrderedChoice ;
 
 Expression
-OrderedChoice = h:Sequence t:(Slash v:Sequence)* { $$ = OrderedChoiceExpression(expressions: [h, ...t]); } ;
+OrderedChoice = h:Sequence t:(Solidus v:Sequence)* { $$ = OrderedChoiceExpression(expressions: [h, ...t]); } ;
 
 Expression
 Sequence = e:SequenceElement+ a:Action? { $$ = SequenceExpression(expressions: e, action: a); } ;
@@ -156,17 +156,17 @@ SequenceElement =
   / Prefix ;
 
 SemanticAction
-Action = t:(Less v:Type Greater)? b:Block { $$ = SemanticAction(source: b, resultType: t); } ;
+Action = t:(LessThanSign v:Type GreaterThanSign)? b:Block { $$ = SemanticAction(source: b, resultType: t); } ;
 
 Expression
-Prefix = p:(Dollar / Ampersand / Exclamation)? s:Suffix {$$ = _buildPrefix(p, s); } ;
+Prefix = p:(DollarSign / Ampersand / ExclamationMark)? s:Suffix {$$ = _buildPrefix(p, s); } ;
 
 Expression
 Suffix = p:Primary s:(
   Asterisk
-  / Question
-  / Plus/
-  OpenBrace v:MinMax CloseBrace
+  / QuestionMark
+  / PlusSign/
+  LeftCurlyBracket v:MinMax RightCurlyBracket
   )? { $$ = _buildSuffix(s, p); } ;
 
 Primary =
@@ -176,23 +176,28 @@ Primary =
   / CharacterClass
   / AnyCharacter
   / Group
+  / Cut
   / Buffer
   / ErrorHandler
   / MatchString
   / SepBy
+  / SepBy1
   / StringChars
   / Verify ;
 
 Expression
-AnyCharacter = Dot { $$ = AnyCharacterExpression(); };
+AnyCharacter = FullStop { $$ = AnyCharacterExpression(); };
+
+Expression
+Cut = UpwardsArrow { $$ = CutExpression(); };
 
 Expression
 CharacterClass =
-     '[^' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r, negate: true); }
-   / '[' r:(!']' v:Range)+ CloseBracket { $$ = CharacterClassExpression(ranges: r); } ;
+     '[^' r:(!']' v:Range)+ RightSquareBracket { $$ = CharacterClassExpression(ranges: r, negate: true); }
+   / '[' r:(!']' v:Range)+ RightSquareBracket { $$ = CharacterClassExpression(ranges: r); } ;
 
 Expression
-Group = OpenParenthesis e:Expression CloseParenthesis { $$ = GroupExpression(expression: e); } ;
+Group = LeftParenthesis e:Expression RightParenthesis { $$ = GroupExpression(expression: e); } ;
 
 Expression
 Literal = '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
@@ -201,22 +206,25 @@ Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
 
 Expression
-Buffer = '@buffer' OpenParenthesis e:Expression CloseParenthesis { $$ = BufferExpression(expression: e); } ;
+Buffer = '@buffer' LeftParenthesis e:Expression RightParenthesis { $$ = BufferExpression(expression: e); } ;
 
 Expression
-ErrorHandler = '@errorHandler' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
+ErrorHandler = '@errorHandler' LeftParenthesis e:Expression Comma a:Block RightParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
 
 Expression
-MatchString = '@matchString' OpenParenthesis b:Block CloseParenthesis { $$ = MatchStringExpression(value: b); } ;
+MatchString = '@matchString' LeftParenthesis b:Block RightParenthesis { $$ = MatchStringExpression(value: b); } ;
 
 Expression
-SepBy = '@sepBy' OpenParenthesis e:Expression Comma s:Expression CloseParenthesis { $$ = SepByExpression(expression: e, separator: s); } ;
+SepBy = '@sepBy' LeftParenthesis e:Expression Comma s:Expression RightParenthesis { $$ = SepByExpression(expression: e, separator: s); } ;
 
 Expression
-StringChars = '@stringChars' OpenParenthesis n:Expression Comma c:Expression Comma e:Expression CloseParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
+SepBy1 = '@sepBy1' LeftParenthesis e:Expression Comma s:Expression RightParenthesis { $$ = SepBy1Expression(expression: e, separator: s); } ;
 
 Expression
-Verify = '@verify' OpenParenthesis e:Expression Comma a:Block CloseParenthesis { $$ = VerifyExpression(expression: e, handler: a); } ;
+StringChars = '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
+
+Expression
+Verify = '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis { $$ = VerifyExpression(expression: e, handler: a); } ;
 
 (int, int)
 Range =
@@ -252,48 +260,50 @@ Integer = v:$[0-9]+ { $$ = int.parse(v); } ;
 
 Ampersand = v:'&' Spaces ;
 
+Apostrophe = v:'\'' Spaces ;
+
 Asterisk = v:'*' Spaces ;
-
-AtSign = v:'@' Spaces ;
-
-CloseBrace = v:'}' Spaces ;
-
-CloseBracket = v:']' Spaces ;
-
-CloseParenthesis = v:')' Spaces ;
 
 Colon = v:':' Spaces ;
 
 Comma = v:',' Spaces ;
 
-Dot = v:'.' Spaces ;
+CommercialAt = v:'@' Spaces ;
 
-Dollar = v:'$' Spaces ;
+DollarSign = v:'$' Spaces ;
 
-Equal = v:'=' Spaces ;
+EqualsSign = v:'=' Spaces ;
 
-Exclamation = v:'!' Spaces ;
+ExclamationMark = v:'!' Spaces ;
 
-Greater = v:'>' Spaces ;
+FullStop = v:'.' Spaces ;
 
-Less = v:'<' Spaces ;
+GreaterThanSign = v:'>' Spaces ;
 
-OpenBrace = v:'{' Spaces ;
+LeftCurlyBracket = v:'{' Spaces ;
 
-OpenParenthesis = v:'(' Spaces ;
+LeftParenthesis = v:'(' Spaces ;
 
-Plus = v:'+' Spaces ;
+LessThanSign = v:'<' Spaces ;
 
-Question = v:'?' Spaces ;
+PlusSign = v:'+' Spaces ;
+
+RightCurlyBracket = v:'}' Spaces ;
+
+RightParenthesis = v:')' Spaces ;
+
+RightSquareBracket = v:']' Spaces ;
+
+QuestionMark = v:'?' Spaces ;
 
 Semicolon = v:';' Spaces ;
 
-SingleQuote = v:'\'' Spaces ;
+Solidus = v:'/' Spaces ;
 
-Slash = v:'/' Spaces ;
+UpwardsArrow = v:'↑' Spaces ;
 
 Spaces =  (WhiteSpace / Comment)* ;
 
-WhiteSpace = [ \n\r\t];
-
 Comment = '#' (![\n\r] .)* ;
+
+WhiteSpace = [ \n\r\t];

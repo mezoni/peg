@@ -86,14 +86,13 @@ if (state.ok) {
 
     const template = '''
 final {{input}} = state.input;
-if (state.pos + {{offset}} < {{input}}.end || {{input}}.isClosed) {
-  const string = {{literal}};
-  {{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-} else {
+if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}''';
+}
+const string = {{literal}};
+{{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
@@ -135,26 +134,24 @@ state.ok = true;
     var template = '';
     if (string.length == 1) {
       template = '''
-const {{literal}} = {{string}};
 final {{input}} = state.input;
-if (state.pos < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchLiteral1Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));
-} else {
+if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}''';
+}
+const {{literal}} = {{string}};
+{{assign_result}}matchLiteral1Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
     } else {
       template = '''
-const {{literal}} = {{string}};
 final {{input}} = state.input;
-if (state.pos + 1 < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchLiteral2Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));
-} else {
+if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
-}''';
+}
+const {{literal}} = {{string}};
+{{assign_result}}matchLiteral2Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
     }
 
     final source = render(template, values);

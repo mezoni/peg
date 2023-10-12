@@ -11,7 +11,11 @@ abstract class Expression {
 
   bool isLast = false;
 
+  bool isOptional = false;
+
   int level = 0;
+
+  bool mayNotConsumeInput = false;
 
   Expression? parent;
 
@@ -21,7 +25,9 @@ abstract class Expression {
 
   String? semanticVariable;
 
-  bool isOptional = false;
+  List<(int, int)> startingCharacters = [];
+
+  final Set<Expression> startingExpressions = {};
 
   T accept<T>(ExpressionVisitor<T> visitor);
 

@@ -44,7 +44,7 @@ class OrderedChoiceGenerator
         values['p'] = childSource[i];
         const template = '''
 {{p}}
-if (!state.ok) {
+if (!state.ok && state.isRecoverable) {
   {{next}}
 }''';
         source = render(template, values);
@@ -93,7 +93,7 @@ if (!state.ok) {
           template = '''
 if ({{state}} == {{index}}) {
   {{p}}
-  {{state}} = state.ok ? -1 : {{next_index}};
+  {{state}} = state.ok ? -1 : state.isRecoverable ? {{next_index}} : -1;
 }''';
         } else {
           template = '''

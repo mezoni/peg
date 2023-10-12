@@ -10,8 +10,9 @@ class Test2Parser {
     // &([0] [1] [2]) [0] [1] [2]
     final $0 = state.pos;
     final $1 = state.pos;
+    final $2 = state.cuttingPos;
     // [0] [1] [2]
-    final $2 = state.pos;
+    final $3 = state.pos;
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
@@ -38,8 +39,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $2;
+      state.backtrack($3);
     }
+    state.cuttingPos = $2;
     if (state.ok) {
       state.pos = $1;
     }
@@ -71,7 +73,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -86,122 +88,125 @@ class Test2Parser {
     int? $4;
     int? $5;
     int? $6;
-    int $10 = 0;
-    Object? $12;
-    Object? $14;
-    Object? $16;
+    int? $7;
+    int $11 = 0;
+    Object? $13;
+    Object? $15;
+    Object? $17;
     void $1() {
       // &([0] [1] [2]) [0] [1] [2]
-      if ($10 & 0x4 == 0) {
-        $10 |= 0x4;
+      if ($11 & 0x4 == 0) {
+        $11 |= 0x4;
         $2 = 0;
         $3 = state.pos;
       }
       if ($2 == 0) {
         // &([0] [1] [2])
-        if ($10 & 0x2 == 0) {
-          $10 |= 0x2;
+        if ($11 & 0x2 == 0) {
+          $11 |= 0x2;
           state.input.beginBuffering();
           $4 = state.pos;
+          $5 = state.cuttingPos;
         }
         // ([0] [1] [2])
         // [0] [1] [2]
         // [0] [1] [2]
-        if ($10 & 0x1 == 0) {
-          $10 |= 0x1;
-          $5 = 0;
-          $6 = state.pos;
+        if ($11 & 0x1 == 0) {
+          $11 |= 0x1;
+          $6 = 0;
+          $7 = state.pos;
         }
-        if ($5 == 0) {
+        if ($6 == 0) {
           // [0]
-          final $7 = state.input;
-          if (state.pos >= $7.end && !$7.isClosed) {
-            $7.sleep = true;
-            $7.handle = $1;
-            return;
-          }
-          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          $5 = state.ok ? 1 : -1;
-        }
-        if ($5 == 1) {
-          // [1]
           final $8 = state.input;
           if (state.pos >= $8.end && !$8.isClosed) {
             $8.sleep = true;
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-          $5 = state.ok ? 2 : -1;
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          $6 = state.ok ? 1 : -1;
         }
-        if ($5 == 2) {
-          // [2]
+        if ($6 == 1) {
+          // [1]
           final $9 = state.input;
           if (state.pos >= $9.end && !$9.isClosed) {
             $9.sleep = true;
             $9.handle = $1;
             return;
           }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
+          $6 = state.ok ? 2 : -1;
+        }
+        if ($6 == 2) {
+          // [2]
+          final $10 = state.input;
+          if (state.pos >= $10.end && !$10.isClosed) {
+            $10.sleep = true;
+            $10.handle = $1;
+            return;
+          }
           matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-          $5 = -1;
+          $6 = -1;
         }
         if (!state.ok) {
-          state.pos = $6!;
+          state.backtrack($7!);
         }
-        $10 &= ~0x1 & 0xffff;
+        $11 &= ~0x1 & 0xffff;
+        state.cuttingPos = $5!;
         if (state.ok) {
           state.pos = $4!;
         }
-        state.input.endBuffering(state.pos);
-        $10 &= ~0x2 & 0xffff;
+        state.input.endBuffering();
+        $11 &= ~0x2 & 0xffff;
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
         // [0]
-        $12 ??= state.input.beginBuffering();
-        final $11 = state.input;
-        if (state.pos >= $11.end && !$11.isClosed) {
-          $11.sleep = true;
-          $11.handle = $1;
+        $13 ??= state.input.beginBuffering();
+        final $12 = state.input;
+        if (state.pos >= $12.end && !$12.isClosed) {
+          $12.sleep = true;
+          $12.handle = $1;
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
-        $12 = null;
+        state.input.endBuffering();
+        $13 = null;
         $2 = state.ok ? 2 : -1;
       }
       if ($2 == 2) {
         // [1]
-        $14 ??= state.input.beginBuffering();
-        final $13 = state.input;
-        if (state.pos >= $13.end && !$13.isClosed) {
-          $13.sleep = true;
-          $13.handle = $1;
+        $15 ??= state.input.beginBuffering();
+        final $14 = state.input;
+        if (state.pos >= $14.end && !$14.isClosed) {
+          $14.sleep = true;
+          $14.handle = $1;
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
-        $14 = null;
+        state.input.endBuffering();
+        $15 = null;
         $2 = state.ok ? 3 : -1;
       }
       if ($2 == 3) {
         // [2]
-        $16 ??= state.input.beginBuffering();
-        final $15 = state.input;
-        if (state.pos >= $15.end && !$15.isClosed) {
-          $15.sleep = true;
-          $15.handle = $1;
+        $17 ??= state.input.beginBuffering();
+        final $16 = state.input;
+        if (state.pos >= $16.end && !$16.isClosed) {
+          $16.sleep = true;
+          $16.handle = $1;
           return;
         }
         matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-        state.input.endBuffering(state.pos);
-        $16 = null;
+        state.input.endBuffering();
+        $17 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
-      $10 &= ~0x4 & 0xffff;
+      $11 &= ~0x4 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -232,11 +237,9 @@ class Test2Parser {
   AsyncResult<Object?> fastParseAnyCharacter$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $4;
     void $1() {
       // .
       // .
-      $4 ??= state.input.beginBuffering();
       final $3 = state.input;
       if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
@@ -248,8 +251,6 @@ class Test2Parser {
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
       }
-      state.input.endBuffering(state.pos);
-      $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -294,9 +295,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $2;
+      state.backtrack($2);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // ([0] [1])
       // [0] [1]
       final $4 = state.pos;
@@ -317,7 +318,7 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $4;
+        state.backtrack($4);
       }
     }
   }
@@ -390,12 +391,16 @@ class Test2Parser {
           $3 = -1;
         }
         if (!state.ok) {
-          state.pos = $4!;
+          state.backtrack($4!);
         }
         $8 &= ~0x1 & 0xffff;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
-        $2 = state.ok ? -1 : 1;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($2 == 1) {
         // ([0] [1])
@@ -417,7 +422,7 @@ class Test2Parser {
             return;
           }
           matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          state.input.endBuffering(state.pos);
+          state.input.endBuffering();
           $13 = null;
           $10 = state.ok ? 1 : -1;
         }
@@ -431,12 +436,12 @@ class Test2Parser {
             return;
           }
           matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-          state.input.endBuffering(state.pos);
+          state.input.endBuffering();
           $15 = null;
           $10 = -1;
         }
         if (!state.ok) {
-          state.pos = $11!;
+          state.backtrack($11!);
         }
         $8 &= ~0x2 & 0xffff;
         $2 = -1;
@@ -496,7 +501,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -539,7 +544,7 @@ class Test2Parser {
         return;
       }
       matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $3 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -595,7 +600,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -651,7 +656,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -707,8 +712,167 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
+      $0.isComplete = true;
+      state.input.handle = $0.onComplete;
+      return;
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Cut =
+  ///     [0] [+] ↑ [1]
+  ///   / [0]
+  ///   ;
+  void fastParseCut(State<String> state) {
+    // [0] [+] ↑ [1]
+    final $0 = state.pos;
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 43;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(43));
+      }
+      if (state.ok) {
+        state.cut(state.pos);
+        if (state.ok) {
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorExpectedCharacter(49));
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // [0]
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+    }
+  }
+
+  /// Cut =
+  ///     [0] [+] ↑ [1]
+  ///   / [0]
+  ///   ;
+  AsyncResult<Object?> fastParseCut$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<Object?>();
+    int? $2;
+    int? $3;
+    int? $4;
+    Object? $6;
+    Object? $8;
+    Object? $10;
+    int $11 = 0;
+    Object? $13;
+    void $1() {
+      if ($11 & 0x2 == 0) {
+        $11 |= 0x2;
+        $2 = 0;
+      }
+      if ($2 == 0) {
+        // [0] [+] ↑ [1]
+        if ($11 & 0x1 == 0) {
+          $11 |= 0x1;
+          $3 = 0;
+          $4 = state.pos;
+        }
+        if ($3 == 0) {
+          // [0]
+          $6 ??= state.input.beginBuffering();
+          final $5 = state.input;
+          if (state.pos >= $5.end && !$5.isClosed) {
+            $5.sleep = true;
+            $5.handle = $1;
+            return;
+          }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          state.input.endBuffering();
+          $6 = null;
+          $3 = state.ok ? 1 : -1;
+        }
+        if ($3 == 1) {
+          // [+]
+          $8 ??= state.input.beginBuffering();
+          final $7 = state.input;
+          if (state.pos >= $7.end && !$7.isClosed) {
+            $7.sleep = true;
+            $7.handle = $1;
+            return;
+          }
+          matchChar16Async(state, 43, const ErrorExpectedCharacter(43));
+          state.input.endBuffering();
+          $8 = null;
+          $3 = state.ok ? 2 : -1;
+        }
+        if ($3 == 2) {
+          // ↑
+          state.cut(state.pos);
+          state.input.cut(state.pos);
+          $3 = state.ok ? 3 : -1;
+        }
+        if ($3 == 3) {
+          // [1]
+          $10 ??= state.input.beginBuffering();
+          final $9 = state.input;
+          if (state.pos >= $9.end && !$9.isClosed) {
+            $9.sleep = true;
+            $9.handle = $1;
+            return;
+          }
+          matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
+          state.input.endBuffering();
+          $10 = null;
+          $3 = -1;
+        }
+        if (!state.ok) {
+          state.backtrack($4!);
+        }
+        $11 &= ~0x1 & 0xffff;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
+      }
+      if ($2 == 1) {
+        // [0]
+        // [0]
+        $13 ??= state.input.beginBuffering();
+        final $12 = state.input;
+        if (state.pos >= $12.end && !$12.isClosed) {
+          $12.sleep = true;
+          $12.handle = $1;
+          return;
+        }
+        matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+        state.input.endBuffering();
+        $13 = null;
+        $2 = -1;
+      }
+      $11 &= ~0x2 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -733,15 +897,15 @@ class Test2Parser {
     }
     if (state.ok) {
       final $1 = state.pos;
-      final $4 = state.input;
-      if (state.pos < $4.length) {
-        final $3 = $4.runeAt(state.pos);
-        state.pos += $3 > 0xffff ? 2 : 1;
+      final $3 = state.input;
+      if (state.pos < $3.length) {
+        final $2 = $3.runeAt(state.pos);
+        state.pos += $2 > 0xffff ? 2 : 1;
         state.ok = true;
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
-      state.ok = !state.ok;
+      state.setOk(!state.ok);
       if (!state.ok) {
         final length = $1 - state.pos;
         state.fail(switch (length) {
@@ -750,11 +914,11 @@ class Test2Parser {
           2 => const ErrorUnexpectedInput(2),
           _ => ErrorUnexpectedInput(length)
         });
+        state.backtrack($1);
       }
-      state.pos = $1;
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -785,7 +949,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
@@ -808,7 +972,7 @@ class Test2Parser {
         if (state.ok) {
           state.pos += $7 > 0xffff ? 2 : 1;
         }
-        state.ok = !state.ok;
+        state.setOk(!state.ok);
         if (!state.ok) {
           final length = $6! - state.pos;
           state.fail(switch (length) {
@@ -817,14 +981,14 @@ class Test2Parser {
             2 => const ErrorUnexpectedInput(2),
             _ => ErrorUnexpectedInput(length)
           });
+          state.backtrack($6!);
         }
-        state.pos = $6!;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 &= ~0x1 & 0xffff;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $9 &= ~0x2 & 0xffff;
       $0.isComplete = true;
@@ -900,7 +1064,7 @@ class Test2Parser {
         return;
       }
       matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
       if (!state.ok && state._canHandleError($3!, $2!)) {
         ParseError? error;
@@ -977,16 +1141,15 @@ class Test2Parser {
       // '0'
       // '0'
       $4 ??= state.input.beginBuffering();
-      const $3 = '0';
       final $2 = state.input;
-      if (state.pos < $2.end || $2.isClosed) {
-        matchLiteral1Async(state, $3, const ErrorExpectedTags([$3]));
-      } else {
+      if (state.pos >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      const $3 = '0';
+      matchLiteral1Async(state, $3, const ErrorExpectedTags([$3]));
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1017,16 +1180,15 @@ class Test2Parser {
       // '01'
       // '01'
       $4 ??= state.input.beginBuffering();
-      const $3 = '01';
       final $2 = state.input;
-      if (state.pos + 1 < $2.end || $2.isClosed) {
-        matchLiteral2Async(state, $3, const ErrorExpectedTags([$3]));
-      } else {
+      if (state.pos + 1 >= $2.end && !$2.isClosed) {
         $2.sleep = true;
         $2.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      const $3 = '01';
+      matchLiteral2Async(state, $3, const ErrorExpectedTags([$3]));
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1090,32 +1252,34 @@ class Test2Parser {
         // '012'
         $4 ??= state.input.beginBuffering();
         final $3 = state.input;
-        if (state.pos + 2 < $3.end || $3.isClosed) {
-          const string = '012';
-          matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-        } else {
+        if (state.pos + 2 >= $3.end && !$3.isClosed) {
           $3.sleep = true;
           $3.handle = $1;
           return;
         }
-        state.input.endBuffering(state.pos);
+        const string = '012';
+        matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        state.input.endBuffering();
         $4 = null;
-        $2 = state.ok ? -1 : 1;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($2 == 1) {
         // '01'
         // '01'
         $7 ??= state.input.beginBuffering();
-        const $6 = '01';
         final $5 = state.input;
-        if (state.pos + 1 < $5.end || $5.isClosed) {
-          matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
-        } else {
+        if (state.pos + 1 >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
-        state.input.endBuffering(state.pos);
+        const $6 = '01';
+        matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
@@ -1169,7 +1333,7 @@ class Test2Parser {
         $2.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1188,7 +1352,7 @@ class Test2Parser {
     final $0 = state.pos;
     final $1 = state.pos;
     // [0] [1] [2]
-    final $3 = state.pos;
+    final $2 = state.pos;
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
@@ -1215,9 +1379,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $3;
+      state.backtrack($2);
     }
-    state.ok = !state.ok;
+    state.setOk(!state.ok);
     if (!state.ok) {
       final length = $1 - state.pos;
       state.fail(switch (length) {
@@ -1226,8 +1390,8 @@ class Test2Parser {
         2 => const ErrorUnexpectedInput(2),
         _ => ErrorUnexpectedInput(length)
       });
+      state.backtrack($1);
     }
-    state.pos = $1;
     if (state.ok) {
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 48;
@@ -1247,7 +1411,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -1321,10 +1485,10 @@ class Test2Parser {
           $5 = -1;
         }
         if (!state.ok) {
-          state.pos = $6!;
+          state.backtrack($6!);
         }
         $10 &= ~0x1 & 0xffff;
-        state.ok = !state.ok;
+        state.setOk(!state.ok);
         if (!state.ok) {
           final length = $4! - state.pos;
           state.fail(switch (length) {
@@ -1333,9 +1497,9 @@ class Test2Parser {
             2 => const ErrorUnexpectedInput(2),
             _ => ErrorUnexpectedInput(length)
           });
+          state.backtrack($4!);
         }
-        state.pos = $4!;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 &= ~0x2 & 0xffff;
         $2 = state.ok ? 1 : -1;
       }
@@ -1349,7 +1513,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $12 = null;
         $2 = state.ok ? 2 : -1;
       }
@@ -1363,12 +1527,12 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $14 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $10 &= ~0x4 & 0xffff;
       $0.isComplete = true;
@@ -1385,18 +1549,21 @@ class Test2Parser {
   ///   ;
   void fastParseOneOrMore(State<String> state) {
     // [0]+
-    final $3 = state.pos;
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.codeUnitAt(state.pos);
-      state.ok = $1 == 48;
+    var $1 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         break;
       }
-      state.pos++;
+      $1 = true;
     }
-    state.fail(const ErrorExpectedCharacter(48));
-    state.ok = state.pos > $3;
+    state.setOk($1);
   }
 
   /// OneOrMore =
@@ -1412,8 +1579,8 @@ class Test2Parser {
       // [0]+
       $2 ??= false;
       while (true) {
-        $4 ??= state.input.beginBuffering();
         // [0]
+        $4 ??= state.input.beginBuffering();
         final $3 = state.input;
         if (state.pos >= $3.end && !$3.isClosed) {
           $3.sleep = true;
@@ -1421,14 +1588,14 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $4 = null;
         if (!state.ok) {
           break;
         }
         $2 = true;
       }
-      state.ok = $2!;
+      state.setOk($2!);
       $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1452,7 +1619,9 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    state.ok = true;
+    if (!state.ok) {
+      state.setOk(true);
+    }
     if (state.ok) {
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
@@ -1463,7 +1632,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -1487,8 +1656,8 @@ class Test2Parser {
       }
       if ($2 == 0) {
         // [0]?
-        $5 ??= state.input.beginBuffering();
         // [0]
+        $5 ??= state.input.beginBuffering();
         final $4 = state.input;
         if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
@@ -1496,11 +1665,11 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        if (!state.ok) {
-          state.ok = true;
-        }
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
+        if (!state.ok) {
+          state.setOk(true);
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -1513,12 +1682,12 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -1543,7 +1712,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // [1]
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
@@ -1582,9 +1751,13 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $4 = null;
-        $2 = state.ok ? -1 : 1;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($2 == 1) {
         // [1]
@@ -1597,7 +1770,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
         $2 = -1;
       }
@@ -1625,7 +1798,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // [1]
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
@@ -1634,7 +1807,7 @@ class Test2Parser {
       } else {
         state.fail(const ErrorExpectedCharacter(49));
       }
-      if (!state.ok) {
+      if (!state.ok && state.isRecoverable) {
         // [2]
         state.ok = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 50;
@@ -1676,9 +1849,13 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $4 = null;
-        $2 = state.ok ? -1 : 1;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($2 == 1) {
         // [1]
@@ -1691,9 +1868,13 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
-        $2 = state.ok ? -1 : 2;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
       }
       if ($2 == 2) {
         // [2]
@@ -1706,7 +1887,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $2 = -1;
       }
@@ -1739,7 +1920,7 @@ class Test2Parser {
       }
       $1++;
     }
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// RepetitionMax =
@@ -1755,8 +1936,8 @@ class Test2Parser {
       // [\u{1f680}]{,3}
       $2 ??= 0;
       while (true) {
-        $5 ??= state.input.beginBuffering();
         // [\u{1f680}]
+        $5 ??= state.input.beginBuffering();
         final $4 = state.input;
         if (state.pos >= $4.end && !$4.isClosed) {
           $4.sleep = true;
@@ -1764,7 +1945,7 @@ class Test2Parser {
           return;
         }
         matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         if (!state.ok) {
           break;
@@ -1775,7 +1956,7 @@ class Test2Parser {
           break;
         }
       }
-      state.ok = true;
+      state.setOk(true);
       $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1787,8 +1968,7 @@ class Test2Parser {
   }
 
   /// RepetitionMin =
-  ///     [\u{1f680}]{3,}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,}
   ///   ;
   void fastParseRepetitionMin(State<String> state) {
     // [\u{1f680}]{3,}
@@ -1807,96 +1987,50 @@ class Test2Parser {
       }
       $2++;
     }
-    state.ok = $2 >= 3;
+    state.setOk($2 >= 3);
     if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($1);
     }
   }
 
   /// RepetitionMin =
-  ///     [\u{1f680}]{3,}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,}
   ///   ;
   AsyncResult<Object?> fastParseRepetitionMin$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     int? $2;
     int? $3;
-    int? $5;
-    Object? $7;
-    Object? $9;
-    int $10 = 0;
+    Object? $5;
     void $1() {
-      if ($10 & 0x1 == 0) {
-        $10 |= 0x1;
+      // [\u{1f680}]{3,}
+      // [\u{1f680}]{3,}
+      if ($2 == null) {
         $2 = 0;
+        $3 = state.pos;
       }
-      if ($2 == 0) {
-        // [\u{1f680}]{3,}
-        // [\u{1f680}]{3,}
-        if ($3 == null) {
-          $3 = 0;
-          $5 = state.pos;
-          state.input.beginBuffering();
-        }
-        while (true) {
-          $7 ??= state.input.beginBuffering();
-          // [\u{1f680}]
-          final $6 = state.input;
-          if (state.pos >= $6.end && !$6.isClosed) {
-            $6.sleep = true;
-            $6.handle = $1;
-            return;
-          }
-          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-          state.input.endBuffering(state.pos);
-          $7 = null;
-          var $4 = $3!;
-          if (!state.ok) {
-            if ($4 < 3) {
-              state.input.endBuffering(state.pos);
-            }
-            break;
-          }
-          $4++;
-          $3 = $4;
-          if ($4 == 3) {
-            state.input.endBuffering(state.pos);
-          }
-        }
-        state.ok = $3! >= 3;
-        if (!state.ok) {
-          state.pos = $5!;
-        }
-        $3 = null;
-        $2 = state.ok ? -1 : 1;
-      }
-      if ($2 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $9 ??= state.input.beginBuffering();
-        final $8 = state.input;
-        if (state.pos >= $8.end && !$8.isClosed) {
-          $8.sleep = true;
-          $8.handle = $1;
+        $5 ??= state.input.beginBuffering();
+        final $4 = state.input;
+        if (state.pos >= $4.end && !$4.isClosed) {
+          $4.sleep = true;
+          $4.handle = $1;
           return;
         }
         matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $9 = null;
-        $2 = -1;
+        state.input.endBuffering();
+        $5 = null;
+        if (!state.ok) {
+          break;
+        }
+        $2 = $2! + 1;
       }
-      $10 &= ~0x1 & 0xffff;
+      state.setOk($2! >= 3);
+      if (!state.ok) {
+        state.backtrack($3!);
+      }
+      $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1907,8 +2041,7 @@ class Test2Parser {
   }
 
   /// RepetitionMinMax =
-  ///     [\u{1f680}]{2,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{2,3}
   ///   ;
   void fastParseRepetitionMinMax(State<String> state) {
     // [\u{1f680}]{2,3}
@@ -1927,99 +2060,55 @@ class Test2Parser {
       }
       $2++;
     }
-    state.ok = $2 >= 2;
+    state.setOk($2 >= 2);
     if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($1);
     }
   }
 
   /// RepetitionMinMax =
-  ///     [\u{1f680}]{2,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{2,3}
   ///   ;
   AsyncResult<Object?> fastParseRepetitionMinMax$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     int? $2;
-    int? $3;
-    int? $5;
-    Object? $7;
-    Object? $9;
-    int $10 = 0;
+    int? $4;
+    Object? $6;
     void $1() {
-      if ($10 & 0x1 == 0) {
-        $10 |= 0x1;
+      // [\u{1f680}]{2,3}
+      // [\u{1f680}]{2,3}
+      if ($2 == null) {
         $2 = 0;
+        $4 = state.pos;
       }
-      if ($2 == 0) {
-        // [\u{1f680}]{2,3}
-        // [\u{1f680}]{2,3}
-        if ($3 == null) {
-          $3 = 0;
-          $5 = state.pos;
-          state.input.beginBuffering();
-        }
-        while (true) {
-          $7 ??= state.input.beginBuffering();
-          // [\u{1f680}]
-          final $6 = state.input;
-          if (state.pos >= $6.end && !$6.isClosed) {
-            $6.sleep = true;
-            $6.handle = $1;
-            return;
-          }
-          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-          state.input.endBuffering(state.pos);
-          $7 = null;
-          var $4 = $3!;
-          if (!state.ok) {
-            if ($4 < 2) {
-              state.input.endBuffering(state.pos);
-            }
-            break;
-          }
-          $4++;
-          $3 = $4;
-          if ($4 == 2) {
-            state.input.endBuffering(state.pos);
-          }
-          if ($4 == 3) {
-            break;
-          }
-        }
-        state.ok = $3! >= 2;
-        if (!state.ok) {
-          state.pos = $5!;
-        }
-        $3 = null;
-        $2 = state.ok ? -1 : 1;
-      }
-      if ($2 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $9 ??= state.input.beginBuffering();
-        final $8 = state.input;
-        if (state.pos >= $8.end && !$8.isClosed) {
-          $8.sleep = true;
-          $8.handle = $1;
+        $6 ??= state.input.beginBuffering();
+        final $5 = state.input;
+        if (state.pos >= $5.end && !$5.isClosed) {
+          $5.sleep = true;
+          $5.handle = $1;
           return;
         }
         matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $9 = null;
-        $2 = -1;
+        state.input.endBuffering();
+        $6 = null;
+        if (!state.ok) {
+          break;
+        }
+        var $3 = $2!;
+        $3++;
+        $2 = $3;
+        if ($3 == 3) {
+          break;
+        }
       }
-      $10 &= ~0x1 & 0xffff;
+      state.setOk($2! >= 2);
+      if (!state.ok) {
+        state.backtrack($4!);
+      }
+      $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -2030,8 +2119,7 @@ class Test2Parser {
   }
 
   /// RepetitionN =
-  ///     [\u{1f680}]{3,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,3}
   ///   ;
   void fastParseRepetitionN(State<String> state) {
     // [\u{1f680}]{3,3}
@@ -2050,89 +2138,54 @@ class Test2Parser {
       }
       $2++;
     }
-    state.ok = $2 == 3;
+    state.setOk($2 == 3);
     if (!state.ok) {
-      state.pos = $1;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($1);
     }
   }
 
   /// RepetitionN =
-  ///     [\u{1f680}]{3,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,3}
   ///   ;
   AsyncResult<Object?> fastParseRepetitionN$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     int? $2;
-    int? $3;
-    int? $5;
-    Object? $8;
-    int $9 = 0;
+    int? $4;
+    Object? $6;
     void $1() {
-      if ($9 & 0x1 == 0) {
-        $9 |= 0x1;
+      // [\u{1f680}]{3,3}
+      // [\u{1f680}]{3,3}
+      if ($2 == null) {
         $2 = 0;
+        $4 = state.pos;
       }
-      if ($2 == 0) {
-        // [\u{1f680}]{3,3}
-        // [\u{1f680}]{3,3}
-        if ($3 == null) {
-          $3 = 0;
-          state.input.beginBuffering();
-          $5 = state.pos;
-        }
-        while (true) {
-          // [\u{1f680}]
-          final $6 = state.input;
-          if (state.pos >= $6.end && !$6.isClosed) {
-            $6.sleep = true;
-            $6.handle = $1;
-            return;
-          }
-          matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-          if (!state.ok) {
-            break;
-          }
-          final $4 = $3! + 1;
-          $3 = $4;
-          if ($4 == 3) {
-            break;
-          }
-        }
-        state.ok = $3! == 3;
-        if (!state.ok) {
-          state.pos = $5!;
-        }
-        state.input.endBuffering(state.pos);
-        $3 = null;
-        $2 = state.ok ? -1 : 1;
-      }
-      if ($2 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $8 ??= state.input.beginBuffering();
-        final $7 = state.input;
-        if (state.pos >= $7.end && !$7.isClosed) {
-          $7.sleep = true;
-          $7.handle = $1;
+        $6 ??= state.input.beginBuffering();
+        final $5 = state.input;
+        if (state.pos >= $5.end && !$5.isClosed) {
+          $5.sleep = true;
+          $5.handle = $1;
           return;
         }
         matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $8 = null;
-        $2 = -1;
+        state.input.endBuffering();
+        $6 = null;
+        if (!state.ok) {
+          break;
+        }
+        final $3 = $2! + 1;
+        $2 = $3;
+        if ($3 == 3) {
+          break;
+        }
       }
-      $9 &= ~0x1 & 0xffff;
+      state.setOk($2! == 3);
+      if (!state.ok) {
+        state.backtrack($4!);
+      }
+      $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -2158,7 +2211,7 @@ class Test2Parser {
         state.fail(const ErrorExpectedCharacter(48));
       }
       if (!state.ok) {
-        state.pos = $1;
+        state.backtrack($1);
         break;
       }
       $1 = state.pos;
@@ -2174,7 +2227,7 @@ class Test2Parser {
         break;
       }
     }
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// SepBy =
@@ -2182,25 +2235,43 @@ class Test2Parser {
   ///   ;
   AsyncResult<Object?> fastParseSepBy$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $2;
-    Object? $3;
-    int? $4;
-    int? $5;
+    int? $2;
+    int? $3;
+    Object? $5;
     Object? $7;
-    Object? $9;
+    int $8 = 0;
     void $1() {
       // @sepBy([0], [,])
       // @sepBy([0], [,])
-      if ($2 == null) {
-        $2 = true;
-        state.input.beginBuffering();
-        $5 = state.pos;
-        $4 = 0;
+      if ($8 & 0x1 == 0) {
+        $8 |= 0x1;
+        $3 = state.pos;
+        $2 = 0;
       }
       while (true) {
-        if ($4 == 0) {
+        if ($2 == 0) {
           // [0]
           // [0]
+          $5 ??= state.input.beginBuffering();
+          final $4 = state.input;
+          if (state.pos >= $4.end && !$4.isClosed) {
+            $4.sleep = true;
+            $4.handle = $1;
+            return;
+          }
+          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          state.input.endBuffering();
+          $5 = null;
+          if (!state.ok) {
+            state.backtrack($3!);
+            break;
+          }
+          $3 = state.pos;
+          $2 = 1;
+        }
+        if ($2 == 1) {
+          // [,]
+          // [,]
           $7 ??= state.input.beginBuffering();
           final $6 = state.input;
           if (state.pos >= $6.end && !$6.isClosed) {
@@ -2208,45 +2279,17 @@ class Test2Parser {
             $6.handle = $1;
             return;
           }
-          matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          state.input.endBuffering(state.pos);
+          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
+          state.input.endBuffering();
           $7 = null;
           if (!state.ok) {
-            state.pos = $5!;
-            state.input.endBuffering(state.pos);
             break;
           }
-          state.input.endBuffering(state.pos);
-          $4 = 1;
-        }
-        if ($4 == 1) {
-          if ($3 == null) {
-            $3 = true;
-            state.input.beginBuffering();
-            $5 = state.pos;
-          }
-          // [,]
-          // [,]
-          $9 ??= state.input.beginBuffering();
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
-            return;
-          }
-          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
-          state.input.endBuffering(state.pos);
-          $9 = null;
-          $3 = null;
-          if (!state.ok) {
-            state.input.endBuffering(state.pos);
-            break;
-          }
-          $4 = 0;
+          $2 = 0;
         }
       }
-      state.ok = true;
-      $3 = null;
+      state.setOk(true);
+      $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -2288,7 +2331,7 @@ class Test2Parser {
         return;
       }
       matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $3 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -2336,7 +2379,7 @@ class Test2Parser {
         return;
       }
       matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $3 = null;
       if (state.ok) {
         // ignore: unused_local_variable
@@ -2384,7 +2427,7 @@ class Test2Parser {
         return;
       }
       matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $3 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -2436,7 +2479,7 @@ class Test2Parser {
         return;
       }
       $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       if (state.ok) {
         // ignore: unused_local_variable
@@ -2476,7 +2519,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2508,7 +2551,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
@@ -2522,12 +2565,12 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -2567,7 +2610,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2599,7 +2642,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
@@ -2613,7 +2656,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
@@ -2622,7 +2665,7 @@ class Test2Parser {
         int? $$;
         $$ = 0x30;
       } else {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -2657,7 +2700,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2689,7 +2732,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
@@ -2703,12 +2746,12 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -2751,7 +2794,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2784,7 +2827,7 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
         $3 = state.ok ? 1 : -1;
       }
@@ -2798,7 +2841,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $3 = -1;
       }
@@ -2808,7 +2851,7 @@ class Test2Parser {
         final v = $2!;
         $$ = v;
       } else {
-        state.pos = $4!;
+        state.backtrack($4!);
       }
       $9 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -2843,7 +2886,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2875,7 +2918,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
         $2 = state.ok ? 1 : -1;
       }
@@ -2889,12 +2932,12 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $2 = -1;
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -2940,7 +2983,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $0;
+      state.backtrack($0);
     }
   }
 
@@ -2974,7 +3017,7 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $4 = state.ok ? 1 : -1;
       }
@@ -2988,7 +3031,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
         $4 = -1;
       }
@@ -2999,7 +3042,7 @@ class Test2Parser {
         final v2 = $3!;
         $$ = v1 + v2;
       } else {
-        state.pos = $5!;
+        state.backtrack($5!);
       }
       $10 &= ~0x1 & 0xffff;
       $0.isComplete = true;
@@ -3045,9 +3088,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $2;
+      state.backtrack($2);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // $([0] [1])
       // [0] [1]
       final $5 = state.pos;
@@ -3068,7 +3111,7 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $5;
+        state.backtrack($5);
       }
     }
   }
@@ -3138,12 +3181,16 @@ class Test2Parser {
           $3 = -1;
         }
         if (!state.ok) {
-          state.pos = $4!;
+          state.backtrack($4!);
         }
         $8 &= ~0x1 & 0xffff;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
-        $2 = state.ok ? -1 : 1;
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($2 == 1) {
         // $([0] [1])
@@ -3180,10 +3227,10 @@ class Test2Parser {
           $10 = -1;
         }
         if (!state.ok) {
-          state.pos = $11!;
+          state.backtrack($11!);
         }
         $8 &= ~0x2 & 0xffff;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $14 = null;
         $2 = -1;
       }
@@ -3202,21 +3249,29 @@ class Test2Parser {
   ///   ;
   void fastParseStringChars(State<String> state) {
     // @stringChars($[0-9]+, [\\], [t] <String>{})
-    final $8 = state.input;
-    while (state.pos < $8.length) {
+    final $7 = state.input;
+    while (state.pos < $7.length) {
       // $[0-9]+
-      final $5 = state.pos;
-      final $4 = state.input;
-      while (state.pos < $4.length) {
-        final $3 = $4.codeUnitAt(state.pos);
-        state.ok = $3 >= 48 && $3 <= 57;
+      var $3 = false;
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $4 = state.input.codeUnitAt(state.pos);
+          state.ok = $4 >= 48 && $4 <= 57;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
         if (!state.ok) {
           break;
         }
-        state.pos++;
+        $3 = true;
       }
-      state.fail(const ErrorUnexpectedCharacter());
-      state.ok = state.pos > $5;
+      state.setOk($3);
       final pos = state.pos;
       // [\\]
       state.ok = state.pos < state.input.length &&
@@ -3243,7 +3298,7 @@ class Test2Parser {
         $$ = '\t';
       }
       if (!state.ok) {
-        state.pos = pos;
+        state.backtrack(pos);
         break;
       }
     }
@@ -3258,37 +3313,37 @@ class Test2Parser {
     final $0 = AsyncResult<Object?>();
     int? $2;
     int? $3;
-    Object? $4;
-    Object? $5;
-    bool? $6;
-    int $11 = 0;
+    bool? $4;
+    Object? $7;
+    Object? $9;
+    Object? $11;
+    int $12 = 0;
     void $1() {
       // @stringChars($[0-9]+, [\\], [t] <String>{})
       // @stringChars($[0-9]+, [\\], [t] <String>{})
-      if ($11 & 0x1 == 0) {
-        $11 |= 0x1;
-        state.input.beginBuffering();
+      if ($12 & 0x1 == 0) {
+        $12 |= 0x1;
         $2 = 0;
       }
       while (true) {
         if ($2 == 0) {
-          $4 ??= state.input.beginBuffering();
           // $[0-9]+
           // $[0-9]+
           // $[0-9]+
+          $7 ??= state.input.beginBuffering();
           // [0-9]+
-          $6 ??= false;
+          $4 ??= false;
           while (true) {
             // [0-9]
-            final $8 = state.input;
-            if (state.pos >= $8.end && !$8.isClosed) {
-              $8.sleep = true;
-              $8.handle = $1;
+            final $6 = state.input;
+            if (state.pos >= $6.end && !$6.isClosed) {
+              $6.sleep = true;
+              $6.handle = $1;
               return;
             }
-            final $7 = readChar16Async(state);
-            if ($7 >= 0) {
-              state.ok = $7 >= 48 && $7 <= 57;
+            final $5 = readChar16Async(state);
+            if ($5 >= 0) {
+              state.ok = $5 >= 48 && $5 <= 57;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -3298,30 +3353,30 @@ class Test2Parser {
             if (!state.ok) {
               break;
             }
-            $6 = true;
+            $4 = true;
           }
-          state.ok = $6!;
-          $6 = null;
-          state.input.endBuffering(state.pos);
+          state.setOk($4!);
           $4 = null;
+          state.input.endBuffering();
+          $7 = null;
           $3 = state.pos;
           $2 = 1;
         }
         if ($2 == 1) {
-          $5 ??= state.input.beginBuffering();
           // [\\]
           // [\\]
           // [\\]
-          final $9 = state.input;
-          if (state.pos >= $9.end && !$9.isClosed) {
-            $9.sleep = true;
-            $9.handle = $1;
+          $9 ??= state.input.beginBuffering();
+          final $8 = state.input;
+          if (state.pos >= $8.end && !$8.isClosed) {
+            $8.sleep = true;
+            $8.handle = $1;
             return;
           }
           matchChar16Async(state, 92, const ErrorExpectedCharacter(92));
+          state.input.endBuffering();
+          $9 = null;
           if (!state.ok) {
-            state.input.endBuffering(state.pos);
-            $5 = null;
             break;
           }
           $2 = 2;
@@ -3330,6 +3385,7 @@ class Test2Parser {
           // [t] <String>{}
           // [t] <String>{}
           // [t]
+          $11 ??= state.input.beginBuffering();
           final $10 = state.input;
           if (state.pos >= $10.end && !$10.isClosed) {
             $10.sleep = true;
@@ -3337,23 +3393,22 @@ class Test2Parser {
             return;
           }
           matchChar16Async(state, 116, const ErrorExpectedCharacter(116));
+          state.input.endBuffering();
+          $11 = null;
           if (state.ok) {
             // ignore: unused_local_variable
             String? $$;
             $$ = '\t';
           }
-          state.input.endBuffering(state.pos);
-          $5 = null;
           if (!state.ok) {
-            state.pos = $3!;
+            state.backtrack($3!);
             break;
           }
           $2 = 0;
         }
       }
       state.ok = true;
-      state.input.endBuffering(state.pos);
-      $11 &= ~0x1 & 0xffff;
+      $12 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -3399,7 +3454,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
   }
 
@@ -3455,9 +3510,9 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $3!;
+        state.backtrack($3!);
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $8 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -3473,17 +3528,19 @@ class Test2Parser {
   ///   ;
   void fastParseZeroOrMore(State<String> state) {
     // [0]*
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.codeUnitAt(state.pos);
-      state.ok = $1 == 48;
+    while (true) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         break;
       }
-      state.pos++;
     }
-    state.fail(const ErrorExpectedCharacter(48));
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// ZeroOrMore =
@@ -3497,8 +3554,8 @@ class Test2Parser {
       // [0]*
       // [0]*
       while (true) {
-        $3 ??= state.input.beginBuffering();
         // [0]
+        $3 ??= state.input.beginBuffering();
         final $2 = state.input;
         if (state.pos >= $2.end && !$2.isClosed) {
           $2.sleep = true;
@@ -3506,13 +3563,13 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $3 = null;
         if (!state.ok) {
           break;
         }
       }
-      state.ok = true;
+      state.setOk(true);
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -3520,6 +3577,196 @@ class Test2Parser {
 
     $1();
     return $0;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(State<String> state, int char, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
+    if (state.ok) {
+      state.pos++;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16Async(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    state.ok = pos < input.end;
+    if (state.ok) {
+      final c = input.data.codeUnitAt(pos - start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(State<String> state, int char, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length && input.runeAt(pos) == char;
+    if (state.ok) {
+      state.pos += char > 0xffff ? 2 : 1;
+      return char;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32Async(
+      State<ChunkedParsingSink> state, int char, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    state.ok = pos < input.end;
+    if (state.ok) {
+      final c = input.data.runeAt(pos - start);
+      state.ok = c == char;
+      if (state.ok) {
+        state.pos += c > 0xffff ? 2 : 1;
+        return char;
+      }
+    }
+    if (!state.ok) {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral(State<String> state, String string, ParseError error) {
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final input = state.input;
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
+    if (state.ok) {
+      state.pos++;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    state.ok = pos < input.end &&
+        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
+    if (state.ok) {
+      state.pos++;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral2(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    final pos2 = pos + 1;
+    state.ok = pos2 < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.codeUnitAt(pos2) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral2Async(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    final input = state.input;
+    final start = input.start;
+    final data = input.data;
+    final pos = state.pos;
+    final index = pos - start;
+    state.ok = pos + 1 < input.end &&
+        data.codeUnitAt(index) == string.codeUnitAt(0) &&
+        data.codeUnitAt(index + 1) == string.codeUnitAt(1);
+    if (state.ok) {
+      state.pos += 2;
+      return string;
+    }
+    state.fail(error);
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteralAsync(
+      State<ChunkedParsingSink> state, String string, ParseError error) {
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final input = state.input;
+    final start = input.start;
+    final data = input.data;
+    final pos = state.pos;
+    final index = pos - start;
+    state.ok = pos <= input.end &&
+        data.codeUnitAt(index) == string.codeUnitAt(0) &&
+        data.startsWith(string, index);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    }
+    state.fail(error);
+    return null;
   }
 
   /// AndPredicate =
@@ -3531,45 +3778,47 @@ class Test2Parser {
     final $1 = state.pos;
     List<Object?>? $2;
     final $6 = state.pos;
+    final $7 = state.cuttingPos;
     // [0] [1] [2]
-    final $7 = state.pos;
-    int? $8;
+    final $8 = state.pos;
+    int? $9;
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
       state.pos++;
-      $8 = 48;
+      $9 = 48;
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
     if (state.ok) {
-      int? $9;
+      int? $10;
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
         state.pos++;
-        $9 = 49;
+        $10 = 49;
       } else {
         state.fail(const ErrorExpectedCharacter(49));
       }
       if (state.ok) {
-        int? $10;
+        int? $11;
         state.ok = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 50;
         if (state.ok) {
           state.pos++;
-          $10 = 50;
+          $11 = 50;
         } else {
           state.fail(const ErrorExpectedCharacter(50));
         }
         if (state.ok) {
-          $2 = [$8!, $9!, $10!];
+          $2 = [$9!, $10!, $11!];
         }
       }
     }
     if (!state.ok) {
-      state.pos = $7;
+      state.backtrack($8);
     }
+    state.cuttingPos = $7;
     if (state.ok) {
       state.pos = $6;
     }
@@ -3610,7 +3859,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -3626,134 +3875,137 @@ class Test2Parser {
     int? $8;
     List<Object?>? $3;
     int? $9;
-    int? $13;
-    int? $14;
     int? $10;
+    int? $14;
+    int? $15;
     int? $11;
     int? $12;
-    int $18 = 0;
+    int? $13;
+    int $19 = 0;
     int? $4;
-    Object? $20;
+    Object? $21;
     int? $5;
-    Object? $22;
+    Object? $23;
     int? $6;
-    Object? $24;
+    Object? $25;
     void $1() {
       // &([0] [1] [2]) [0] [1] [2]
-      if ($18 & 0x4 == 0) {
-        $18 |= 0x4;
+      if ($19 & 0x4 == 0) {
+        $19 |= 0x4;
         $7 = 0;
         $8 = state.pos;
       }
       if ($7 == 0) {
         // &([0] [1] [2])
-        if ($18 & 0x2 == 0) {
-          $18 |= 0x2;
+        if ($19 & 0x2 == 0) {
+          $19 |= 0x2;
           state.input.beginBuffering();
           $9 = state.pos;
+          $10 = state.cuttingPos;
         }
         // ([0] [1] [2])
         // [0] [1] [2]
         // [0] [1] [2]
-        if ($18 & 0x1 == 0) {
-          $18 |= 0x1;
-          $13 = 0;
-          $14 = state.pos;
+        if ($19 & 0x1 == 0) {
+          $19 |= 0x1;
+          $14 = 0;
+          $15 = state.pos;
         }
-        if ($13 == 0) {
+        if ($14 == 0) {
           // [0]
-          final $15 = state.input;
-          if (state.pos >= $15.end && !$15.isClosed) {
-            $15.sleep = true;
-            $15.handle = $1;
-            return;
-          }
-          $10 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          $13 = state.ok ? 1 : -1;
-        }
-        if ($13 == 1) {
-          // [1]
           final $16 = state.input;
           if (state.pos >= $16.end && !$16.isClosed) {
             $16.sleep = true;
             $16.handle = $1;
             return;
           }
-          $11 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-          $13 = state.ok ? 2 : -1;
+          $11 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          $14 = state.ok ? 1 : -1;
         }
-        if ($13 == 2) {
-          // [2]
+        if ($14 == 1) {
+          // [1]
           final $17 = state.input;
           if (state.pos >= $17.end && !$17.isClosed) {
             $17.sleep = true;
             $17.handle = $1;
             return;
           }
-          $12 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-          $13 = -1;
+          $12 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
+          $14 = state.ok ? 2 : -1;
+        }
+        if ($14 == 2) {
+          // [2]
+          final $18 = state.input;
+          if (state.pos >= $18.end && !$18.isClosed) {
+            $18.sleep = true;
+            $18.handle = $1;
+            return;
+          }
+          $13 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
+          $14 = -1;
         }
         if (state.ok) {
-          $3 = [$10!, $11!, $12!];
+          $3 = [$11!, $12!, $13!];
         } else {
-          state.pos = $14!;
+          state.backtrack($15!);
         }
-        $18 &= ~0x1 & 0xffff;
+        $19 &= ~0x1 & 0xffff;
+        state.cuttingPos = $10!;
         if (state.ok) {
           state.pos = $9!;
         }
-        state.input.endBuffering(state.pos);
-        $18 &= ~0x2 & 0xffff;
+        state.input.endBuffering();
+        $19 &= ~0x2 & 0xffff;
         $7 = state.ok ? 1 : -1;
       }
       if ($7 == 1) {
         // [0]
-        $20 ??= state.input.beginBuffering();
-        final $19 = state.input;
-        if (state.pos >= $19.end && !$19.isClosed) {
-          $19.sleep = true;
-          $19.handle = $1;
+        $21 ??= state.input.beginBuffering();
+        final $20 = state.input;
+        if (state.pos >= $20.end && !$20.isClosed) {
+          $20.sleep = true;
+          $20.handle = $1;
           return;
         }
         $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
-        $20 = null;
+        state.input.endBuffering();
+        $21 = null;
         $7 = state.ok ? 2 : -1;
       }
       if ($7 == 2) {
         // [1]
-        $22 ??= state.input.beginBuffering();
-        final $21 = state.input;
-        if (state.pos >= $21.end && !$21.isClosed) {
-          $21.sleep = true;
-          $21.handle = $1;
+        $23 ??= state.input.beginBuffering();
+        final $22 = state.input;
+        if (state.pos >= $22.end && !$22.isClosed) {
+          $22.sleep = true;
+          $22.handle = $1;
           return;
         }
         $5 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
-        $22 = null;
+        state.input.endBuffering();
+        $23 = null;
         $7 = state.ok ? 3 : -1;
       }
       if ($7 == 3) {
         // [2]
-        $24 ??= state.input.beginBuffering();
-        final $23 = state.input;
-        if (state.pos >= $23.end && !$23.isClosed) {
-          $23.sleep = true;
-          $23.handle = $1;
+        $25 ??= state.input.beginBuffering();
+        final $24 = state.input;
+        if (state.pos >= $24.end && !$24.isClosed) {
+          $24.sleep = true;
+          $24.handle = $1;
           return;
         }
         $6 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-        state.input.endBuffering(state.pos);
-        $24 = null;
+        state.input.endBuffering();
+        $25 = null;
         $7 = -1;
       }
       if (state.ok) {
         $2 = [$3!, $4!, $5!, $6!];
       } else {
-        state.pos = $8!;
+        state.backtrack($8!);
       }
-      $18 &= ~0x4 & 0xffff;
+      $19 &= ~0x4 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -3788,11 +4040,9 @@ class Test2Parser {
   AsyncResult<int> parseAnyCharacter$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<int>();
     int? $2;
-    Object? $5;
     void $1() {
       // .
       // .
-      $5 ??= state.input.beginBuffering();
       final $4 = state.input;
       if (state.pos >= $4.end && !$4.isClosed) {
         $4.sleep = true;
@@ -3805,8 +4055,6 @@ class Test2Parser {
         state.pos += $3 > 0xffff ? 2 : 1;
         $2 = $3;
       }
-      state.input.endBuffering(state.pos);
-      $5 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -3862,9 +4110,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $3;
+      state.backtrack($3);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // ([0] [1])
       // [0] [1]
       final $8 = state.pos;
@@ -3892,7 +4140,7 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $8;
+        state.backtrack($8);
       }
     }
     return $0;
@@ -3975,12 +4223,16 @@ class Test2Parser {
         if (state.ok) {
           $2 = [$4!, $5!, $6!];
         } else {
-          state.pos = $8!;
+          state.backtrack($8!);
         }
         $12 &= ~0x1 & 0xffff;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $13 = null;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // ([0] [1])
@@ -4002,7 +4254,7 @@ class Test2Parser {
             return;
           }
           $14 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          state.input.endBuffering(state.pos);
+          state.input.endBuffering();
           $19 = null;
           $16 = state.ok ? 1 : -1;
         }
@@ -4016,14 +4268,14 @@ class Test2Parser {
             return;
           }
           $15 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-          state.input.endBuffering(state.pos);
+          state.input.endBuffering();
           $21 = null;
           $16 = -1;
         }
         if (state.ok) {
           $2 = [$14!, $15!];
         } else {
-          state.pos = $17!;
+          state.backtrack($17!);
         }
         $12 &= ~0x2 & 0xffff;
         $3 = -1;
@@ -4088,7 +4340,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4137,7 +4389,7 @@ class Test2Parser {
       }
       $2 =
           matchChar32Async(state, 128640, const ErrorExpectedCharacter(128640));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4199,7 +4451,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4261,7 +4513,7 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4323,8 +4575,188 @@ class Test2Parser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
+      $0.value = $2;
+      $0.isComplete = true;
+      state.input.handle = $0.onComplete;
+      return;
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Cut =
+  ///     [0] [+] ↑ [1]
+  ///   / [0]
+  ///   ;
+  Object? parseCut(State<String> state) {
+    Object? $0;
+    // [0] [+] ↑ [1]
+    final $1 = state.pos;
+    int? $2;
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $2 = 48;
+    } else {
+      state.fail(const ErrorExpectedCharacter(48));
+    }
+    if (state.ok) {
+      int? $3;
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 43;
+      if (state.ok) {
+        state.pos++;
+        $3 = 43;
+      } else {
+        state.fail(const ErrorExpectedCharacter(43));
+      }
+      if (state.ok) {
+        Object? $4;
+        state.cut(state.pos);
+        if (state.ok) {
+          int? $5;
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+            $5 = 49;
+          } else {
+            state.fail(const ErrorExpectedCharacter(49));
+          }
+          if (state.ok) {
+            $0 = [$2!, $3!, $4, $5!];
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($1);
+    }
+    if (!state.ok && state.isRecoverable) {
+      // [0]
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $0 = 48;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
+    }
+    return $0;
+  }
+
+  /// Cut =
+  ///     [0] [+] ↑ [1]
+  ///   / [0]
+  ///   ;
+  AsyncResult<Object?> parseCut$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<Object?>();
+    Object? $2;
+    int? $3;
+    int? $8;
+    int? $9;
+    int? $4;
+    Object? $11;
+    int? $5;
+    Object? $13;
+    Object? $6;
+    int? $7;
+    Object? $15;
+    int $16 = 0;
+    Object? $18;
+    void $1() {
+      if ($16 & 0x2 == 0) {
+        $16 |= 0x2;
+        $3 = 0;
+      }
+      if ($3 == 0) {
+        // [0] [+] ↑ [1]
+        if ($16 & 0x1 == 0) {
+          $16 |= 0x1;
+          $8 = 0;
+          $9 = state.pos;
+        }
+        if ($8 == 0) {
+          // [0]
+          $11 ??= state.input.beginBuffering();
+          final $10 = state.input;
+          if (state.pos >= $10.end && !$10.isClosed) {
+            $10.sleep = true;
+            $10.handle = $1;
+            return;
+          }
+          $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          state.input.endBuffering();
+          $11 = null;
+          $8 = state.ok ? 1 : -1;
+        }
+        if ($8 == 1) {
+          // [+]
+          $13 ??= state.input.beginBuffering();
+          final $12 = state.input;
+          if (state.pos >= $12.end && !$12.isClosed) {
+            $12.sleep = true;
+            $12.handle = $1;
+            return;
+          }
+          $5 = matchChar16Async(state, 43, const ErrorExpectedCharacter(43));
+          state.input.endBuffering();
+          $13 = null;
+          $8 = state.ok ? 2 : -1;
+        }
+        if ($8 == 2) {
+          // ↑
+          state.cut(state.pos);
+          state.input.cut(state.pos);
+          $8 = state.ok ? 3 : -1;
+        }
+        if ($8 == 3) {
+          // [1]
+          $15 ??= state.input.beginBuffering();
+          final $14 = state.input;
+          if (state.pos >= $14.end && !$14.isClosed) {
+            $14.sleep = true;
+            $14.handle = $1;
+            return;
+          }
+          $7 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
+          state.input.endBuffering();
+          $15 = null;
+          $8 = -1;
+        }
+        if (state.ok) {
+          $2 = [$4!, $5!, $6, $7!];
+        } else {
+          state.backtrack($9!);
+        }
+        $16 &= ~0x1 & 0xffff;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
+      }
+      if ($3 == 1) {
+        // [0]
+        // [0]
+        $18 ??= state.input.beginBuffering();
+        final $17 = state.input;
+        if (state.pos >= $17.end && !$17.isClosed) {
+          $17.sleep = true;
+          $17.handle = $1;
+          return;
+        }
+        $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+        state.input.endBuffering();
+        $18 = null;
+        $3 = -1;
+      }
+      $16 &= ~0x2 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4354,15 +4786,15 @@ class Test2Parser {
     if (state.ok) {
       Object? $3;
       final $4 = state.pos;
-      final $7 = state.input;
-      if (state.pos < $7.length) {
-        final $6 = $7.runeAt(state.pos);
-        state.pos += $6 > 0xffff ? 2 : 1;
+      final $6 = state.input;
+      if (state.pos < $6.length) {
+        final $5 = $6.runeAt(state.pos);
+        state.pos += $5 > 0xffff ? 2 : 1;
         state.ok = true;
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
-      state.ok = !state.ok;
+      state.setOk(!state.ok);
       if (!state.ok) {
         final length = $4 - state.pos;
         state.fail(switch (length) {
@@ -4371,14 +4803,14 @@ class Test2Parser {
           2 => const ErrorUnexpectedInput(2),
           _ => ErrorUnexpectedInput(length)
         });
+        state.backtrack($4);
       }
-      state.pos = $4;
       if (state.ok) {
         $0 = [$2!, $3];
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -4413,7 +4845,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $5 = state.ok ? 1 : -1;
       }
@@ -4436,7 +4868,7 @@ class Test2Parser {
         if (state.ok) {
           state.pos += $10 > 0xffff ? 2 : 1;
         }
-        state.ok = !state.ok;
+        state.setOk(!state.ok);
         if (!state.ok) {
           final length = $9! - state.pos;
           state.fail(switch (length) {
@@ -4445,16 +4877,16 @@ class Test2Parser {
             2 => const ErrorUnexpectedInput(2),
             _ => ErrorUnexpectedInput(length)
           });
+          state.backtrack($9!);
         }
-        state.pos = $9!;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $12 &= ~0x1 & 0xffff;
         $5 = -1;
       }
       if (state.ok) {
         $2 = [$3!, $4];
       } else {
-        state.pos = $6!;
+        state.backtrack($6!);
       }
       $12 &= ~0x2 & 0xffff;
       $0.value = $2;
@@ -4534,7 +4966,7 @@ class Test2Parser {
         return;
       }
       $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $6 = null;
       if (!state.ok && state._canHandleError($4!, $3!)) {
         ParseError? error;
@@ -4621,16 +5053,15 @@ class Test2Parser {
       // '0'
       // '0'
       $5 ??= state.input.beginBuffering();
-      const $4 = '0';
       final $3 = state.input;
-      if (state.pos < $3.end || $3.isClosed) {
-        $2 = matchLiteral1Async(state, $4, const ErrorExpectedTags([$4]));
-      } else {
+      if (state.pos >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      const $4 = '0';
+      $2 = matchLiteral1Async(state, $4, const ErrorExpectedTags([$4]));
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4664,16 +5095,15 @@ class Test2Parser {
       // '01'
       // '01'
       $5 ??= state.input.beginBuffering();
-      const $4 = '01';
       final $3 = state.input;
-      if (state.pos + 1 < $3.end || $3.isClosed) {
-        $2 = matchLiteral2Async(state, $4, const ErrorExpectedTags([$4]));
-      } else {
+      if (state.pos + 1 >= $3.end && !$3.isClosed) {
         $3.sleep = true;
         $3.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      const $4 = '01';
+      $2 = matchLiteral2Async(state, $4, const ErrorExpectedTags([$4]));
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4742,33 +5172,35 @@ class Test2Parser {
         // '012'
         $5 ??= state.input.beginBuffering();
         final $4 = state.input;
-        if (state.pos + 2 < $4.end || $4.isClosed) {
-          const string = '012';
-          $2 = matchLiteralAsync(
-              state, string, const ErrorExpectedTags([string]));
-        } else {
+        if (state.pos + 2 >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
-        state.input.endBuffering(state.pos);
+        const string = '012';
+        $2 =
+            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        state.input.endBuffering();
         $5 = null;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // '01'
         // '01'
         $8 ??= state.input.beginBuffering();
-        const $7 = '01';
         final $6 = state.input;
-        if (state.pos + 1 < $6.end || $6.isClosed) {
-          $2 = matchLiteral2Async(state, $7, const ErrorExpectedTags([$7]));
-        } else {
+        if (state.pos + 1 >= $6.end && !$6.isClosed) {
           $6.sleep = true;
           $6.handle = $1;
           return;
         }
-        state.input.endBuffering(state.pos);
+        const $7 = '01';
+        $2 = matchLiteral2Async(state, $7, const ErrorExpectedTags([$7]));
+        state.input.endBuffering();
         $8 = null;
         $3 = -1;
       }
@@ -4827,7 +5259,7 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $5 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -4849,7 +5281,7 @@ class Test2Parser {
     Object? $2;
     final $5 = state.pos;
     // [0] [1] [2]
-    final $7 = state.pos;
+    final $6 = state.pos;
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
@@ -4876,9 +5308,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $7;
+      state.backtrack($6);
     }
-    state.ok = !state.ok;
+    state.setOk(!state.ok);
     if (!state.ok) {
       final length = $5 - state.pos;
       state.fail(switch (length) {
@@ -4887,8 +5319,8 @@ class Test2Parser {
         2 => const ErrorUnexpectedInput(2),
         _ => ErrorUnexpectedInput(length)
       });
+      state.backtrack($5);
     }
-    state.pos = $5;
     if (state.ok) {
       int? $3;
       state.ok = state.pos < state.input.length &&
@@ -4915,7 +5347,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -4994,10 +5426,10 @@ class Test2Parser {
           $9 = -1;
         }
         if (!state.ok) {
-          state.pos = $10!;
+          state.backtrack($10!);
         }
         $14 &= ~0x1 & 0xffff;
-        state.ok = !state.ok;
+        state.setOk(!state.ok);
         if (!state.ok) {
           final length = $8! - state.pos;
           state.fail(switch (length) {
@@ -5006,9 +5438,9 @@ class Test2Parser {
             2 => const ErrorUnexpectedInput(2),
             _ => ErrorUnexpectedInput(length)
           });
+          state.backtrack($8!);
         }
-        state.pos = $8!;
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $14 &= ~0x2 & 0xffff;
         $6 = state.ok ? 1 : -1;
       }
@@ -5022,7 +5454,7 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $16 = null;
         $6 = state.ok ? 2 : -1;
       }
@@ -5036,14 +5468,14 @@ class Test2Parser {
           return;
         }
         $5 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $18 = null;
         $6 = -1;
       }
       if (state.ok) {
         $2 = [$3, $4!, $5!];
       } else {
-        state.pos = $7!;
+        state.backtrack($7!);
       }
       $14 &= ~0x4 & 0xffff;
       $0.value = $2;
@@ -5078,7 +5510,7 @@ class Test2Parser {
       }
       $2.add($3!);
     }
-    state.ok = $2.isNotEmpty;
+    state.setOk($2.isNotEmpty);
     if (state.ok) {
       $0 = $2;
     }
@@ -5099,8 +5531,8 @@ class Test2Parser {
       // [0]+
       $3 ??= [];
       while (true) {
-        $6 ??= state.input.beginBuffering();
         // [0]
+        $6 ??= state.input.beginBuffering();
         final $5 = state.input;
         if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
@@ -5108,7 +5540,7 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
         if (!state.ok) {
           $4 = null;
@@ -5117,7 +5549,7 @@ class Test2Parser {
         $3!.add($4!);
         $4 = null;
       }
-      state.ok = $3!.isNotEmpty;
+      state.setOk($3!.isNotEmpty);
       if (state.ok) {
         $2 = $3;
       }
@@ -5149,7 +5581,9 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    state.ok = true;
+    if (!state.ok) {
+      state.setOk(true);
+    }
     if (state.ok) {
       int? $3;
       state.ok = state.pos < state.input.length &&
@@ -5165,7 +5599,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -5193,8 +5627,8 @@ class Test2Parser {
       }
       if ($5 == 0) {
         // [0]?
-        $8 ??= state.input.beginBuffering();
         // [0]
+        $8 ??= state.input.beginBuffering();
         final $7 = state.input;
         if (state.pos >= $7.end && !$7.isClosed) {
           $7.sleep = true;
@@ -5202,11 +5636,11 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        if (!state.ok) {
-          state.ok = true;
-        }
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
+        if (!state.ok) {
+          state.setOk(true);
+        }
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
@@ -5219,14 +5653,14 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 = null;
         $5 = -1;
       }
       if (state.ok) {
         $2 = [$3, $4!];
       } else {
-        state.pos = $6!;
+        state.backtrack($6!);
       }
       $11 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -5254,7 +5688,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // [1]
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
@@ -5295,9 +5729,13 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // [1]
@@ -5310,7 +5748,7 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $3 = -1;
       }
@@ -5341,7 +5779,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorExpectedCharacter(48));
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // [1]
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 49;
@@ -5351,7 +5789,7 @@ class Test2Parser {
       } else {
         state.fail(const ErrorExpectedCharacter(49));
       }
-      if (!state.ok) {
+      if (!state.ok && state.isRecoverable) {
         // [2]
         state.ok = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 50;
@@ -5395,9 +5833,13 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $5 = null;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // [1]
@@ -5410,9 +5852,13 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
-        $3 = state.ok ? -1 : 2;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
       }
       if ($3 == 2) {
         // [2]
@@ -5425,7 +5871,7 @@ class Test2Parser {
           return;
         }
         $2 = matchChar16Async(state, 50, const ErrorExpectedCharacter(50));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
         $3 = -1;
       }
@@ -5462,7 +5908,7 @@ class Test2Parser {
       }
       $2.add($3!);
     }
-    state.ok = true;
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -5484,8 +5930,8 @@ class Test2Parser {
       // [\u{1f680}]{,3}
       $3 ??= [];
       while (true) {
-        $7 ??= state.input.beginBuffering();
         // [\u{1f680}]
+        $7 ??= state.input.beginBuffering();
         final $6 = state.input;
         if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
@@ -5494,7 +5940,7 @@ class Test2Parser {
         }
         $5 = matchChar32Async(
             state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         if (!state.ok) {
           $5 = null;
@@ -5507,7 +5953,7 @@ class Test2Parser {
           break;
         }
       }
-      state.ok = true;
+      state.setOk(true);
       if (state.ok) {
         $2 = $3;
       }
@@ -5524,11 +5970,10 @@ class Test2Parser {
   }
 
   /// RepetitionMin =
-  ///     [\u{1f680}]{3,}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,}
   ///   ;
-  Object? parseRepetitionMin(State<String> state) {
-    Object? $0;
+  List<int>? parseRepetitionMin(State<String> state) {
+    List<int>? $0;
     // [\u{1f680}]{3,}
     final $2 = state.pos;
     final $3 = <int>[];
@@ -5547,107 +5992,60 @@ class Test2Parser {
       }
       $3.add($4!);
     }
-    state.ok = $3.length >= 3;
+    state.setOk($3.length >= 3);
     if (state.ok) {
       $0 = $3;
     } else {
-      state.pos = $2;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-        $0 = 128640;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($2);
     }
     return $0;
   }
 
   /// RepetitionMin =
-  ///     [\u{1f680}]{3,}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,}
   ///   ;
-  AsyncResult<Object?> parseRepetitionMin$Async(
+  AsyncResult<List<int>> parseRepetitionMin$Async(
       State<ChunkedParsingSink> state) {
-    final $0 = AsyncResult<Object?>();
-    Object? $2;
-    int? $3;
-    List<int>? $4;
-    int? $7;
-    int? $6;
-    Object? $9;
-    Object? $11;
-    int $12 = 0;
+    final $0 = AsyncResult<List<int>>();
+    List<int>? $2;
+    List<int>? $3;
+    int? $5;
+    int? $4;
+    Object? $7;
     void $1() {
-      if ($12 & 0x1 == 0) {
-        $12 |= 0x1;
-        $3 = 0;
+      // [\u{1f680}]{3,}
+      // [\u{1f680}]{3,}
+      if ($3 == null) {
+        $3 = [];
+        $5 = state.pos;
       }
-      if ($3 == 0) {
-        // [\u{1f680}]{3,}
-        // [\u{1f680}]{3,}
-        if ($4 == null) {
-          $4 = [];
-          $7 = state.pos;
-          state.input.beginBuffering();
-        }
-        while (true) {
-          $9 ??= state.input.beginBuffering();
-          // [\u{1f680}]
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
-            return;
-          }
-          $6 = matchChar32Async(
-              state, 128640, const ErrorExpectedCharacter(128640));
-          state.input.endBuffering(state.pos);
-          $9 = null;
-          final $5 = $4!;
-          if (!state.ok) {
-            if ($5.length < 3) {
-              state.input.endBuffering(state.pos);
-            }
-            break;
-          }
-          $5.add($6!);
-          $6 = null;
-          if ($5.length == 3) {
-            state.input.endBuffering(state.pos);
-          }
-        }
-        state.ok = $4!.length >= 3;
-        if (state.ok) {
-          $2 = $4;
-          $4 = null;
-        } else {
-          state.pos = $7!;
-        }
-        $4 = null;
-        $3 = state.ok ? -1 : 1;
-      }
-      if ($3 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $11 ??= state.input.beginBuffering();
-        final $10 = state.input;
-        if (state.pos >= $10.end && !$10.isClosed) {
-          $10.sleep = true;
-          $10.handle = $1;
+        $7 ??= state.input.beginBuffering();
+        final $6 = state.input;
+        if (state.pos >= $6.end && !$6.isClosed) {
+          $6.sleep = true;
+          $6.handle = $1;
           return;
         }
-        $2 = matchChar32Async(
+        $4 = matchChar32Async(
             state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $11 = null;
-        $3 = -1;
+        state.input.endBuffering();
+        $7 = null;
+        if (!state.ok) {
+          break;
+        }
+        $3!.add($4!);
+        $4 = null;
       }
-      $12 &= ~0x1 & 0xffff;
+      state.setOk($3!.length >= 3);
+      if (state.ok) {
+        $2 = $3;
+        $3 = null;
+      } else {
+        state.backtrack($5!);
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -5659,11 +6057,10 @@ class Test2Parser {
   }
 
   /// RepetitionMinMax =
-  ///     [\u{1f680}]{2,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{2,3}
   ///   ;
-  Object? parseRepetitionMinMax(State<String> state) {
-    Object? $0;
+  List<int>? parseRepetitionMinMax(State<String> state) {
+    List<int>? $0;
     // [\u{1f680}]{2,3}
     final $2 = state.pos;
     final $3 = <int>[];
@@ -5682,110 +6079,64 @@ class Test2Parser {
       }
       $3.add($4!);
     }
-    state.ok = $3.length >= 2;
+    state.setOk($3.length >= 2);
     if (state.ok) {
       $0 = $3;
     } else {
-      state.pos = $2;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-        $0 = 128640;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($2);
     }
     return $0;
   }
 
   /// RepetitionMinMax =
-  ///     [\u{1f680}]{2,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{2,3}
   ///   ;
-  AsyncResult<Object?> parseRepetitionMinMax$Async(
+  AsyncResult<List<int>> parseRepetitionMinMax$Async(
       State<ChunkedParsingSink> state) {
-    final $0 = AsyncResult<Object?>();
-    Object? $2;
-    int? $3;
-    List<int>? $4;
-    int? $7;
+    final $0 = AsyncResult<List<int>>();
+    List<int>? $2;
+    List<int>? $3;
     int? $6;
-    Object? $9;
-    Object? $11;
-    int $12 = 0;
+    int? $5;
+    Object? $8;
     void $1() {
-      if ($12 & 0x1 == 0) {
-        $12 |= 0x1;
-        $3 = 0;
+      // [\u{1f680}]{2,3}
+      // [\u{1f680}]{2,3}
+      if ($3 == null) {
+        $3 = [];
+        $6 = state.pos;
       }
-      if ($3 == 0) {
-        // [\u{1f680}]{2,3}
-        // [\u{1f680}]{2,3}
-        if ($4 == null) {
-          $4 = [];
-          $7 = state.pos;
-          state.input.beginBuffering();
-        }
-        while (true) {
-          $9 ??= state.input.beginBuffering();
-          // [\u{1f680}]
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
-            return;
-          }
-          $6 = matchChar32Async(
-              state, 128640, const ErrorExpectedCharacter(128640));
-          state.input.endBuffering(state.pos);
-          $9 = null;
-          final $5 = $4!;
-          if (!state.ok) {
-            if ($5.length < 2) {
-              state.input.endBuffering(state.pos);
-            }
-            break;
-          }
-          $5.add($6!);
-          $6 = null;
-          if ($5.length == 2) {
-            state.input.endBuffering(state.pos);
-          }
-          if ($5.length == 3) {
-            break;
-          }
-        }
-        state.ok = $4!.length >= 2;
-        if (state.ok) {
-          $2 = $4;
-          $4 = null;
-        } else {
-          state.pos = $7!;
-        }
-        $4 = null;
-        $3 = state.ok ? -1 : 1;
-      }
-      if ($3 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $11 ??= state.input.beginBuffering();
-        final $10 = state.input;
-        if (state.pos >= $10.end && !$10.isClosed) {
-          $10.sleep = true;
-          $10.handle = $1;
+        $8 ??= state.input.beginBuffering();
+        final $7 = state.input;
+        if (state.pos >= $7.end && !$7.isClosed) {
+          $7.sleep = true;
+          $7.handle = $1;
           return;
         }
-        $2 = matchChar32Async(
+        $5 = matchChar32Async(
             state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $11 = null;
-        $3 = -1;
+        state.input.endBuffering();
+        $8 = null;
+        if (!state.ok) {
+          break;
+        }
+        final $4 = $3!;
+        $4.add($5!);
+        $5 = null;
+        if ($4.length == 3) {
+          break;
+        }
       }
-      $12 &= ~0x1 & 0xffff;
+      state.setOk($3!.length >= 2);
+      if (state.ok) {
+        $2 = $3;
+        $3 = null;
+      } else {
+        state.backtrack($6!);
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -5797,11 +6148,10 @@ class Test2Parser {
   }
 
   /// RepetitionN =
-  ///     [\u{1f680}]{3,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,3}
   ///   ;
-  Object? parseRepetitionN(State<String> state) {
-    Object? $0;
+  List<int>? parseRepetitionN(State<String> state) {
+    List<int>? $0;
     // [\u{1f680}]{3,3}
     final $2 = state.pos;
     final $3 = <int>[];
@@ -5820,101 +6170,65 @@ class Test2Parser {
       }
       $3.add($4!);
     }
-    state.ok = $3.length == 3;
+    state.setOk($3.length == 3);
     if (state.ok) {
       $0 = $3;
     } else {
-      state.pos = $2;
-    }
-    if (!state.ok) {
-      // [\u{1f680}]
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-        $0 = 128640;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
+      state.backtrack($2);
     }
     return $0;
   }
 
   /// RepetitionN =
-  ///     [\u{1f680}]{3,3}
-  ///   / [\u{1f680}]
+  ///   [\u{1f680}]{3,3}
   ///   ;
-  AsyncResult<Object?> parseRepetitionN$Async(State<ChunkedParsingSink> state) {
-    final $0 = AsyncResult<Object?>();
-    Object? $2;
-    int? $3;
-    List<int>? $4;
-    int? $7;
+  AsyncResult<List<int>> parseRepetitionN$Async(
+      State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<List<int>>();
+    List<int>? $2;
+    List<int>? $3;
     int? $6;
-    Object? $10;
-    int $11 = 0;
+    int? $5;
+    Object? $8;
     void $1() {
-      if ($11 & 0x1 == 0) {
-        $11 |= 0x1;
-        $3 = 0;
+      // [\u{1f680}]{3,3}
+      // [\u{1f680}]{3,3}
+      if ($3 == null) {
+        $3 = [];
+        $6 = state.pos;
       }
-      if ($3 == 0) {
-        // [\u{1f680}]{3,3}
-        // [\u{1f680}]{3,3}
-        if ($4 == null) {
-          $4 = [];
-          state.input.beginBuffering();
-          $7 = state.pos;
-        }
-        while (true) {
-          // [\u{1f680}]
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
-            return;
-          }
-          $6 = matchChar32Async(
-              state, 128640, const ErrorExpectedCharacter(128640));
-          if (!state.ok) {
-            $6 = null;
-            break;
-          }
-          final $5 = $4!;
-          $5.add($6!);
-          $6 = null;
-          if ($5.length == 3) {
-            break;
-          }
-        }
-        state.ok = $4!.length == 3;
-        if (state.ok) {
-          $2 = $4;
-          $4 = null;
-        } else {
-          state.pos = $7!;
-        }
-        state.input.endBuffering(state.pos);
-        $4 = null;
-        $3 = state.ok ? -1 : 1;
-      }
-      if ($3 == 1) {
+      while (true) {
         // [\u{1f680}]
-        // [\u{1f680}]
-        $10 ??= state.input.beginBuffering();
-        final $9 = state.input;
-        if (state.pos >= $9.end && !$9.isClosed) {
-          $9.sleep = true;
-          $9.handle = $1;
+        $8 ??= state.input.beginBuffering();
+        final $7 = state.input;
+        if (state.pos >= $7.end && !$7.isClosed) {
+          $7.sleep = true;
+          $7.handle = $1;
           return;
         }
-        $2 = matchChar32Async(
+        $5 = matchChar32Async(
             state, 128640, const ErrorExpectedCharacter(128640));
-        state.input.endBuffering(state.pos);
-        $10 = null;
-        $3 = -1;
+        state.input.endBuffering();
+        $8 = null;
+        if (!state.ok) {
+          $5 = null;
+          break;
+        }
+        final $4 = $3!;
+        $4.add($5!);
+        $5 = null;
+        if ($4.length == 3) {
+          break;
+        }
       }
-      $11 &= ~0x1 & 0xffff;
+      state.setOk($3!.length == 3);
+      if (state.ok) {
+        $2 = $3;
+        $3 = null;
+      } else {
+        state.backtrack($6!);
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -5945,7 +6259,7 @@ class Test2Parser {
         state.fail(const ErrorExpectedCharacter(48));
       }
       if (!state.ok) {
-        state.pos = $4;
+        state.backtrack($4);
         break;
       }
       $2.add($3!);
@@ -5962,7 +6276,7 @@ class Test2Parser {
         break;
       }
     }
-    state.ok = true;
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -5975,28 +6289,49 @@ class Test2Parser {
   AsyncResult<List<int>> parseSepBy$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<List<int>>();
     List<int>? $2;
-    Object? $3;
-    Object? $4;
-    int? $5;
-    List<int>? $6;
-    int? $8;
+    int? $3;
+    List<int>? $4;
+    int? $6;
+    Object? $8;
     Object? $10;
-    Object? $12;
+    int $11 = 0;
     void $1() {
       // @sepBy([0], [,])
       // @sepBy([0], [,])
-      if ($3 == null) {
-        $3 = true;
-        state.input.beginBuffering();
-        $6 = [];
-        $8 = state.pos;
-        $5 = 0;
+      if ($11 & 0x1 == 0) {
+        $11 |= 0x1;
+        $4 = [];
+        $6 = state.pos;
+        $3 = 0;
       }
       while (true) {
-        if ($5 == 0) {
-          int? $7;
+        if ($3 == 0) {
+          int? $5;
           // [0]
           // [0]
+          $8 ??= state.input.beginBuffering();
+          final $7 = state.input;
+          if (state.pos >= $7.end && !$7.isClosed) {
+            $7.sleep = true;
+            $7.handle = $1;
+            return;
+          }
+          $5 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
+          state.input.endBuffering();
+          $8 = null;
+          if (!state.ok) {
+            state.backtrack($6!);
+            $5 = null;
+            break;
+          }
+          $4!.add($5!);
+          $5 = null;
+          $6 = state.pos;
+          $3 = 1;
+        }
+        if ($3 == 1) {
+          // [,]
+          // [,]
           $10 ??= state.input.beginBuffering();
           final $9 = state.input;
           if (state.pos >= $9.end && !$9.isClosed) {
@@ -6004,52 +6339,21 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          $7 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-          state.input.endBuffering(state.pos);
+          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
+          state.input.endBuffering();
           $10 = null;
           if (!state.ok) {
-            state.pos = $8!;
-            state.input.endBuffering(state.pos);
-            $7 = null;
             break;
           }
-          $6!.add($7!);
-          $7 = null;
-          state.input.endBuffering(state.pos);
-          $5 = 1;
-        }
-        if ($5 == 1) {
-          if ($4 == null) {
-            $4 = true;
-            state.input.beginBuffering();
-            $8 = state.pos;
-          }
-          // [,]
-          // [,]
-          $12 ??= state.input.beginBuffering();
-          final $11 = state.input;
-          if (state.pos >= $11.end && !$11.isClosed) {
-            $11.sleep = true;
-            $11.handle = $1;
-            return;
-          }
-          matchChar16Async(state, 44, const ErrorExpectedCharacter(44));
-          state.input.endBuffering(state.pos);
-          $12 = null;
-          $4 = null;
-          if (!state.ok) {
-            state.input.endBuffering(state.pos);
-            break;
-          }
-          $5 = 0;
+          $3 = 0;
         }
       }
-      state.ok = true;
+      state.setOk(true);
       if (state.ok) {
-        $2 = $6;
-        $6 = null;
+        $2 = $4;
+        $4 = null;
       }
-      $4 = null;
+      $11 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -6095,7 +6399,7 @@ class Test2Parser {
         return;
       }
       $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -6147,7 +6451,7 @@ class Test2Parser {
         return;
       }
       matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       if (state.ok) {
         int? $$;
@@ -6200,7 +6504,7 @@ class Test2Parser {
         return;
       }
       $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       $0.value = $2;
       $0.isComplete = true;
@@ -6254,7 +6558,7 @@ class Test2Parser {
         return;
       }
       $2 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $4 = null;
       if (state.ok) {
         int? $$;
@@ -6303,7 +6607,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6339,7 +6643,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $5 = state.ok ? 1 : -1;
       }
@@ -6353,14 +6657,14 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 = null;
         $5 = -1;
       }
       if (state.ok) {
         $2 = [$3!, $4!];
       } else {
-        state.pos = $6!;
+        state.backtrack($6!);
       }
       $11 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6402,7 +6706,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6436,7 +6740,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
         $3 = state.ok ? 1 : -1;
       }
@@ -6450,7 +6754,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $3 = -1;
       }
@@ -6459,7 +6763,7 @@ class Test2Parser {
         $$ = 0x30;
         $2 = $$;
       } else {
-        state.pos = $4!;
+        state.backtrack($4!);
       }
       $9 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6501,7 +6805,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6536,7 +6840,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $4 = state.ok ? 1 : -1;
       }
@@ -6550,14 +6854,14 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
         $4 = -1;
       }
       if (state.ok) {
         $2 = $3;
       } else {
-        state.pos = $5!;
+        state.backtrack($5!);
       }
       $10 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6602,7 +6906,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6637,7 +6941,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $7 = null;
         $4 = state.ok ? 1 : -1;
       }
@@ -6651,7 +6955,7 @@ class Test2Parser {
           return;
         }
         matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $9 = null;
         $4 = -1;
       }
@@ -6661,7 +6965,7 @@ class Test2Parser {
         $$ = v;
         $2 = $$;
       } else {
-        state.pos = $5!;
+        state.backtrack($5!);
       }
       $10 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6705,7 +7009,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6741,7 +7045,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $5 = state.ok ? 1 : -1;
       }
@@ -6755,14 +7059,14 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 = null;
         $5 = -1;
       }
       if (state.ok) {
         $2 = (v1: $3!, v2: $4!);
       } else {
-        state.pos = $6!;
+        state.backtrack($6!);
       }
       $11 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6810,7 +7114,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $1;
+      state.backtrack($1);
     }
     return $0;
   }
@@ -6846,7 +7150,7 @@ class Test2Parser {
           return;
         }
         $3 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $8 = null;
         $5 = state.ok ? 1 : -1;
       }
@@ -6860,7 +7164,7 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 49, const ErrorExpectedCharacter(49));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 = null;
         $5 = -1;
       }
@@ -6871,7 +7175,7 @@ class Test2Parser {
         $$ = v1 + v2;
         $2 = $$;
       } else {
-        state.pos = $6!;
+        state.backtrack($6!);
       }
       $11 &= ~0x1 & 0xffff;
       $0.value = $2;
@@ -6920,12 +7224,12 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $3;
+      state.backtrack($3);
     }
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // $([0] [1])
       final $5 = state.pos;
       // [0] [1]
@@ -6947,7 +7251,7 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $6;
+        state.backtrack($6);
       }
       if (state.ok) {
         $0 = state.input.substring($5, state.pos);
@@ -7026,17 +7330,22 @@ class Test2Parser {
           $5 = -1;
         }
         if (!state.ok) {
-          state.pos = $6!;
+          state.backtrack($6!);
         }
         $10 &= ~0x1 & 0xffff;
         if (state.ok) {
           final input = state.input;
           final start = input.start;
-          $2 = input.data.substring($4! - start, state.pos - start);
+          final pos = $4!;
+          $2 = input.data.substring(pos - start, state.pos - start);
         }
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 &= ~0x2 & 0xffff;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // $([0] [1])
@@ -7077,15 +7386,16 @@ class Test2Parser {
           $12 = -1;
         }
         if (!state.ok) {
-          state.pos = $13!;
+          state.backtrack($13!);
         }
         $10 &= ~0x4 & 0xffff;
         if (state.ok) {
           final input = state.input;
           final start = input.start;
-          $2 = input.data.substring($11! - start, state.pos - start);
+          final pos = $11!;
+          $2 = input.data.substring(pos - start, state.pos - start);
         }
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $10 &= ~0x8 & 0xffff;
         $3 = -1;
       }
@@ -7109,6 +7419,7 @@ class Test2Parser {
   ///   / (v:CharacterClassCharNegate CharacterClassCharNegate)
   ///   / (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
   ///   / (v:CharacterClassRange32 CharacterClassRange32)
+  ///   / (v:Cut Cut)
   ///   / (v:ErrorHandler ErrorHandler)
   ///   / (v:Eof Eof)
   ///   / (v:Literal0 Literal0)
@@ -7158,9 +7469,9 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $2;
+      state.backtrack($2);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // (v:AnyCharacter AnyCharacter)
       // v:AnyCharacter AnyCharacter
       final $5 = state.pos;
@@ -7175,9 +7486,9 @@ class Test2Parser {
         }
       }
       if (!state.ok) {
-        state.pos = $5;
+        state.backtrack($5);
       }
-      if (!state.ok) {
+      if (!state.ok && state.isRecoverable) {
         // (v:Buffer Buffer)
         // v:Buffer Buffer
         final $8 = state.pos;
@@ -7192,9 +7503,9 @@ class Test2Parser {
           }
         }
         if (!state.ok) {
-          state.pos = $8;
+          state.backtrack($8);
         }
-        if (!state.ok) {
+        if (!state.ok && state.isRecoverable) {
           // (v:CharacterClass CharacterClass)
           // v:CharacterClass CharacterClass
           final $11 = state.pos;
@@ -7209,9 +7520,9 @@ class Test2Parser {
             }
           }
           if (!state.ok) {
-            state.pos = $11;
+            state.backtrack($11);
           }
-          if (!state.ok) {
+          if (!state.ok && state.isRecoverable) {
             // (v:CharacterClassChar32 CharacterClassChar32)
             // v:CharacterClassChar32 CharacterClassChar32
             final $14 = state.pos;
@@ -7226,9 +7537,9 @@ class Test2Parser {
               }
             }
             if (!state.ok) {
-              state.pos = $14;
+              state.backtrack($14);
             }
-            if (!state.ok) {
+            if (!state.ok && state.isRecoverable) {
               // (v:CharacterClassCharNegate CharacterClassCharNegate)
               // v:CharacterClassCharNegate CharacterClassCharNegate
               final $17 = state.pos;
@@ -7243,9 +7554,9 @@ class Test2Parser {
                 }
               }
               if (!state.ok) {
-                state.pos = $17;
+                state.backtrack($17);
               }
-              if (!state.ok) {
+              if (!state.ok && state.isRecoverable) {
                 // (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
                 // v:CharacterClassCharNegate32 CharacterClassCharNegate32
                 final $20 = state.pos;
@@ -7260,9 +7571,9 @@ class Test2Parser {
                   }
                 }
                 if (!state.ok) {
-                  state.pos = $20;
+                  state.backtrack($20);
                 }
-                if (!state.ok) {
+                if (!state.ok && state.isRecoverable) {
                   // (v:CharacterClassRange32 CharacterClassRange32)
                   // v:CharacterClassRange32 CharacterClassRange32
                   final $23 = state.pos;
@@ -7277,359 +7588,370 @@ class Test2Parser {
                     }
                   }
                   if (!state.ok) {
-                    state.pos = $23;
+                    state.backtrack($23);
                   }
-                  if (!state.ok) {
-                    // (v:ErrorHandler ErrorHandler)
-                    // v:ErrorHandler ErrorHandler
+                  if (!state.ok && state.isRecoverable) {
+                    // (v:Cut Cut)
+                    // v:Cut Cut
                     final $26 = state.pos;
-                    int? $27;
-                    // ErrorHandler
-                    $27 = parseErrorHandler(state);
+                    Object? $27;
+                    // Cut
+                    $27 = parseCut(state);
                     if (state.ok) {
-                      // ErrorHandler
-                      fastParseErrorHandler(state);
+                      // Cut
+                      fastParseCut(state);
                       if (state.ok) {
                         $0 = $27;
                       }
                     }
                     if (!state.ok) {
-                      state.pos = $26;
+                      state.backtrack($26);
                     }
-                    if (!state.ok) {
-                      // (v:Eof Eof)
-                      // v:Eof Eof
+                    if (!state.ok && state.isRecoverable) {
+                      // (v:ErrorHandler ErrorHandler)
+                      // v:ErrorHandler ErrorHandler
                       final $29 = state.pos;
-                      List<Object?>? $30;
-                      // Eof
-                      $30 = parseEof(state);
+                      int? $30;
+                      // ErrorHandler
+                      $30 = parseErrorHandler(state);
                       if (state.ok) {
-                        // Eof
-                        fastParseEof(state);
+                        // ErrorHandler
+                        fastParseErrorHandler(state);
                         if (state.ok) {
                           $0 = $30;
                         }
                       }
                       if (!state.ok) {
-                        state.pos = $29;
+                        state.backtrack($29);
                       }
-                      if (!state.ok) {
-                        // (v:Literal0 Literal0)
-                        // v:Literal0 Literal0
+                      if (!state.ok && state.isRecoverable) {
+                        // (v:Eof Eof)
+                        // v:Eof Eof
                         final $32 = state.pos;
-                        String? $33;
-                        // Literal0
-                        $33 = parseLiteral0(state);
+                        List<Object?>? $33;
+                        // Eof
+                        $33 = parseEof(state);
                         if (state.ok) {
-                          // Literal0
-                          fastParseLiteral0(state);
+                          // Eof
+                          fastParseEof(state);
                           if (state.ok) {
                             $0 = $33;
                           }
                         }
                         if (!state.ok) {
-                          state.pos = $32;
+                          state.backtrack($32);
                         }
-                        if (!state.ok) {
-                          // (v:Literal1 Literal1)
-                          // v:Literal1 Literal1
+                        if (!state.ok && state.isRecoverable) {
+                          // (v:Literal0 Literal0)
+                          // v:Literal0 Literal0
                           final $35 = state.pos;
                           String? $36;
-                          // Literal1
-                          $36 = parseLiteral1(state);
+                          // Literal0
+                          $36 = parseLiteral0(state);
                           if (state.ok) {
-                            // Literal1
-                            fastParseLiteral1(state);
+                            // Literal0
+                            fastParseLiteral0(state);
                             if (state.ok) {
                               $0 = $36;
                             }
                           }
                           if (!state.ok) {
-                            state.pos = $35;
+                            state.backtrack($35);
                           }
-                          if (!state.ok) {
-                            // (v:Literal2 Literal2)
-                            // v:Literal2 Literal2
+                          if (!state.ok && state.isRecoverable) {
+                            // (v:Literal1 Literal1)
+                            // v:Literal1 Literal1
                             final $38 = state.pos;
                             String? $39;
-                            // Literal2
-                            $39 = parseLiteral2(state);
+                            // Literal1
+                            $39 = parseLiteral1(state);
                             if (state.ok) {
-                              // Literal2
-                              fastParseLiteral2(state);
+                              // Literal1
+                              fastParseLiteral1(state);
                               if (state.ok) {
                                 $0 = $39;
                               }
                             }
                             if (!state.ok) {
-                              state.pos = $38;
+                              state.backtrack($38);
                             }
-                            if (!state.ok) {
-                              // (v:Literals Literals)
-                              // v:Literals Literals
+                            if (!state.ok && state.isRecoverable) {
+                              // (v:Literal2 Literal2)
+                              // v:Literal2 Literal2
                               final $41 = state.pos;
                               String? $42;
-                              // Literals
-                              $42 = parseLiterals(state);
+                              // Literal2
+                              $42 = parseLiteral2(state);
                               if (state.ok) {
-                                // Literals
-                                fastParseLiterals(state);
+                                // Literal2
+                                fastParseLiteral2(state);
                                 if (state.ok) {
                                   $0 = $42;
                                 }
                               }
                               if (!state.ok) {
-                                state.pos = $41;
+                                state.backtrack($41);
                               }
-                              if (!state.ok) {
-                                // (v:MatchString MatchString)
-                                // v:MatchString MatchString
+                              if (!state.ok && state.isRecoverable) {
+                                // (v:Literals Literals)
+                                // v:Literals Literals
                                 final $44 = state.pos;
                                 String? $45;
-                                // MatchString
-                                $45 = parseMatchString(state);
+                                // Literals
+                                $45 = parseLiterals(state);
                                 if (state.ok) {
-                                  // MatchString
-                                  fastParseMatchString(state);
+                                  // Literals
+                                  fastParseLiterals(state);
                                   if (state.ok) {
                                     $0 = $45;
                                   }
                                 }
                                 if (!state.ok) {
-                                  state.pos = $44;
+                                  state.backtrack($44);
                                 }
-                                if (!state.ok) {
-                                  // (v:NotPredicate NotPredicate)
-                                  // v:NotPredicate NotPredicate
+                                if (!state.ok && state.isRecoverable) {
+                                  // (v:MatchString MatchString)
+                                  // v:MatchString MatchString
                                   final $47 = state.pos;
-                                  List<Object?>? $48;
-                                  // NotPredicate
-                                  $48 = parseNotPredicate(state);
+                                  String? $48;
+                                  // MatchString
+                                  $48 = parseMatchString(state);
                                   if (state.ok) {
-                                    // NotPredicate
-                                    fastParseNotPredicate(state);
+                                    // MatchString
+                                    fastParseMatchString(state);
                                     if (state.ok) {
                                       $0 = $48;
                                     }
                                   }
                                   if (!state.ok) {
-                                    state.pos = $47;
+                                    state.backtrack($47);
                                   }
-                                  if (!state.ok) {
-                                    // (v:OneOrMore OneOrMore)
-                                    // v:OneOrMore OneOrMore
+                                  if (!state.ok && state.isRecoverable) {
+                                    // (v:NotPredicate NotPredicate)
+                                    // v:NotPredicate NotPredicate
                                     final $50 = state.pos;
-                                    List<int>? $51;
-                                    // OneOrMore
-                                    $51 = parseOneOrMore(state);
+                                    List<Object?>? $51;
+                                    // NotPredicate
+                                    $51 = parseNotPredicate(state);
                                     if (state.ok) {
-                                      // OneOrMore
-                                      fastParseOneOrMore(state);
+                                      // NotPredicate
+                                      fastParseNotPredicate(state);
                                       if (state.ok) {
                                         $0 = $51;
                                       }
                                     }
                                     if (!state.ok) {
-                                      state.pos = $50;
+                                      state.backtrack($50);
                                     }
-                                    if (!state.ok) {
-                                      // (v:OrderedChoice2 OrderedChoice2)
-                                      // v:OrderedChoice2 OrderedChoice2
+                                    if (!state.ok && state.isRecoverable) {
+                                      // (v:OneOrMore OneOrMore)
+                                      // v:OneOrMore OneOrMore
                                       final $53 = state.pos;
-                                      int? $54;
-                                      // OrderedChoice2
-                                      $54 = parseOrderedChoice2(state);
+                                      List<int>? $54;
+                                      // OneOrMore
+                                      $54 = parseOneOrMore(state);
                                       if (state.ok) {
-                                        // OrderedChoice2
-                                        fastParseOrderedChoice2(state);
+                                        // OneOrMore
+                                        fastParseOneOrMore(state);
                                         if (state.ok) {
                                           $0 = $54;
                                         }
                                       }
                                       if (!state.ok) {
-                                        state.pos = $53;
+                                        state.backtrack($53);
                                       }
-                                      if (!state.ok) {
-                                        // (v:OrderedChoice3 OrderedChoice3)
-                                        // v:OrderedChoice3 OrderedChoice3
+                                      if (!state.ok && state.isRecoverable) {
+                                        // (v:OrderedChoice2 OrderedChoice2)
+                                        // v:OrderedChoice2 OrderedChoice2
                                         final $56 = state.pos;
                                         int? $57;
-                                        // OrderedChoice3
-                                        $57 = parseOrderedChoice3(state);
+                                        // OrderedChoice2
+                                        $57 = parseOrderedChoice2(state);
                                         if (state.ok) {
-                                          // OrderedChoice3
-                                          fastParseOrderedChoice3(state);
+                                          // OrderedChoice2
+                                          fastParseOrderedChoice2(state);
                                           if (state.ok) {
                                             $0 = $57;
                                           }
                                         }
                                         if (!state.ok) {
-                                          state.pos = $56;
+                                          state.backtrack($56);
                                         }
-                                        if (!state.ok) {
-                                          // (v:Optional Optional)
-                                          // v:Optional Optional
+                                        if (!state.ok && state.isRecoverable) {
+                                          // (v:OrderedChoice3 OrderedChoice3)
+                                          // v:OrderedChoice3 OrderedChoice3
                                           final $59 = state.pos;
-                                          List<Object?>? $60;
-                                          // Optional
-                                          $60 = parseOptional(state);
+                                          int? $60;
+                                          // OrderedChoice3
+                                          $60 = parseOrderedChoice3(state);
                                           if (state.ok) {
-                                            // Optional
-                                            fastParseOptional(state);
+                                            // OrderedChoice3
+                                            fastParseOrderedChoice3(state);
                                             if (state.ok) {
                                               $0 = $60;
                                             }
                                           }
                                           if (!state.ok) {
-                                            state.pos = $59;
+                                            state.backtrack($59);
                                           }
-                                          if (!state.ok) {
-                                            // (v:RepetitionMax RepetitionMax)
-                                            // v:RepetitionMax RepetitionMax
+                                          if (!state.ok &&
+                                              state.isRecoverable) {
+                                            // (v:Optional Optional)
+                                            // v:Optional Optional
                                             final $62 = state.pos;
-                                            List<int>? $63;
-                                            // RepetitionMax
-                                            $63 = parseRepetitionMax(state);
+                                            List<Object?>? $63;
+                                            // Optional
+                                            $63 = parseOptional(state);
                                             if (state.ok) {
-                                              // RepetitionMax
-                                              fastParseRepetitionMax(state);
+                                              // Optional
+                                              fastParseOptional(state);
                                               if (state.ok) {
                                                 $0 = $63;
                                               }
                                             }
                                             if (!state.ok) {
-                                              state.pos = $62;
+                                              state.backtrack($62);
                                             }
-                                            if (!state.ok) {
-                                              // (v:RepetitionMin RepetitionMin)
-                                              // v:RepetitionMin RepetitionMin
+                                            if (!state.ok &&
+                                                state.isRecoverable) {
+                                              // (v:RepetitionMax RepetitionMax)
+                                              // v:RepetitionMax RepetitionMax
                                               final $65 = state.pos;
-                                              Object? $66;
-                                              // RepetitionMin
-                                              $66 = parseRepetitionMin(state);
+                                              List<int>? $66;
+                                              // RepetitionMax
+                                              $66 = parseRepetitionMax(state);
                                               if (state.ok) {
-                                                // RepetitionMin
-                                                fastParseRepetitionMin(state);
+                                                // RepetitionMax
+                                                fastParseRepetitionMax(state);
                                                 if (state.ok) {
                                                   $0 = $66;
                                                 }
                                               }
                                               if (!state.ok) {
-                                                state.pos = $65;
+                                                state.backtrack($65);
                                               }
-                                              if (!state.ok) {
-                                                // (v:RepetitionMinMax RepetitionMinMax)
-                                                // v:RepetitionMinMax RepetitionMinMax
+                                              if (!state.ok &&
+                                                  state.isRecoverable) {
+                                                // (v:RepetitionMin RepetitionMin)
+                                                // v:RepetitionMin RepetitionMin
                                                 final $68 = state.pos;
-                                                Object? $69;
-                                                // RepetitionMinMax
-                                                $69 = parseRepetitionMinMax(
-                                                    state);
+                                                List<int>? $69;
+                                                // RepetitionMin
+                                                $69 = parseRepetitionMin(state);
                                                 if (state.ok) {
-                                                  // RepetitionMinMax
-                                                  fastParseRepetitionMinMax(
-                                                      state);
+                                                  // RepetitionMin
+                                                  fastParseRepetitionMin(state);
                                                   if (state.ok) {
                                                     $0 = $69;
                                                   }
                                                 }
                                                 if (!state.ok) {
-                                                  state.pos = $68;
+                                                  state.backtrack($68);
                                                 }
-                                                if (!state.ok) {
-                                                  // (v:RepetitionN RepetitionN)
-                                                  // v:RepetitionN RepetitionN
+                                                if (!state.ok &&
+                                                    state.isRecoverable) {
+                                                  // (v:RepetitionMinMax RepetitionMinMax)
+                                                  // v:RepetitionMinMax RepetitionMinMax
                                                   final $71 = state.pos;
-                                                  Object? $72;
-                                                  // RepetitionN
-                                                  $72 = parseRepetitionN(state);
+                                                  List<int>? $72;
+                                                  // RepetitionMinMax
+                                                  $72 = parseRepetitionMinMax(
+                                                      state);
                                                   if (state.ok) {
-                                                    // RepetitionN
-                                                    fastParseRepetitionN(state);
+                                                    // RepetitionMinMax
+                                                    fastParseRepetitionMinMax(
+                                                        state);
                                                     if (state.ok) {
                                                       $0 = $72;
                                                     }
                                                   }
                                                   if (!state.ok) {
-                                                    state.pos = $71;
+                                                    state.backtrack($71);
                                                   }
-                                                  if (!state.ok) {
-                                                    // (v:SepBy SepBy)
-                                                    // v:SepBy SepBy
+                                                  if (!state.ok &&
+                                                      state.isRecoverable) {
+                                                    // (v:RepetitionN RepetitionN)
+                                                    // v:RepetitionN RepetitionN
                                                     final $74 = state.pos;
                                                     List<int>? $75;
-                                                    // SepBy
-                                                    $75 = parseSepBy(state);
+                                                    // RepetitionN
+                                                    $75 =
+                                                        parseRepetitionN(state);
                                                     if (state.ok) {
-                                                      // SepBy
-                                                      fastParseSepBy(state);
+                                                      // RepetitionN
+                                                      fastParseRepetitionN(
+                                                          state);
                                                       if (state.ok) {
                                                         $0 = $75;
                                                       }
                                                     }
                                                     if (!state.ok) {
-                                                      state.pos = $74;
+                                                      state.backtrack($74);
                                                     }
-                                                    if (!state.ok) {
-                                                      // (v:Sequence1 Sequence1)
-                                                      // v:Sequence1 Sequence1
+                                                    if (!state.ok &&
+                                                        state.isRecoverable) {
+                                                      // (v:SepBy SepBy)
+                                                      // v:SepBy SepBy
                                                       final $77 = state.pos;
-                                                      int? $78;
-                                                      // Sequence1
-                                                      $78 =
-                                                          parseSequence1(state);
+                                                      List<int>? $78;
+                                                      // SepBy
+                                                      $78 = parseSepBy(state);
                                                       if (state.ok) {
-                                                        // Sequence1
-                                                        fastParseSequence1(
-                                                            state);
+                                                        // SepBy
+                                                        fastParseSepBy(state);
                                                         if (state.ok) {
                                                           $0 = $78;
                                                         }
                                                       }
                                                       if (!state.ok) {
-                                                        state.pos = $77;
+                                                        state.backtrack($77);
                                                       }
-                                                      if (!state.ok) {
-                                                        // (v:Sequence1WithAction Sequence1WithAction)
-                                                        // v:Sequence1WithAction Sequence1WithAction
+                                                      if (!state.ok &&
+                                                          state.isRecoverable) {
+                                                        // (v:Sequence1 Sequence1)
+                                                        // v:Sequence1 Sequence1
                                                         final $80 = state.pos;
                                                         int? $81;
-                                                        // Sequence1WithAction
-                                                        $81 =
-                                                            parseSequence1WithAction(
-                                                                state);
+                                                        // Sequence1
+                                                        $81 = parseSequence1(
+                                                            state);
                                                         if (state.ok) {
-                                                          // Sequence1WithAction
-                                                          fastParseSequence1WithAction(
+                                                          // Sequence1
+                                                          fastParseSequence1(
                                                               state);
                                                           if (state.ok) {
                                                             $0 = $81;
                                                           }
                                                         }
                                                         if (!state.ok) {
-                                                          state.pos = $80;
+                                                          state.backtrack($80);
                                                         }
-                                                        if (!state.ok) {
-                                                          // (v:Sequence1WithVariable Sequence1WithVariable)
-                                                          // v:Sequence1WithVariable Sequence1WithVariable
+                                                        if (!state.ok &&
+                                                            state
+                                                                .isRecoverable) {
+                                                          // (v:Sequence1WithAction Sequence1WithAction)
+                                                          // v:Sequence1WithAction Sequence1WithAction
                                                           final $83 = state.pos;
                                                           int? $84;
-                                                          // Sequence1WithVariable
+                                                          // Sequence1WithAction
                                                           $84 =
-                                                              parseSequence1WithVariable(
+                                                              parseSequence1WithAction(
                                                                   state);
                                                           if (state.ok) {
-                                                            // Sequence1WithVariable
-                                                            fastParseSequence1WithVariable(
+                                                            // Sequence1WithAction
+                                                            fastParseSequence1WithAction(
                                                                 state);
                                                             if (state.ok) {
                                                               $0 = $84;
                                                             }
                                                           }
                                                           if (!state.ok) {
-                                                            state.pos = $83;
+                                                            state
+                                                                .backtrack($83);
                                                           }
-                                                          if (!state.ok) {
+                                                          if (!state.ok &&
+                                                              state
+                                                                  .isRecoverable) {
                                                             // (v:Sequence1WithVariable Sequence1WithVariable)
                                                             // v:Sequence1WithVariable Sequence1WithVariable
                                                             final $86 =
@@ -7648,43 +7970,48 @@ class Test2Parser {
                                                               }
                                                             }
                                                             if (!state.ok) {
-                                                              state.pos = $86;
+                                                              state.backtrack(
+                                                                  $86);
                                                             }
-                                                            if (!state.ok) {
-                                                              // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-                                                              // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+                                                            if (!state.ok &&
+                                                                state
+                                                                    .isRecoverable) {
+                                                              // (v:Sequence1WithVariable Sequence1WithVariable)
+                                                              // v:Sequence1WithVariable Sequence1WithVariable
                                                               final $89 =
                                                                   state.pos;
                                                               int? $90;
-                                                              // Sequence1WithVariableWithAction
+                                                              // Sequence1WithVariable
                                                               $90 =
-                                                                  parseSequence1WithVariableWithAction(
+                                                                  parseSequence1WithVariable(
                                                                       state);
                                                               if (state.ok) {
-                                                                // Sequence1WithVariableWithAction
-                                                                fastParseSequence1WithVariableWithAction(
+                                                                // Sequence1WithVariable
+                                                                fastParseSequence1WithVariable(
                                                                     state);
                                                                 if (state.ok) {
                                                                   $0 = $90;
                                                                 }
                                                               }
                                                               if (!state.ok) {
-                                                                state.pos = $89;
+                                                                state.backtrack(
+                                                                    $89);
                                                               }
-                                                              if (!state.ok) {
-                                                                // (v:Sequence2 Sequence2)
-                                                                // v:Sequence2 Sequence2
+                                                              if (!state.ok &&
+                                                                  state
+                                                                      .isRecoverable) {
+                                                                // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+                                                                // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
                                                                 final $92 =
                                                                     state.pos;
-                                                                List<Object?>?
-                                                                    $93;
-                                                                // Sequence2
+                                                                int? $93;
+                                                                // Sequence1WithVariableWithAction
                                                                 $93 =
-                                                                    parseSequence2(
+                                                                    parseSequence1WithVariableWithAction(
                                                                         state);
                                                                 if (state.ok) {
-                                                                  // Sequence2
-                                                                  fastParseSequence2(
+                                                                  // Sequence1WithVariableWithAction
+                                                                  fastParseSequence1WithVariableWithAction(
                                                                       state);
                                                                   if (state
                                                                       .ok) {
@@ -7692,23 +8019,27 @@ class Test2Parser {
                                                                   }
                                                                 }
                                                                 if (!state.ok) {
-                                                                  state.pos =
-                                                                      $92;
+                                                                  state
+                                                                      .backtrack(
+                                                                          $92);
                                                                 }
-                                                                if (!state.ok) {
-                                                                  // (v:Sequence2WithAction Sequence2WithAction)
-                                                                  // v:Sequence2WithAction Sequence2WithAction
+                                                                if (!state.ok &&
+                                                                    state
+                                                                        .isRecoverable) {
+                                                                  // (v:Sequence2 Sequence2)
+                                                                  // v:Sequence2 Sequence2
                                                                   final $95 =
                                                                       state.pos;
-                                                                  int? $96;
-                                                                  // Sequence2WithAction
+                                                                  List<Object?>?
+                                                                      $96;
+                                                                  // Sequence2
                                                                   $96 =
-                                                                      parseSequence2WithAction(
+                                                                      parseSequence2(
                                                                           state);
                                                                   if (state
                                                                       .ok) {
-                                                                    // Sequence2WithAction
-                                                                    fastParseSequence2WithAction(
+                                                                    // Sequence2
+                                                                    fastParseSequence2(
                                                                         state);
                                                                     if (state
                                                                         .ok) {
@@ -7717,24 +8048,26 @@ class Test2Parser {
                                                                   }
                                                                   if (!state
                                                                       .ok) {
-                                                                    state.pos =
-                                                                        $95;
+                                                                    state.backtrack(
+                                                                        $95);
                                                                   }
                                                                   if (!state
-                                                                      .ok) {
-                                                                    // (v:Sequence2WithVariable Sequence2WithVariable)
-                                                                    // v:Sequence2WithVariable Sequence2WithVariable
+                                                                          .ok &&
+                                                                      state
+                                                                          .isRecoverable) {
+                                                                    // (v:Sequence2WithAction Sequence2WithAction)
+                                                                    // v:Sequence2WithAction Sequence2WithAction
                                                                     final $98 =
                                                                         state
                                                                             .pos;
                                                                     int? $99;
-                                                                    // Sequence2WithVariable
-                                                                    $99 = parseSequence2WithVariable(
+                                                                    // Sequence2WithAction
+                                                                    $99 = parseSequence2WithAction(
                                                                         state);
                                                                     if (state
                                                                         .ok) {
-                                                                      // Sequence2WithVariable
-                                                                      fastParseSequence2WithVariable(
+                                                                      // Sequence2WithAction
+                                                                      fastParseSequence2WithAction(
                                                                           state);
                                                                       if (state
                                                                           .ok) {
@@ -7744,27 +8077,26 @@ class Test2Parser {
                                                                     }
                                                                     if (!state
                                                                         .ok) {
-                                                                      state.pos =
-                                                                          $98;
+                                                                      state.backtrack(
+                                                                          $98);
                                                                     }
                                                                     if (!state
-                                                                        .ok) {
-                                                                      // (v:Sequence2WithVariables Sequence2WithVariables)
-                                                                      // v:Sequence2WithVariables Sequence2WithVariables
+                                                                            .ok &&
+                                                                        state
+                                                                            .isRecoverable) {
+                                                                      // (v:Sequence2WithVariable Sequence2WithVariable)
+                                                                      // v:Sequence2WithVariable Sequence2WithVariable
                                                                       final $101 =
                                                                           state
                                                                               .pos;
-                                                                      ({
-                                                                        int v1,
-                                                                        int v2
-                                                                      })? $102;
-                                                                      // Sequence2WithVariables
-                                                                      $102 = parseSequence2WithVariables(
+                                                                      int? $102;
+                                                                      // Sequence2WithVariable
+                                                                      $102 = parseSequence2WithVariable(
                                                                           state);
                                                                       if (state
                                                                           .ok) {
-                                                                        // Sequence2WithVariables
-                                                                        fastParseSequence2WithVariables(
+                                                                        // Sequence2WithVariable
+                                                                        fastParseSequence2WithVariable(
                                                                             state);
                                                                         if (state
                                                                             .ok) {
@@ -7774,24 +8106,28 @@ class Test2Parser {
                                                                       }
                                                                       if (!state
                                                                           .ok) {
-                                                                        state.pos =
-                                                                            $101;
+                                                                        state.backtrack(
+                                                                            $101);
                                                                       }
                                                                       if (!state
-                                                                          .ok) {
-                                                                        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-                                                                        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+                                                                              .ok &&
+                                                                          state
+                                                                              .isRecoverable) {
+                                                                        // (v:Sequence2WithVariables Sequence2WithVariables)
+                                                                        // v:Sequence2WithVariables Sequence2WithVariables
                                                                         final $104 =
                                                                             state.pos;
-                                                                        int?
-                                                                            $105;
-                                                                        // Sequence2WithVariableWithAction
-                                                                        $105 = parseSequence2WithVariableWithAction(
+                                                                        ({
+                                                                          int v1,
+                                                                          int v2
+                                                                        })? $105;
+                                                                        // Sequence2WithVariables
+                                                                        $105 = parseSequence2WithVariables(
                                                                             state);
                                                                         if (state
                                                                             .ok) {
-                                                                          // Sequence2WithVariableWithAction
-                                                                          fastParseSequence2WithVariableWithAction(
+                                                                          // Sequence2WithVariables
+                                                                          fastParseSequence2WithVariables(
                                                                               state);
                                                                           if (state
                                                                               .ok) {
@@ -7801,104 +8137,122 @@ class Test2Parser {
                                                                         }
                                                                         if (!state
                                                                             .ok) {
-                                                                          state.pos =
-                                                                              $104;
+                                                                          state.backtrack(
+                                                                              $104);
                                                                         }
-                                                                        if (!state
-                                                                            .ok) {
-                                                                          // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-                                                                          // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+                                                                        if (!state.ok &&
+                                                                            state.isRecoverable) {
+                                                                          // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+                                                                          // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
                                                                           final $107 =
                                                                               state.pos;
                                                                           int?
                                                                               $108;
-                                                                          // Sequence2WithVariablesWithAction
+                                                                          // Sequence2WithVariableWithAction
                                                                           $108 =
-                                                                              parseSequence2WithVariablesWithAction(state);
+                                                                              parseSequence2WithVariableWithAction(state);
                                                                           if (state
                                                                               .ok) {
-                                                                            // Sequence2WithVariablesWithAction
-                                                                            fastParseSequence2WithVariablesWithAction(state);
+                                                                            // Sequence2WithVariableWithAction
+                                                                            fastParseSequence2WithVariableWithAction(state);
                                                                             if (state.ok) {
                                                                               $0 = $108;
                                                                             }
                                                                           }
                                                                           if (!state
                                                                               .ok) {
-                                                                            state.pos =
-                                                                                $107;
+                                                                            state.backtrack($107);
                                                                           }
-                                                                          if (!state
-                                                                              .ok) {
-                                                                            // (v:Slice Slice)
-                                                                            // v:Slice Slice
+                                                                          if (!state.ok &&
+                                                                              state.isRecoverable) {
+                                                                            // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+                                                                            // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
                                                                             final $110 =
                                                                                 state.pos;
-                                                                            String?
+                                                                            int?
                                                                                 $111;
-                                                                            // Slice
+                                                                            // Sequence2WithVariablesWithAction
                                                                             $111 =
-                                                                                parseSlice(state);
+                                                                                parseSequence2WithVariablesWithAction(state);
                                                                             if (state.ok) {
-                                                                              // Slice
-                                                                              fastParseSlice(state);
+                                                                              // Sequence2WithVariablesWithAction
+                                                                              fastParseSequence2WithVariablesWithAction(state);
                                                                               if (state.ok) {
                                                                                 $0 = $111;
                                                                               }
                                                                             }
                                                                             if (!state.ok) {
-                                                                              state.pos = $110;
+                                                                              state.backtrack($110);
                                                                             }
-                                                                            if (!state.ok) {
-                                                                              // (v:StringChars StringChars)
-                                                                              // v:StringChars StringChars
+                                                                            if (!state.ok &&
+                                                                                state.isRecoverable) {
+                                                                              // (v:Slice Slice)
+                                                                              // v:Slice Slice
                                                                               final $113 = state.pos;
                                                                               String? $114;
-                                                                              // StringChars
-                                                                              $114 = parseStringChars(state);
+                                                                              // Slice
+                                                                              $114 = parseSlice(state);
                                                                               if (state.ok) {
-                                                                                // StringChars
-                                                                                fastParseStringChars(state);
+                                                                                // Slice
+                                                                                fastParseSlice(state);
                                                                                 if (state.ok) {
                                                                                   $0 = $114;
                                                                                 }
                                                                               }
                                                                               if (!state.ok) {
-                                                                                state.pos = $113;
+                                                                                state.backtrack($113);
                                                                               }
-                                                                              if (!state.ok) {
-                                                                                // (v:Verify Verify)
-                                                                                // v:Verify Verify
+                                                                              if (!state.ok && state.isRecoverable) {
+                                                                                // (v:StringChars StringChars)
+                                                                                // v:StringChars StringChars
                                                                                 final $116 = state.pos;
-                                                                                int? $117;
-                                                                                // Verify
-                                                                                $117 = parseVerify(state);
+                                                                                String? $117;
+                                                                                // StringChars
+                                                                                $117 = parseStringChars(state);
                                                                                 if (state.ok) {
-                                                                                  // Verify
-                                                                                  fastParseVerify(state);
+                                                                                  // StringChars
+                                                                                  fastParseStringChars(state);
                                                                                   if (state.ok) {
                                                                                     $0 = $117;
                                                                                   }
                                                                                 }
                                                                                 if (!state.ok) {
-                                                                                  state.pos = $116;
+                                                                                  state.backtrack($116);
                                                                                 }
-                                                                                if (!state.ok) {
-                                                                                  // (v:ZeroOrMore ZeroOrMore)
-                                                                                  // v:ZeroOrMore ZeroOrMore
+                                                                                if (!state.ok && state.isRecoverable) {
+                                                                                  // (v:Verify Verify)
+                                                                                  // v:Verify Verify
                                                                                   final $119 = state.pos;
-                                                                                  List<int>? $120;
-                                                                                  // ZeroOrMore
-                                                                                  $120 = parseZeroOrMore(state);
+                                                                                  int? $120;
+                                                                                  // Verify
+                                                                                  $120 = parseVerify(state);
                                                                                   if (state.ok) {
-                                                                                    // ZeroOrMore
-                                                                                    fastParseZeroOrMore(state);
+                                                                                    // Verify
+                                                                                    fastParseVerify(state);
                                                                                     if (state.ok) {
                                                                                       $0 = $120;
                                                                                     }
                                                                                   }
                                                                                   if (!state.ok) {
-                                                                                    state.pos = $119;
+                                                                                    state.backtrack($119);
+                                                                                  }
+                                                                                  if (!state.ok && state.isRecoverable) {
+                                                                                    // (v:ZeroOrMore ZeroOrMore)
+                                                                                    // v:ZeroOrMore ZeroOrMore
+                                                                                    final $122 = state.pos;
+                                                                                    List<int>? $123;
+                                                                                    // ZeroOrMore
+                                                                                    $123 = parseZeroOrMore(state);
+                                                                                    if (state.ok) {
+                                                                                      // ZeroOrMore
+                                                                                      fastParseZeroOrMore(state);
+                                                                                      if (state.ok) {
+                                                                                        $0 = $123;
+                                                                                      }
+                                                                                    }
+                                                                                    if (!state.ok) {
+                                                                                      state.backtrack($122);
+                                                                                    }
                                                                                   }
                                                                                 }
                                                                               }
@@ -7951,6 +8305,7 @@ class Test2Parser {
   ///   / (v:CharacterClassCharNegate CharacterClassCharNegate)
   ///   / (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
   ///   / (v:CharacterClassRange32 CharacterClassRange32)
+  ///   / (v:Cut Cut)
   ///   / (v:ErrorHandler ErrorHandler)
   ///   / (v:Eof Eof)
   ///   / (v:Literal0 Literal0)
@@ -8032,18 +8387,18 @@ class Test2Parser {
     AsyncResult<Object?>? $60;
     int? $63;
     int? $64;
-    int? $62;
-    AsyncResult<int>? $65;
+    Object? $62;
+    AsyncResult<Object?>? $65;
     AsyncResult<Object?>? $67;
     int? $70;
     int? $71;
-    List<Object?>? $69;
-    AsyncResult<List<Object?>>? $72;
+    int? $69;
+    AsyncResult<int>? $72;
     AsyncResult<Object?>? $74;
     int? $77;
     int? $78;
-    String? $76;
-    AsyncResult<String>? $79;
+    List<Object?>? $76;
+    AsyncResult<List<Object?>>? $79;
     AsyncResult<Object?>? $81;
     int $83 = 0;
     int? $85;
@@ -8068,19 +8423,19 @@ class Test2Parser {
     AsyncResult<Object?>? $110;
     int? $113;
     int? $114;
-    List<Object?>? $112;
-    AsyncResult<List<Object?>>? $115;
+    String? $112;
+    AsyncResult<String>? $115;
     AsyncResult<Object?>? $117;
     int? $120;
     int? $121;
-    List<int>? $119;
-    AsyncResult<List<int>>? $122;
+    List<Object?>? $119;
+    AsyncResult<List<Object?>>? $122;
     int $124 = 0;
     AsyncResult<Object?>? $125;
     int? $128;
     int? $129;
-    int? $127;
-    AsyncResult<int>? $130;
+    List<int>? $127;
+    AsyncResult<List<int>>? $130;
     AsyncResult<Object?>? $132;
     int? $135;
     int? $136;
@@ -8089,29 +8444,29 @@ class Test2Parser {
     AsyncResult<Object?>? $139;
     int? $142;
     int? $143;
-    List<Object?>? $141;
-    AsyncResult<List<Object?>>? $144;
+    int? $141;
+    AsyncResult<int>? $144;
     AsyncResult<Object?>? $146;
     int? $149;
     int? $150;
-    List<int>? $148;
-    AsyncResult<List<int>>? $151;
+    List<Object?>? $148;
+    AsyncResult<List<Object?>>? $151;
     AsyncResult<Object?>? $153;
     int? $156;
     int? $157;
-    Object? $155;
-    AsyncResult<Object?>? $158;
+    List<int>? $155;
+    AsyncResult<List<int>>? $158;
     AsyncResult<Object?>? $160;
     int $162 = 0;
     int? $164;
     int? $165;
-    Object? $163;
-    AsyncResult<Object?>? $166;
+    List<int>? $163;
+    AsyncResult<List<int>>? $166;
     AsyncResult<Object?>? $168;
     int? $171;
     int? $172;
-    Object? $170;
-    AsyncResult<Object?>? $173;
+    List<int>? $170;
+    AsyncResult<List<int>>? $173;
     AsyncResult<Object?>? $175;
     int? $178;
     int? $179;
@@ -8120,8 +8475,8 @@ class Test2Parser {
     AsyncResult<Object?>? $182;
     int? $185;
     int? $186;
-    int? $184;
-    AsyncResult<int>? $187;
+    List<int>? $184;
+    AsyncResult<List<int>>? $187;
     AsyncResult<Object?>? $189;
     int? $192;
     int? $193;
@@ -8146,13 +8501,13 @@ class Test2Parser {
     AsyncResult<Object?>? $218;
     int? $221;
     int? $222;
-    List<Object?>? $220;
-    AsyncResult<List<Object?>>? $223;
+    int? $220;
+    AsyncResult<int>? $223;
     AsyncResult<Object?>? $225;
     int? $228;
     int? $229;
-    int? $227;
-    AsyncResult<int>? $230;
+    List<Object?>? $227;
+    AsyncResult<List<Object?>>? $230;
     AsyncResult<Object?>? $232;
     int? $235;
     int? $236;
@@ -8162,13 +8517,13 @@ class Test2Parser {
     AsyncResult<Object?>? $240;
     int? $243;
     int? $244;
-    ({int v1, int v2})? $242;
-    AsyncResult<({int v1, int v2})>? $245;
+    int? $242;
+    AsyncResult<int>? $245;
     AsyncResult<Object?>? $247;
     int? $250;
     int? $251;
-    int? $249;
-    AsyncResult<int>? $252;
+    ({int v1, int v2})? $249;
+    AsyncResult<({int v1, int v2})>? $252;
     AsyncResult<Object?>? $254;
     int? $257;
     int? $258;
@@ -8177,8 +8532,8 @@ class Test2Parser {
     AsyncResult<Object?>? $261;
     int? $264;
     int? $265;
-    String? $263;
-    AsyncResult<String>? $266;
+    int? $263;
+    AsyncResult<int>? $266;
     AsyncResult<Object?>? $268;
     int? $271;
     int? $272;
@@ -8188,17 +8543,22 @@ class Test2Parser {
     int $277 = 0;
     int? $279;
     int? $280;
-    int? $278;
-    AsyncResult<int>? $281;
+    String? $278;
+    AsyncResult<String>? $281;
     AsyncResult<Object?>? $283;
     int? $286;
     int? $287;
-    List<int>? $285;
-    AsyncResult<List<int>>? $288;
+    int? $285;
+    AsyncResult<int>? $288;
     AsyncResult<Object?>? $290;
+    int? $293;
+    int? $294;
+    List<int>? $292;
+    AsyncResult<List<int>>? $295;
+    AsyncResult<Object?>? $297;
     void $1() {
-      if ($277 & 0x100 == 0) {
-        $277 |= 0x100;
+      if ($277 & 0x800 == 0) {
+        $277 |= 0x800;
         $3 = 0;
       }
       if ($3 == 0) {
@@ -8243,10 +8603,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $4;
         } else {
-          state.pos = $6!;
+          state.backtrack($6!);
         }
         $9 &= ~0x4 & 0xffff;
-        $3 = state.ok ? -1 : 1;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
       }
       if ($3 == 1) {
         // (v:AnyCharacter AnyCharacter)
@@ -8290,10 +8654,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $12;
         } else {
-          state.pos = $14!;
+          state.backtrack($14!);
         }
         $9 &= ~0x20 & 0xffff;
-        $3 = state.ok ? -1 : 2;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
       }
       if ($3 == 2) {
         // (v:Buffer Buffer)
@@ -8337,10 +8705,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $19;
         } else {
-          state.pos = $21!;
+          state.backtrack($21!);
         }
         $9 &= ~0x100 & 0xffff;
-        $3 = state.ok ? -1 : 3;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 3
+                : -1;
       }
       if ($3 == 3) {
         // (v:CharacterClass CharacterClass)
@@ -8384,10 +8756,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $26;
         } else {
-          state.pos = $28!;
+          state.backtrack($28!);
         }
         $9 &= ~0x800 & 0xffff;
-        $3 = state.ok ? -1 : 4;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 4
+                : -1;
       }
       if ($3 == 4) {
         // (v:CharacterClassChar32 CharacterClassChar32)
@@ -8431,10 +8807,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $33;
         } else {
-          state.pos = $35!;
+          state.backtrack($35!);
         }
         $9 &= ~0x4000 & 0xffff;
-        $3 = state.ok ? -1 : 5;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 5
+                : -1;
       }
       if ($3 == 5) {
         // (v:CharacterClassCharNegate CharacterClassCharNegate)
@@ -8478,10 +8858,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $40;
         } else {
-          state.pos = $42!;
+          state.backtrack($42!);
         }
         $47 &= ~0x2 & 0xffff;
-        $3 = state.ok ? -1 : 6;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 6
+                : -1;
       }
       if ($3 == 6) {
         // (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
@@ -8525,10 +8909,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $48;
         } else {
-          state.pos = $50!;
+          state.backtrack($50!);
         }
         $47 &= ~0x10 & 0xffff;
-        $3 = state.ok ? -1 : 7;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 7
+                : -1;
       }
       if ($3 == 7) {
         // (v:CharacterClassRange32 CharacterClassRange32)
@@ -8572,26 +8960,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $55;
         } else {
-          state.pos = $57!;
+          state.backtrack($57!);
         }
         $47 &= ~0x80 & 0xffff;
-        $3 = state.ok ? -1 : 8;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 8
+                : -1;
       }
       if ($3 == 8) {
-        // (v:ErrorHandler ErrorHandler)
-        // (v:ErrorHandler ErrorHandler)
-        // v:ErrorHandler ErrorHandler
-        // v:ErrorHandler ErrorHandler
+        // (v:Cut Cut)
+        // (v:Cut Cut)
+        // v:Cut Cut
+        // v:Cut Cut
         if ($47 & 0x400 == 0) {
           $47 |= 0x400;
           $63 = 0;
           $64 = state.pos;
         }
         if ($63 == 0) {
-          // ErrorHandler
+          // Cut
           if ($47 & 0x100 == 0) {
             $47 |= 0x100;
-            $65 = parseErrorHandler$Async(state);
+            $65 = parseCut$Async(state);
             final $66 = $65!;
             if (!$66.isComplete) {
               $66.onComplete = $1;
@@ -8603,10 +8995,10 @@ class Test2Parser {
           $63 = state.ok ? 1 : -1;
         }
         if ($63 == 1) {
-          // ErrorHandler
+          // Cut
           if ($47 & 0x200 == 0) {
             $47 |= 0x200;
-            $67 = fastParseErrorHandler$Async(state);
+            $67 = fastParseCut$Async(state);
             final $68 = $67!;
             if (!$68.isComplete) {
               $68.onComplete = $1;
@@ -8619,26 +9011,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $62;
         } else {
-          state.pos = $64!;
+          state.backtrack($64!);
         }
         $47 &= ~0x400 & 0xffff;
-        $3 = state.ok ? -1 : 9;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 9
+                : -1;
       }
       if ($3 == 9) {
-        // (v:Eof Eof)
-        // (v:Eof Eof)
-        // v:Eof Eof
-        // v:Eof Eof
+        // (v:ErrorHandler ErrorHandler)
+        // (v:ErrorHandler ErrorHandler)
+        // v:ErrorHandler ErrorHandler
+        // v:ErrorHandler ErrorHandler
         if ($47 & 0x2000 == 0) {
           $47 |= 0x2000;
           $70 = 0;
           $71 = state.pos;
         }
         if ($70 == 0) {
-          // Eof
+          // ErrorHandler
           if ($47 & 0x800 == 0) {
             $47 |= 0x800;
-            $72 = parseEof$Async(state);
+            $72 = parseErrorHandler$Async(state);
             final $73 = $72!;
             if (!$73.isComplete) {
               $73.onComplete = $1;
@@ -8650,10 +9046,10 @@ class Test2Parser {
           $70 = state.ok ? 1 : -1;
         }
         if ($70 == 1) {
-          // Eof
+          // ErrorHandler
           if ($47 & 0x1000 == 0) {
             $47 |= 0x1000;
-            $74 = fastParseEof$Async(state);
+            $74 = fastParseErrorHandler$Async(state);
             final $75 = $74!;
             if (!$75.isComplete) {
               $75.onComplete = $1;
@@ -8666,26 +9062,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $69;
         } else {
-          state.pos = $71!;
+          state.backtrack($71!);
         }
         $47 &= ~0x2000 & 0xffff;
-        $3 = state.ok ? -1 : 10;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 10
+                : -1;
       }
       if ($3 == 10) {
-        // (v:Literal0 Literal0)
-        // (v:Literal0 Literal0)
-        // v:Literal0 Literal0
-        // v:Literal0 Literal0
+        // (v:Eof Eof)
+        // (v:Eof Eof)
+        // v:Eof Eof
+        // v:Eof Eof
         if ($83 & 0x1 == 0) {
           $83 |= 0x1;
           $77 = 0;
           $78 = state.pos;
         }
         if ($77 == 0) {
-          // Literal0
+          // Eof
           if ($47 & 0x4000 == 0) {
             $47 |= 0x4000;
-            $79 = parseLiteral0$Async(state);
+            $79 = parseEof$Async(state);
             final $80 = $79!;
             if (!$80.isComplete) {
               $80.onComplete = $1;
@@ -8697,10 +9097,10 @@ class Test2Parser {
           $77 = state.ok ? 1 : -1;
         }
         if ($77 == 1) {
-          // Literal0
+          // Eof
           if ($47 & 0x8000 == 0) {
             $47 |= 0x8000;
-            $81 = fastParseLiteral0$Async(state);
+            $81 = fastParseEof$Async(state);
             final $82 = $81!;
             if (!$82.isComplete) {
               $82.onComplete = $1;
@@ -8713,26 +9113,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $76;
         } else {
-          state.pos = $78!;
+          state.backtrack($78!);
         }
         $83 &= ~0x1 & 0xffff;
-        $3 = state.ok ? -1 : 11;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 11
+                : -1;
       }
       if ($3 == 11) {
-        // (v:Literal1 Literal1)
-        // (v:Literal1 Literal1)
-        // v:Literal1 Literal1
-        // v:Literal1 Literal1
+        // (v:Literal0 Literal0)
+        // (v:Literal0 Literal0)
+        // v:Literal0 Literal0
+        // v:Literal0 Literal0
         if ($83 & 0x8 == 0) {
           $83 |= 0x8;
           $85 = 0;
           $86 = state.pos;
         }
         if ($85 == 0) {
-          // Literal1
+          // Literal0
           if ($83 & 0x2 == 0) {
             $83 |= 0x2;
-            $87 = parseLiteral1$Async(state);
+            $87 = parseLiteral0$Async(state);
             final $88 = $87!;
             if (!$88.isComplete) {
               $88.onComplete = $1;
@@ -8744,10 +9148,10 @@ class Test2Parser {
           $85 = state.ok ? 1 : -1;
         }
         if ($85 == 1) {
-          // Literal1
+          // Literal0
           if ($83 & 0x4 == 0) {
             $83 |= 0x4;
-            $89 = fastParseLiteral1$Async(state);
+            $89 = fastParseLiteral0$Async(state);
             final $90 = $89!;
             if (!$90.isComplete) {
               $90.onComplete = $1;
@@ -8760,26 +9164,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $84;
         } else {
-          state.pos = $86!;
+          state.backtrack($86!);
         }
         $83 &= ~0x8 & 0xffff;
-        $3 = state.ok ? -1 : 12;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 12
+                : -1;
       }
       if ($3 == 12) {
-        // (v:Literal2 Literal2)
-        // (v:Literal2 Literal2)
-        // v:Literal2 Literal2
-        // v:Literal2 Literal2
+        // (v:Literal1 Literal1)
+        // (v:Literal1 Literal1)
+        // v:Literal1 Literal1
+        // v:Literal1 Literal1
         if ($83 & 0x40 == 0) {
           $83 |= 0x40;
           $92 = 0;
           $93 = state.pos;
         }
         if ($92 == 0) {
-          // Literal2
+          // Literal1
           if ($83 & 0x10 == 0) {
             $83 |= 0x10;
-            $94 = parseLiteral2$Async(state);
+            $94 = parseLiteral1$Async(state);
             final $95 = $94!;
             if (!$95.isComplete) {
               $95.onComplete = $1;
@@ -8791,10 +9199,10 @@ class Test2Parser {
           $92 = state.ok ? 1 : -1;
         }
         if ($92 == 1) {
-          // Literal2
+          // Literal1
           if ($83 & 0x20 == 0) {
             $83 |= 0x20;
-            $96 = fastParseLiteral2$Async(state);
+            $96 = fastParseLiteral1$Async(state);
             final $97 = $96!;
             if (!$97.isComplete) {
               $97.onComplete = $1;
@@ -8807,26 +9215,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $91;
         } else {
-          state.pos = $93!;
+          state.backtrack($93!);
         }
         $83 &= ~0x40 & 0xffff;
-        $3 = state.ok ? -1 : 13;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 13
+                : -1;
       }
       if ($3 == 13) {
-        // (v:Literals Literals)
-        // (v:Literals Literals)
-        // v:Literals Literals
-        // v:Literals Literals
+        // (v:Literal2 Literal2)
+        // (v:Literal2 Literal2)
+        // v:Literal2 Literal2
+        // v:Literal2 Literal2
         if ($83 & 0x200 == 0) {
           $83 |= 0x200;
           $99 = 0;
           $100 = state.pos;
         }
         if ($99 == 0) {
-          // Literals
+          // Literal2
           if ($83 & 0x80 == 0) {
             $83 |= 0x80;
-            $101 = parseLiterals$Async(state);
+            $101 = parseLiteral2$Async(state);
             final $102 = $101!;
             if (!$102.isComplete) {
               $102.onComplete = $1;
@@ -8838,10 +9250,10 @@ class Test2Parser {
           $99 = state.ok ? 1 : -1;
         }
         if ($99 == 1) {
-          // Literals
+          // Literal2
           if ($83 & 0x100 == 0) {
             $83 |= 0x100;
-            $103 = fastParseLiterals$Async(state);
+            $103 = fastParseLiteral2$Async(state);
             final $104 = $103!;
             if (!$104.isComplete) {
               $104.onComplete = $1;
@@ -8854,26 +9266,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $98;
         } else {
-          state.pos = $100!;
+          state.backtrack($100!);
         }
         $83 &= ~0x200 & 0xffff;
-        $3 = state.ok ? -1 : 14;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 14
+                : -1;
       }
       if ($3 == 14) {
-        // (v:MatchString MatchString)
-        // (v:MatchString MatchString)
-        // v:MatchString MatchString
-        // v:MatchString MatchString
+        // (v:Literals Literals)
+        // (v:Literals Literals)
+        // v:Literals Literals
+        // v:Literals Literals
         if ($83 & 0x1000 == 0) {
           $83 |= 0x1000;
           $106 = 0;
           $107 = state.pos;
         }
         if ($106 == 0) {
-          // MatchString
+          // Literals
           if ($83 & 0x400 == 0) {
             $83 |= 0x400;
-            $108 = parseMatchString$Async(state);
+            $108 = parseLiterals$Async(state);
             final $109 = $108!;
             if (!$109.isComplete) {
               $109.onComplete = $1;
@@ -8885,10 +9301,10 @@ class Test2Parser {
           $106 = state.ok ? 1 : -1;
         }
         if ($106 == 1) {
-          // MatchString
+          // Literals
           if ($83 & 0x800 == 0) {
             $83 |= 0x800;
-            $110 = fastParseMatchString$Async(state);
+            $110 = fastParseLiterals$Async(state);
             final $111 = $110!;
             if (!$111.isComplete) {
               $111.onComplete = $1;
@@ -8901,26 +9317,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $105;
         } else {
-          state.pos = $107!;
+          state.backtrack($107!);
         }
         $83 &= ~0x1000 & 0xffff;
-        $3 = state.ok ? -1 : 15;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 15
+                : -1;
       }
       if ($3 == 15) {
-        // (v:NotPredicate NotPredicate)
-        // (v:NotPredicate NotPredicate)
-        // v:NotPredicate NotPredicate
-        // v:NotPredicate NotPredicate
+        // (v:MatchString MatchString)
+        // (v:MatchString MatchString)
+        // v:MatchString MatchString
+        // v:MatchString MatchString
         if ($83 & 0x8000 == 0) {
           $83 |= 0x8000;
           $113 = 0;
           $114 = state.pos;
         }
         if ($113 == 0) {
-          // NotPredicate
+          // MatchString
           if ($83 & 0x2000 == 0) {
             $83 |= 0x2000;
-            $115 = parseNotPredicate$Async(state);
+            $115 = parseMatchString$Async(state);
             final $116 = $115!;
             if (!$116.isComplete) {
               $116.onComplete = $1;
@@ -8932,10 +9352,10 @@ class Test2Parser {
           $113 = state.ok ? 1 : -1;
         }
         if ($113 == 1) {
-          // NotPredicate
+          // MatchString
           if ($83 & 0x4000 == 0) {
             $83 |= 0x4000;
-            $117 = fastParseNotPredicate$Async(state);
+            $117 = fastParseMatchString$Async(state);
             final $118 = $117!;
             if (!$118.isComplete) {
               $118.onComplete = $1;
@@ -8948,26 +9368,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $112;
         } else {
-          state.pos = $114!;
+          state.backtrack($114!);
         }
         $83 &= ~0x8000 & 0xffff;
-        $3 = state.ok ? -1 : 16;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 16
+                : -1;
       }
       if ($3 == 16) {
-        // (v:OneOrMore OneOrMore)
-        // (v:OneOrMore OneOrMore)
-        // v:OneOrMore OneOrMore
-        // v:OneOrMore OneOrMore
+        // (v:NotPredicate NotPredicate)
+        // (v:NotPredicate NotPredicate)
+        // v:NotPredicate NotPredicate
+        // v:NotPredicate NotPredicate
         if ($124 & 0x4 == 0) {
           $124 |= 0x4;
           $120 = 0;
           $121 = state.pos;
         }
         if ($120 == 0) {
-          // OneOrMore
+          // NotPredicate
           if ($124 & 0x1 == 0) {
             $124 |= 0x1;
-            $122 = parseOneOrMore$Async(state);
+            $122 = parseNotPredicate$Async(state);
             final $123 = $122!;
             if (!$123.isComplete) {
               $123.onComplete = $1;
@@ -8979,10 +9403,10 @@ class Test2Parser {
           $120 = state.ok ? 1 : -1;
         }
         if ($120 == 1) {
-          // OneOrMore
+          // NotPredicate
           if ($124 & 0x2 == 0) {
             $124 |= 0x2;
-            $125 = fastParseOneOrMore$Async(state);
+            $125 = fastParseNotPredicate$Async(state);
             final $126 = $125!;
             if (!$126.isComplete) {
               $126.onComplete = $1;
@@ -8995,26 +9419,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $119;
         } else {
-          state.pos = $121!;
+          state.backtrack($121!);
         }
         $124 &= ~0x4 & 0xffff;
-        $3 = state.ok ? -1 : 17;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 17
+                : -1;
       }
       if ($3 == 17) {
-        // (v:OrderedChoice2 OrderedChoice2)
-        // (v:OrderedChoice2 OrderedChoice2)
-        // v:OrderedChoice2 OrderedChoice2
-        // v:OrderedChoice2 OrderedChoice2
+        // (v:OneOrMore OneOrMore)
+        // (v:OneOrMore OneOrMore)
+        // v:OneOrMore OneOrMore
+        // v:OneOrMore OneOrMore
         if ($124 & 0x20 == 0) {
           $124 |= 0x20;
           $128 = 0;
           $129 = state.pos;
         }
         if ($128 == 0) {
-          // OrderedChoice2
+          // OneOrMore
           if ($124 & 0x8 == 0) {
             $124 |= 0x8;
-            $130 = parseOrderedChoice2$Async(state);
+            $130 = parseOneOrMore$Async(state);
             final $131 = $130!;
             if (!$131.isComplete) {
               $131.onComplete = $1;
@@ -9026,10 +9454,10 @@ class Test2Parser {
           $128 = state.ok ? 1 : -1;
         }
         if ($128 == 1) {
-          // OrderedChoice2
+          // OneOrMore
           if ($124 & 0x10 == 0) {
             $124 |= 0x10;
-            $132 = fastParseOrderedChoice2$Async(state);
+            $132 = fastParseOneOrMore$Async(state);
             final $133 = $132!;
             if (!$133.isComplete) {
               $133.onComplete = $1;
@@ -9042,26 +9470,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $127;
         } else {
-          state.pos = $129!;
+          state.backtrack($129!);
         }
         $124 &= ~0x20 & 0xffff;
-        $3 = state.ok ? -1 : 18;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 18
+                : -1;
       }
       if ($3 == 18) {
-        // (v:OrderedChoice3 OrderedChoice3)
-        // (v:OrderedChoice3 OrderedChoice3)
-        // v:OrderedChoice3 OrderedChoice3
-        // v:OrderedChoice3 OrderedChoice3
+        // (v:OrderedChoice2 OrderedChoice2)
+        // (v:OrderedChoice2 OrderedChoice2)
+        // v:OrderedChoice2 OrderedChoice2
+        // v:OrderedChoice2 OrderedChoice2
         if ($124 & 0x100 == 0) {
           $124 |= 0x100;
           $135 = 0;
           $136 = state.pos;
         }
         if ($135 == 0) {
-          // OrderedChoice3
+          // OrderedChoice2
           if ($124 & 0x40 == 0) {
             $124 |= 0x40;
-            $137 = parseOrderedChoice3$Async(state);
+            $137 = parseOrderedChoice2$Async(state);
             final $138 = $137!;
             if (!$138.isComplete) {
               $138.onComplete = $1;
@@ -9073,10 +9505,10 @@ class Test2Parser {
           $135 = state.ok ? 1 : -1;
         }
         if ($135 == 1) {
-          // OrderedChoice3
+          // OrderedChoice2
           if ($124 & 0x80 == 0) {
             $124 |= 0x80;
-            $139 = fastParseOrderedChoice3$Async(state);
+            $139 = fastParseOrderedChoice2$Async(state);
             final $140 = $139!;
             if (!$140.isComplete) {
               $140.onComplete = $1;
@@ -9089,26 +9521,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $134;
         } else {
-          state.pos = $136!;
+          state.backtrack($136!);
         }
         $124 &= ~0x100 & 0xffff;
-        $3 = state.ok ? -1 : 19;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 19
+                : -1;
       }
       if ($3 == 19) {
-        // (v:Optional Optional)
-        // (v:Optional Optional)
-        // v:Optional Optional
-        // v:Optional Optional
+        // (v:OrderedChoice3 OrderedChoice3)
+        // (v:OrderedChoice3 OrderedChoice3)
+        // v:OrderedChoice3 OrderedChoice3
+        // v:OrderedChoice3 OrderedChoice3
         if ($124 & 0x800 == 0) {
           $124 |= 0x800;
           $142 = 0;
           $143 = state.pos;
         }
         if ($142 == 0) {
-          // Optional
+          // OrderedChoice3
           if ($124 & 0x200 == 0) {
             $124 |= 0x200;
-            $144 = parseOptional$Async(state);
+            $144 = parseOrderedChoice3$Async(state);
             final $145 = $144!;
             if (!$145.isComplete) {
               $145.onComplete = $1;
@@ -9120,10 +9556,10 @@ class Test2Parser {
           $142 = state.ok ? 1 : -1;
         }
         if ($142 == 1) {
-          // Optional
+          // OrderedChoice3
           if ($124 & 0x400 == 0) {
             $124 |= 0x400;
-            $146 = fastParseOptional$Async(state);
+            $146 = fastParseOrderedChoice3$Async(state);
             final $147 = $146!;
             if (!$147.isComplete) {
               $147.onComplete = $1;
@@ -9136,26 +9572,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $141;
         } else {
-          state.pos = $143!;
+          state.backtrack($143!);
         }
         $124 &= ~0x800 & 0xffff;
-        $3 = state.ok ? -1 : 20;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 20
+                : -1;
       }
       if ($3 == 20) {
-        // (v:RepetitionMax RepetitionMax)
-        // (v:RepetitionMax RepetitionMax)
-        // v:RepetitionMax RepetitionMax
-        // v:RepetitionMax RepetitionMax
+        // (v:Optional Optional)
+        // (v:Optional Optional)
+        // v:Optional Optional
+        // v:Optional Optional
         if ($124 & 0x4000 == 0) {
           $124 |= 0x4000;
           $149 = 0;
           $150 = state.pos;
         }
         if ($149 == 0) {
-          // RepetitionMax
+          // Optional
           if ($124 & 0x1000 == 0) {
             $124 |= 0x1000;
-            $151 = parseRepetitionMax$Async(state);
+            $151 = parseOptional$Async(state);
             final $152 = $151!;
             if (!$152.isComplete) {
               $152.onComplete = $1;
@@ -9167,10 +9607,10 @@ class Test2Parser {
           $149 = state.ok ? 1 : -1;
         }
         if ($149 == 1) {
-          // RepetitionMax
+          // Optional
           if ($124 & 0x2000 == 0) {
             $124 |= 0x2000;
-            $153 = fastParseRepetitionMax$Async(state);
+            $153 = fastParseOptional$Async(state);
             final $154 = $153!;
             if (!$154.isComplete) {
               $154.onComplete = $1;
@@ -9183,26 +9623,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $148;
         } else {
-          state.pos = $150!;
+          state.backtrack($150!);
         }
         $124 &= ~0x4000 & 0xffff;
-        $3 = state.ok ? -1 : 21;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 21
+                : -1;
       }
       if ($3 == 21) {
-        // (v:RepetitionMin RepetitionMin)
-        // (v:RepetitionMin RepetitionMin)
-        // v:RepetitionMin RepetitionMin
-        // v:RepetitionMin RepetitionMin
+        // (v:RepetitionMax RepetitionMax)
+        // (v:RepetitionMax RepetitionMax)
+        // v:RepetitionMax RepetitionMax
+        // v:RepetitionMax RepetitionMax
         if ($162 & 0x2 == 0) {
           $162 |= 0x2;
           $156 = 0;
           $157 = state.pos;
         }
         if ($156 == 0) {
-          // RepetitionMin
+          // RepetitionMax
           if ($124 & 0x8000 == 0) {
             $124 |= 0x8000;
-            $158 = parseRepetitionMin$Async(state);
+            $158 = parseRepetitionMax$Async(state);
             final $159 = $158!;
             if (!$159.isComplete) {
               $159.onComplete = $1;
@@ -9214,10 +9658,10 @@ class Test2Parser {
           $156 = state.ok ? 1 : -1;
         }
         if ($156 == 1) {
-          // RepetitionMin
+          // RepetitionMax
           if ($162 & 0x1 == 0) {
             $162 |= 0x1;
-            $160 = fastParseRepetitionMin$Async(state);
+            $160 = fastParseRepetitionMax$Async(state);
             final $161 = $160!;
             if (!$161.isComplete) {
               $161.onComplete = $1;
@@ -9230,26 +9674,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $155;
         } else {
-          state.pos = $157!;
+          state.backtrack($157!);
         }
         $162 &= ~0x2 & 0xffff;
-        $3 = state.ok ? -1 : 22;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 22
+                : -1;
       }
       if ($3 == 22) {
-        // (v:RepetitionMinMax RepetitionMinMax)
-        // (v:RepetitionMinMax RepetitionMinMax)
-        // v:RepetitionMinMax RepetitionMinMax
-        // v:RepetitionMinMax RepetitionMinMax
+        // (v:RepetitionMin RepetitionMin)
+        // (v:RepetitionMin RepetitionMin)
+        // v:RepetitionMin RepetitionMin
+        // v:RepetitionMin RepetitionMin
         if ($162 & 0x10 == 0) {
           $162 |= 0x10;
           $164 = 0;
           $165 = state.pos;
         }
         if ($164 == 0) {
-          // RepetitionMinMax
+          // RepetitionMin
           if ($162 & 0x4 == 0) {
             $162 |= 0x4;
-            $166 = parseRepetitionMinMax$Async(state);
+            $166 = parseRepetitionMin$Async(state);
             final $167 = $166!;
             if (!$167.isComplete) {
               $167.onComplete = $1;
@@ -9261,10 +9709,10 @@ class Test2Parser {
           $164 = state.ok ? 1 : -1;
         }
         if ($164 == 1) {
-          // RepetitionMinMax
+          // RepetitionMin
           if ($162 & 0x8 == 0) {
             $162 |= 0x8;
-            $168 = fastParseRepetitionMinMax$Async(state);
+            $168 = fastParseRepetitionMin$Async(state);
             final $169 = $168!;
             if (!$169.isComplete) {
               $169.onComplete = $1;
@@ -9277,26 +9725,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $163;
         } else {
-          state.pos = $165!;
+          state.backtrack($165!);
         }
         $162 &= ~0x10 & 0xffff;
-        $3 = state.ok ? -1 : 23;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 23
+                : -1;
       }
       if ($3 == 23) {
-        // (v:RepetitionN RepetitionN)
-        // (v:RepetitionN RepetitionN)
-        // v:RepetitionN RepetitionN
-        // v:RepetitionN RepetitionN
+        // (v:RepetitionMinMax RepetitionMinMax)
+        // (v:RepetitionMinMax RepetitionMinMax)
+        // v:RepetitionMinMax RepetitionMinMax
+        // v:RepetitionMinMax RepetitionMinMax
         if ($162 & 0x80 == 0) {
           $162 |= 0x80;
           $171 = 0;
           $172 = state.pos;
         }
         if ($171 == 0) {
-          // RepetitionN
+          // RepetitionMinMax
           if ($162 & 0x20 == 0) {
             $162 |= 0x20;
-            $173 = parseRepetitionN$Async(state);
+            $173 = parseRepetitionMinMax$Async(state);
             final $174 = $173!;
             if (!$174.isComplete) {
               $174.onComplete = $1;
@@ -9308,10 +9760,10 @@ class Test2Parser {
           $171 = state.ok ? 1 : -1;
         }
         if ($171 == 1) {
-          // RepetitionN
+          // RepetitionMinMax
           if ($162 & 0x40 == 0) {
             $162 |= 0x40;
-            $175 = fastParseRepetitionN$Async(state);
+            $175 = fastParseRepetitionMinMax$Async(state);
             final $176 = $175!;
             if (!$176.isComplete) {
               $176.onComplete = $1;
@@ -9324,26 +9776,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $170;
         } else {
-          state.pos = $172!;
+          state.backtrack($172!);
         }
         $162 &= ~0x80 & 0xffff;
-        $3 = state.ok ? -1 : 24;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 24
+                : -1;
       }
       if ($3 == 24) {
-        // (v:SepBy SepBy)
-        // (v:SepBy SepBy)
-        // v:SepBy SepBy
-        // v:SepBy SepBy
+        // (v:RepetitionN RepetitionN)
+        // (v:RepetitionN RepetitionN)
+        // v:RepetitionN RepetitionN
+        // v:RepetitionN RepetitionN
         if ($162 & 0x400 == 0) {
           $162 |= 0x400;
           $178 = 0;
           $179 = state.pos;
         }
         if ($178 == 0) {
-          // SepBy
+          // RepetitionN
           if ($162 & 0x100 == 0) {
             $162 |= 0x100;
-            $180 = parseSepBy$Async(state);
+            $180 = parseRepetitionN$Async(state);
             final $181 = $180!;
             if (!$181.isComplete) {
               $181.onComplete = $1;
@@ -9355,10 +9811,10 @@ class Test2Parser {
           $178 = state.ok ? 1 : -1;
         }
         if ($178 == 1) {
-          // SepBy
+          // RepetitionN
           if ($162 & 0x200 == 0) {
             $162 |= 0x200;
-            $182 = fastParseSepBy$Async(state);
+            $182 = fastParseRepetitionN$Async(state);
             final $183 = $182!;
             if (!$183.isComplete) {
               $183.onComplete = $1;
@@ -9371,26 +9827,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $177;
         } else {
-          state.pos = $179!;
+          state.backtrack($179!);
         }
         $162 &= ~0x400 & 0xffff;
-        $3 = state.ok ? -1 : 25;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 25
+                : -1;
       }
       if ($3 == 25) {
-        // (v:Sequence1 Sequence1)
-        // (v:Sequence1 Sequence1)
-        // v:Sequence1 Sequence1
-        // v:Sequence1 Sequence1
+        // (v:SepBy SepBy)
+        // (v:SepBy SepBy)
+        // v:SepBy SepBy
+        // v:SepBy SepBy
         if ($162 & 0x2000 == 0) {
           $162 |= 0x2000;
           $185 = 0;
           $186 = state.pos;
         }
         if ($185 == 0) {
-          // Sequence1
+          // SepBy
           if ($162 & 0x800 == 0) {
             $162 |= 0x800;
-            $187 = parseSequence1$Async(state);
+            $187 = parseSepBy$Async(state);
             final $188 = $187!;
             if (!$188.isComplete) {
               $188.onComplete = $1;
@@ -9402,10 +9862,10 @@ class Test2Parser {
           $185 = state.ok ? 1 : -1;
         }
         if ($185 == 1) {
-          // Sequence1
+          // SepBy
           if ($162 & 0x1000 == 0) {
             $162 |= 0x1000;
-            $189 = fastParseSequence1$Async(state);
+            $189 = fastParseSepBy$Async(state);
             final $190 = $189!;
             if (!$190.isComplete) {
               $190.onComplete = $1;
@@ -9418,26 +9878,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $184;
         } else {
-          state.pos = $186!;
+          state.backtrack($186!);
         }
         $162 &= ~0x2000 & 0xffff;
-        $3 = state.ok ? -1 : 26;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 26
+                : -1;
       }
       if ($3 == 26) {
-        // (v:Sequence1WithAction Sequence1WithAction)
-        // (v:Sequence1WithAction Sequence1WithAction)
-        // v:Sequence1WithAction Sequence1WithAction
-        // v:Sequence1WithAction Sequence1WithAction
+        // (v:Sequence1 Sequence1)
+        // (v:Sequence1 Sequence1)
+        // v:Sequence1 Sequence1
+        // v:Sequence1 Sequence1
         if ($198 & 0x1 == 0) {
           $198 |= 0x1;
           $192 = 0;
           $193 = state.pos;
         }
         if ($192 == 0) {
-          // Sequence1WithAction
+          // Sequence1
           if ($162 & 0x4000 == 0) {
             $162 |= 0x4000;
-            $194 = parseSequence1WithAction$Async(state);
+            $194 = parseSequence1$Async(state);
             final $195 = $194!;
             if (!$195.isComplete) {
               $195.onComplete = $1;
@@ -9449,10 +9913,10 @@ class Test2Parser {
           $192 = state.ok ? 1 : -1;
         }
         if ($192 == 1) {
-          // Sequence1WithAction
+          // Sequence1
           if ($162 & 0x8000 == 0) {
             $162 |= 0x8000;
-            $196 = fastParseSequence1WithAction$Async(state);
+            $196 = fastParseSequence1$Async(state);
             final $197 = $196!;
             if (!$197.isComplete) {
               $197.onComplete = $1;
@@ -9465,26 +9929,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $191;
         } else {
-          state.pos = $193!;
+          state.backtrack($193!);
         }
         $198 &= ~0x1 & 0xffff;
-        $3 = state.ok ? -1 : 27;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 27
+                : -1;
       }
       if ($3 == 27) {
-        // (v:Sequence1WithVariable Sequence1WithVariable)
-        // (v:Sequence1WithVariable Sequence1WithVariable)
-        // v:Sequence1WithVariable Sequence1WithVariable
-        // v:Sequence1WithVariable Sequence1WithVariable
+        // (v:Sequence1WithAction Sequence1WithAction)
+        // (v:Sequence1WithAction Sequence1WithAction)
+        // v:Sequence1WithAction Sequence1WithAction
+        // v:Sequence1WithAction Sequence1WithAction
         if ($198 & 0x8 == 0) {
           $198 |= 0x8;
           $200 = 0;
           $201 = state.pos;
         }
         if ($200 == 0) {
-          // Sequence1WithVariable
+          // Sequence1WithAction
           if ($198 & 0x2 == 0) {
             $198 |= 0x2;
-            $202 = parseSequence1WithVariable$Async(state);
+            $202 = parseSequence1WithAction$Async(state);
             final $203 = $202!;
             if (!$203.isComplete) {
               $203.onComplete = $1;
@@ -9496,10 +9964,10 @@ class Test2Parser {
           $200 = state.ok ? 1 : -1;
         }
         if ($200 == 1) {
-          // Sequence1WithVariable
+          // Sequence1WithAction
           if ($198 & 0x4 == 0) {
             $198 |= 0x4;
-            $204 = fastParseSequence1WithVariable$Async(state);
+            $204 = fastParseSequence1WithAction$Async(state);
             final $205 = $204!;
             if (!$205.isComplete) {
               $205.onComplete = $1;
@@ -9512,10 +9980,14 @@ class Test2Parser {
         if (state.ok) {
           $2 = $199;
         } else {
-          state.pos = $201!;
+          state.backtrack($201!);
         }
         $198 &= ~0x8 & 0xffff;
-        $3 = state.ok ? -1 : 28;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 28
+                : -1;
       }
       if ($3 == 28) {
         // (v:Sequence1WithVariable Sequence1WithVariable)
@@ -9559,26 +10031,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $206;
         } else {
-          state.pos = $208!;
+          state.backtrack($208!);
         }
         $198 &= ~0x40 & 0xffff;
-        $3 = state.ok ? -1 : 29;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 29
+                : -1;
       }
       if ($3 == 29) {
-        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
-        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+        // (v:Sequence1WithVariable Sequence1WithVariable)
+        // (v:Sequence1WithVariable Sequence1WithVariable)
+        // v:Sequence1WithVariable Sequence1WithVariable
+        // v:Sequence1WithVariable Sequence1WithVariable
         if ($198 & 0x200 == 0) {
           $198 |= 0x200;
           $214 = 0;
           $215 = state.pos;
         }
         if ($214 == 0) {
-          // Sequence1WithVariableWithAction
+          // Sequence1WithVariable
           if ($198 & 0x80 == 0) {
             $198 |= 0x80;
-            $216 = parseSequence1WithVariableWithAction$Async(state);
+            $216 = parseSequence1WithVariable$Async(state);
             final $217 = $216!;
             if (!$217.isComplete) {
               $217.onComplete = $1;
@@ -9590,10 +10066,10 @@ class Test2Parser {
           $214 = state.ok ? 1 : -1;
         }
         if ($214 == 1) {
-          // Sequence1WithVariableWithAction
+          // Sequence1WithVariable
           if ($198 & 0x100 == 0) {
             $198 |= 0x100;
-            $218 = fastParseSequence1WithVariableWithAction$Async(state);
+            $218 = fastParseSequence1WithVariable$Async(state);
             final $219 = $218!;
             if (!$219.isComplete) {
               $219.onComplete = $1;
@@ -9606,26 +10082,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $213;
         } else {
-          state.pos = $215!;
+          state.backtrack($215!);
         }
         $198 &= ~0x200 & 0xffff;
-        $3 = state.ok ? -1 : 30;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 30
+                : -1;
       }
       if ($3 == 30) {
-        // (v:Sequence2 Sequence2)
-        // (v:Sequence2 Sequence2)
-        // v:Sequence2 Sequence2
-        // v:Sequence2 Sequence2
+        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
         if ($198 & 0x1000 == 0) {
           $198 |= 0x1000;
           $221 = 0;
           $222 = state.pos;
         }
         if ($221 == 0) {
-          // Sequence2
+          // Sequence1WithVariableWithAction
           if ($198 & 0x400 == 0) {
             $198 |= 0x400;
-            $223 = parseSequence2$Async(state);
+            $223 = parseSequence1WithVariableWithAction$Async(state);
             final $224 = $223!;
             if (!$224.isComplete) {
               $224.onComplete = $1;
@@ -9637,10 +10117,10 @@ class Test2Parser {
           $221 = state.ok ? 1 : -1;
         }
         if ($221 == 1) {
-          // Sequence2
+          // Sequence1WithVariableWithAction
           if ($198 & 0x800 == 0) {
             $198 |= 0x800;
-            $225 = fastParseSequence2$Async(state);
+            $225 = fastParseSequence1WithVariableWithAction$Async(state);
             final $226 = $225!;
             if (!$226.isComplete) {
               $226.onComplete = $1;
@@ -9653,26 +10133,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $220;
         } else {
-          state.pos = $222!;
+          state.backtrack($222!);
         }
         $198 &= ~0x1000 & 0xffff;
-        $3 = state.ok ? -1 : 31;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 31
+                : -1;
       }
       if ($3 == 31) {
-        // (v:Sequence2WithAction Sequence2WithAction)
-        // (v:Sequence2WithAction Sequence2WithAction)
-        // v:Sequence2WithAction Sequence2WithAction
-        // v:Sequence2WithAction Sequence2WithAction
+        // (v:Sequence2 Sequence2)
+        // (v:Sequence2 Sequence2)
+        // v:Sequence2 Sequence2
+        // v:Sequence2 Sequence2
         if ($198 & 0x8000 == 0) {
           $198 |= 0x8000;
           $228 = 0;
           $229 = state.pos;
         }
         if ($228 == 0) {
-          // Sequence2WithAction
+          // Sequence2
           if ($198 & 0x2000 == 0) {
             $198 |= 0x2000;
-            $230 = parseSequence2WithAction$Async(state);
+            $230 = parseSequence2$Async(state);
             final $231 = $230!;
             if (!$231.isComplete) {
               $231.onComplete = $1;
@@ -9684,10 +10168,10 @@ class Test2Parser {
           $228 = state.ok ? 1 : -1;
         }
         if ($228 == 1) {
-          // Sequence2WithAction
+          // Sequence2
           if ($198 & 0x4000 == 0) {
             $198 |= 0x4000;
-            $232 = fastParseSequence2WithAction$Async(state);
+            $232 = fastParseSequence2$Async(state);
             final $233 = $232!;
             if (!$233.isComplete) {
               $233.onComplete = $1;
@@ -9700,26 +10184,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $227;
         } else {
-          state.pos = $229!;
+          state.backtrack($229!);
         }
         $198 &= ~0x8000 & 0xffff;
-        $3 = state.ok ? -1 : 32;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 32
+                : -1;
       }
       if ($3 == 32) {
-        // (v:Sequence2WithVariable Sequence2WithVariable)
-        // (v:Sequence2WithVariable Sequence2WithVariable)
-        // v:Sequence2WithVariable Sequence2WithVariable
-        // v:Sequence2WithVariable Sequence2WithVariable
+        // (v:Sequence2WithAction Sequence2WithAction)
+        // (v:Sequence2WithAction Sequence2WithAction)
+        // v:Sequence2WithAction Sequence2WithAction
+        // v:Sequence2WithAction Sequence2WithAction
         if ($239 & 0x4 == 0) {
           $239 |= 0x4;
           $235 = 0;
           $236 = state.pos;
         }
         if ($235 == 0) {
-          // Sequence2WithVariable
+          // Sequence2WithAction
           if ($239 & 0x1 == 0) {
             $239 |= 0x1;
-            $237 = parseSequence2WithVariable$Async(state);
+            $237 = parseSequence2WithAction$Async(state);
             final $238 = $237!;
             if (!$238.isComplete) {
               $238.onComplete = $1;
@@ -9731,10 +10219,10 @@ class Test2Parser {
           $235 = state.ok ? 1 : -1;
         }
         if ($235 == 1) {
-          // Sequence2WithVariable
+          // Sequence2WithAction
           if ($239 & 0x2 == 0) {
             $239 |= 0x2;
-            $240 = fastParseSequence2WithVariable$Async(state);
+            $240 = fastParseSequence2WithAction$Async(state);
             final $241 = $240!;
             if (!$241.isComplete) {
               $241.onComplete = $1;
@@ -9747,26 +10235,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $234;
         } else {
-          state.pos = $236!;
+          state.backtrack($236!);
         }
         $239 &= ~0x4 & 0xffff;
-        $3 = state.ok ? -1 : 33;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 33
+                : -1;
       }
       if ($3 == 33) {
-        // (v:Sequence2WithVariables Sequence2WithVariables)
-        // (v:Sequence2WithVariables Sequence2WithVariables)
-        // v:Sequence2WithVariables Sequence2WithVariables
-        // v:Sequence2WithVariables Sequence2WithVariables
+        // (v:Sequence2WithVariable Sequence2WithVariable)
+        // (v:Sequence2WithVariable Sequence2WithVariable)
+        // v:Sequence2WithVariable Sequence2WithVariable
+        // v:Sequence2WithVariable Sequence2WithVariable
         if ($239 & 0x20 == 0) {
           $239 |= 0x20;
           $243 = 0;
           $244 = state.pos;
         }
         if ($243 == 0) {
-          // Sequence2WithVariables
+          // Sequence2WithVariable
           if ($239 & 0x8 == 0) {
             $239 |= 0x8;
-            $245 = parseSequence2WithVariables$Async(state);
+            $245 = parseSequence2WithVariable$Async(state);
             final $246 = $245!;
             if (!$246.isComplete) {
               $246.onComplete = $1;
@@ -9778,10 +10270,10 @@ class Test2Parser {
           $243 = state.ok ? 1 : -1;
         }
         if ($243 == 1) {
-          // Sequence2WithVariables
+          // Sequence2WithVariable
           if ($239 & 0x10 == 0) {
             $239 |= 0x10;
-            $247 = fastParseSequence2WithVariables$Async(state);
+            $247 = fastParseSequence2WithVariable$Async(state);
             final $248 = $247!;
             if (!$248.isComplete) {
               $248.onComplete = $1;
@@ -9794,26 +10286,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $242;
         } else {
-          state.pos = $244!;
+          state.backtrack($244!);
         }
         $239 &= ~0x20 & 0xffff;
-        $3 = state.ok ? -1 : 34;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 34
+                : -1;
       }
       if ($3 == 34) {
-        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
-        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+        // (v:Sequence2WithVariables Sequence2WithVariables)
+        // (v:Sequence2WithVariables Sequence2WithVariables)
+        // v:Sequence2WithVariables Sequence2WithVariables
+        // v:Sequence2WithVariables Sequence2WithVariables
         if ($239 & 0x100 == 0) {
           $239 |= 0x100;
           $250 = 0;
           $251 = state.pos;
         }
         if ($250 == 0) {
-          // Sequence2WithVariableWithAction
+          // Sequence2WithVariables
           if ($239 & 0x40 == 0) {
             $239 |= 0x40;
-            $252 = parseSequence2WithVariableWithAction$Async(state);
+            $252 = parseSequence2WithVariables$Async(state);
             final $253 = $252!;
             if (!$253.isComplete) {
               $253.onComplete = $1;
@@ -9825,10 +10321,10 @@ class Test2Parser {
           $250 = state.ok ? 1 : -1;
         }
         if ($250 == 1) {
-          // Sequence2WithVariableWithAction
+          // Sequence2WithVariables
           if ($239 & 0x80 == 0) {
             $239 |= 0x80;
-            $254 = fastParseSequence2WithVariableWithAction$Async(state);
+            $254 = fastParseSequence2WithVariables$Async(state);
             final $255 = $254!;
             if (!$255.isComplete) {
               $255.onComplete = $1;
@@ -9841,26 +10337,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $249;
         } else {
-          state.pos = $251!;
+          state.backtrack($251!);
         }
         $239 &= ~0x100 & 0xffff;
-        $3 = state.ok ? -1 : 35;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 35
+                : -1;
       }
       if ($3 == 35) {
-        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
-        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
         if ($239 & 0x800 == 0) {
           $239 |= 0x800;
           $257 = 0;
           $258 = state.pos;
         }
         if ($257 == 0) {
-          // Sequence2WithVariablesWithAction
+          // Sequence2WithVariableWithAction
           if ($239 & 0x200 == 0) {
             $239 |= 0x200;
-            $259 = parseSequence2WithVariablesWithAction$Async(state);
+            $259 = parseSequence2WithVariableWithAction$Async(state);
             final $260 = $259!;
             if (!$260.isComplete) {
               $260.onComplete = $1;
@@ -9872,10 +10372,10 @@ class Test2Parser {
           $257 = state.ok ? 1 : -1;
         }
         if ($257 == 1) {
-          // Sequence2WithVariablesWithAction
+          // Sequence2WithVariableWithAction
           if ($239 & 0x400 == 0) {
             $239 |= 0x400;
-            $261 = fastParseSequence2WithVariablesWithAction$Async(state);
+            $261 = fastParseSequence2WithVariableWithAction$Async(state);
             final $262 = $261!;
             if (!$262.isComplete) {
               $262.onComplete = $1;
@@ -9888,26 +10388,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $256;
         } else {
-          state.pos = $258!;
+          state.backtrack($258!);
         }
         $239 &= ~0x800 & 0xffff;
-        $3 = state.ok ? -1 : 36;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 36
+                : -1;
       }
       if ($3 == 36) {
-        // (v:Slice Slice)
-        // (v:Slice Slice)
-        // v:Slice Slice
-        // v:Slice Slice
+        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
         if ($239 & 0x4000 == 0) {
           $239 |= 0x4000;
           $264 = 0;
           $265 = state.pos;
         }
         if ($264 == 0) {
-          // Slice
+          // Sequence2WithVariablesWithAction
           if ($239 & 0x1000 == 0) {
             $239 |= 0x1000;
-            $266 = parseSlice$Async(state);
+            $266 = parseSequence2WithVariablesWithAction$Async(state);
             final $267 = $266!;
             if (!$267.isComplete) {
               $267.onComplete = $1;
@@ -9919,10 +10423,10 @@ class Test2Parser {
           $264 = state.ok ? 1 : -1;
         }
         if ($264 == 1) {
-          // Slice
+          // Sequence2WithVariablesWithAction
           if ($239 & 0x2000 == 0) {
             $239 |= 0x2000;
-            $268 = fastParseSlice$Async(state);
+            $268 = fastParseSequence2WithVariablesWithAction$Async(state);
             final $269 = $268!;
             if (!$269.isComplete) {
               $269.onComplete = $1;
@@ -9935,26 +10439,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $263;
         } else {
-          state.pos = $265!;
+          state.backtrack($265!);
         }
         $239 &= ~0x4000 & 0xffff;
-        $3 = state.ok ? -1 : 37;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 37
+                : -1;
       }
       if ($3 == 37) {
-        // (v:StringChars StringChars)
-        // (v:StringChars StringChars)
-        // v:StringChars StringChars
-        // v:StringChars StringChars
+        // (v:Slice Slice)
+        // (v:Slice Slice)
+        // v:Slice Slice
+        // v:Slice Slice
         if ($277 & 0x2 == 0) {
           $277 |= 0x2;
           $271 = 0;
           $272 = state.pos;
         }
         if ($271 == 0) {
-          // StringChars
+          // Slice
           if ($239 & 0x8000 == 0) {
             $239 |= 0x8000;
-            $273 = parseStringChars$Async(state);
+            $273 = parseSlice$Async(state);
             final $274 = $273!;
             if (!$274.isComplete) {
               $274.onComplete = $1;
@@ -9966,10 +10474,10 @@ class Test2Parser {
           $271 = state.ok ? 1 : -1;
         }
         if ($271 == 1) {
-          // StringChars
+          // Slice
           if ($277 & 0x1 == 0) {
             $277 |= 0x1;
-            $275 = fastParseStringChars$Async(state);
+            $275 = fastParseSlice$Async(state);
             final $276 = $275!;
             if (!$276.isComplete) {
               $276.onComplete = $1;
@@ -9982,26 +10490,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $270;
         } else {
-          state.pos = $272!;
+          state.backtrack($272!);
         }
         $277 &= ~0x2 & 0xffff;
-        $3 = state.ok ? -1 : 38;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 38
+                : -1;
       }
       if ($3 == 38) {
-        // (v:Verify Verify)
-        // (v:Verify Verify)
-        // v:Verify Verify
-        // v:Verify Verify
+        // (v:StringChars StringChars)
+        // (v:StringChars StringChars)
+        // v:StringChars StringChars
+        // v:StringChars StringChars
         if ($277 & 0x10 == 0) {
           $277 |= 0x10;
           $279 = 0;
           $280 = state.pos;
         }
         if ($279 == 0) {
-          // Verify
+          // StringChars
           if ($277 & 0x4 == 0) {
             $277 |= 0x4;
-            $281 = parseVerify$Async(state);
+            $281 = parseStringChars$Async(state);
             final $282 = $281!;
             if (!$282.isComplete) {
               $282.onComplete = $1;
@@ -10013,10 +10525,10 @@ class Test2Parser {
           $279 = state.ok ? 1 : -1;
         }
         if ($279 == 1) {
-          // Verify
+          // StringChars
           if ($277 & 0x8 == 0) {
             $277 |= 0x8;
-            $283 = fastParseVerify$Async(state);
+            $283 = fastParseStringChars$Async(state);
             final $284 = $283!;
             if (!$284.isComplete) {
               $284.onComplete = $1;
@@ -10029,26 +10541,30 @@ class Test2Parser {
         if (state.ok) {
           $2 = $278;
         } else {
-          state.pos = $280!;
+          state.backtrack($280!);
         }
         $277 &= ~0x10 & 0xffff;
-        $3 = state.ok ? -1 : 39;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 39
+                : -1;
       }
       if ($3 == 39) {
-        // (v:ZeroOrMore ZeroOrMore)
-        // (v:ZeroOrMore ZeroOrMore)
-        // v:ZeroOrMore ZeroOrMore
-        // v:ZeroOrMore ZeroOrMore
+        // (v:Verify Verify)
+        // (v:Verify Verify)
+        // v:Verify Verify
+        // v:Verify Verify
         if ($277 & 0x80 == 0) {
           $277 |= 0x80;
           $286 = 0;
           $287 = state.pos;
         }
         if ($286 == 0) {
-          // ZeroOrMore
+          // Verify
           if ($277 & 0x20 == 0) {
             $277 |= 0x20;
-            $288 = parseZeroOrMore$Async(state);
+            $288 = parseVerify$Async(state);
             final $289 = $288!;
             if (!$289.isComplete) {
               $289.onComplete = $1;
@@ -10060,10 +10576,10 @@ class Test2Parser {
           $286 = state.ok ? 1 : -1;
         }
         if ($286 == 1) {
-          // ZeroOrMore
+          // Verify
           if ($277 & 0x40 == 0) {
             $277 |= 0x40;
-            $290 = fastParseZeroOrMore$Async(state);
+            $290 = fastParseVerify$Async(state);
             final $291 = $290!;
             if (!$291.isComplete) {
               $291.onComplete = $1;
@@ -10076,12 +10592,63 @@ class Test2Parser {
         if (state.ok) {
           $2 = $285;
         } else {
-          state.pos = $287!;
+          state.backtrack($287!);
         }
         $277 &= ~0x80 & 0xffff;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 40
+                : -1;
+      }
+      if ($3 == 40) {
+        // (v:ZeroOrMore ZeroOrMore)
+        // (v:ZeroOrMore ZeroOrMore)
+        // v:ZeroOrMore ZeroOrMore
+        // v:ZeroOrMore ZeroOrMore
+        if ($277 & 0x400 == 0) {
+          $277 |= 0x400;
+          $293 = 0;
+          $294 = state.pos;
+        }
+        if ($293 == 0) {
+          // ZeroOrMore
+          if ($277 & 0x100 == 0) {
+            $277 |= 0x100;
+            $295 = parseZeroOrMore$Async(state);
+            final $296 = $295!;
+            if (!$296.isComplete) {
+              $296.onComplete = $1;
+              return;
+            }
+          }
+          $292 = $295!.value;
+          $277 &= ~0x100 & 0xffff;
+          $293 = state.ok ? 1 : -1;
+        }
+        if ($293 == 1) {
+          // ZeroOrMore
+          if ($277 & 0x200 == 0) {
+            $277 |= 0x200;
+            $297 = fastParseZeroOrMore$Async(state);
+            final $298 = $297!;
+            if (!$298.isComplete) {
+              $298.onComplete = $1;
+              return;
+            }
+          }
+          $277 &= ~0x200 & 0xffff;
+          $293 = -1;
+        }
+        if (state.ok) {
+          $2 = $292;
+        } else {
+          state.backtrack($294!);
+        }
+        $277 &= ~0x400 & 0xffff;
         $3 = -1;
       }
-      $277 &= ~0x100 & 0xffff;
+      $277 &= ~0x800 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -10098,36 +10665,44 @@ class Test2Parser {
   String? parseStringChars(State<String> state) {
     String? $0;
     // @stringChars($[0-9]+, [\\], [t] <String>{})
-    final $11 = state.input;
-    List<String>? $12;
-    String? $13;
-    while (state.pos < $11.length) {
+    final $10 = state.input;
+    List<String>? $11;
+    String? $12;
+    while (state.pos < $10.length) {
       String? $2;
       // $[0-9]+
       final $5 = state.pos;
-      final $8 = state.pos;
-      final $7 = state.input;
-      while (state.pos < $7.length) {
-        final $6 = $7.codeUnitAt(state.pos);
-        state.ok = $6 >= 48 && $6 <= 57;
+      var $6 = false;
+      while (true) {
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $7 = state.input.codeUnitAt(state.pos);
+          state.ok = $7 >= 48 && $7 <= 57;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
         if (!state.ok) {
           break;
         }
-        state.pos++;
+        $6 = true;
       }
-      state.fail(const ErrorUnexpectedCharacter());
-      state.ok = state.pos > $8;
+      state.setOk($6);
       if (state.ok) {
         $2 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
         final v = $2!;
-        if ($13 == null) {
-          $13 = v;
-        } else if ($12 == null) {
-          $12 = [$13, v];
+        if ($12 == null) {
+          $12 = v;
+        } else if ($11 == null) {
+          $11 = [$12, v];
         } else {
-          $12.add(v);
+          $11.add(v);
         }
       }
       final pos = state.pos;
@@ -10157,26 +10732,26 @@ class Test2Parser {
         $3 = $$;
       }
       if (!state.ok) {
-        state.pos = pos;
+        state.backtrack(pos);
         break;
       }
-      if ($13 == null) {
-        $13 = $3!;
+      if ($12 == null) {
+        $12 = $3!;
       } else {
-        if ($12 == null) {
-          $12 = [$13, $3!];
+        if ($11 == null) {
+          $11 = [$12, $3!];
         } else {
-          $12.add($3!);
+          $11.add($3!);
         }
       }
     }
     state.ok = true;
-    if ($13 == null) {
+    if ($12 == null) {
       $0 = '';
-    } else if ($12 == null) {
-      $0 = $13;
+    } else if ($11 == null) {
+      $0 = $12;
     } else {
-      $0 = $12.join();
+      $0 = $11.join();
     }
     return $0;
   }
@@ -10189,48 +10764,47 @@ class Test2Parser {
     String? $2;
     int? $3;
     int? $4;
-    Object? $5;
-    Object? $6;
-    List<String>? $9;
-    String? $10;
-    String? $7;
-    int? $11;
-    bool? $12;
-    int $15 = 0;
+    List<String>? $7;
     String? $8;
+    String? $5;
+    int? $9;
+    bool? $10;
+    int $13 = 0;
+    Object? $15;
+    String? $6;
+    Object? $17;
     void $1() {
       // @stringChars($[0-9]+, [\\], [t] <String>{})
       // @stringChars($[0-9]+, [\\], [t] <String>{})
-      if ($15 & 0x2 == 0) {
-        $15 |= 0x2;
-        state.input.beginBuffering();
-        $9 = null;
-        $10 = null;
+      if ($13 & 0x2 == 0) {
+        $13 |= 0x2;
+        $7 = null;
+        $8 = null;
         $3 = 0;
       }
       while (true) {
         if ($3 == 0) {
-          $5 ??= state.input.beginBuffering();
           // $[0-9]+
           // $[0-9]+
           // $[0-9]+
-          if ($15 & 0x1 == 0) {
-            $15 |= 0x1;
-            $11 = state.pos;
+          if ($13 & 0x1 == 0) {
+            $13 |= 0x1;
+            state.input.beginBuffering();
+            $9 = state.pos;
           }
           // [0-9]+
-          $12 ??= false;
+          $10 ??= false;
           while (true) {
             // [0-9]
-            final $14 = state.input;
-            if (state.pos >= $14.end && !$14.isClosed) {
-              $14.sleep = true;
-              $14.handle = $1;
+            final $12 = state.input;
+            if (state.pos >= $12.end && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
               return;
             }
-            final $13 = readChar16Async(state);
-            if ($13 >= 0) {
-              state.ok = $13 >= 48 && $13 <= 57;
+            final $11 = readChar16Async(state);
+            if ($11 >= 0) {
+              state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -10240,46 +10814,46 @@ class Test2Parser {
             if (!state.ok) {
               break;
             }
-            $12 = true;
+            $10 = true;
           }
-          state.ok = $12!;
-          $12 = null;
+          state.setOk($10!);
+          $10 = null;
           if (state.ok) {
             final input = state.input;
             final start = input.start;
-            $7 = input.data.substring($11! - start, state.pos - start);
+            final pos = $9!;
+            $5 = input.data.substring(pos - start, state.pos - start);
           }
-          $15 &= ~0x1 & 0xffff;
-          state.input.endBuffering(state.pos);
-          $5 = null;
+          state.input.endBuffering();
+          $13 &= ~0x1 & 0xffff;
           if (state.ok) {
-            final v = $7!;
-            if ($10 == null) {
-              $10 = v;
-            } else if ($9 == null) {
-              $9 = [$10!, v];
+            final v = $5!;
+            if ($8 == null) {
+              $8 = v;
+            } else if ($7 == null) {
+              $7 = [$8!, v];
             } else {
-              $9!.add(v);
+              $7!.add(v);
             }
           }
           $4 = state.pos;
           $3 = 1;
         }
         if ($3 == 1) {
-          $6 ??= state.input.beginBuffering();
           // [\\]
           // [\\]
           // [\\]
-          final $16 = state.input;
-          if (state.pos >= $16.end && !$16.isClosed) {
-            $16.sleep = true;
-            $16.handle = $1;
+          $15 ??= state.input.beginBuffering();
+          final $14 = state.input;
+          if (state.pos >= $14.end && !$14.isClosed) {
+            $14.sleep = true;
+            $14.handle = $1;
             return;
           }
           matchChar16Async(state, 92, const ErrorExpectedCharacter(92));
+          state.input.endBuffering();
+          $15 = null;
           if (!state.ok) {
-            state.input.endBuffering(state.pos);
-            $6 = null;
             break;
           }
           $3 = 2;
@@ -10288,46 +10862,46 @@ class Test2Parser {
           // [t] <String>{}
           // [t] <String>{}
           // [t]
-          final $17 = state.input;
-          if (state.pos >= $17.end && !$17.isClosed) {
-            $17.sleep = true;
-            $17.handle = $1;
+          $17 ??= state.input.beginBuffering();
+          final $16 = state.input;
+          if (state.pos >= $16.end && !$16.isClosed) {
+            $16.sleep = true;
+            $16.handle = $1;
             return;
           }
           matchChar16Async(state, 116, const ErrorExpectedCharacter(116));
+          state.input.endBuffering();
+          $17 = null;
           if (state.ok) {
             String? $$;
             $$ = '\t';
-            $8 = $$;
+            $6 = $$;
           }
-          state.input.endBuffering(state.pos);
-          $6 = null;
           if (!state.ok) {
-            state.pos = $4!;
+            state.backtrack($4!);
             break;
           }
-          if ($10 == null) {
-            $10 = $8!;
+          if ($8 == null) {
+            $8 = $6!;
           } else {
-            if ($9 == null) {
-              $9 = [$10!, $8!];
+            if ($7 == null) {
+              $7 = [$8!, $6!];
             } else {
-              $9!.add($8!);
+              $7!.add($6!);
             }
           }
           $3 = 0;
         }
       }
       state.ok = true;
-      if ($10 == null) {
+      if ($8 == null) {
         $2 = '';
-      } else if ($9 == null) {
-        $2 = $10!;
+      } else if ($7 == null) {
+        $2 = $8!;
       } else {
-        $2 = $9!.join();
+        $2 = $7!.join();
       }
-      state.input.endBuffering(state.pos);
-      $15 &= ~0x2 & 0xffff;
+      $13 &= ~0x2 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -10374,7 +10948,7 @@ class Test2Parser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
     return $0;
   }
@@ -10432,9 +11006,9 @@ class Test2Parser {
       }
       if (!state.ok) {
         $2 = null;
-        state.pos = $3!;
+        state.backtrack($3!);
       }
-      state.input.endBuffering(state.pos);
+      state.input.endBuffering();
       $8 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
@@ -10464,11 +11038,11 @@ class Test2Parser {
         state.fail(const ErrorExpectedCharacter(48));
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -10490,8 +11064,8 @@ class Test2Parser {
       // [0]*
       $3 ??= [];
       while (true) {
-        $6 ??= state.input.beginBuffering();
         // [0]
+        $6 ??= state.input.beginBuffering();
         final $5 = state.input;
         if (state.pos >= $5.end && !$5.isClosed) {
           $5.sleep = true;
@@ -10499,7 +11073,7 @@ class Test2Parser {
           return;
         }
         $4 = matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-        state.input.endBuffering(state.pos);
+        state.input.endBuffering();
         $6 = null;
         if (!state.ok) {
           $4 = null;
@@ -10508,7 +11082,7 @@ class Test2Parser {
         $3!.add($4!);
         $4 = null;
       }
-      state.ok = true;
+      state.setOk(true);
       if (state.ok) {
         $2 = $3;
       }
@@ -10526,226 +11100,14 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
-    if (state.ok) {
-      state.pos++;
-      return char;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16Async(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
-    state.ok = pos < input.end;
-    if (state.ok) {
-      final c = input.data.codeUnitAt(pos - start);
-      state.ok = c == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-    }
-    if (!state.ok) {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32(State<String> state, int char, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length && input.runeAt(pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return char;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32Async(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
-    state.ok = pos < input.end;
-    if (state.ok) {
-      final c = input.data.runeAt(pos - start);
-      state.ok = c == char;
-      if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
-        return char;
-      }
-    }
-    if (!state.ok) {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      state.ok = true;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos + 1 < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.codeUnitAt(pos + 1) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      state.ok = true;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
-    state.ok = pos < input.end &&
-        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
-    final data = input.data;
-    final pos2 = pos - start;
-    state.ok = pos + 1 < input.end &&
-        data.codeUnitAt(pos2) == string.codeUnitAt(0) &&
-        data.codeUnitAt(pos2 + 1) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteralAsync(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < start) {
-      state.fail(ErrorBacktracking(pos));
-      return null;
-    }
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final data = input.data;
-    state.ok = pos <= input.end &&
-        data.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        data.startsWith(string, pos - start);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   int readChar16Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    final pos = state.pos;
     final start = input.start;
-    if (pos >= start) {
-      if (pos < input.end) {
-        return input.data.codeUnitAt(pos - start);
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final pos = state.pos;
+    if (pos < input.end) {
+      return input.data.codeUnitAt(pos - start);
     } else {
-      state.fail(ErrorBacktracking(pos));
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return -1;
   }
@@ -10754,16 +11116,12 @@ class Test2Parser {
   @pragma('dart2js:tryInline')
   int readChar32Async(State<ChunkedParsingSink> state) {
     final input = state.input;
-    final pos = state.pos;
     final start = input.start;
-    if (pos >= start) {
-      if (pos < input.end) {
-        return input.data.runeAt(pos - start);
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
+    final pos = state.pos;
+    if (pos < input.end) {
+      return input.data.runeAt(pos - start);
     } else {
-      state.fail(ErrorBacktracking(pos));
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return -1;
   }
@@ -10927,7 +11285,7 @@ String _errorMessage(
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
     if (hasFullSource) {
-      sb.writeln('line $row, column $column: $message');
+      sb.writeln('line $row, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -10966,8 +11324,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
       key = ErrorUnknownError;
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
-    } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -10993,6 +11349,8 @@ class AsyncResult<T> {
 class ChunkedParsingSink implements Sink<String> {
   int bufferLoad = 0;
 
+  int _cuttingPosition = 0;
+
   String data = '';
 
   int end = 0;
@@ -11006,8 +11364,6 @@ class ChunkedParsingSink implements Sink<String> {
   int _buffering = 0;
 
   bool _isClosed = false;
-
-  int _lastPosition = 0;
 
   bool get isClosed => _isClosed;
 
@@ -11040,14 +11396,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
+    if (_cuttingPosition > start) {
+      if (_cuttingPosition == end) {
         this.data = '';
       } else {
-        this.data = this.data.substring(_lastPosition - start);
+        this.data = this.data.substring(_cuttingPosition - start);
       }
 
-      start = _lastPosition;
+      start = _cuttingPosition;
     }
   }
 
@@ -11084,30 +11440,22 @@ class ChunkedParsingSink implements Sink<String> {
     }
   }
 
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void endBuffering(int position) {
-    _buffering--;
+  void cut(int position) {
+    if (position < start || position > end) {
+      throw RangeError.range(position, start, end, 'position');
+    }
+
     if (_buffering == 0) {
-      if (_lastPosition < position) {
-        _lastPosition = position;
-      }
-    } else if (_buffering < 0) {
-      throw StateError('Inconsistent buffering completion detected.');
+      _cuttingPosition = position;
     }
   }
-}
 
-class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error to position {{0}}';
-
-  final int position;
-
-  const ErrorBacktracking(this.position);
-
-  @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorBacktracking.message, [position]);
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endBuffering() {
+    if (--_buffering < 0) {
+      throw StateError('Inconsistent buffering completion detected.');
+    }
   }
 }
 
@@ -11336,6 +11684,8 @@ class ParseResult<I, O> {
 class State<T> {
   Object? context;
 
+  int cuttingPos = 0;
+
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -11344,11 +11694,31 @@ class State<T> {
 
   final T input;
 
+  bool isRecoverable = true;
+
   bool ok = false;
 
   int pos = 0;
 
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void backtrack(int pos) {
+    if (pos >= cuttingPos) {
+      this.pos = pos;
+      return;
+    }
+    isRecoverable = false;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void cut(int pos) {
+    if (cuttingPos < pos) {
+      cuttingPos = pos;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -11420,6 +11790,12 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void setOk(bool ok) {
+    this.ok = !ok ? false : isRecoverable;
   }
 
   @override

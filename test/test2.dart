@@ -9,6 +9,7 @@ void main() {
   _testAnyCharacter();
   _testBuffer();
   _testCharacterClass();
+  _testCut();
   _testEof();
   _testErrorHandler();
   _testLiteral();
@@ -496,6 +497,52 @@ void _testCharacterClass() {
         parse: _parser.parseCharacterClassRange32,
         parseAsync: _parser.parseCharacterClassRange32$Async,
         pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testCut() {
+  test('Cut', () async {
+    {
+      const source = '0+1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCut,
+        fastParseAsync: _parser.fastParseCut$Async,
+        parse: _parser.parseCut,
+        parseAsync: _parser.parseCut$Async,
+        pos: 3,
+        result: [0x30, 0x2b, null, 0x31],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseCut,
+        fastParseAsync: _parser.fastParseCut$Async,
+        parse: _parser.parseCut,
+        parseAsync: _parser.parseCut$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0+';
+      await __testFailure(
+        errors: {
+          ErrorExpectedCharacter(0x31).getErrorMessage(source, 2),
+        },
+        failPos: 2,
+        fastParse: _parser.fastParseCut,
+        fastParseAsync: _parser.fastParseCut$Async,
+        parse: _parser.parseCut,
+        parseAsync: _parser.parseCut$Async,
+        pos: 2,
         source: source,
       );
     }
@@ -1089,13 +1136,16 @@ void _testRepetition() {
 
     {
       const source = '🚀🚀';
-      await __testSuccess(
+      await __testFailure(
+        errors: {
+          ErrorExpectedCharacter(0x1f680).getErrorMessage(source, 4),
+        },
+        failPos: 4,
         fastParse: _parser.fastParseRepetitionMin,
         fastParseAsync: _parser.fastParseRepetitionMin$Async,
         parse: _parser.parseRepetitionMin,
         parseAsync: _parser.parseRepetitionMin$Async,
-        pos: 2,
-        result: 0x1f680,
+        pos: 0,
         source: source,
       );
     }
@@ -1157,13 +1207,16 @@ void _testRepetition() {
 
     {
       const source = '🚀';
-      await __testSuccess(
+      await __testFailure(
+        errors: {
+          ErrorExpectedCharacter(0x1f680).getErrorMessage(source, 0),
+        },
+        failPos: 2,
         fastParse: _parser.fastParseRepetitionMinMax,
         fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
         parse: _parser.parseRepetitionMinMax,
         parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 2,
-        result: 0x1f680,
+        pos: 0,
         source: source,
       );
     }
@@ -1212,13 +1265,16 @@ void _testRepetition() {
 
     {
       const source = '🚀🚀';
-      await __testSuccess(
+      await __testFailure(
+        errors: {
+          ErrorExpectedCharacter(0x1f680).getErrorMessage(source, 0),
+        },
+        failPos: 4,
         fastParse: _parser.fastParseRepetitionN,
         fastParseAsync: _parser.fastParseRepetitionN$Async,
         parse: _parser.parseRepetitionN,
         parseAsync: _parser.parseRepetitionN$Async,
-        pos: 2,
-        result: 0x1f680,
+        pos: 0,
         source: source,
       );
     }

@@ -1,3 +1,9 @@
+# 4.0.0
+
+- Now creating a stream parser will not be difficult. Buffering of input data occurs automatically. Clearing the buffer (during parsing) of unnecessary data also occurs automatically. The new `cut` expression serves as a marker to keep track of unnecessary input data. An attempt to parse inaccessible input data (removed from the buffer) is completely excluded at the grammar level, that is, at the parsing level. The grammar developer independently determines where (in what position of parsing the input data) it is useful to cut off the input data by inserting `cut` expressions into the grammar.
+- A new expression `cut` has been implemented.
+- A new expression `sepBy1` has been implemented.
+
 ## 3.0.4
 
 - Changes in the file `README.md`.

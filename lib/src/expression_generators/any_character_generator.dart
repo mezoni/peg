@@ -71,7 +71,7 @@ if (state.ok) {
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
     );
   }
 }

@@ -289,6 +289,12 @@ return;''';
   }
 
   @override
+  String visitCut(CutExpression node) {
+    final generator = CutGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitErrorHandler(ErrorHandlerExpression node) {
     final generator =
         ErrorHandlerGenerator(expression: node, ruleGenerator: this);
@@ -350,6 +356,12 @@ return;''';
   @override
   String visitSepBy(SepByExpression node) {
     final generator = SepByGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitSepBy1(SepBy1Expression node) {
+    final generator = SepBy1Generator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 

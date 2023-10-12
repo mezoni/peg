@@ -11,6 +11,8 @@ abstract class ExpressionVisitor<T> {
 
   T visitCharacterClass(CharacterClassExpression node);
 
+  T visitCut(CutExpression node);
+
   T visitErrorHandler(ErrorHandlerExpression node);
 
   T visitGroup(GroupExpression node);
@@ -30,6 +32,8 @@ abstract class ExpressionVisitor<T> {
   T visitRepetition(RepetitionExpression node);
 
   T visitSepBy(SepByExpression node);
+
+  T visitSepBy1(SepBy1Expression node);
 
   T visitSequence(SequenceExpression node);
 
@@ -62,6 +66,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitCharacterClass(CharacterClassExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitCut(CutExpression node) {
     return visitNode(node);
   }
 
@@ -114,6 +123,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitSepBy(SepByExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitSepBy1(SepBy1Expression node) {
     return visitNode(node);
   }
 

@@ -54,7 +54,7 @@ while (state.pos < {{input}}.length) {
   }
   {{p3}}
   if (!state.ok) {
-    state.pos = pos;
+    state.backtrack(pos);
     break;
   }
   if ({{str}} == null) {
@@ -87,7 +87,7 @@ while (state.pos < {{input}}.length) {
   }
   {{p3}}
   if (!state.ok) {
-    state.pos = pos;
+    state.backtrack(pos);
     break;
   }
 }
@@ -107,10 +107,6 @@ state.ok = true;''';
     final asyncGenerator = ruleGenerator.asyncGenerator;
     values['state'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
     values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    values['key1'] = asyncGenerator
-        .allocateVariable(GenericType(name: 'Object').getNullableType());
-    values['key2'] = asyncGenerator
-        .allocateVariable(GenericType(name: 'Object').getNullableType());
     if (variable != null) {
       ruleGenerator.allocateExpressionVariable(normalCharacters);
       ruleGenerator.allocateExpressionVariable(escape);
@@ -123,11 +119,9 @@ state.ok = true;''';
       values['rv3'] = getExpressionVariableWithNullCheck(escape);
     }
 
-    asyncGenerator.buffering++;
     values['p1'] = generateAsyncExpression(normalCharacters, true);
     values['p2'] = generateAsyncExpression(escapeCharacter, false);
     values['p3'] = generateAsyncExpression(escape, true);
-    asyncGenerator.buffering--;
     var initTemplate = '';
     if (variable != null) {
       initTemplate = '''
@@ -145,10 +139,7 @@ state.ok = true;''';
       template = '''
 while (true) {
   if ({{state}} == 0) {
-    {{key1}} ??= state.input.beginBuffering();
     {{p1}}
-    state.input.endBuffering(state.pos);
-    {{key1}} = null;
     if (state.ok) {
       final v = {{rv1}};
       if ({{str}} == null) {
@@ -163,21 +154,16 @@ while (true) {
     {{state}} = 1;
   }
   if ({{state}} == 1) {
-    {{key2}} ??= state.input.beginBuffering();
     {{p2}}
     if (!state.ok) {
-      state.input.endBuffering(state.pos);
-      {{key2}} = null;
       break;
     }
     {{state}} = 2;
   }
   if ({{state}} == 2) {
     {{p3}}
-    state.input.endBuffering(state.pos);
-    {{key2}} = null;
     if (!state.ok) {
-      state.pos = {{pos}}!;
+      state.backtrack({{pos}}!);
       break;
     }
     if ({{str}} == null) {
@@ -204,29 +190,21 @@ if ({{str}} == null) {
       template = '''
 while (true) {
   if ({{state}} == 0) {
-    {{key1}} ??= state.input.beginBuffering();
     {{p1}}
-    state.input.endBuffering(state.pos);
-    {{key1}} = null;
     {{pos}} = state.pos;
     {{state}} = 1;
   }
   if ({{state}} == 1) {
-    {{key2}} ??= state.input.beginBuffering();
     {{p2}}
     if (!state.ok) {
-      state.input.endBuffering(state.pos);
-      {{key2}} = null;
       break;
     }
     {{state}} = 2;
   }
   if ({{state}} == 2) {
     {{p3}}
-    state.input.endBuffering(state.pos);
-    {{key2}} = null;
     if (!state.ok) {
-      state.pos = {{pos}}!;
+      state.backtrack({{pos}}!);
       break;
     }
     {{state}} = 0;
@@ -238,7 +216,7 @@ state.ok = true;''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
       init: init,
     );
   }

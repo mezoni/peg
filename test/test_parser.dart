@@ -11,18 +11,26 @@ class TestParser {
     // v:$[0-9]+ <int>{}
     String? $1;
     final $2 = state.pos;
-    final $5 = state.pos;
-    final $4 = state.input;
-    while (state.pos < $4.length) {
-      final $3 = $4.codeUnitAt(state.pos);
-      state.ok = $3 >= 48 && $3 <= 57;
+    var $3 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $4 = state.input.codeUnitAt(state.pos);
+        state.ok = $4 >= 48 && $4 <= 57;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
       if (!state.ok) {
         break;
       }
-      state.pos++;
+      $3 = true;
     }
-    state.fail(const ErrorUnexpectedCharacter());
-    state.ok = state.pos > $5;
+    state.setOk($3);
     if (state.ok) {
       $1 = state.input.substring($2, state.pos);
     }
@@ -125,7 +133,7 @@ class TestParser {
       // Integer
       fastParseInteger(state);
       if (!state.ok) {
-        state.pos = $1;
+        state.backtrack($1);
         break;
       }
       $1 = state.pos;
@@ -136,7 +144,7 @@ class TestParser {
         break;
       }
     }
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// SkipTil =
@@ -228,7 +236,7 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
   }
 
@@ -263,7 +271,7 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
   }
 
@@ -272,17 +280,19 @@ class TestParser {
   ///   ;
   void fastParseZeroOrMore16(State<String> state) {
     // [0]*
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.codeUnitAt(state.pos);
-      state.ok = $1 == 48;
+    while (true) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedCharacter(48));
+      }
       if (!state.ok) {
         break;
       }
-      state.pos++;
     }
-    state.fail(const ErrorExpectedCharacter(48));
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// ZeroOrMore1632 =
@@ -290,17 +300,24 @@ class TestParser {
   ///   ;
   void fastParseZeroOrMore1632(State<String> state) {
     // [ -\u{1f680}]*
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
-      state.ok = $1 >= 32 && $1 <= 128640;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $1 = state.input.runeAt(state.pos);
+        state.ok = $1 >= 32 && $1 <= 128640;
+        if (state.ok) {
+          state.pos += $1 > 0xffff ? 2 : 1;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
       if (!state.ok) {
         break;
       }
-      state.pos += $1 > 0xffff ? 2 : 1;
     }
-    state.fail(const ErrorUnexpectedCharacter());
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// ZeroOrMore32 =
@@ -308,17 +325,19 @@ class TestParser {
   ///   ;
   void fastParseZeroOrMore32(State<String> state) {
     // [\u{1f680}]*
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
-      state.ok = $1 == 128640;
+    while (true) {
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedCharacter(128640));
+      }
       if (!state.ok) {
         break;
       }
-      state.pos += 2;
     }
-    state.fail(const ErrorExpectedCharacter(128640));
-    state.ok = true;
+    state.setOk(true);
   }
 
   /// ZeroOrMore3232 =
@@ -326,17 +345,61 @@ class TestParser {
   ///   ;
   void fastParseZeroOrMore3232(State<String> state) {
     // [\u{1f680}-\u{1f681}]*
-    final $2 = state.input;
-    while (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
-      state.ok = $1 >= 128640 && $1 <= 128641;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $1 = state.input.runeAt(state.pos);
+        state.ok = $1 >= 128640 && $1 <= 128641;
+        if (state.ok) {
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
       if (!state.ok) {
         break;
       }
-      state.pos += 2;
     }
-    state.fail(const ErrorUnexpectedCharacter());
-    state.ok = true;
+    state.setOk(true);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    if (string.isEmpty) {
+      state.ok = true;
+      return '';
+    }
+    final pos = state.pos;
+    state.ok = pos < input.length &&
+        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
+        input.startsWith(string, pos);
+    if (state.ok) {
+      state.pos += string.length;
+      return string;
+    } else {
+      state.fail(error);
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? matchLiteral1(State<String> state, String string, ParseError error) {
+    final input = state.input;
+    final pos = state.pos;
+    state.ok =
+        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
+    if (state.ok) {
+      state.pos++;
+      state.ok = true;
+      return string;
+    }
+    state.fail(error);
+    return null;
   }
 
   /// int
@@ -348,18 +411,26 @@ class TestParser {
     // v:$[0-9]+ <int>{}
     String? $2;
     final $3 = state.pos;
-    final $6 = state.pos;
-    final $5 = state.input;
-    while (state.pos < $5.length) {
-      final $4 = $5.codeUnitAt(state.pos);
-      state.ok = $4 >= 48 && $4 <= 57;
+    var $4 = false;
+    while (true) {
+      state.ok = state.pos < state.input.length;
+      if (state.ok) {
+        final $5 = state.input.codeUnitAt(state.pos);
+        state.ok = $5 >= 48 && $5 <= 57;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
       if (!state.ok) {
         break;
       }
-      state.pos++;
+      $4 = true;
     }
-    state.fail(const ErrorUnexpectedCharacter());
-    state.ok = state.pos > $6;
+    state.setOk($4);
     if (state.ok) {
       $2 = state.input.substring($3, state.pos);
     }
@@ -479,7 +550,7 @@ class TestParser {
       // Integer
       $3 = parseInteger(state);
       if (!state.ok) {
-        state.pos = $4;
+        state.backtrack($4);
         break;
       }
       $2.add($3!);
@@ -491,7 +562,7 @@ class TestParser {
         break;
       }
     }
-    state.ok = true;
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -517,7 +588,7 @@ class TestParser {
       } else {
         state.fail(const ErrorExpectedCharacter(69));
       }
-      state.ok = !state.ok;
+      state.setOk(!state.ok);
       if (!state.ok) {
         final length = $6 - state.pos;
         state.fail(switch (length) {
@@ -526,16 +597,16 @@ class TestParser {
           2 => const ErrorUnexpectedInput(2),
           _ => ErrorUnexpectedInput(length)
         });
+        state.backtrack($6);
       }
-      state.pos = $6;
       if (state.ok) {
         int? $5;
-        final $9 = state.input;
-        if (state.pos < $9.length) {
-          final $8 = $9.runeAt(state.pos);
-          state.pos += $8 > 0xffff ? 2 : 1;
+        final $8 = state.input;
+        if (state.pos < $8.length) {
+          final $7 = $8.runeAt(state.pos);
+          state.pos += $7 > 0xffff ? 2 : 1;
           state.ok = true;
-          $5 = $8;
+          $5 = $7;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
@@ -544,14 +615,14 @@ class TestParser {
         }
       }
       if (!state.ok) {
-        state.pos = $4;
+        state.backtrack($4);
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -570,16 +641,16 @@ class TestParser {
       // !'END' v:.
       final $4 = state.pos;
       final $6 = state.pos;
-      const $8 = 'END';
+      const $7 = 'END';
       state.ok = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 69 &&
-          state.input.startsWith($8, state.pos);
+          state.input.startsWith($7, state.pos);
       if (state.ok) {
         state.pos += 3;
       } else {
-        state.fail(const ErrorExpectedTags([$8]));
+        state.fail(const ErrorExpectedTags([$7]));
       }
-      state.ok = !state.ok;
+      state.setOk(!state.ok);
       if (!state.ok) {
         final length = $6 - state.pos;
         state.fail(switch (length) {
@@ -588,16 +659,16 @@ class TestParser {
           2 => const ErrorUnexpectedInput(2),
           _ => ErrorUnexpectedInput(length)
         });
+        state.backtrack($6);
       }
-      state.pos = $6;
       if (state.ok) {
         int? $5;
-        final $10 = state.input;
-        if (state.pos < $10.length) {
-          final $9 = $10.runeAt(state.pos);
-          state.pos += $9 > 0xffff ? 2 : 1;
+        final $9 = state.input;
+        if (state.pos < $9.length) {
+          final $8 = $9.runeAt(state.pos);
+          state.pos += $8 > 0xffff ? 2 : 1;
           state.ok = true;
-          $5 = $9;
+          $5 = $8;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
@@ -606,14 +677,14 @@ class TestParser {
         }
       }
       if (!state.ok) {
-        state.pos = $4;
+        state.backtrack($4);
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -652,9 +723,9 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      state.pos = $2;
+      state.backtrack($2);
     }
-    if (!state.ok) {
+    if (!state.ok && state.isRecoverable) {
       // (v:SkipUntil SkipUntil)
       // v:SkipUntil SkipUntil
       final $5 = state.pos;
@@ -669,9 +740,9 @@ class TestParser {
         }
       }
       if (!state.ok) {
-        state.pos = $5;
+        state.backtrack($5);
       }
-      if (!state.ok) {
+      if (!state.ok && state.isRecoverable) {
         // (v:SkipTil SkipTil)
         // v:SkipTil SkipTil
         final $8 = state.pos;
@@ -686,9 +757,9 @@ class TestParser {
           }
         }
         if (!state.ok) {
-          state.pos = $8;
+          state.backtrack($8);
         }
-        if (!state.ok) {
+        if (!state.ok && state.isRecoverable) {
           // (v:TakeUntil TakeUntil)
           // v:TakeUntil TakeUntil
           final $11 = state.pos;
@@ -703,9 +774,9 @@ class TestParser {
             }
           }
           if (!state.ok) {
-            state.pos = $11;
+            state.backtrack($11);
           }
-          if (!state.ok) {
+          if (!state.ok && state.isRecoverable) {
             // (v:TakeTil TakeTil)
             // v:TakeTil TakeTil
             final $14 = state.pos;
@@ -720,9 +791,9 @@ class TestParser {
               }
             }
             if (!state.ok) {
-              state.pos = $14;
+              state.backtrack($14);
             }
-            if (!state.ok) {
+            if (!state.ok && state.isRecoverable) {
               // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
               final $17 = state.pos;
@@ -737,9 +808,9 @@ class TestParser {
                 }
               }
               if (!state.ok) {
-                state.pos = $17;
+                state.backtrack($17);
               }
-              if (!state.ok) {
+              if (!state.ok && state.isRecoverable) {
                 // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
                 // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
                 final $20 = state.pos;
@@ -754,9 +825,9 @@ class TestParser {
                   }
                 }
                 if (!state.ok) {
-                  state.pos = $20;
+                  state.backtrack($20);
                 }
-                if (!state.ok) {
+                if (!state.ok && state.isRecoverable) {
                   // (v:SepBy SepBy)
                   // v:SepBy SepBy
                   final $23 = state.pos;
@@ -771,9 +842,9 @@ class TestParser {
                     }
                   }
                   if (!state.ok) {
-                    state.pos = $23;
+                    state.backtrack($23);
                   }
-                  if (!state.ok) {
+                  if (!state.ok && state.isRecoverable) {
                     // (v:Verify41 Verify41)
                     // v:Verify41 Verify41
                     final $26 = state.pos;
@@ -788,9 +859,9 @@ class TestParser {
                       }
                     }
                     if (!state.ok) {
-                      state.pos = $26;
+                      state.backtrack($26);
                     }
-                    if (!state.ok) {
+                    if (!state.ok && state.isRecoverable) {
                       // (v:VerifyFlag VerifyFlag)
                       // v:VerifyFlag VerifyFlag
                       final $29 = state.pos;
@@ -805,9 +876,9 @@ class TestParser {
                         }
                       }
                       if (!state.ok) {
-                        state.pos = $29;
+                        state.backtrack($29);
                       }
-                      if (!state.ok) {
+                      if (!state.ok && state.isRecoverable) {
                         // (v:ZeroOrMore16 ZeroOrMore16)
                         // v:ZeroOrMore16 ZeroOrMore16
                         final $32 = state.pos;
@@ -822,9 +893,9 @@ class TestParser {
                           }
                         }
                         if (!state.ok) {
-                          state.pos = $32;
+                          state.backtrack($32);
                         }
-                        if (!state.ok) {
+                        if (!state.ok && state.isRecoverable) {
                           // (v:ZeroOrMore1632 ZeroOrMore1632)
                           // v:ZeroOrMore1632 ZeroOrMore1632
                           final $35 = state.pos;
@@ -839,9 +910,9 @@ class TestParser {
                             }
                           }
                           if (!state.ok) {
-                            state.pos = $35;
+                            state.backtrack($35);
                           }
-                          if (!state.ok) {
+                          if (!state.ok && state.isRecoverable) {
                             // (v:ZeroOrMore32 ZeroOrMore32)
                             // v:ZeroOrMore32 ZeroOrMore32
                             final $38 = state.pos;
@@ -856,9 +927,9 @@ class TestParser {
                               }
                             }
                             if (!state.ok) {
-                              state.pos = $38;
+                              state.backtrack($38);
                             }
-                            if (!state.ok) {
+                            if (!state.ok && state.isRecoverable) {
                               // (v:ZeroOrMore3232 ZeroOrMore3232)
                               // v:ZeroOrMore3232 ZeroOrMore3232
                               final $41 = state.pos;
@@ -873,7 +944,7 @@ class TestParser {
                                 }
                               }
                               if (!state.ok) {
-                                state.pos = $41;
+                                state.backtrack($41);
                               }
                             }
                           }
@@ -962,7 +1033,7 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
     return $0;
   }
@@ -998,7 +1069,7 @@ class TestParser {
       }
     }
     if (!state.ok) {
-      state.pos = $4;
+      state.backtrack($4);
     }
     return $0;
   }
@@ -1021,11 +1092,11 @@ class TestParser {
         state.fail(const ErrorExpectedCharacter(48));
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -1055,11 +1126,11 @@ class TestParser {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -1084,11 +1155,11 @@ class TestParser {
         state.fail(const ErrorExpectedCharacter(128640));
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
@@ -1118,52 +1189,15 @@ class TestParser {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (!state.ok) {
-        state.ok = true;
         break;
       }
       $2.add($3!);
     }
+    state.setOk(true);
     if (state.ok) {
       $0 = $2;
     }
     return $0;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      state.ok = true;
-      return string;
-    }
-    state.fail(error);
-    return null;
   }
 }
 
@@ -1325,7 +1359,7 @@ String _errorMessage(
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
     if (hasFullSource) {
-      sb.writeln('line $row, column $column: $message');
+      sb.writeln('line $row, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -1364,8 +1398,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
       key = ErrorUnknownError;
     } else if (error is ErrorUnexpectedCharacter) {
       key = (ErrorUnexpectedCharacter, error.char);
-    } else if (error is ErrorBacktracking) {
-      key = (ErrorBacktracking, error.length);
     }
 
     errorMap[key] = error;
@@ -1391,6 +1423,8 @@ class AsyncResult<T> {
 class ChunkedParsingSink implements Sink<String> {
   int bufferLoad = 0;
 
+  int _cuttingPosition = 0;
+
   String data = '';
 
   int end = 0;
@@ -1404,8 +1438,6 @@ class ChunkedParsingSink implements Sink<String> {
   int _buffering = 0;
 
   bool _isClosed = false;
-
-  int _lastPosition = 0;
 
   bool get isClosed => _isClosed;
 
@@ -1438,14 +1470,14 @@ class ChunkedParsingSink implements Sink<String> {
       h();
     }
 
-    if (_lastPosition > start) {
-      if (_lastPosition == end) {
+    if (_cuttingPosition > start) {
+      if (_cuttingPosition == end) {
         this.data = '';
       } else {
-        this.data = this.data.substring(_lastPosition - start);
+        this.data = this.data.substring(_cuttingPosition - start);
       }
 
-      start = _lastPosition;
+      start = _cuttingPosition;
     }
   }
 
@@ -1482,30 +1514,22 @@ class ChunkedParsingSink implements Sink<String> {
     }
   }
 
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void endBuffering(int position) {
-    _buffering--;
+  void cut(int position) {
+    if (position < start || position > end) {
+      throw RangeError.range(position, start, end, 'position');
+    }
+
     if (_buffering == 0) {
-      if (_lastPosition < position) {
-        _lastPosition = position;
-      }
-    } else if (_buffering < 0) {
-      throw StateError('Inconsistent buffering completion detected.');
+      _cuttingPosition = position;
     }
   }
-}
 
-class ErrorBacktracking extends ParseError {
-  static const message = 'Backtracking error to position {{0}}';
-
-  final int position;
-
-  const ErrorBacktracking(this.position);
-
-  @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    return ErrorMessage(0, ErrorBacktracking.message, [position]);
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endBuffering() {
+    if (--_buffering < 0) {
+      throw StateError('Inconsistent buffering completion detected.');
+    }
   }
 }
 
@@ -1734,6 +1758,8 @@ class ParseResult<I, O> {
 class State<T> {
   Object? context;
 
+  int cuttingPos = 0;
+
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -1742,11 +1768,31 @@ class State<T> {
 
   final T input;
 
+  bool isRecoverable = true;
+
   bool ok = false;
 
   int pos = 0;
 
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void backtrack(int pos) {
+    if (pos >= cuttingPos) {
+      this.pos = pos;
+      return;
+    }
+    isRecoverable = false;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void cut(int pos) {
+    if (cuttingPos < pos) {
+      cuttingPos = pos;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -1818,6 +1864,12 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void setOk(bool ok) {
+    this.ok = !ok ? false : isRecoverable;
   }
 
   @override

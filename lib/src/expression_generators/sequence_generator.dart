@@ -84,7 +84,7 @@ if (state.ok) {
 final {{pos}} = state.pos;
 {{inner}}
 if (!state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
       return render(template, values);
     }
@@ -185,7 +185,7 @@ if (state.ok) {
   {{action}}
   {{r}} = \$\$;
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
           } else {
             values['result'] = result;
@@ -194,7 +194,7 @@ if (state.ok) {
 if (state.ok) {
   {{r}} = {{result}};
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
           }
         } else {
@@ -205,13 +205,13 @@ if (state.ok) {
 if (state.ok) {
   {{action}}
 } else {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
           } else {
             template = '''
 {{body}}
 if (!state.ok) {
-  state.pos = {{pos}}!;
+  state.backtrack({{pos}}!);
 }''';
           }
         }
