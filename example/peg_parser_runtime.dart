@@ -1,5 +1,3 @@
-class RuntimeGenerator {
-  static const _template = r'''
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final result = tryParse(fastParse, source);
@@ -720,9 +718,3 @@ extension ParseStringExt on String {
   }
 }
 
-''';
-
-  String generate() {
-    return _template;
-  }
-}

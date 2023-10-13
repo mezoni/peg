@@ -73,7 +73,7 @@ int _escape(int charCode) {
 %%
 
 Grammar
-Start = Spaces g:Globals? m:Members? d:Definition* !. { $$ = Grammar(rules: d, globals: g, members: m); } ;
+Start = Spaces g:Globals? m:Members? d:Definition* @eof() { $$ = Grammar(rules: d, globals: g, members: m); } ;
 
 Globals = '%{' v:$(!'}%' v:. )* '}%' Spaces ;
 
@@ -177,8 +177,9 @@ Primary =
   / AnyCharacter
   / Group
   / Cut
-  / Buffer
+  / Eof
   / ErrorHandler
+  / Expected
   / MatchString
   / SepBy
   / SepBy1
@@ -200,16 +201,19 @@ Expression
 Group = LeftParenthesis e:Expression RightParenthesis { $$ = GroupExpression(expression: e); } ;
 
 Expression
-Literal = '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = LiteralExpression(string: String.fromCharCodes(cs)); } ;
+Literal = s:String { $$ = LiteralExpression(string: s); } ;
 
 Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
 
 Expression
-Buffer = '@buffer' LeftParenthesis e:Expression RightParenthesis { $$ = BufferExpression(expression: e); } ;
+Eof = '@eof' LeftParenthesis RightParenthesis Spaces { $$ = EofExpression(); } ;
 
 Expression
-ErrorHandler = '@errorHandler' LeftParenthesis e:Expression Comma a:Block RightParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: a); } ;
+ErrorHandler = '@errorHandler' LeftParenthesis e:Expression Comma h:Block RightParenthesis { $$ = ErrorHandlerExpression(expression: e, handler: h); } ;
+
+Expression
+Expected = '@expected' LeftParenthesis t:String Comma e:Expression RightParenthesis { $$ = ExpectedExpression(expression: e, tag: t); } ;
 
 Expression
 MatchString = '@matchString' LeftParenthesis b:Block RightParenthesis { $$ = MatchStringExpression(value: b); } ;
@@ -233,6 +237,9 @@ Range =
 
 int
 HexChar = 'u{' v:$[a-zA-Z0-9]+ '}' <int>{ $$ = int.parse(v, radix: 16); } ;
+
+String
+String = '\'' cs:(!'\'' c:StringChar)* '\'' Spaces { $$ = String.fromCharCodes(cs); } ;
 
 int
 StringChar =

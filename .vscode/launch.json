@@ -25,6 +25,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
+                "--no-runtime",
                 "example/calc.peg"
             ]
         },

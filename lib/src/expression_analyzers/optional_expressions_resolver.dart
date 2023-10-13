@@ -29,14 +29,6 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitBuffer(BufferExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _setIsOptional(node, child.isOptional);
-    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
-  }
-
-  @override
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
     _setIsOptional(node, false);
@@ -51,7 +43,22 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitEof(EofExpression node) {
+    node.visitChildren(this);
+    _setIsOptional(node, false);
+    _setMayNotConsumeInput(node, true);
+  }
+
+  @override
   void visitErrorHandler(ErrorHandlerExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setIsOptional(node, child.isOptional);
+    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
     _setIsOptional(node, child.isOptional);

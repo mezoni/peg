@@ -28,11 +28,6 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitBuffer(BufferExpression node) {
-    _addNode(node);
-  }
-
-  @override
   void visitCharacterClass(CharacterClassExpression node) {
     final ranges = node.ranges;
     final negate = node.negate;
@@ -65,7 +60,17 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitEof(EofExpression node) {
+    _addStartingCharacters(node, _unicodeCharacters);
+  }
+
+  @override
   void visitErrorHandler(ErrorHandlerExpression node) {
+    _addNode(node);
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
     _addNode(node);
   }
 

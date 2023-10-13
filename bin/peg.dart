@@ -6,6 +6,7 @@ import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
 import 'package:peg/src/grammar_generators/converter_generator.dart';
 import 'package:peg/src/grammar_generators/library_generator.dart';
+import 'package:peg/src/grammar_generators/runtime_generator.dart';
 import 'package:strings/strings.dart';
 
 import 'peg_parser.dart';
@@ -16,6 +17,14 @@ Future<void> main(List<String> args) async {
     'async',
     help: 'Indicates that asynchronous parsing methods should be generated.',
     defaultsTo: false,
+  );
+
+  argParser.addFlag(
+    'runtime',
+    help: '''
+Specifies that the runtime source code must be included in the parser file.
+Otherwise it will be written to a separate file 'peg_parser_runtime.dart'.''',
+    defaultsTo: true,
   );
 
   final argResults = argParser.parse(args);
@@ -35,6 +44,7 @@ Future<void> main(List<String> args) async {
   final converterFilePath = path.join(outputDir, converterFilename);
 
   final isAsync = argResults['async'] as bool;
+  final addRuntime = argResults['runtime'] as bool;
   var name = basename.toLowerCase();
   name = name.toCamelCase();
   final parserName = '${name}Parser';
@@ -60,6 +70,7 @@ Future<void> main(List<String> args) async {
   }
 
   final libraryGenerator = LibraryGenerator(
+    addRuntime: addRuntime,
     filename: inputFilename,
     grammar: grammar,
     isAsync: isAsync,
@@ -79,6 +90,13 @@ Future<void> main(List<String> args) async {
   final files = [parserFilePath, converterFilePath];
   files.sort();
   await _format(files);
+
+  if (!addRuntime) {
+    final runtimeGenerator = RuntimeGenerator();
+    final runtimeSource = runtimeGenerator.generate();
+    final runtimeFilename = path.join(outputDir, 'peg_parser_runtime.dart');
+    File(runtimeFilename).writeAsStringSync(runtimeSource);
+  }
 }
 
 Future<void> _format(List<String> filenames) async {

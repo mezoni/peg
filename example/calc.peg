@@ -1,4 +1,7 @@
 %{
+import 'peg_parser_runtime.dart';
+export 'peg_parser_runtime.dart';
+
 void main(List<String> args) {
   const source = '1 + 2 * 3';
   const parser = CalcParser();
@@ -42,19 +45,19 @@ void main(List<String> args) {
   }
 %%
 
-Start = Spaces v:Expression Eof ;
+Start = Spaces v:Expression @eof() ;
 
 Expression = Add ;
 
 num
-Add = h:Mul t:(op:AddOp expr:Mul)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
+Add = h:Mul t:(op:AddOp ↑ expr:Mul)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
 
-AddOp = v:('-' / '+') Spaces ;
+AddOp = v:@expected('operator', '-' / '+') Spaces ;
 
 num
-Mul = h:Prefix t:(op:MulOp expr:Prefix)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
+Mul = h:Prefix t:(op:MulOp ↑ expr:Prefix)* { $$ = t.isEmpty ? h : t.fold(h, _calcBinary); } ;
 
-MulOp = v:('/' / '*') Spaces ;
+MulOp = v:@expected('operator', '/' / '*') Spaces ;
 
 num
 Prefix = o:'-'? e:Primary { $$ = _prefix(o, e); } ;
@@ -63,27 +66,18 @@ Primary =
     Number
   / OpenParenthesis v:Number CloseParenthesis ;
 
-Number = @errorHandler(NumberRaw, {
-    if (state.failPos != state.pos) {
-      error = ErrorMessage(state.pos - state.failPos, 'Malformed number');
-    } else {
-      rollbackErrors = true;
-      error = ErrorExpectedTags(['number']);
-    }
-  }) ;
-
-num
-NumberRaw = v:$(
-  [-]?
-  ([0] / [1-9][0-9]*)
-  ([.] [0-9]+)?
-  ([eE] [-+]? [0-9]+)?
-  ) Spaces { $$ = num.parse(v); } ;
-
-CloseParenthesis = ')' Spaces ;
+Number = v:@expected('number', Number_) Spaces ;
 
 @inline
-Eof = !. ;
+num
+Number_ = v:$(
+  [-]?
+  ([0] / [1-9][0-9]*)
+  ([.] ↑ [0-9]+)?
+  ([eE] ↑ [-+]? [0-9]+)?
+  ) { $$ = num.parse(v); } ;
+
+CloseParenthesis = ')' Spaces ;
 
 OpenParenthesis = '(' Spaces ;
 

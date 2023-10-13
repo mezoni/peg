@@ -3,65 +3,6 @@ class TestParser {
 
   String text = '';
 
-  /// int
-  /// Integer =
-  ///   v:$[0-9]+ <int>{}
-  ///   ;
-  void fastParseInteger(State<String> state) {
-    // v:$[0-9]+ <int>{}
-    String? $1;
-    final $2 = state.pos;
-    var $3 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $4 = state.input.codeUnitAt(state.pos);
-        state.ok = $4 >= 48 && $4 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $3 = true;
-    }
-    state.setOk($3);
-    if (state.ok) {
-      $1 = state.input.substring($2, state.pos);
-    }
-    if (state.ok) {
-      // ignore: unused_local_variable
-      int? $$;
-      final v = $1!;
-      $$ = int.parse(v);
-    }
-  }
-
-  /// MatchString =
-  ///   @matchString()
-  ///   ;
-  void fastParseMatchString(State<String> state) {
-    // @matchString()
-    final $1 = text;
-    if ($1.isEmpty) {
-      state.ok = true;
-    } else {
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == $1.codeUnitAt(0) &&
-          state.input.startsWith($1, state.pos);
-      if (state.ok) {
-        state.pos += $1.length;
-      } else {
-        state.fail(ErrorExpectedTags([$1]));
-      }
-    }
-  }
-
   /// OrderedChoiceWithLiterals =
   ///     'abc'
   ///   / 'ab'
@@ -122,31 +63,6 @@ class TestParser {
     }
   }
 
-  /// SepBy =
-  ///   @sepBy(Integer, ',')
-  ///   ;
-  void fastParseSepBy(State<String> state) {
-    // @sepBy(Integer, ',')
-    var $1 = state.pos;
-    while (true) {
-      // Integer
-      // Integer
-      fastParseInteger(state);
-      if (!state.ok) {
-        state.backtrack($1);
-        break;
-      }
-      $1 = state.pos;
-      // ','
-      const $4 = ',';
-      matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-  }
-
   /// SkipTil =
   ///   (![E] v:.)*
   ///   ;
@@ -158,7 +74,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $1;
     } else {
-      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
+      state.failAt(state.input.length, const ErrorUnexpectedCharacter());
     }
   }
 
@@ -188,7 +104,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $2;
     } else {
-      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
+      state.failAt(state.input.length, const ErrorUnexpectedCharacter());
     }
   }
 
@@ -207,264 +123,22 @@ class TestParser {
     }
   }
 
-  /// Verify41 =
-  ///   @verify(Integer)
-  ///   ;
-  void fastParseVerify41(State<String> state) {
-    // @verify(Integer)
-    final $4 = state.pos;
-    final $3 = state.failPos;
-    final $2 = state.errorCount;
-    int? $1;
-    // Integer
-    // Integer
-    $1 = parseInteger(state);
-    if (state.ok) {
-      final pos = $4;
-      // ignore: unused_local_variable
-      final $$ = $1!;
-      ParseError? error;
-      if ($$ != 41) {
-        error = ErrorMessage(state.pos - pos, 'error');
-      }
-      if (error != null) {
-        if ($3 <= pos) {
-          state.failPos = $3;
-          state.errorCount = $2;
-        }
-        state.failAt(pos, error);
-      }
-    }
-    if (!state.ok) {
-      state.backtrack($4);
-    }
-  }
-
-  /// VerifyFlag =
-  ///   @verify('')
-  ///   ;
-  void fastParseVerifyFlag(State<String> state) {
-    // @verify('')
-    final $4 = state.pos;
-    final $3 = state.failPos;
-    final $2 = state.errorCount;
-    String? $1;
-    // ''
-    state.ok = true;
-    if (state.ok) {
-      $1 = '';
-    }
-    if (state.ok) {
-      final pos = $4;
-      // ignore: unused_local_variable
-      final $$ = $1!;
-      ParseError? error;
-      if (!flag) {
-        error = ErrorMessage(state.pos - pos, 'error');
-      }
-      if (error != null) {
-        if ($3 <= pos) {
-          state.failPos = $3;
-          state.errorCount = $2;
-        }
-        state.failAt(pos, error);
-      }
-    }
-    if (!state.ok) {
-      state.backtrack($4);
-    }
-  }
-
-  /// ZeroOrMore16 =
-  ///   [0]*
-  ///   ;
-  void fastParseZeroOrMore16(State<String> state) {
-    // [0]*
-    while (true) {
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 48;
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(State<String> state, int char) {
+    final input = state.input;
+    final pos = state.pos;
+    if (pos < input.length) {
+      state.ok = input.codeUnitAt(pos) == char;
       if (state.ok) {
         state.pos++;
-      } else {
-        state.fail(const ErrorExpectedCharacter(48));
+        return char;
       }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-  }
-
-  /// ZeroOrMore1632 =
-  ///   [ -\u{1f680}]*
-  ///   ;
-  void fastParseZeroOrMore1632(State<String> state) {
-    // [ -\u{1f680}]*
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $1 = state.input.runeAt(state.pos);
-        state.ok = $1 >= 32 && $1 <= 128640;
-        if (state.ok) {
-          state.pos += $1 > 0xffff ? 2 : 1;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-  }
-
-  /// ZeroOrMore32 =
-  ///   [\u{1f680}]*
-  ///   ;
-  void fastParseZeroOrMore32(State<String> state) {
-    // [\u{1f680}]*
-    while (true) {
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-  }
-
-  /// ZeroOrMore3232 =
-  ///   [\u{1f680}-\u{1f681}]*
-  ///   ;
-  void fastParseZeroOrMore3232(State<String> state) {
-    // [\u{1f680}-\u{1f681}]*
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $1 = state.input.runeAt(state.pos);
-        state.ok = $1 >= 128640 && $1 <= 128641;
-        if (state.ok) {
-          state.pos += 2;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
+      state.fail(const ErrorUnexpectedCharacter());
     } else {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      state.ok = true;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  /// int
-  /// Integer =
-  ///   v:$[0-9]+ <int>{}
-  ///   ;
-  int? parseInteger(State<String> state) {
-    int? $0;
-    // v:$[0-9]+ <int>{}
-    String? $2;
-    final $3 = state.pos;
-    var $4 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 >= 48 && $5 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $4 = true;
-    }
-    state.setOk($4);
-    if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
-    }
-    if (state.ok) {
-      int? $$;
-      final v = $2!;
-      $$ = int.parse(v);
-      $0 = $$;
-    }
-    return $0;
-  }
-
-  /// MatchString =
-  ///   @matchString()
-  ///   ;
-  String? parseMatchString(State<String> state) {
-    String? $0;
-    // @matchString()
-    final $2 = text;
-    if ($2.isEmpty) {
-      state.ok = true;
-      $0 = '';
-    } else {
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == $2.codeUnitAt(0) &&
-          state.input.startsWith($2, state.pos);
-      if (state.ok) {
-        state.pos += $2.length;
-        $0 = $2;
-      } else {
-        state.fail(ErrorExpectedTags([$2]));
-      }
-    }
-    return $0;
   }
 
   /// OrderedChoiceWithLiterals =
@@ -536,39 +210,6 @@ class TestParser {
     return $0;
   }
 
-  /// SepBy =
-  ///   @sepBy(Integer, ',')
-  ///   ;
-  List<int>? parseSepBy(State<String> state) {
-    List<int>? $0;
-    // @sepBy(Integer, ',')
-    final $2 = <int>[];
-    var $4 = state.pos;
-    while (true) {
-      int? $3;
-      // Integer
-      // Integer
-      $3 = parseInteger(state);
-      if (!state.ok) {
-        state.backtrack($4);
-        break;
-      }
-      $2.add($3!);
-      $4 = state.pos;
-      // ','
-      const $7 = ',';
-      matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
-    if (state.ok) {
-      $0 = $2;
-    }
-    return $0;
-  }
-
   /// SkipTil =
   ///   (![E] v:.)*
   ///   ;
@@ -581,20 +222,14 @@ class TestParser {
       // ![E] v:.
       final $4 = state.pos;
       final $6 = state.pos;
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 69;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorExpectedCharacter(69));
-      }
+      matchChar16(state, 69);
       state.setOk(!state.ok);
       if (!state.ok) {
         final length = $6 - state.pos;
         state.fail(switch (length) {
           0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(1),
-          2 => const ErrorUnexpectedInput(2),
+          1 => const ErrorUnexpectedInput(-1),
+          2 => const ErrorUnexpectedInput(-2),
           _ => ErrorUnexpectedInput(length)
         });
         state.backtrack($6);
@@ -655,8 +290,8 @@ class TestParser {
         final length = $6 - state.pos;
         state.fail(switch (length) {
           0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(1),
-          2 => const ErrorUnexpectedInput(2),
+          1 => const ErrorUnexpectedInput(-1),
+          2 => const ErrorUnexpectedInput(-2),
           _ => ErrorUnexpectedInput(length)
         });
         state.backtrack($6);
@@ -692,32 +327,24 @@ class TestParser {
   }
 
   /// Start =
-  ///     (v:MatchString MatchString)
-  ///   / (v:SkipUntil SkipUntil)
+  ///     (v:SkipUntil SkipUntil)
   ///   / (v:SkipTil SkipTil)
   ///   / (v:TakeUntil TakeUntil)
   ///   / (v:TakeTil TakeTil)
   ///   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
   ///   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
-  ///   / (v:SepBy SepBy)
-  ///   / (v:Verify41 Verify41)
-  ///   / (v:VerifyFlag VerifyFlag)
-  ///   / (v:ZeroOrMore16 ZeroOrMore16)
-  ///   / (v:ZeroOrMore1632 ZeroOrMore1632)
-  ///   / (v:ZeroOrMore32 ZeroOrMore32)
-  ///   / (v:ZeroOrMore3232 ZeroOrMore3232)
   ///   ;
   Object? parseStart(State<String> state) {
     Object? $0;
-    // (v:MatchString MatchString)
-    // v:MatchString MatchString
+    // (v:SkipUntil SkipUntil)
+    // v:SkipUntil SkipUntil
     final $2 = state.pos;
-    String? $3;
-    // MatchString
-    $3 = parseMatchString(state);
+    List<int>? $3;
+    // SkipUntil
+    $3 = parseSkipUntil(state);
     if (state.ok) {
-      // MatchString
-      fastParseMatchString(state);
+      // SkipUntil
+      fastParseSkipUntil(state);
       if (state.ok) {
         $0 = $3;
       }
@@ -726,15 +353,15 @@ class TestParser {
       state.backtrack($2);
     }
     if (!state.ok && state.isRecoverable) {
-      // (v:SkipUntil SkipUntil)
-      // v:SkipUntil SkipUntil
+      // (v:SkipTil SkipTil)
+      // v:SkipTil SkipTil
       final $5 = state.pos;
       List<int>? $6;
-      // SkipUntil
-      $6 = parseSkipUntil(state);
+      // SkipTil
+      $6 = parseSkipTil(state);
       if (state.ok) {
-        // SkipUntil
-        fastParseSkipUntil(state);
+        // SkipTil
+        fastParseSkipTil(state);
         if (state.ok) {
           $0 = $6;
         }
@@ -743,15 +370,15 @@ class TestParser {
         state.backtrack($5);
       }
       if (!state.ok && state.isRecoverable) {
-        // (v:SkipTil SkipTil)
-        // v:SkipTil SkipTil
+        // (v:TakeUntil TakeUntil)
+        // v:TakeUntil TakeUntil
         final $8 = state.pos;
-        List<int>? $9;
-        // SkipTil
-        $9 = parseSkipTil(state);
+        String? $9;
+        // TakeUntil
+        $9 = parseTakeUntil(state);
         if (state.ok) {
-          // SkipTil
-          fastParseSkipTil(state);
+          // TakeUntil
+          fastParseTakeUntil(state);
           if (state.ok) {
             $0 = $9;
           }
@@ -760,15 +387,15 @@ class TestParser {
           state.backtrack($8);
         }
         if (!state.ok && state.isRecoverable) {
-          // (v:TakeUntil TakeUntil)
-          // v:TakeUntil TakeUntil
+          // (v:TakeTil TakeTil)
+          // v:TakeTil TakeTil
           final $11 = state.pos;
           String? $12;
-          // TakeUntil
-          $12 = parseTakeUntil(state);
+          // TakeTil
+          $12 = parseTakeTil(state);
           if (state.ok) {
-            // TakeUntil
-            fastParseTakeUntil(state);
+            // TakeTil
+            fastParseTakeTil(state);
             if (state.ok) {
               $0 = $12;
             }
@@ -777,15 +404,15 @@ class TestParser {
             state.backtrack($11);
           }
           if (!state.ok && state.isRecoverable) {
-            // (v:TakeTil TakeTil)
-            // v:TakeTil TakeTil
+            // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
+            // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
             final $14 = state.pos;
             String? $15;
-            // TakeTil
-            $15 = parseTakeTil(state);
+            // OrderedChoiceWithLiterals
+            $15 = parseOrderedChoiceWithLiterals(state);
             if (state.ok) {
-              // TakeTil
-              fastParseTakeTil(state);
+              // OrderedChoiceWithLiterals
+              fastParseOrderedChoiceWithLiterals(state);
               if (state.ok) {
                 $0 = $15;
               }
@@ -810,150 +437,6 @@ class TestParser {
               if (!state.ok) {
                 state.backtrack($17);
               }
-              if (!state.ok && state.isRecoverable) {
-                // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
-                // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-                final $20 = state.pos;
-                String? $21;
-                // OrderedChoiceWithLiterals
-                $21 = parseOrderedChoiceWithLiterals(state);
-                if (state.ok) {
-                  // OrderedChoiceWithLiterals
-                  fastParseOrderedChoiceWithLiterals(state);
-                  if (state.ok) {
-                    $0 = $21;
-                  }
-                }
-                if (!state.ok) {
-                  state.backtrack($20);
-                }
-                if (!state.ok && state.isRecoverable) {
-                  // (v:SepBy SepBy)
-                  // v:SepBy SepBy
-                  final $23 = state.pos;
-                  List<int>? $24;
-                  // SepBy
-                  $24 = parseSepBy(state);
-                  if (state.ok) {
-                    // SepBy
-                    fastParseSepBy(state);
-                    if (state.ok) {
-                      $0 = $24;
-                    }
-                  }
-                  if (!state.ok) {
-                    state.backtrack($23);
-                  }
-                  if (!state.ok && state.isRecoverable) {
-                    // (v:Verify41 Verify41)
-                    // v:Verify41 Verify41
-                    final $26 = state.pos;
-                    int? $27;
-                    // Verify41
-                    $27 = parseVerify41(state);
-                    if (state.ok) {
-                      // Verify41
-                      fastParseVerify41(state);
-                      if (state.ok) {
-                        $0 = $27;
-                      }
-                    }
-                    if (!state.ok) {
-                      state.backtrack($26);
-                    }
-                    if (!state.ok && state.isRecoverable) {
-                      // (v:VerifyFlag VerifyFlag)
-                      // v:VerifyFlag VerifyFlag
-                      final $29 = state.pos;
-                      String? $30;
-                      // VerifyFlag
-                      $30 = parseVerifyFlag(state);
-                      if (state.ok) {
-                        // VerifyFlag
-                        fastParseVerifyFlag(state);
-                        if (state.ok) {
-                          $0 = $30;
-                        }
-                      }
-                      if (!state.ok) {
-                        state.backtrack($29);
-                      }
-                      if (!state.ok && state.isRecoverable) {
-                        // (v:ZeroOrMore16 ZeroOrMore16)
-                        // v:ZeroOrMore16 ZeroOrMore16
-                        final $32 = state.pos;
-                        List<int>? $33;
-                        // ZeroOrMore16
-                        $33 = parseZeroOrMore16(state);
-                        if (state.ok) {
-                          // ZeroOrMore16
-                          fastParseZeroOrMore16(state);
-                          if (state.ok) {
-                            $0 = $33;
-                          }
-                        }
-                        if (!state.ok) {
-                          state.backtrack($32);
-                        }
-                        if (!state.ok && state.isRecoverable) {
-                          // (v:ZeroOrMore1632 ZeroOrMore1632)
-                          // v:ZeroOrMore1632 ZeroOrMore1632
-                          final $35 = state.pos;
-                          List<int>? $36;
-                          // ZeroOrMore1632
-                          $36 = parseZeroOrMore1632(state);
-                          if (state.ok) {
-                            // ZeroOrMore1632
-                            fastParseZeroOrMore1632(state);
-                            if (state.ok) {
-                              $0 = $36;
-                            }
-                          }
-                          if (!state.ok) {
-                            state.backtrack($35);
-                          }
-                          if (!state.ok && state.isRecoverable) {
-                            // (v:ZeroOrMore32 ZeroOrMore32)
-                            // v:ZeroOrMore32 ZeroOrMore32
-                            final $38 = state.pos;
-                            List<int>? $39;
-                            // ZeroOrMore32
-                            $39 = parseZeroOrMore32(state);
-                            if (state.ok) {
-                              // ZeroOrMore32
-                              fastParseZeroOrMore32(state);
-                              if (state.ok) {
-                                $0 = $39;
-                              }
-                            }
-                            if (!state.ok) {
-                              state.backtrack($38);
-                            }
-                            if (!state.ok && state.isRecoverable) {
-                              // (v:ZeroOrMore3232 ZeroOrMore3232)
-                              // v:ZeroOrMore3232 ZeroOrMore3232
-                              final $41 = state.pos;
-                              List<int>? $42;
-                              // ZeroOrMore3232
-                              $42 = parseZeroOrMore3232(state);
-                              if (state.ok) {
-                                // ZeroOrMore3232
-                                fastParseZeroOrMore3232(state);
-                                if (state.ok) {
-                                  $0 = $42;
-                                }
-                              }
-                              if (!state.ok) {
-                                state.backtrack($41);
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
             }
           }
         }
@@ -975,7 +458,7 @@ class TestParser {
     if (state.ok) {
       state.pos = $3;
     } else {
-      state.failAt(state.input.length, const ErrorExpectedCharacter(69));
+      state.failAt(state.input.length, const ErrorUnexpectedCharacter());
     }
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
@@ -1000,202 +483,6 @@ class TestParser {
     }
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
-    }
-    return $0;
-  }
-
-  /// Verify41 =
-  ///   @verify(Integer)
-  ///   ;
-  int? parseVerify41(State<String> state) {
-    int? $0;
-    // @verify(Integer)
-    final $4 = state.pos;
-    final $3 = state.failPos;
-    final $2 = state.errorCount;
-    // Integer
-    // Integer
-    $0 = parseInteger(state);
-    if (state.ok) {
-      final pos = $4;
-      // ignore: unused_local_variable
-      final $$ = $0!;
-      ParseError? error;
-      if ($$ != 41) {
-        error = ErrorMessage(state.pos - pos, 'error');
-      }
-      if (error != null) {
-        if ($3 <= pos) {
-          state.failPos = $3;
-          state.errorCount = $2;
-        }
-        state.failAt(pos, error);
-      }
-    }
-    if (!state.ok) {
-      state.backtrack($4);
-    }
-    return $0;
-  }
-
-  /// VerifyFlag =
-  ///   @verify('')
-  ///   ;
-  String? parseVerifyFlag(State<String> state) {
-    String? $0;
-    // @verify('')
-    final $4 = state.pos;
-    final $3 = state.failPos;
-    final $2 = state.errorCount;
-    // ''
-    state.ok = true;
-    if (state.ok) {
-      $0 = '';
-    }
-    if (state.ok) {
-      final pos = $4;
-      // ignore: unused_local_variable
-      final $$ = $0!;
-      ParseError? error;
-      if (!flag) {
-        error = ErrorMessage(state.pos - pos, 'error');
-      }
-      if (error != null) {
-        if ($3 <= pos) {
-          state.failPos = $3;
-          state.errorCount = $2;
-        }
-        state.failAt(pos, error);
-      }
-    }
-    if (!state.ok) {
-      state.backtrack($4);
-    }
-    return $0;
-  }
-
-  /// ZeroOrMore16 =
-  ///   [0]*
-  ///   ;
-  List<int>? parseZeroOrMore16(State<String> state) {
-    List<int>? $0;
-    // [0]*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 48;
-      if (state.ok) {
-        state.pos++;
-        $3 = 48;
-      } else {
-        state.fail(const ErrorExpectedCharacter(48));
-      }
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk(true);
-    if (state.ok) {
-      $0 = $2;
-    }
-    return $0;
-  }
-
-  /// ZeroOrMore1632 =
-  ///   [ -\u{1f680}]*
-  ///   ;
-  List<int>? parseZeroOrMore1632(State<String> state) {
-    List<int>? $0;
-    // [ -\u{1f680}]*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $4 = state.input.runeAt(state.pos);
-        state.ok = $4 >= 32 && $4 <= 128640;
-        if (state.ok) {
-          state.pos += $4 > 0xffff ? 2 : 1;
-          $3 = $4;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk(true);
-    if (state.ok) {
-      $0 = $2;
-    }
-    return $0;
-  }
-
-  /// ZeroOrMore32 =
-  ///   [\u{1f680}]*
-  ///   ;
-  List<int>? parseZeroOrMore32(State<String> state) {
-    List<int>? $0;
-    // [\u{1f680}]*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      state.ok = state.pos < state.input.length &&
-          state.input.runeAt(state.pos) == 128640;
-      if (state.ok) {
-        state.pos += 2;
-        $3 = 128640;
-      } else {
-        state.fail(const ErrorExpectedCharacter(128640));
-      }
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk(true);
-    if (state.ok) {
-      $0 = $2;
-    }
-    return $0;
-  }
-
-  /// ZeroOrMore3232 =
-  ///   [\u{1f680}-\u{1f681}]*
-  ///   ;
-  List<int>? parseZeroOrMore3232(State<String> state) {
-    List<int>? $0;
-    // [\u{1f680}-\u{1f681}]*
-    final $2 = <int>[];
-    while (true) {
-      int? $3;
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $4 = state.input.runeAt(state.pos);
-        state.ok = $4 >= 128640 && $4 <= 128641;
-        if (state.ok) {
-          state.pos += 2;
-          $3 = $4;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk(true);
-    if (state.ok) {
-      $0 = $2;
     }
     return $0;
   }
@@ -1256,21 +543,9 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .toList();
   String? message;
   if (input is String) {
-    final source = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: 0,
-      rightPadding: 0,
-      source: input,
-    );
-    message = _errorMessage(source, offset, normalized);
+    message = _errorMessage(input, 0, offset, normalized);
   } else if (input is ChunkedParsingSink) {
-    final source2 = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: input.start,
-      rightPadding: 0,
-      source: input.data,
-    );
-    message = _errorMessage(source2, offset, normalized);
+    message = _errorMessage(input.data, input.start, offset, normalized);
   } else {
     message = normalized.join('\n');
   }
@@ -1287,13 +562,42 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
 }
 
 String _errorMessage(
-    _StringWrapper source, int offset, List<ErrorMessage> errors) {
+    String source, int inputStart, int offset, List<ErrorMessage> errors) {
   final sb = StringBuffer();
   final errorInfoList = errors
       .map((e) => (length: e.length, message: e.toString()))
       .toSet()
       .toList();
-  final hasFullSource = source.leftPadding == 0 && source.rightPadding == 0;
+  final offsets =
+      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+  final offsetMap = <int, ({int line, int column})>{};
+  if (inputStart == 0) {
+    var line = 1;
+    var lineStart = 0, next = 0, pos = 0;
+    while (pos < source.length) {
+      final found = offsets.any((e) => pos == e);
+      if (found) {
+        final column = pos - lineStart + 1;
+        offsetMap[pos] = (line: line, column: column);
+        offsets.remove(pos);
+        if (offsets.isEmpty) {
+          break;
+        }
+      }
+
+      final c = source.codeUnitAt(pos++);
+      if (c == 0xa || c == 0xd) {
+        next = c == 0xa ? 0xd : 0xa;
+        if (pos < source.length && source.codeUnitAt(pos) == next) {
+          pos++;
+        }
+
+        line++;
+        lineStart = pos;
+      }
+    }
+  }
+
   for (var i = 0; i < errorInfoList.length; i++) {
     int max(int x, int y) => x > y ? x : y;
     int min(int x, int y) => x < y ? x : y;
@@ -1307,34 +611,17 @@ String _errorMessage(
     final message = errorInfo.message;
     final start = min(offset + length, offset);
     final end = max(offset + length, offset);
-    var row = 1;
-    var lineStart = 0, next = 0, pos = 0;
-    if (hasFullSource) {
-      while (pos < source.length) {
-        final c = source.codeUnitAt(pos++);
-        if (c == 0xa || c == 0xd) {
-          next = c == 0xa ? 0xd : 0xa;
-          if (pos < source.length && source.codeUnitAt(pos) == next) {
-            pos++;
-          }
-          if (pos - 1 >= start) {
-            break;
-          }
-          row++;
-          lineStart = pos;
-        }
-      }
-    }
-
     final inputLen = source.length;
     final lineLimit = min(80, inputLen);
     final start2 = start;
     final end2 = min(start2 + lineLimit, end);
     final errorLen = end2 - start;
     final extraLen = lineLimit - errorLen;
-    final rightLen = min(inputLen - end2, extraLen - (extraLen >> 1));
-    final leftLen = min(start, max(0, lineLimit - errorLen - rightLen));
-    var index = start2 - 1;
+    final rightLen =
+        min(inputStart + inputLen - end2, extraLen - (extraLen >> 1));
+    final leftLen =
+        min(start - inputStart, max(0, lineLimit - errorLen - rightLen));
+    var index = start2 - 1 - inputStart;
     final list = <int>[];
     for (var i = 0; i < leftLen && index >= 0; i++) {
       var cc = source.codeUnitAt(index--);
@@ -1349,17 +636,19 @@ String _errorMessage(
       list.add(cc);
     }
 
-    final column = start - lineStart + 1;
     final left = String.fromCharCodes(list.reversed);
     final end3 = min(inputLen, start2 + (lineLimit - leftLen));
     final indicatorLen = max(1, errorLen);
-    final right = source.substring(start2, end3);
+    final right = source.substring(start - inputStart, end3);
     var text = left + right;
     text = text.replaceAll('\n', ' ');
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
-    if (hasFullSource) {
-      sb.writeln('line $row, column $column (offset $start): $message');
+    final location = offsetMap[start];
+    if (location != null) {
+      final line = location.line;
+      final column = location.column;
+      sb.writeln('line $line, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -1390,9 +679,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorMap = <Object?, ParseError>{};
   for (final error in errorList) {
     Object key = error;
-    if (error is ErrorExpectedCharacter) {
-      key = (ErrorExpectedCharacter, error.char);
-    } else if (error is ErrorUnexpectedInput) {
+    if (error is ErrorUnexpectedInput) {
       key = (ErrorUnexpectedInput, error.length);
     } else if (error is ErrorUnknownError) {
       key = ErrorUnknownError;
@@ -1533,19 +820,14 @@ class ChunkedParsingSink implements Sink<String> {
   }
 }
 
-class ErrorExpectedCharacter extends ParseError {
-  static const message = 'Expected a character {0}';
+class ErrorExpectedEndOfInput extends ParseError {
+  static const message = 'Expected an end of input';
 
-  final int char;
-
-  const ErrorExpectedCharacter(this.char);
+  const ErrorExpectedEndOfInput();
 
   @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    final value = ParseError.escape(char);
-    final hexValue = char.toRadixString(16);
-    final argument = '$value (0x$hexValue)';
-    return ErrorMessage(0, ErrorExpectedCharacter.message, [argument]);
+  ErrorMessage getErrorMessage(Object? input, offset) {
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -1603,7 +885,7 @@ class ErrorUnexpectedCharacter extends ParseError {
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     var argument = '<?>';
     var char = this.char;
-    if (offset != null && offset > 0) {
+    if (offset != null && offset >= 0) {
       if (input is String) {
         if (offset < input.length) {
           char = input.runeAt(offset);
@@ -1611,22 +893,11 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        final data = input.data;
-        final length = input.isClosed ? input.end : -1;
-        if (length != -1) {
-          if (offset < length) {
-            final source = _StringWrapper(
-              invalidChar: 32,
-              leftPadding: input.start,
-              rightPadding: 0,
-              source: data,
-            );
-            if (source.hasCodeUnitAt(offset)) {
-              char = source.runeAt(offset);
-            }
-          } else {
-            argument = '<EOF>';
-          }
+        if (offset >= input.start && offset <= input.end) {
+          final index = offset - input.start;
+          char = input.data.runeAt(index);
+        } else if (input.isClosed && offset >= input.end) {
+          argument = '<EOF>';
         }
       }
     }
@@ -1788,6 +1059,15 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  bool canHandleError(int failPos, int errorCount) {
+    return failPos == this.failPos
+        ? errorCount < this.errorCount
+        : failPos < this.failPos;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void cut(int pos) {
     if (cuttingPos < pos) {
       cuttingPos = pos;
@@ -1868,6 +1148,17 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  void rollbackErrors(int failPos, int errorCount) {
+    if (this.failPos == failPos) {
+      this.errorCount = errorCount;
+    } else if (this.failPos > failPos) {
+      this.errorCount = 0;
+    }
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void setOk(bool ok) {
     this.ok = !ok ? false : isRecoverable;
   }
@@ -1896,96 +1187,9 @@ class State<T> {
 
     return super.toString();
   }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool _canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void _rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
-  }
 }
 
-class _StringWrapper {
-  final int invalidChar;
-
-  final int leftPadding;
-
-  final int length;
-
-  final int rightPadding;
-
-  final String source;
-
-  _StringWrapper({
-    required this.invalidChar,
-    required this.leftPadding,
-    required this.rightPadding,
-    required this.source,
-  }) : length = leftPadding + source.length + rightPadding;
-
-  int codeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    final offset = index - leftPadding;
-    if (offset >= 0 && offset < source.length) {
-      return source.codeUnitAt(offset);
-    }
-
-    return invalidChar;
-  }
-
-  bool hasCodeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    return index >= leftPadding && index <= rightPadding && source.isNotEmpty;
-  }
-
-  int runeAt(int index) {
-    final w1 = codeUnitAt(index++);
-    if (w1 > 0xd7ff && w1 < 0xe000) {
-      if (index < length) {
-        final w2 = codeUnitAt(index);
-        if ((w2 & 0xfc00) == 0xdc00) {
-          return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
-        }
-      }
-      throw FormatException('Invalid UTF-16 character', this, index - 1);
-    }
-    return w1;
-  }
-
-  String substring(int start, int end) {
-    if (start < 0 || start > length) {
-      throw RangeError.range(start, 0, length, 'index');
-    }
-
-    if (end < start || end > length) {
-      throw RangeError.range(end, start, length, 'end');
-    }
-
-    final codeUnits = List.generate(end - start, (i) => codeUnitAt(start + i));
-    return String.fromCharCodes(codeUnits);
-  }
-}
-
-extension StringExt on String {
+extension ParseStringExt on String {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   // ignore: unused_element

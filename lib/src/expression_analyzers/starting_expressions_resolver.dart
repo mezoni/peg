@@ -27,13 +27,6 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitBuffer(BufferExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _addChild(node, child);
-  }
-
-  @override
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
   }
@@ -44,7 +37,19 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitEof(EofExpression node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitErrorHandler(ErrorHandlerExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
     _addChild(node, child);

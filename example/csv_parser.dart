@@ -298,8 +298,7 @@ class CsvParser {
       String? $3;
       // Field
       beginEvent(CsvParserEvent.fieldEvent);
-      // @event @inline Field = @buffer(String) / Text ;
-      // @buffer(String)
+      // @event @inline Field = String / Text ;
       // String
       // String
       $3 = parseString(state);
@@ -316,14 +315,14 @@ class CsvParser {
       $2.add($3!);
       $4 = state.pos;
       // ',' ↑
-      final $9 = state.pos;
-      const $10 = ',';
-      matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
+      final $8 = state.pos;
+      const $9 = ',';
+      matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
       if (state.ok) {
         state.cut(state.pos);
       }
       if (!state.ok) {
-        state.backtrack($9);
+        state.backtrack($8);
       }
       if (!state.ok) {
         break;
@@ -351,11 +350,10 @@ class CsvParser {
     int? $7;
     AsyncResult<String>? $8;
     int $10 = 0;
-    Object? $11;
-    AsyncResult<String>? $12;
+    AsyncResult<String>? $11;
+    int? $13;
     int? $14;
-    int? $15;
-    Object? $18;
+    Object? $17;
     void $1() {
       // @sepBy1(Field, ',' ↑)
       // @sepBy1(Field, ',' ↑)
@@ -374,16 +372,12 @@ class CsvParser {
             $10 |= 0x8;
             beginEvent(CsvParserEvent.fieldEvent);
           }
-          // @buffer(String) / Text
+          // String / Text
           if ($10 & 0x4 == 0) {
             $10 |= 0x4;
             $7 = 0;
           }
           if ($7 == 0) {
-            // @buffer(String)
-            // @buffer(String)
-            $11 ??= state.input.beginBuffering();
-            // String
             // String
             // String
             if ($10 & 0x1 == 0) {
@@ -397,8 +391,6 @@ class CsvParser {
             }
             $5 = $8!.value;
             $10 &= ~0x1 & 0xffff;
-            state.input.endBuffering();
-            $11 = null;
             $7 = state.ok
                 ? -1
                 : state.isRecoverable
@@ -410,14 +402,14 @@ class CsvParser {
             // Text
             if ($10 & 0x2 == 0) {
               $10 |= 0x2;
-              $12 = parseText$Async(state);
-              final $13 = $12!;
-              if (!$13.isComplete) {
-                $13.onComplete = $1;
+              $11 = parseText$Async(state);
+              final $12 = $11!;
+              if (!$12.isComplete) {
+                $12.onComplete = $1;
                 return;
               }
             }
-            $5 = $12!.value;
+            $5 = $11!.value;
             $10 &= ~0x2 & 0xffff;
             $7 = -1;
           }
@@ -438,32 +430,32 @@ class CsvParser {
           // ',' ↑
           if ($10 & 0x10 == 0) {
             $10 |= 0x10;
-            $14 = 0;
-            $15 = state.pos;
+            $13 = 0;
+            $14 = state.pos;
           }
-          if ($14 == 0) {
+          if ($13 == 0) {
             // ','
-            $18 ??= state.input.beginBuffering();
-            final $16 = state.input;
-            if (state.pos >= $16.end && !$16.isClosed) {
-              $16.sleep = true;
-              $16.handle = $1;
+            $17 ??= state.input.beginBuffering();
+            final $15 = state.input;
+            if (state.pos >= $15.end && !$15.isClosed) {
+              $15.sleep = true;
+              $15.handle = $1;
               return;
             }
-            const $17 = ',';
-            matchLiteral1Async(state, $17, const ErrorExpectedTags([$17]));
+            const $16 = ',';
+            matchLiteral1Async(state, $16, const ErrorExpectedTags([$16]));
             state.input.endBuffering();
-            $18 = null;
-            $14 = state.ok ? 1 : -1;
+            $17 = null;
+            $13 = state.ok ? 1 : -1;
           }
-          if ($14 == 1) {
+          if ($13 == 1) {
             // ↑
             state.cut(state.pos);
             state.input.cut(state.pos);
-            $14 = -1;
+            $13 = -1;
           }
           if (!state.ok) {
-            state.backtrack($15!);
+            state.backtrack($14!);
           }
           $10 &= ~0x10 & 0xffff;
           if (!state.ok) {
@@ -490,304 +482,138 @@ class CsvParser {
   }
 
   /// Rows =
-  ///   v:@sepBy1(Row, RowEnding ↑) Eol?
+  ///   v:@sepBy1(Row, Eol ↑)
   ///   ;
   List<List<String>>? parseRows(State<String> state) {
     List<List<String>>? $0;
-    // v:@sepBy1(Row, RowEnding ↑) Eol?
-    final $1 = state.pos;
-    List<List<String>>? $2;
-    final $3 = <List<String>>[];
-    var $5 = state.pos;
+    // v:@sepBy1(Row, Eol ↑)
+    final $2 = <List<String>>[];
+    var $4 = state.pos;
     while (true) {
-      List<String>? $4;
+      List<String>? $3;
       // Row
       // Row
-      $4 = parseRow(state);
+      $3 = parseRow(state);
       if (!state.ok) {
-        state.backtrack($5);
+        state.backtrack($4);
         break;
       }
-      $3.add($4!);
-      $5 = state.pos;
-      // RowEnding ↑
-      final $7 = state.pos;
-      // @inline RowEnding = Eol !Eof ;
-      // Eol !Eof
-      final $8 = state.pos;
+      $2.add($3!);
+      $4 = state.pos;
+      // Eol ↑
+      final $6 = state.pos;
       // Eol
       fastParseEol(state);
-      if (state.ok) {
-        final $9 = state.pos;
-        // @inline Eof = !. ;
-        // !.
-        final $11 = state.pos;
-        final $13 = state.input;
-        if (state.pos < $13.length) {
-          final $12 = $13.runeAt(state.pos);
-          state.pos += $12 > 0xffff ? 2 : 1;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        state.setOk(!state.ok);
-        if (!state.ok) {
-          final length = $11 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($11);
-        }
-        state.setOk(!state.ok);
-        if (!state.ok) {
-          final length = $9 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($9);
-        }
-      }
-      if (!state.ok) {
-        state.backtrack($8);
-      }
       if (state.ok) {
         state.cut(state.pos);
       }
       if (!state.ok) {
-        state.backtrack($7);
+        state.backtrack($6);
       }
       if (!state.ok) {
         break;
       }
     }
-    state.setOk($3.isNotEmpty);
+    state.setOk($2.isNotEmpty);
     if (state.ok) {
-      $2 = $3;
+      $0 = $2;
     } else {}
-    if (state.ok) {
-      // Eol
-      fastParseEol(state);
-      if (!state.ok) {
-        state.setOk(true);
-      }
-      if (state.ok) {
-        $0 = $2;
-      }
-    }
-    if (!state.ok) {
-      state.backtrack($1);
-    }
     return $0;
   }
 
   /// Rows =
-  ///   v:@sepBy1(Row, RowEnding ↑) Eol?
+  ///   v:@sepBy1(Row, Eol ↑)
   ///   ;
   AsyncResult<List<List<String>>> parseRows$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<List<List<String>>>();
     List<List<String>>? $2;
-    int? $4;
-    int? $5;
-    List<List<String>>? $3;
+    int? $3;
+    List<List<String>>? $4;
     int? $6;
-    List<List<String>>? $7;
-    int? $9;
-    AsyncResult<List<String>>? $10;
-    int $12 = 0;
-    int? $13;
-    int? $14;
-    int? $15;
-    int? $16;
-    AsyncResult<Object?>? $17;
-    int? $19;
-    int? $20;
-    AsyncResult<Object?>? $23;
+    AsyncResult<List<String>>? $7;
+    int $9 = 0;
+    int? $10;
+    int? $11;
+    AsyncResult<Object?>? $12;
     void $1() {
-      // v:@sepBy1(Row, RowEnding ↑) Eol?
-      if ($12 & 0x100 == 0) {
-        $12 |= 0x100;
-        $4 = 0;
-        $5 = state.pos;
+      // v:@sepBy1(Row, Eol ↑)
+      // @sepBy1(Row, Eol ↑)
+      if ($9 & 0x8 == 0) {
+        $9 |= 0x8;
+        $4 = [];
+        $6 = state.pos;
+        $3 = 0;
       }
-      if ($4 == 0) {
-        // @sepBy1(Row, RowEnding ↑)
-        if ($12 & 0x40 == 0) {
-          $12 |= 0x40;
-          $7 = [];
-          $9 = state.pos;
-          $6 = 0;
+      while (true) {
+        if ($3 == 0) {
+          List<String>? $5;
+          // Row
+          // Row
+          if ($9 & 0x1 == 0) {
+            $9 |= 0x1;
+            $7 = parseRow$Async(state);
+            final $8 = $7!;
+            if (!$8.isComplete) {
+              $8.onComplete = $1;
+              return;
+            }
+          }
+          $5 = $7!.value;
+          $9 &= ~0x1 & 0xffff;
+          if (!state.ok) {
+            state.backtrack($6!);
+            $5 = null;
+            break;
+          }
+          $4!.add($5!);
+          $5 = null;
+          $6 = state.pos;
+          $3 = 1;
         }
-        while (true) {
-          if ($6 == 0) {
-            List<String>? $8;
-            // Row
-            // Row
-            if ($12 & 0x1 == 0) {
-              $12 |= 0x1;
-              $10 = parseRow$Async(state);
-              final $11 = $10!;
-              if (!$11.isComplete) {
-                $11.onComplete = $1;
+        if ($3 == 1) {
+          // Eol ↑
+          if ($9 & 0x4 == 0) {
+            $9 |= 0x4;
+            $10 = 0;
+            $11 = state.pos;
+          }
+          if ($10 == 0) {
+            // Eol
+            if ($9 & 0x2 == 0) {
+              $9 |= 0x2;
+              $12 = fastParseEol$Async(state);
+              final $13 = $12!;
+              if (!$13.isComplete) {
+                $13.onComplete = $1;
                 return;
               }
             }
-            $8 = $10!.value;
-            $12 &= ~0x1 & 0xffff;
-            if (!state.ok) {
-              state.backtrack($9!);
-              $8 = null;
-              break;
-            }
-            $7!.add($8!);
-            $8 = null;
-            $9 = state.pos;
-            $6 = 1;
+            $9 &= ~0x2 & 0xffff;
+            $10 = state.ok ? 1 : -1;
           }
-          if ($6 == 1) {
-            // RowEnding ↑
-            if ($12 & 0x20 == 0) {
-              $12 |= 0x20;
-              $13 = 0;
-              $14 = state.pos;
-            }
-            if ($13 == 0) {
-              // RowEnding
-              // Eol !Eof
-              // Eol !Eof
-              if ($12 & 0x10 == 0) {
-                $12 |= 0x10;
-                $15 = 0;
-                $16 = state.pos;
-              }
-              if ($15 == 0) {
-                // Eol
-                if ($12 & 0x2 == 0) {
-                  $12 |= 0x2;
-                  $17 = fastParseEol$Async(state);
-                  final $18 = $17!;
-                  if (!$18.isComplete) {
-                    $18.onComplete = $1;
-                    return;
-                  }
-                }
-                $12 &= ~0x2 & 0xffff;
-                $15 = state.ok ? 1 : -1;
-              }
-              if ($15 == 1) {
-                // !Eof
-                if ($12 & 0x8 == 0) {
-                  $12 |= 0x8;
-                  state.input.beginBuffering();
-                  $19 = state.pos;
-                }
-                // Eof
-                // !.
-                // !.
-                // !.
-                if ($12 & 0x4 == 0) {
-                  $12 |= 0x4;
-                  $20 = state.pos;
-                }
-                // .
-                final $22 = state.input;
-                if (state.pos >= $22.end && !$22.isClosed) {
-                  $22.sleep = true;
-                  $22.handle = $1;
-                  return;
-                }
-                final $21 = readChar32Async(state);
-                state.ok = $21 >= 0;
-                if (state.ok) {
-                  state.pos += $21 > 0xffff ? 2 : 1;
-                }
-                state.setOk(!state.ok);
-                if (!state.ok) {
-                  final length = $20! - state.pos;
-                  state.fail(switch (length) {
-                    0 => const ErrorUnexpectedInput(0),
-                    1 => const ErrorUnexpectedInput(1),
-                    2 => const ErrorUnexpectedInput(2),
-                    _ => ErrorUnexpectedInput(length)
-                  });
-                  state.backtrack($20!);
-                }
-                $12 &= ~0x4 & 0xffff;
-                state.setOk(!state.ok);
-                if (!state.ok) {
-                  final length = $19! - state.pos;
-                  state.fail(switch (length) {
-                    0 => const ErrorUnexpectedInput(0),
-                    1 => const ErrorUnexpectedInput(1),
-                    2 => const ErrorUnexpectedInput(2),
-                    _ => ErrorUnexpectedInput(length)
-                  });
-                  state.backtrack($19!);
-                }
-                state.input.endBuffering();
-                $12 &= ~0x8 & 0xffff;
-                $15 = -1;
-              }
-              if (!state.ok) {
-                state.backtrack($16!);
-              }
-              $12 &= ~0x10 & 0xffff;
-              $13 = state.ok ? 1 : -1;
-            }
-            if ($13 == 1) {
-              // ↑
-              state.cut(state.pos);
-              state.input.cut(state.pos);
-              $13 = -1;
-            }
-            if (!state.ok) {
-              state.backtrack($14!);
-            }
-            $12 &= ~0x20 & 0xffff;
-            if (!state.ok) {
-              break;
-            }
-            $6 = 0;
+          if ($10 == 1) {
+            // ↑
+            state.cut(state.pos);
+            state.input.cut(state.pos);
+            $10 = -1;
           }
+          if (!state.ok) {
+            state.backtrack($11!);
+          }
+          $9 &= ~0x4 & 0xffff;
+          if (!state.ok) {
+            break;
+          }
+          $3 = 0;
         }
-        state.setOk($7!.isNotEmpty);
-        if (state.ok) {
-          $3 = $7;
-          $7 = null;
-        }
-        $12 &= ~0x40 & 0xffff;
-        $4 = state.ok ? 1 : -1;
       }
-      if ($4 == 1) {
-        // Eol?
-        // Eol
-        if ($12 & 0x80 == 0) {
-          $12 |= 0x80;
-          $23 = fastParseEol$Async(state);
-          final $24 = $23!;
-          if (!$24.isComplete) {
-            $24.onComplete = $1;
-            return;
-          }
-        }
-        $12 &= ~0x80 & 0xffff;
-        if (!state.ok) {
-          state.setOk(true);
-        }
-        $4 = -1;
-      }
+      state.setOk($4!.isNotEmpty);
       if (state.ok) {
-        $2 = $3;
-      } else {
-        state.backtrack($5!);
+        $2 = $4;
+        $4 = null;
       }
-      $12 &= ~0x100 & 0xffff;
+      $9 &= ~0x8 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -800,41 +626,30 @@ class CsvParser {
 
   /// @event
   /// Start =
-  ///   v:Rows Eof
+  ///   v:Rows Eol? @eof()
   ///   ;
   List<List<String>>? parseStart(State<String> state) {
     beginEvent(CsvParserEvent.startEvent);
     List<List<String>>? $0;
-    // v:Rows Eof
+    // v:Rows Eol? @eof()
     final $1 = state.pos;
     List<List<String>>? $2;
     // Rows
     $2 = parseRows(state);
     if (state.ok) {
-      // @inline Eof = !. ;
-      // !.
-      final $4 = state.pos;
-      final $6 = state.input;
-      if (state.pos < $6.length) {
-        final $5 = $6.runeAt(state.pos);
-        state.pos += $5 > 0xffff ? 2 : 1;
-        state.ok = true;
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      state.setOk(!state.ok);
+      // Eol
+      fastParseEol(state);
       if (!state.ok) {
-        final length = $4 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(1),
-          2 => const ErrorUnexpectedInput(2),
-          _ => ErrorUnexpectedInput(length)
-        });
-        state.backtrack($4);
+        state.setOk(true);
       }
       if (state.ok) {
-        $0 = $2;
+        state.ok = state.pos >= state.input.length;
+        if (!state.ok) {
+          state.fail(const ErrorExpectedEndOfInput());
+        }
+        if (state.ok) {
+          $0 = $2;
+        }
       }
     }
     if (!state.ok) {
@@ -846,7 +661,7 @@ class CsvParser {
 
   /// @event
   /// Start =
-  ///   v:Rows Eof
+  ///   v:Rows Eol? @eof()
   ///   ;
   AsyncResult<List<List<String>>> parseStart$Async(
       State<ChunkedParsingSink> state) {
@@ -858,9 +673,9 @@ class CsvParser {
     List<List<String>>? $3;
     AsyncResult<List<List<String>>>? $6;
     int $8 = 0;
-    int? $9;
+    AsyncResult<Object?>? $9;
     void $1() {
-      // v:Rows Eof
+      // v:Rows Eol? @eof()
       if ($8 & 0x4 == 0) {
         $8 |= 0x4;
         $4 = 0;
@@ -882,40 +697,35 @@ class CsvParser {
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
-        // Eof
-        // !.
-        // !.
-        // !.
+        // Eol?
+        // Eol
         if ($8 & 0x2 == 0) {
           $8 |= 0x2;
-          state.input.beginBuffering();
-          $9 = state.pos;
+          $9 = fastParseEol$Async(state);
+          final $10 = $9!;
+          if (!$10.isComplete) {
+            $10.onComplete = $1;
+            return;
+          }
         }
-        // .
+        $8 &= ~0x2 & 0xffff;
+        if (!state.ok) {
+          state.setOk(true);
+        }
+        $4 = state.ok ? 2 : -1;
+      }
+      if ($4 == 2) {
+        // @eof()
         final $11 = state.input;
         if (state.pos >= $11.end && !$11.isClosed) {
           $11.sleep = true;
           $11.handle = $1;
           return;
         }
-        final $10 = readChar32Async(state);
-        state.ok = $10 >= 0;
-        if (state.ok) {
-          state.pos += $10 > 0xffff ? 2 : 1;
-        }
-        state.setOk(!state.ok);
+        state.ok = state.pos >= $11.end;
         if (!state.ok) {
-          final length = $9! - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($9!);
+          state.fail(const ErrorExpectedEndOfInput());
         }
-        state.input.endBuffering();
-        $8 &= ~0x2 & 0xffff;
         $4 = -1;
       }
       if (state.ok) {
@@ -1454,21 +1264,9 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .toList();
   String? message;
   if (input is String) {
-    final source = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: 0,
-      rightPadding: 0,
-      source: input,
-    );
-    message = _errorMessage(source, offset, normalized);
+    message = _errorMessage(input, 0, offset, normalized);
   } else if (input is ChunkedParsingSink) {
-    final source2 = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: input.start,
-      rightPadding: 0,
-      source: input.data,
-    );
-    message = _errorMessage(source2, offset, normalized);
+    message = _errorMessage(input.data, input.start, offset, normalized);
   } else {
     message = normalized.join('\n');
   }
@@ -1485,13 +1283,42 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
 }
 
 String _errorMessage(
-    _StringWrapper source, int offset, List<ErrorMessage> errors) {
+    String source, int inputStart, int offset, List<ErrorMessage> errors) {
   final sb = StringBuffer();
   final errorInfoList = errors
       .map((e) => (length: e.length, message: e.toString()))
       .toSet()
       .toList();
-  final hasFullSource = source.leftPadding == 0 && source.rightPadding == 0;
+  final offsets =
+      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+  final offsetMap = <int, ({int line, int column})>{};
+  if (inputStart == 0) {
+    var line = 1;
+    var lineStart = 0, next = 0, pos = 0;
+    while (pos < source.length) {
+      final found = offsets.any((e) => pos == e);
+      if (found) {
+        final column = pos - lineStart + 1;
+        offsetMap[pos] = (line: line, column: column);
+        offsets.remove(pos);
+        if (offsets.isEmpty) {
+          break;
+        }
+      }
+
+      final c = source.codeUnitAt(pos++);
+      if (c == 0xa || c == 0xd) {
+        next = c == 0xa ? 0xd : 0xa;
+        if (pos < source.length && source.codeUnitAt(pos) == next) {
+          pos++;
+        }
+
+        line++;
+        lineStart = pos;
+      }
+    }
+  }
+
   for (var i = 0; i < errorInfoList.length; i++) {
     int max(int x, int y) => x > y ? x : y;
     int min(int x, int y) => x < y ? x : y;
@@ -1505,34 +1332,17 @@ String _errorMessage(
     final message = errorInfo.message;
     final start = min(offset + length, offset);
     final end = max(offset + length, offset);
-    var row = 1;
-    var lineStart = 0, next = 0, pos = 0;
-    if (hasFullSource) {
-      while (pos < source.length) {
-        final c = source.codeUnitAt(pos++);
-        if (c == 0xa || c == 0xd) {
-          next = c == 0xa ? 0xd : 0xa;
-          if (pos < source.length && source.codeUnitAt(pos) == next) {
-            pos++;
-          }
-          if (pos - 1 >= start) {
-            break;
-          }
-          row++;
-          lineStart = pos;
-        }
-      }
-    }
-
     final inputLen = source.length;
     final lineLimit = min(80, inputLen);
     final start2 = start;
     final end2 = min(start2 + lineLimit, end);
     final errorLen = end2 - start;
     final extraLen = lineLimit - errorLen;
-    final rightLen = min(inputLen - end2, extraLen - (extraLen >> 1));
-    final leftLen = min(start, max(0, lineLimit - errorLen - rightLen));
-    var index = start2 - 1;
+    final rightLen =
+        min(inputStart + inputLen - end2, extraLen - (extraLen >> 1));
+    final leftLen =
+        min(start - inputStart, max(0, lineLimit - errorLen - rightLen));
+    var index = start2 - 1 - inputStart;
     final list = <int>[];
     for (var i = 0; i < leftLen && index >= 0; i++) {
       var cc = source.codeUnitAt(index--);
@@ -1547,17 +1357,19 @@ String _errorMessage(
       list.add(cc);
     }
 
-    final column = start - lineStart + 1;
     final left = String.fromCharCodes(list.reversed);
     final end3 = min(inputLen, start2 + (lineLimit - leftLen));
     final indicatorLen = max(1, errorLen);
-    final right = source.substring(start2, end3);
+    final right = source.substring(start - inputStart, end3);
     var text = left + right;
     text = text.replaceAll('\n', ' ');
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
-    if (hasFullSource) {
-      sb.writeln('line $row, column $column (offset $start): $message');
+    final location = offsetMap[start];
+    if (location != null) {
+      final line = location.line;
+      final column = location.column;
+      sb.writeln('line $line, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -1588,9 +1400,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorMap = <Object?, ParseError>{};
   for (final error in errorList) {
     Object key = error;
-    if (error is ErrorExpectedCharacter) {
-      key = (ErrorExpectedCharacter, error.char);
-    } else if (error is ErrorUnexpectedInput) {
+    if (error is ErrorUnexpectedInput) {
       key = (ErrorUnexpectedInput, error.length);
     } else if (error is ErrorUnknownError) {
       key = ErrorUnknownError;
@@ -1731,19 +1541,14 @@ class ChunkedParsingSink implements Sink<String> {
   }
 }
 
-class ErrorExpectedCharacter extends ParseError {
-  static const message = 'Expected a character {0}';
+class ErrorExpectedEndOfInput extends ParseError {
+  static const message = 'Expected an end of input';
 
-  final int char;
-
-  const ErrorExpectedCharacter(this.char);
+  const ErrorExpectedEndOfInput();
 
   @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    final value = ParseError.escape(char);
-    final hexValue = char.toRadixString(16);
-    final argument = '$value (0x$hexValue)';
-    return ErrorMessage(0, ErrorExpectedCharacter.message, [argument]);
+  ErrorMessage getErrorMessage(Object? input, offset) {
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -1801,7 +1606,7 @@ class ErrorUnexpectedCharacter extends ParseError {
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     var argument = '<?>';
     var char = this.char;
-    if (offset != null && offset > 0) {
+    if (offset != null && offset >= 0) {
       if (input is String) {
         if (offset < input.length) {
           char = input.runeAt(offset);
@@ -1809,22 +1614,11 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        final data = input.data;
-        final length = input.isClosed ? input.end : -1;
-        if (length != -1) {
-          if (offset < length) {
-            final source = _StringWrapper(
-              invalidChar: 32,
-              leftPadding: input.start,
-              rightPadding: 0,
-              source: data,
-            );
-            if (source.hasCodeUnitAt(offset)) {
-              char = source.runeAt(offset);
-            }
-          } else {
-            argument = '<EOF>';
-          }
+        if (offset >= input.start && offset <= input.end) {
+          final index = offset - input.start;
+          char = input.data.runeAt(index);
+        } else if (input.isClosed && offset >= input.end) {
+          argument = '<EOF>';
         }
       }
     }
@@ -1986,6 +1780,15 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  bool canHandleError(int failPos, int errorCount) {
+    return failPos == this.failPos
+        ? errorCount < this.errorCount
+        : failPos < this.failPos;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void cut(int pos) {
     if (cuttingPos < pos) {
       cuttingPos = pos;
@@ -2066,6 +1869,17 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  void rollbackErrors(int failPos, int errorCount) {
+    if (this.failPos == failPos) {
+      this.errorCount = errorCount;
+    } else if (this.failPos > failPos) {
+      this.errorCount = 0;
+    }
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void setOk(bool ok) {
     this.ok = !ok ? false : isRecoverable;
   }
@@ -2094,96 +1908,9 @@ class State<T> {
 
     return super.toString();
   }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool _canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void _rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
-  }
 }
 
-class _StringWrapper {
-  final int invalidChar;
-
-  final int leftPadding;
-
-  final int length;
-
-  final int rightPadding;
-
-  final String source;
-
-  _StringWrapper({
-    required this.invalidChar,
-    required this.leftPadding,
-    required this.rightPadding,
-    required this.source,
-  }) : length = leftPadding + source.length + rightPadding;
-
-  int codeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    final offset = index - leftPadding;
-    if (offset >= 0 && offset < source.length) {
-      return source.codeUnitAt(offset);
-    }
-
-    return invalidChar;
-  }
-
-  bool hasCodeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    return index >= leftPadding && index <= rightPadding && source.isNotEmpty;
-  }
-
-  int runeAt(int index) {
-    final w1 = codeUnitAt(index++);
-    if (w1 > 0xd7ff && w1 < 0xe000) {
-      if (index < length) {
-        final w2 = codeUnitAt(index);
-        if ((w2 & 0xfc00) == 0xdc00) {
-          return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
-        }
-      }
-      throw FormatException('Invalid UTF-16 character', this, index - 1);
-    }
-    return w1;
-  }
-
-  String substring(int start, int end) {
-    if (start < 0 || start > length) {
-      throw RangeError.range(start, 0, length, 'index');
-    }
-
-    if (end < start || end > length) {
-      throw RangeError.range(end, start, length, 'end');
-    }
-
-    final codeUnits = List.generate(end - start, (i) => codeUnitAt(start + i));
-    return String.fromCharCodes(codeUnits);
-  }
-}
-
-extension StringExt on String {
+extension ParseStringExt on String {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   // ignore: unused_element

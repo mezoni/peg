@@ -44,11 +44,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitBuffer(BufferExpression node) {
-    _initializeNode(node);
-  }
-
-  @override
   void visitCharacterClass(CharacterClassExpression node) {
     _initializeNode(node);
   }
@@ -59,7 +54,17 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitEof(EofExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitErrorHandler(ErrorHandlerExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
     _initializeNode(node);
   }
 

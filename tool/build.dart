@@ -5,7 +5,7 @@ import 'dart:io';
 Future<void> main(List<String> args) async {
   final exitCodes = <Future<int>>[];
   const files = <String, List<String>>{
-    'example/calc.peg': [],
+    'example/calc.peg': ['--no-runtime'],
     'example/csv.peg': ['--async'],
     'example/json.peg': ['--async'],
   };

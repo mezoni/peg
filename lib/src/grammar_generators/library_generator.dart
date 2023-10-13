@@ -14,6 +14,8 @@ class LibraryGenerator {
 
 {{runtime}}''';
 
+  final bool addRuntime;
+
   final String filename;
 
   final Grammar grammar;
@@ -23,6 +25,7 @@ class LibraryGenerator {
   final String parserName;
 
   LibraryGenerator({
+    required this.addRuntime,
     required this.filename,
     required this.isAsync,
     required this.grammar,
@@ -41,8 +44,13 @@ class LibraryGenerator {
     final eventsGenerator =
         EventsGenerator(grammar: grammar, parserName: parserName);
     values['parser_events_enum'] = eventsGenerator.generate();
-    final runtimeGenerator = RuntimeGenerator();
-    values['runtime'] = runtimeGenerator.generate();
+    if (addRuntime) {
+      final runtimeGenerator = RuntimeGenerator();
+      values['runtime'] = runtimeGenerator.generate();
+    } else {
+      values['runtime'] = '';
+    }
+
     return helper.render(_template, values, removeEmptyLines: false);
   }
 }

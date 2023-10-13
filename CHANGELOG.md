@@ -1,3 +1,13 @@
+# 4.0.2
+
+- Changes to the `calc.peg` grammar file.
+- Changes to the `csv.peg` grammar file.
+- Changes to the `json.peg` grammar file.
+- Due to the fact that PEG does not have the expression `character`, but only `character class`, the error class `ErrorExpectedCharacter` was removed. For the reason that there is no way to syntactically declare in the grammar whether a range of characters with one element is a character or a range of characters (with one range). Using the error class `ErrorExpectedCharacter` together with a range of characters (`character class`) can lead to ambiguous perception of such error messages.
+- The source code for supporting the parser runtime has been reworked.
+- Added `@eof` meta expression.
+- Added `@expected` meta expression.
+
 # 4.0.1
 
 - Changes in the file `README.md`.

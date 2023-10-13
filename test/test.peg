@@ -7,26 +7,13 @@ String text = '';
 %%
 
 Start =
-    (v:MatchString MatchString)
-  / (v:SkipUntil SkipUntil)
+    (v:SkipUntil SkipUntil)
   / (v:SkipTil SkipTil)
   / (v:TakeUntil TakeUntil)
   / (v:TakeTil TakeTil)
   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
   / (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
-  / (v:SepBy SepBy)
-  / (v:Verify41 Verify41)
-  / (v:VerifyFlag VerifyFlag)
-  / (v:ZeroOrMore16 ZeroOrMore16)
-  / (v:ZeroOrMore1632 ZeroOrMore1632)
-  / (v:ZeroOrMore32 ZeroOrMore32)
-  / (v:ZeroOrMore3232 ZeroOrMore3232)
   ;
-
-int
-Integer = v:$[0-9]+ <int>{ $$ = int.parse(v); } ;
-
-MatchString = @matchString({ text });
 
 OrderedChoiceWithLiterals =
     'abc'
@@ -38,28 +25,10 @@ OrderedChoiceWithLiterals =
   / 'gh'
   ;
 
-SepBy = @sepBy(Integer, ',') ;
+SkipUntil =  (!'END' v:.)* ;
 
-SkipUntil =  (!'END'  v:.)* ;
+SkipTil =  (![E] v:.)* ;
 
-SkipTil =  (![E]  v:.)* ;
+TakeTil =  $(![E] v:.)* ;
 
-TakeTil =  $(![E]  v:.)* ;
-
-TakeUntil =  $(!'END'  v:.)* ;
-
-Verify41 = @verify(Integer, {
-    if ($$ != 41) { error = ErrorMessage(state.pos - pos, 'error'); }
-  }) ;
-
-VerifyFlag = @verify('', {
-    if (!flag) { error = ErrorMessage(state.pos - pos, 'error'); }
-  }) ;
-
-ZeroOrMore16 = [0]* ;
-
-ZeroOrMore1632 = [ -🚀]* ;
-
-ZeroOrMore32 = [🚀]* ;
-
-ZeroOrMore3232 = [🚀-🚁]* ;
+TakeUntil =  $(!'END' v:.)* ;

@@ -276,8 +276,8 @@ return;''';
   }
 
   @override
-  String visitBuffer(BufferExpression node) {
-    final generator = BufferGenerator(expression: node, ruleGenerator: this);
+  String visitEof(EofExpression node) {
+    final generator = EofGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -298,6 +298,12 @@ return;''';
   String visitErrorHandler(ErrorHandlerExpression node) {
     final generator =
         ErrorHandlerGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitExpected(ExpectedExpression node) {
+    final generator = ExpectedGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 

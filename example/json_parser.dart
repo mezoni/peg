@@ -107,37 +107,37 @@ class JsonParser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char, ParseError error) {
+  int? matchChar16(State<String> state, int char) {
     final input = state.input;
     final pos = state.pos;
-    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
-    if (state.ok) {
-      state.pos++;
-      return char;
+    if (pos < input.length) {
+      state.ok = input.codeUnitAt(pos) == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+      state.fail(const ErrorUnexpectedCharacter());
     } else {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar16Async(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
+  int? matchChar16Async(State<ChunkedParsingSink> state, int char) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    state.ok = pos < input.end;
-    if (state.ok) {
-      final c = input.data.codeUnitAt(pos - start);
-      state.ok = c == char;
+    if (pos < input.end) {
+      state.ok = input.data.codeUnitAt(pos - start) == char;
       if (state.ok) {
         state.pos++;
         return char;
       }
-    }
-    if (!state.ok) {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }
@@ -607,27 +607,28 @@ class JsonParser {
   }
 
   /// HexNumber =
-  ///   @errorHandler(HexNumberRaw)
+  ///   @errorHandler(HexNumber_)
   ///   ;
   int? parseHexNumber(State<String> state) {
     int? $0;
-    // @errorHandler(HexNumberRaw)
-    final $2 = state.failPos;
-    final $3 = state.errorCount;
-    // HexNumberRaw
-    // int @inline HexNumberRaw = v:$[0-9A-Fa-f]{4,4} {} ;
+    // @errorHandler(HexNumber_)
+    final $2 = state.pos;
+    final $3 = state.failPos;
+    final $4 = state.errorCount;
+    // HexNumber_
+    // int @inline HexNumber_ = v:$[0-9A-Fa-f]{4,4} {} ;
     // v:$[0-9A-Fa-f]{4,4} {}
-    String? $6;
-    final $7 = state.pos;
+    String? $7;
     final $8 = state.pos;
-    var $9 = 0;
-    while ($9 < 4) {
+    final $9 = state.pos;
+    var $10 = 0;
+    while ($10 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $10 = state.input.codeUnitAt(state.pos);
-        state.ok = $10 <= 70
-            ? $10 >= 48 && $10 <= 57 || $10 >= 65
-            : $10 >= 97 && $10 <= 102;
+        final $11 = state.input.codeUnitAt(state.pos);
+        state.ok = $11 <= 70
+            ? $11 >= 48 && $11 <= 57 || $11 >= 65
+            : $11 >= 97 && $11 <= 102;
         if (state.ok) {
           state.pos++;
         } else {
@@ -639,30 +640,32 @@ class JsonParser {
       if (!state.ok) {
         break;
       }
-      $9++;
+      $10++;
     }
-    state.setOk($9 == 4);
+    state.setOk($10 == 4);
     if (!state.ok) {
-      state.backtrack($8);
+      state.backtrack($9);
     }
     if (state.ok) {
-      $6 = state.input.substring($7, state.pos);
+      $7 = state.input.substring($8, state.pos);
     }
     if (state.ok) {
       int? $$;
-      final v = $6!;
+      final v = $7!;
       $$ = int.parse(v, radix: 16);
       $0 = $$;
     }
-    if (!state.ok && state._canHandleError($2, $3)) {
+    if (!state.ok && state.canHandleError($3, $4)) {
+      // ignore: unused_local_variable
+      final start = $2;
       ParseError? error;
       // ignore: prefer_final_locals
       var rollbackErrors = false;
       rollbackErrors = true;
-      error = ErrorMessage(
-          state.pos - state.failPos, 'Expected 4 digit hex number');
+      error =
+          ErrorMessage(start - state.failPos, 'Expected 4 digit hex number');
       if (rollbackErrors == true) {
-        state._rollbackErrors($2, $3);
+        state.rollbackErrors($3, $4);
         // ignore: unnecessary_null_comparison, prefer_conditional_assignment
         if (error == null) {
           error = const ErrorUnknownError();
@@ -677,55 +680,57 @@ class JsonParser {
   }
 
   /// HexNumber =
-  ///   @errorHandler(HexNumberRaw)
+  ///   @errorHandler(HexNumber_)
   ///   ;
   AsyncResult<int> parseHexNumber$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<int>();
     int? $2;
     int? $3;
     int? $4;
-    String? $5;
-    int? $6;
+    int? $5;
+    String? $6;
     int? $7;
-    int? $9;
-    int $12 = 0;
+    int? $8;
+    int? $10;
+    int $13 = 0;
     void $1() {
-      // @errorHandler(HexNumberRaw)
-      // @errorHandler(HexNumberRaw)
-      if ($12 & 0x2 == 0) {
-        $12 |= 0x2;
+      // @errorHandler(HexNumber_)
+      // @errorHandler(HexNumber_)
+      if ($13 & 0x2 == 0) {
+        $13 |= 0x2;
+        $3 = state.pos;
         $4 = state.failPos;
-        $3 = state.errorCount;
+        $5 = state.errorCount;
       }
-      // HexNumberRaw
-      // HexNumberRaw
-      // HexNumberRaw
+      // HexNumber_
+      // HexNumber_
+      // HexNumber_
       // v:$[0-9A-Fa-f]{4,4} {}
       // v:$[0-9A-Fa-f]{4,4} {}
       // $[0-9A-Fa-f]{4,4}
-      if ($12 & 0x1 == 0) {
-        $12 |= 0x1;
+      if ($13 & 0x1 == 0) {
+        $13 |= 0x1;
         state.input.beginBuffering();
-        $6 = state.pos;
+        $7 = state.pos;
       }
       // [0-9A-Fa-f]{4,4}
-      if ($7 == null) {
-        $7 = 0;
-        $9 = state.pos;
+      if ($8 == null) {
+        $8 = 0;
+        $10 = state.pos;
       }
       while (true) {
         // [0-9A-Fa-f]
-        final $11 = state.input;
-        if (state.pos >= $11.end && !$11.isClosed) {
-          $11.sleep = true;
-          $11.handle = $1;
+        final $12 = state.input;
+        if (state.pos >= $12.end && !$12.isClosed) {
+          $12.sleep = true;
+          $12.handle = $1;
           return;
         }
-        final $10 = readChar16Async(state);
-        if ($10 >= 0) {
-          state.ok = $10 <= 70
-              ? $10 >= 48 && $10 <= 57 || $10 >= 65
-              : $10 >= 97 && $10 <= 102;
+        final $11 = readChar16Async(state);
+        if ($11 >= 0) {
+          state.ok = $11 <= 70
+              ? $11 >= 48 && $11 <= 57 || $11 >= 65
+              : $11 >= 97 && $11 <= 102;
           if (state.ok) {
             state.pos++;
           } else {
@@ -735,40 +740,42 @@ class JsonParser {
         if (!state.ok) {
           break;
         }
-        final $8 = $7! + 1;
-        $7 = $8;
-        if ($8 == 4) {
+        final $9 = $8! + 1;
+        $8 = $9;
+        if ($9 == 4) {
           break;
         }
       }
-      state.setOk($7! == 4);
+      state.setOk($8! == 4);
       if (!state.ok) {
-        state.backtrack($9!);
+        state.backtrack($10!);
       }
-      $7 = null;
+      $8 = null;
       if (state.ok) {
         final input = state.input;
         final start = input.start;
-        final pos = $6!;
-        $5 = input.data.substring(pos - start, state.pos - start);
+        final pos = $7!;
+        $6 = input.data.substring(pos - start, state.pos - start);
       }
       state.input.endBuffering();
-      $12 &= ~0x1 & 0xffff;
+      $13 &= ~0x1 & 0xffff;
       if (state.ok) {
         int? $$;
-        final v = $5!;
+        final v = $6!;
         $$ = int.parse(v, radix: 16);
         $2 = $$;
       }
-      if (!state.ok && state._canHandleError($4!, $3!)) {
+      if (!state.ok && state.canHandleError($4!, $5!)) {
+        // ignore: unused_local_variable
+        final start = $3!;
         ParseError? error;
         // ignore: prefer_final_locals
         var rollbackErrors = false;
         rollbackErrors = true;
-        error = ErrorMessage(
-            state.pos - state.failPos, 'Expected 4 digit hex number');
+        error =
+            ErrorMessage(start - state.failPos, 'Expected 4 digit hex number');
         if (rollbackErrors == true) {
-          state._rollbackErrors($4!, $3!);
+          state.rollbackErrors($4!, $5!);
           // ignore: unnecessary_null_comparison, prefer_conditional_assignment
           if (error == null) {
             error = const ErrorUnknownError();
@@ -779,7 +786,7 @@ class JsonParser {
           state.failAt(state.failPos, error);
         }
       }
-      $12 &= ~0x2 & 0xffff;
+      $13 &= ~0x2 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1171,42 +1178,37 @@ class JsonParser {
 
   /// num
   /// Number =
-  ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
+  ///   v:@expected('number' ,Number_) Spaces
   ///   ;
   num? parseNumber(State<String> state) {
     num? $0;
-    // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
+    // v:@expected('number' ,Number_) Spaces
     final $1 = state.pos;
-    String? $2;
+    num? $2;
     final $3 = state.pos;
-    // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
-    final $4 = state.pos;
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 45;
-    if (state.ok) {
-      state.pos++;
-    } else {
-      state.fail(const ErrorExpectedCharacter(45));
-    }
+    final $4 = state.failPos;
+    final $5 = state.errorCount;
+    // Number_
+    // num @inline Number_ = v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {} ;
+    // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
+    String? $8;
+    final $9 = state.pos;
+    // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
+    final $10 = state.pos;
+    matchChar16(state, 45);
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
       // [0]
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 48;
-      if (state.ok) {
-        state.pos++;
-      } else {
-        state.fail(const ErrorExpectedCharacter(48));
-      }
+      matchChar16(state, 48);
       if (!state.ok && state.isRecoverable) {
         // [1-9] [0-9]*
-        final $6 = state.pos;
+        final $12 = state.pos;
         state.ok = state.pos < state.input.length;
         if (state.ok) {
-          final $7 = state.input.codeUnitAt(state.pos);
-          state.ok = $7 >= 49 && $7 <= 57;
+          final $13 = state.input.codeUnitAt(state.pos);
+          state.ok = $13 >= 49 && $13 <= 57;
           if (state.ok) {
             state.pos++;
           } else {
@@ -1219,8 +1221,8 @@ class JsonParser {
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $8 = state.input.codeUnitAt(state.pos);
-              state.ok = $8 >= 48 && $8 <= 57;
+              final $14 = state.input.codeUnitAt(state.pos);
+              state.ok = $14 >= 48 && $14 <= 57;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -1236,54 +1238,51 @@ class JsonParser {
           state.setOk(true);
         }
         if (!state.ok) {
-          state.backtrack($6);
+          state.backtrack($12);
         }
       }
       if (state.ok) {
-        // [.] [0-9]+
-        final $9 = state.pos;
-        state.ok = state.pos < state.input.length &&
-            state.input.codeUnitAt(state.pos) == 46;
+        // [.] ↑ [0-9]+
+        final $15 = state.pos;
+        matchChar16(state, 46);
         if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorExpectedCharacter(46));
-        }
-        if (state.ok) {
-          var $10 = false;
-          while (true) {
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $11 = state.input.codeUnitAt(state.pos);
-              state.ok = $11 >= 48 && $11 <= 57;
+          state.cut(state.pos);
+          if (state.ok) {
+            var $16 = false;
+            while (true) {
+              state.ok = state.pos < state.input.length;
               if (state.ok) {
-                state.pos++;
+                final $17 = state.input.codeUnitAt(state.pos);
+                state.ok = $17 >= 48 && $17 <= 57;
+                if (state.ok) {
+                  state.pos++;
+                } else {
+                  state.fail(const ErrorUnexpectedCharacter());
+                }
               } else {
-                state.fail(const ErrorUnexpectedCharacter());
+                state.fail(const ErrorUnexpectedEndOfInput());
               }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
+              if (!state.ok) {
+                break;
+              }
+              $16 = true;
             }
-            if (!state.ok) {
-              break;
-            }
-            $10 = true;
+            state.setOk($16);
           }
-          state.setOk($10);
         }
         if (!state.ok) {
-          state.backtrack($9);
+          state.backtrack($15);
         }
         if (!state.ok) {
           state.setOk(true);
         }
         if (state.ok) {
-          // [eE] [-+]? [0-9]+
-          final $12 = state.pos;
+          // [eE] ↑ [-+]? [0-9]+
+          final $18 = state.pos;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $13 = state.input.codeUnitAt(state.pos);
-            state.ok = $13 == 69 || $13 == 101;
+            final $19 = state.input.codeUnitAt(state.pos);
+            state.ok = $19 == 69 || $19 == 101;
             if (state.ok) {
               state.pos++;
             } else {
@@ -1293,46 +1292,49 @@ class JsonParser {
             state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            state.ok = state.pos < state.input.length;
+            state.cut(state.pos);
             if (state.ok) {
-              final $14 = state.input.codeUnitAt(state.pos);
-              state.ok = $14 == 43 || $14 == 45;
+              state.ok = state.pos < state.input.length;
               if (state.ok) {
-                state.pos++;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              state.setOk(true);
-            }
-            if (state.ok) {
-              var $15 = false;
-              while (true) {
-                state.ok = state.pos < state.input.length;
+                final $20 = state.input.codeUnitAt(state.pos);
+                state.ok = $20 == 43 || $20 == 45;
                 if (state.ok) {
-                  final $16 = state.input.codeUnitAt(state.pos);
-                  state.ok = $16 >= 48 && $16 <= 57;
-                  if (state.ok) {
-                    state.pos++;
-                  } else {
-                    state.fail(const ErrorUnexpectedCharacter());
-                  }
+                  state.pos++;
                 } else {
-                  state.fail(const ErrorUnexpectedEndOfInput());
+                  state.fail(const ErrorUnexpectedCharacter());
                 }
-                if (!state.ok) {
-                  break;
-                }
-                $15 = true;
+              } else {
+                state.fail(const ErrorUnexpectedEndOfInput());
               }
-              state.setOk($15);
+              if (!state.ok) {
+                state.setOk(true);
+              }
+              if (state.ok) {
+                var $21 = false;
+                while (true) {
+                  state.ok = state.pos < state.input.length;
+                  if (state.ok) {
+                    final $22 = state.input.codeUnitAt(state.pos);
+                    state.ok = $22 >= 48 && $22 <= 57;
+                    if (state.ok) {
+                      state.pos++;
+                    } else {
+                      state.fail(const ErrorUnexpectedCharacter());
+                    }
+                  } else {
+                    state.fail(const ErrorUnexpectedEndOfInput());
+                  }
+                  if (!state.ok) {
+                    break;
+                  }
+                  $21 = true;
+                }
+                state.setOk($21);
+              }
             }
           }
           if (!state.ok) {
-            state.backtrack($12);
+            state.backtrack($18);
           }
           if (!state.ok) {
             state.setOk(true);
@@ -1341,19 +1343,28 @@ class JsonParser {
       }
     }
     if (!state.ok) {
-      state.backtrack($4);
+      state.backtrack($10);
     }
     if (state.ok) {
-      $2 = state.input.substring($3, state.pos);
+      $8 = state.input.substring($9, state.pos);
+    }
+    if (state.ok) {
+      num? $$;
+      final v = $8!;
+      $$ = num.parse(v);
+      $2 = $$;
+    }
+    if (!state.ok && state.canHandleError($4, $5)) {
+      if (state.failPos == $3) {
+        state.rollbackErrors($4, $5);
+        state.fail(const ErrorExpectedTags(['number']));
+      }
     }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
       if (state.ok) {
-        num? $$;
-        final v = $2!;
-        $$ = num.parse(v);
-        $0 = $$;
+        $0 = $2;
       }
     }
     if (!state.ok) {
@@ -1364,127 +1375,143 @@ class JsonParser {
 
   /// num
   /// Number =
-  ///   v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
+  ///   v:@expected('number' ,Number_) Spaces
   ///   ;
   AsyncResult<num> parseNumber$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<num>();
     num? $2;
     int? $4;
     int? $5;
-    String? $3;
+    num? $3;
     int? $6;
     int? $7;
     int? $8;
+    String? $9;
     int? $10;
+    int? $11;
     int? $12;
-    int? $13;
-    int $18 = 0;
-    int? $19;
-    int? $20;
-    bool? $22;
-    int? $25;
-    int? $26;
-    bool? $31;
-    AsyncResult<Object?>? $34;
+    int? $14;
+    int? $16;
+    int? $17;
+    int $22 = 0;
+    int? $23;
+    int? $24;
+    bool? $26;
+    int? $29;
+    int? $30;
+    bool? $35;
+    AsyncResult<Object?>? $38;
     void $1() {
-      // v:$([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?) Spaces {}
-      if ($18 & 0x80 == 0) {
-        $18 |= 0x80;
+      // v:@expected('number' ,Number_) Spaces
+      if ($22 & 0x100 == 0) {
+        $22 |= 0x100;
         $4 = 0;
         $5 = state.pos;
       }
       if ($4 == 0) {
-        // $([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?)
-        if ($18 & 0x20 == 0) {
-          $18 |= 0x20;
-          state.input.beginBuffering();
+        // @expected('number' ,Number_)
+        if ($22 & 0x40 == 0) {
+          $22 |= 0x40;
           $6 = state.pos;
+          $7 = state.failPos;
+          $8 = state.errorCount;
         }
-        // ([-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?)
-        // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
-        // [-]? ([0] / [1-9] [0-9]*) ([.] [0-9]+)? ([eE] [-+]? [0-9]+)?
-        if ($18 & 0x10 == 0) {
-          $18 |= 0x10;
-          $7 = 0;
-          $8 = state.pos;
+        // Number_
+        // Number_
+        // Number_
+        // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
+        // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
+        // $([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?)
+        if ($22 & 0x20 == 0) {
+          $22 |= 0x20;
+          state.input.beginBuffering();
+          $10 = state.pos;
         }
-        if ($7 == 0) {
+        // ([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?)
+        // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
+        // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
+        if ($22 & 0x10 == 0) {
+          $22 |= 0x10;
+          $11 = 0;
+          $12 = state.pos;
+        }
+        if ($11 == 0) {
           // [-]?
           // [-]
-          final $9 = state.input;
-          if (state.pos >= $9.end && !$9.isClosed) {
-            $9.sleep = true;
-            $9.handle = $1;
+          final $13 = state.input;
+          if (state.pos >= $13.end && !$13.isClosed) {
+            $13.sleep = true;
+            $13.handle = $1;
             return;
           }
-          matchChar16Async(state, 45, const ErrorExpectedCharacter(45));
+          matchChar16Async(state, 45);
           if (!state.ok) {
             state.setOk(true);
           }
-          $7 = state.ok ? 1 : -1;
+          $11 = state.ok ? 1 : -1;
         }
-        if ($7 == 1) {
+        if ($11 == 1) {
           // ([0] / [1-9] [0-9]*)
           // [0] / [1-9] [0-9]*
-          if ($18 & 0x2 == 0) {
-            $18 |= 0x2;
-            $10 = 0;
+          if ($22 & 0x2 == 0) {
+            $22 |= 0x2;
+            $14 = 0;
           }
-          if ($10 == 0) {
+          if ($14 == 0) {
             // [0]
             // [0]
-            final $11 = state.input;
-            if (state.pos >= $11.end && !$11.isClosed) {
-              $11.sleep = true;
-              $11.handle = $1;
+            final $15 = state.input;
+            if (state.pos >= $15.end && !$15.isClosed) {
+              $15.sleep = true;
+              $15.handle = $1;
               return;
             }
-            matchChar16Async(state, 48, const ErrorExpectedCharacter(48));
-            $10 = state.ok
+            matchChar16Async(state, 48);
+            $14 = state.ok
                 ? -1
                 : state.isRecoverable
                     ? 1
                     : -1;
           }
-          if ($10 == 1) {
+          if ($14 == 1) {
             // [1-9] [0-9]*
-            if ($18 & 0x1 == 0) {
-              $18 |= 0x1;
-              $12 = 0;
-              $13 = state.pos;
+            if ($22 & 0x1 == 0) {
+              $22 |= 0x1;
+              $16 = 0;
+              $17 = state.pos;
             }
-            if ($12 == 0) {
+            if ($16 == 0) {
               // [1-9]
-              final $15 = state.input;
-              if (state.pos >= $15.end && !$15.isClosed) {
-                $15.sleep = true;
-                $15.handle = $1;
+              final $19 = state.input;
+              if (state.pos >= $19.end && !$19.isClosed) {
+                $19.sleep = true;
+                $19.handle = $1;
                 return;
               }
-              final $14 = readChar16Async(state);
-              if ($14 >= 0) {
-                state.ok = $14 >= 49 && $14 <= 57;
+              final $18 = readChar16Async(state);
+              if ($18 >= 0) {
+                state.ok = $18 >= 49 && $18 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
                   state.fail(const ErrorUnexpectedCharacter());
                 }
               }
-              $12 = state.ok ? 1 : -1;
+              $16 = state.ok ? 1 : -1;
             }
-            if ($12 == 1) {
+            if ($16 == 1) {
               // [0-9]*
               while (true) {
                 // [0-9]
-                final $17 = state.input;
-                if (state.pos >= $17.end && !$17.isClosed) {
-                  $17.sleep = true;
-                  $17.handle = $1;
+                final $21 = state.input;
+                if (state.pos >= $21.end && !$21.isClosed) {
+                  $21.sleep = true;
+                  $21.handle = $1;
                   return;
                 }
-                final $16 = readChar16Async(state);
-                if ($16 >= 0) {
-                  state.ok = $16 >= 48 && $16 <= 57;
+                final $20 = readChar16Async(state);
+                if ($20 >= 0) {
+                  state.ok = $20 >= 48 && $20 <= 57;
                   if (state.ok) {
                     state.pos++;
                   } else {
@@ -1496,52 +1523,58 @@ class JsonParser {
                 }
               }
               state.setOk(true);
-              $12 = -1;
+              $16 = -1;
             }
             if (!state.ok) {
-              state.backtrack($13!);
+              state.backtrack($17!);
             }
-            $18 &= ~0x1 & 0xffff;
-            $10 = -1;
+            $22 &= ~0x1 & 0xffff;
+            $14 = -1;
           }
-          $18 &= ~0x2 & 0xffff;
-          $7 = state.ok ? 2 : -1;
+          $22 &= ~0x2 & 0xffff;
+          $11 = state.ok ? 2 : -1;
         }
-        if ($7 == 2) {
-          // ([.] [0-9]+)?
-          // ([.] [0-9]+)
-          // [.] [0-9]+
-          // [.] [0-9]+
-          if ($18 & 0x4 == 0) {
-            $18 |= 0x4;
-            $19 = 0;
-            $20 = state.pos;
+        if ($11 == 2) {
+          // ([.] ↑ [0-9]+)?
+          // ([.] ↑ [0-9]+)
+          // [.] ↑ [0-9]+
+          // [.] ↑ [0-9]+
+          if ($22 & 0x4 == 0) {
+            $22 |= 0x4;
+            $23 = 0;
+            $24 = state.pos;
           }
-          if ($19 == 0) {
+          if ($23 == 0) {
             // [.]
-            final $21 = state.input;
-            if (state.pos >= $21.end && !$21.isClosed) {
-              $21.sleep = true;
-              $21.handle = $1;
+            final $25 = state.input;
+            if (state.pos >= $25.end && !$25.isClosed) {
+              $25.sleep = true;
+              $25.handle = $1;
               return;
             }
-            matchChar16Async(state, 46, const ErrorExpectedCharacter(46));
-            $19 = state.ok ? 1 : -1;
+            matchChar16Async(state, 46);
+            $23 = state.ok ? 1 : -1;
           }
-          if ($19 == 1) {
+          if ($23 == 1) {
+            // ↑
+            state.cut(state.pos);
+            state.input.cut(state.pos);
+            $23 = state.ok ? 2 : -1;
+          }
+          if ($23 == 2) {
             // [0-9]+
-            $22 ??= false;
+            $26 ??= false;
             while (true) {
               // [0-9]
-              final $24 = state.input;
-              if (state.pos >= $24.end && !$24.isClosed) {
-                $24.sleep = true;
-                $24.handle = $1;
+              final $28 = state.input;
+              if (state.pos >= $28.end && !$28.isClosed) {
+                $28.sleep = true;
+                $28.handle = $1;
                 return;
               }
-              final $23 = readChar16Async(state);
-              if ($23 >= 0) {
-                state.ok = $23 >= 48 && $23 <= 57;
+              final $27 = readChar16Async(state);
+              if ($27 >= 0) {
+                state.ok = $27 >= 48 && $27 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1551,62 +1584,68 @@ class JsonParser {
               if (!state.ok) {
                 break;
               }
-              $22 = true;
+              $26 = true;
             }
-            state.setOk($22!);
-            $22 = null;
-            $19 = -1;
+            state.setOk($26!);
+            $26 = null;
+            $23 = -1;
           }
           if (!state.ok) {
-            state.backtrack($20!);
+            state.backtrack($24!);
           }
-          $18 &= ~0x4 & 0xffff;
+          $22 &= ~0x4 & 0xffff;
           if (!state.ok) {
             state.setOk(true);
           }
-          $7 = state.ok ? 3 : -1;
+          $11 = state.ok ? 3 : -1;
         }
-        if ($7 == 3) {
-          // ([eE] [-+]? [0-9]+)?
-          // ([eE] [-+]? [0-9]+)
-          // [eE] [-+]? [0-9]+
-          // [eE] [-+]? [0-9]+
-          if ($18 & 0x8 == 0) {
-            $18 |= 0x8;
-            $25 = 0;
-            $26 = state.pos;
+        if ($11 == 3) {
+          // ([eE] ↑ [-+]? [0-9]+)?
+          // ([eE] ↑ [-+]? [0-9]+)
+          // [eE] ↑ [-+]? [0-9]+
+          // [eE] ↑ [-+]? [0-9]+
+          if ($22 & 0x8 == 0) {
+            $22 |= 0x8;
+            $29 = 0;
+            $30 = state.pos;
           }
-          if ($25 == 0) {
+          if ($29 == 0) {
             // [eE]
-            final $28 = state.input;
-            if (state.pos >= $28.end && !$28.isClosed) {
-              $28.sleep = true;
-              $28.handle = $1;
+            final $32 = state.input;
+            if (state.pos >= $32.end && !$32.isClosed) {
+              $32.sleep = true;
+              $32.handle = $1;
               return;
             }
-            final $27 = readChar16Async(state);
-            if ($27 >= 0) {
-              state.ok = $27 == 69 || $27 == 101;
+            final $31 = readChar16Async(state);
+            if ($31 >= 0) {
+              state.ok = $31 == 69 || $31 == 101;
               if (state.ok) {
                 state.pos++;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
             }
-            $25 = state.ok ? 1 : -1;
+            $29 = state.ok ? 1 : -1;
           }
-          if ($25 == 1) {
+          if ($29 == 1) {
+            // ↑
+            state.cut(state.pos);
+            state.input.cut(state.pos);
+            $29 = state.ok ? 2 : -1;
+          }
+          if ($29 == 2) {
             // [-+]?
             // [-+]
-            final $30 = state.input;
-            if (state.pos >= $30.end && !$30.isClosed) {
-              $30.sleep = true;
-              $30.handle = $1;
+            final $34 = state.input;
+            if (state.pos >= $34.end && !$34.isClosed) {
+              $34.sleep = true;
+              $34.handle = $1;
               return;
             }
-            final $29 = readChar16Async(state);
-            if ($29 >= 0) {
-              state.ok = $29 == 43 || $29 == 45;
+            final $33 = readChar16Async(state);
+            if ($33 >= 0) {
+              state.ok = $33 == 43 || $33 == 45;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -1616,22 +1655,22 @@ class JsonParser {
             if (!state.ok) {
               state.setOk(true);
             }
-            $25 = state.ok ? 2 : -1;
+            $29 = state.ok ? 3 : -1;
           }
-          if ($25 == 2) {
+          if ($29 == 3) {
             // [0-9]+
-            $31 ??= false;
+            $35 ??= false;
             while (true) {
               // [0-9]
-              final $33 = state.input;
-              if (state.pos >= $33.end && !$33.isClosed) {
-                $33.sleep = true;
-                $33.handle = $1;
+              final $37 = state.input;
+              if (state.pos >= $37.end && !$37.isClosed) {
+                $37.sleep = true;
+                $37.handle = $1;
                 return;
               }
-              final $32 = readChar16Async(state);
-              if ($32 >= 0) {
-                state.ok = $32 >= 48 && $32 <= 57;
+              final $36 = readChar16Async(state);
+              if ($36 >= 0) {
+                state.ok = $36 >= 48 && $36 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1641,58 +1680,68 @@ class JsonParser {
               if (!state.ok) {
                 break;
               }
-              $31 = true;
+              $35 = true;
             }
-            state.setOk($31!);
-            $31 = null;
-            $25 = -1;
+            state.setOk($35!);
+            $35 = null;
+            $29 = -1;
           }
           if (!state.ok) {
-            state.backtrack($26!);
+            state.backtrack($30!);
           }
-          $18 &= ~0x8 & 0xffff;
+          $22 &= ~0x8 & 0xffff;
           if (!state.ok) {
             state.setOk(true);
           }
-          $7 = -1;
+          $11 = -1;
         }
         if (!state.ok) {
-          state.backtrack($8!);
+          state.backtrack($12!);
         }
-        $18 &= ~0x10 & 0xffff;
+        $22 &= ~0x10 & 0xffff;
         if (state.ok) {
           final input = state.input;
           final start = input.start;
-          final pos = $6!;
-          $3 = input.data.substring(pos - start, state.pos - start);
+          final pos = $10!;
+          $9 = input.data.substring(pos - start, state.pos - start);
         }
         state.input.endBuffering();
-        $18 &= ~0x20 & 0xffff;
+        $22 &= ~0x20 & 0xffff;
+        if (state.ok) {
+          num? $$;
+          final v = $9!;
+          $$ = num.parse(v);
+          $3 = $$;
+        }
+        if (!state.ok && state.canHandleError($7!, $8!)) {
+          if (state.failPos == $6!) {
+            state.rollbackErrors($7!, $8!);
+            state.fail(const ErrorExpectedTags(['number']));
+          }
+        }
+        $22 &= ~0x40 & 0xffff;
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
         // Spaces
-        if ($18 & 0x40 == 0) {
-          $18 |= 0x40;
-          $34 = fastParseSpaces$Async(state);
-          final $35 = $34!;
-          if (!$35.isComplete) {
-            $35.onComplete = $1;
+        if ($22 & 0x80 == 0) {
+          $22 |= 0x80;
+          $38 = fastParseSpaces$Async(state);
+          final $39 = $38!;
+          if (!$39.isComplete) {
+            $39.onComplete = $1;
             return;
           }
         }
-        $18 &= ~0x40 & 0xffff;
+        $22 &= ~0x80 & 0xffff;
         $4 = -1;
       }
       if (state.ok) {
-        num? $$;
-        final v = $3!;
-        $$ = num.parse(v);
-        $2 = $$;
+        $2 = $3;
       } else {
         state.backtrack($5!);
       }
-      $18 &= ~0x80 & 0xffff;
+      $22 &= ~0x100 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1923,12 +1972,12 @@ class JsonParser {
 
   /// @event
   /// Start =
-  ///   Spaces v:Value !.
+  ///   Spaces v:Value @eof()
   ///   ;
   Object? parseStart(State<String> state) {
     beginEvent(JsonParserEvent.startEvent);
     Object? $0;
-    // Spaces v:Value !.
+    // Spaces v:Value @eof()
     final $1 = state.pos;
     // Spaces
     fastParseSpaces(state);
@@ -1937,25 +1986,9 @@ class JsonParser {
       // Value
       $2 = parseValue(state);
       if (state.ok) {
-        final $3 = state.pos;
-        final $5 = state.input;
-        if (state.pos < $5.length) {
-          final $4 = $5.runeAt(state.pos);
-          state.pos += $4 > 0xffff ? 2 : 1;
-          state.ok = true;
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        state.setOk(!state.ok);
+        state.ok = state.pos >= state.input.length;
         if (!state.ok) {
-          final length = $3 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($3);
+          state.fail(const ErrorExpectedEndOfInput());
         }
         if (state.ok) {
           $0 = $2;
@@ -1971,7 +2004,7 @@ class JsonParser {
 
   /// @event
   /// Start =
-  ///   Spaces v:Value !.
+  ///   Spaces v:Value @eof()
   ///   ;
   AsyncResult<Object?> parseStart$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
@@ -1983,11 +2016,10 @@ class JsonParser {
     int $8 = 0;
     Object? $3;
     AsyncResult<Object?>? $9;
-    int? $11;
     void $1() {
-      // Spaces v:Value !.
-      if ($8 & 0x8 == 0) {
-        $8 |= 0x8;
+      // Spaces v:Value @eof()
+      if ($8 & 0x4 == 0) {
+        $8 |= 0x4;
         $4 = 0;
         $5 = state.pos;
       }
@@ -2021,37 +2053,17 @@ class JsonParser {
         $4 = state.ok ? 2 : -1;
       }
       if ($4 == 2) {
-        // !.
-        if ($8 & 0x4 == 0) {
-          $8 |= 0x4;
-          state.input.beginBuffering();
-          $11 = state.pos;
-        }
-        // .
-        final $13 = state.input;
-        if (state.pos >= $13.end && !$13.isClosed) {
-          $13.sleep = true;
-          $13.handle = $1;
+        // @eof()
+        final $11 = state.input;
+        if (state.pos >= $11.end && !$11.isClosed) {
+          $11.sleep = true;
+          $11.handle = $1;
           return;
         }
-        final $12 = readChar32Async(state);
-        state.ok = $12 >= 0;
-        if (state.ok) {
-          state.pos += $12 > 0xffff ? 2 : 1;
-        }
-        state.setOk(!state.ok);
+        state.ok = state.pos >= $11.end;
         if (!state.ok) {
-          final length = $11! - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(1),
-            2 => const ErrorUnexpectedInput(2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($11!);
+          state.fail(const ErrorExpectedEndOfInput());
         }
-        state.input.endBuffering();
-        $8 &= ~0x4 & 0xffff;
         $4 = -1;
       }
       if (state.ok) {
@@ -2059,7 +2071,7 @@ class JsonParser {
       } else {
         state.backtrack($5!);
       }
-      $8 &= ~0x8 & 0xffff;
+      $8 &= ~0x4 & 0xffff;
       $2 = endEvent<Object?>(JsonParserEvent.startEvent, $2, state.ok);
       $0.value = $2;
       $0.isComplete = true;
@@ -2131,13 +2143,7 @@ class JsonParser {
           }
           final pos = state.pos;
           // [\\]
-          state.ok = state.pos < state.input.length &&
-              state.input.codeUnitAt(state.pos) == 92;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorExpectedCharacter(92));
-          }
+          matchChar16(state, 92);
           if (!state.ok) {
             break;
           }
@@ -2335,7 +2341,7 @@ class JsonParser {
               $20.handle = $1;
               return;
             }
-            matchChar16Async(state, 92, const ErrorExpectedCharacter(92));
+            matchChar16Async(state, 92);
             state.input.endBuffering();
             $21 = null;
             if (!state.ok) {
@@ -3183,21 +3189,9 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
       .toList();
   String? message;
   if (input is String) {
-    final source = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: 0,
-      rightPadding: 0,
-      source: input,
-    );
-    message = _errorMessage(source, offset, normalized);
+    message = _errorMessage(input, 0, offset, normalized);
   } else if (input is ChunkedParsingSink) {
-    final source2 = _StringWrapper(
-      invalidChar: 32,
-      leftPadding: input.start,
-      rightPadding: 0,
-      source: input.data,
-    );
-    message = _errorMessage(source2, offset, normalized);
+    message = _errorMessage(input.data, input.start, offset, normalized);
   } else {
     message = normalized.join('\n');
   }
@@ -3214,13 +3208,42 @@ ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
 }
 
 String _errorMessage(
-    _StringWrapper source, int offset, List<ErrorMessage> errors) {
+    String source, int inputStart, int offset, List<ErrorMessage> errors) {
   final sb = StringBuffer();
   final errorInfoList = errors
       .map((e) => (length: e.length, message: e.toString()))
       .toSet()
       .toList();
-  final hasFullSource = source.leftPadding == 0 && source.rightPadding == 0;
+  final offsets =
+      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+  final offsetMap = <int, ({int line, int column})>{};
+  if (inputStart == 0) {
+    var line = 1;
+    var lineStart = 0, next = 0, pos = 0;
+    while (pos < source.length) {
+      final found = offsets.any((e) => pos == e);
+      if (found) {
+        final column = pos - lineStart + 1;
+        offsetMap[pos] = (line: line, column: column);
+        offsets.remove(pos);
+        if (offsets.isEmpty) {
+          break;
+        }
+      }
+
+      final c = source.codeUnitAt(pos++);
+      if (c == 0xa || c == 0xd) {
+        next = c == 0xa ? 0xd : 0xa;
+        if (pos < source.length && source.codeUnitAt(pos) == next) {
+          pos++;
+        }
+
+        line++;
+        lineStart = pos;
+      }
+    }
+  }
+
   for (var i = 0; i < errorInfoList.length; i++) {
     int max(int x, int y) => x > y ? x : y;
     int min(int x, int y) => x < y ? x : y;
@@ -3234,34 +3257,17 @@ String _errorMessage(
     final message = errorInfo.message;
     final start = min(offset + length, offset);
     final end = max(offset + length, offset);
-    var row = 1;
-    var lineStart = 0, next = 0, pos = 0;
-    if (hasFullSource) {
-      while (pos < source.length) {
-        final c = source.codeUnitAt(pos++);
-        if (c == 0xa || c == 0xd) {
-          next = c == 0xa ? 0xd : 0xa;
-          if (pos < source.length && source.codeUnitAt(pos) == next) {
-            pos++;
-          }
-          if (pos - 1 >= start) {
-            break;
-          }
-          row++;
-          lineStart = pos;
-        }
-      }
-    }
-
     final inputLen = source.length;
     final lineLimit = min(80, inputLen);
     final start2 = start;
     final end2 = min(start2 + lineLimit, end);
     final errorLen = end2 - start;
     final extraLen = lineLimit - errorLen;
-    final rightLen = min(inputLen - end2, extraLen - (extraLen >> 1));
-    final leftLen = min(start, max(0, lineLimit - errorLen - rightLen));
-    var index = start2 - 1;
+    final rightLen =
+        min(inputStart + inputLen - end2, extraLen - (extraLen >> 1));
+    final leftLen =
+        min(start - inputStart, max(0, lineLimit - errorLen - rightLen));
+    var index = start2 - 1 - inputStart;
     final list = <int>[];
     for (var i = 0; i < leftLen && index >= 0; i++) {
       var cc = source.codeUnitAt(index--);
@@ -3276,17 +3282,19 @@ String _errorMessage(
       list.add(cc);
     }
 
-    final column = start - lineStart + 1;
     final left = String.fromCharCodes(list.reversed);
     final end3 = min(inputLen, start2 + (lineLimit - leftLen));
     final indicatorLen = max(1, errorLen);
-    final right = source.substring(start2, end3);
+    final right = source.substring(start - inputStart, end3);
     var text = left + right;
     text = text.replaceAll('\n', ' ');
     text = text.replaceAll('\r', ' ');
     text = text.replaceAll('\t', ' ');
-    if (hasFullSource) {
-      sb.writeln('line $row, column $column (offset $start): $message');
+    final location = offsetMap[start];
+    if (location != null) {
+      final line = location.line;
+      final column = location.column;
+      sb.writeln('line $line, column $column (offset $start): $message');
     } else {
       sb.writeln('offset $start: $message');
     }
@@ -3317,9 +3325,7 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorMap = <Object?, ParseError>{};
   for (final error in errorList) {
     Object key = error;
-    if (error is ErrorExpectedCharacter) {
-      key = (ErrorExpectedCharacter, error.char);
-    } else if (error is ErrorUnexpectedInput) {
+    if (error is ErrorUnexpectedInput) {
       key = (ErrorUnexpectedInput, error.length);
     } else if (error is ErrorUnknownError) {
       key = ErrorUnknownError;
@@ -3460,19 +3466,14 @@ class ChunkedParsingSink implements Sink<String> {
   }
 }
 
-class ErrorExpectedCharacter extends ParseError {
-  static const message = 'Expected a character {0}';
+class ErrorExpectedEndOfInput extends ParseError {
+  static const message = 'Expected an end of input';
 
-  final int char;
-
-  const ErrorExpectedCharacter(this.char);
+  const ErrorExpectedEndOfInput();
 
   @override
-  ErrorMessage getErrorMessage(Object? input, int? offset) {
-    final value = ParseError.escape(char);
-    final hexValue = char.toRadixString(16);
-    final argument = '$value (0x$hexValue)';
-    return ErrorMessage(0, ErrorExpectedCharacter.message, [argument]);
+  ErrorMessage getErrorMessage(Object? input, offset) {
+    return const ErrorMessage(0, ErrorExpectedEndOfInput.message);
   }
 }
 
@@ -3530,7 +3531,7 @@ class ErrorUnexpectedCharacter extends ParseError {
   ErrorMessage getErrorMessage(Object? input, int? offset) {
     var argument = '<?>';
     var char = this.char;
-    if (offset != null && offset > 0) {
+    if (offset != null && offset >= 0) {
       if (input is String) {
         if (offset < input.length) {
           char = input.runeAt(offset);
@@ -3538,22 +3539,11 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        final data = input.data;
-        final length = input.isClosed ? input.end : -1;
-        if (length != -1) {
-          if (offset < length) {
-            final source = _StringWrapper(
-              invalidChar: 32,
-              leftPadding: input.start,
-              rightPadding: 0,
-              source: data,
-            );
-            if (source.hasCodeUnitAt(offset)) {
-              char = source.runeAt(offset);
-            }
-          } else {
-            argument = '<EOF>';
-          }
+        if (offset >= input.start && offset <= input.end) {
+          final index = offset - input.start;
+          char = input.data.runeAt(index);
+        } else if (input.isClosed && offset >= input.end) {
+          argument = '<EOF>';
         }
       }
     }
@@ -3715,6 +3705,15 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  bool canHandleError(int failPos, int errorCount) {
+    return failPos == this.failPos
+        ? errorCount < this.errorCount
+        : failPos < this.failPos;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void cut(int pos) {
     if (cuttingPos < pos) {
       cuttingPos = pos;
@@ -3795,6 +3794,17 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
+  // ignore: unused_element
+  void rollbackErrors(int failPos, int errorCount) {
+    if (this.failPos == failPos) {
+      this.errorCount = errorCount;
+    } else if (this.failPos > failPos) {
+      this.errorCount = 0;
+    }
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   void setOk(bool ok) {
     this.ok = !ok ? false : isRecoverable;
   }
@@ -3823,96 +3833,9 @@ class State<T> {
 
     return super.toString();
   }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool _canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void _rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
-  }
 }
 
-class _StringWrapper {
-  final int invalidChar;
-
-  final int leftPadding;
-
-  final int length;
-
-  final int rightPadding;
-
-  final String source;
-
-  _StringWrapper({
-    required this.invalidChar,
-    required this.leftPadding,
-    required this.rightPadding,
-    required this.source,
-  }) : length = leftPadding + source.length + rightPadding;
-
-  int codeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    final offset = index - leftPadding;
-    if (offset >= 0 && offset < source.length) {
-      return source.codeUnitAt(offset);
-    }
-
-    return invalidChar;
-  }
-
-  bool hasCodeUnitAt(int index) {
-    if (index < 0 || index > length - 1) {
-      throw RangeError.range(index, 0, length, 'index');
-    }
-
-    return index >= leftPadding && index <= rightPadding && source.isNotEmpty;
-  }
-
-  int runeAt(int index) {
-    final w1 = codeUnitAt(index++);
-    if (w1 > 0xd7ff && w1 < 0xe000) {
-      if (index < length) {
-        final w2 = codeUnitAt(index);
-        if ((w2 & 0xfc00) == 0xdc00) {
-          return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
-        }
-      }
-      throw FormatException('Invalid UTF-16 character', this, index - 1);
-    }
-    return w1;
-  }
-
-  String substring(int start, int end) {
-    if (start < 0 || start > length) {
-      throw RangeError.range(start, 0, length, 'index');
-    }
-
-    if (end < start || end > length) {
-      throw RangeError.range(end, start, length, 'end');
-    }
-
-    final codeUnits = List.generate(end - start, (i) => codeUnitAt(start + i));
-    return String.fromCharCodes(codeUnits);
-  }
-}
-
-extension StringExt on String {
+extension ParseStringExt on String {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   // ignore: unused_element

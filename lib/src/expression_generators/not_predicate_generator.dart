@@ -22,8 +22,8 @@ if (!state.ok) {
   final length = {{pos}} - state.pos;
   state.fail(switch (length) {
     0 => const ErrorUnexpectedInput(0),
-    1 => const ErrorUnexpectedInput(1),
-    2 => const ErrorUnexpectedInput(2),
+    1 => const ErrorUnexpectedInput(-1),
+    2 => const ErrorUnexpectedInput(-2),
     _ => ErrorUnexpectedInput(length)
   });
   state.backtrack({{pos}});
@@ -50,8 +50,8 @@ if (!state.ok) {
   final length = {{pos}}! - state.pos;
   state.fail(switch (length) {
     0 => const ErrorUnexpectedInput(0),
-    1 => const ErrorUnexpectedInput(1),
-    2 => const ErrorUnexpectedInput(2),
+    1 => const ErrorUnexpectedInput(-1),
+    2 => const ErrorUnexpectedInput(-2),
     _ => ErrorUnexpectedInput(length)
   });
   state.backtrack({{pos}}!);

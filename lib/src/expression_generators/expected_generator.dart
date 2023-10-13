@@ -1,9 +1,9 @@
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
+import '../helper.dart' as helper;
 
-class ErrorHandlerGenerator
-    extends ExpressionGenerator<ErrorHandlerExpression> {
-  ErrorHandlerGenerator({
+class ExpectedGenerator extends ExpressionGenerator<ExpectedExpression> {
+  ExpectedGenerator({
     required super.expression,
     required super.ruleGenerator,
   });
@@ -12,38 +12,26 @@ class ErrorHandlerGenerator
   String generate() {
     final values = <String, String>{};
     final child = expression.expression;
+    final tag = expression.tag;
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['start'] = allocateName();
+    values['pos'] = allocateName();
     values['failPos'] = allocateName();
     values['errorCount'] = allocateName();
-    values['handler'] = expression.handler.trim();
+    values['tag'] = helper.escapeString(tag);
     values['p'] = generateExpression(child, false);
     const template = '''
-final {{start}} = state.pos;
+final {{pos}} = state.pos;
 final {{failPos}} = state.failPos;
 final {{errorCount}} = state.errorCount;
 {{p}}
 if (!state.ok && state.canHandleError({{failPos}}, {{errorCount}})) {
-  // ignore: unused_local_variable
-  final start = {{start}};
-  ParseError? error;
-  // ignore: prefer_final_locals
-  var rollbackErrors = false;
-  {{handler}}
-  if (rollbackErrors == true) {
+  if (state.failPos == {{pos}}) {
     state.rollbackErrors({{failPos}}, {{errorCount}});
-    // ignore: unnecessary_null_comparison, prefer_conditional_assignment
-    if (error == null) {
-      error = const ErrorUnknownError();
-    }
-  }
-  // ignore: unnecessary_null_comparison
-  if (error != null) {
-    state.failAt(state.failPos, error);
+    state.fail(const ErrorExpectedTags([{{tag}}]));
   }
 }''';
     return render(template, values);
@@ -54,19 +42,20 @@ if (!state.ok && state.canHandleError({{failPos}}, {{errorCount}})) {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
+    final tag = expression.tag;
     final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['handler'] = expression.handler.trim();
-    values['start'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
     values['failPos'] =
         asyncGenerator.allocateVariable(GenericType(name: 'int'));
     values['errorCount'] =
         asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['tag'] = helper.escapeString(tag);
     const initTemplate = '''
-{{start}} = state.pos;
+{{pos}} = state.pos;
 {{failPos}} = state.failPos;
 {{errorCount}} = state.errorCount;''';
     final init = render(initTemplate, values);
@@ -74,22 +63,9 @@ if (!state.ok && state.canHandleError({{failPos}}, {{errorCount}})) {
     const template = '''
 {{p}}
 if (!state.ok && state.canHandleError({{failPos}}!, {{errorCount}}!)) {
-  // ignore: unused_local_variable
-  final start = {{start}}!;
-  ParseError? error;
-  // ignore: prefer_final_locals
-  var rollbackErrors = false;
-  {{handler}}
-  if (rollbackErrors == true) {
+  if (state.failPos == {{pos}}!) {
     state.rollbackErrors({{failPos}}!, {{errorCount}}!);
-    // ignore: unnecessary_null_comparison, prefer_conditional_assignment
-    if (error == null) {
-      error = const ErrorUnknownError();
-    }
-  }
-  // ignore: unnecessary_null_comparison
-  if (error != null) {
-    state.failAt(state.failPos, error);
+    state.fail(const ErrorExpectedTags([{{tag}}]));
   }
 }''';
     final source = render(template, values);

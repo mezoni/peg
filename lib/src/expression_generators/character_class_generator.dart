@@ -126,7 +126,7 @@ if ({{c}} >= 0) {
     values['char'] = '$char';
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
-    values['match_char_async'] = helper.matchCharAsync([(char, char)]);
+    values['match_char_async'] = helper.matchCharAsync(char);
     if (variable != null) {
       values['assign_result'] = '$variable = ';
     } else {
@@ -140,7 +140,7 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.handle = {{handle}};
   return;
 }
-{{assign_result}}{{match_char_async}}(state, {{char}}, const ErrorExpectedCharacter({{char}}));''';
+{{assign_result}}{{match_char_async}}(state, {{char}});''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
@@ -151,35 +151,16 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   String _generateChar(int char) {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final is32Bit = char > 0xffff;
     values['char'] = '$char';
+    values['match_char'] = helper.matchChar(char);
     if (variable != null) {
-      values['assign_result'] = '$variable = $char;';
+      values['assign_result'] = '$variable = ';
     } else {
       values['assign_result'] = '';
     }
 
-    var template = '';
-    if (is32Bit) {
-      template = '''
-state.ok = state.pos < state.input.length && state.input.runeAt(state.pos) == {{char}};
-if (state.ok) {
-  state.pos += 2;
-  {{assign_result}}
-} else {
-  state.fail(const ErrorExpectedCharacter({{char}}));
-}''';
-    } else {
-      template = '''
-state.ok = state.pos < state.input.length && state.input.codeUnitAt(state.pos) == {{char}};
-if (state.ok) {
-  state.pos++;
-  {{assign_result}}
-} else {
-  state.fail(const ErrorExpectedCharacter({{char}}));
-}''';
-    }
-
+    const template = '''
+{{assign_result}}{{match_char}}(state, {{char}});''';
     return render(template, values);
   }
 }

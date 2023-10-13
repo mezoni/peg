@@ -89,74 +89,74 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
       'matchChar16': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char, ParseError error) {
+  int? matchChar16(State<String> state, int char) {
     final input = state.input;
     final pos = state.pos;
-    state.ok = pos < input.length && input.codeUnitAt(pos) == char;
-    if (state.ok) {
-      state.pos++;
-      return char;
+    if (pos < input.length) {
+      state.ok = input.codeUnitAt(pos) == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+      state.fail(const ErrorUnexpectedCharacter());
     } else {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }''',
       'matchChar16Async': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar16Async(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
+  int? matchChar16Async(State<ChunkedParsingSink> state, int char) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    state.ok = pos < input.end;
-    if (state.ok) {
-      final c = input.data.codeUnitAt(pos - start);
-      state.ok = c == char;
+    if (pos < input.end) {
+      state.ok = input.data.codeUnitAt(pos - start) == char;
       if (state.ok) {
         state.pos++;
         return char;
       }
-    }
-    if (!state.ok) {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }''',
       'matchChar32': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar32(State<String> state, int char, ParseError error) {
+  int? matchChar32(State<String> state, int char) {
     final input = state.input;
     final pos = state.pos;
-    state.ok = pos < input.length && input.runeAt(pos) == char;
-    if (state.ok) {
-      state.pos += char > 0xffff ? 2 : 1;
-      return char;
+    if (pos < input.length) {
+      state.ok = input.runeAt(pos) == char;
+      if (state.ok) {
+        state.pos += char > 0xffff ? 2 : 1;
+        return char;
+      }
+      state.fail(const ErrorUnexpectedCharacter());
     } else {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }''',
       'matchChar32Async': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int? matchChar32Async(
-      State<ChunkedParsingSink> state, int char, ParseError error) {
+  int? matchChar32Async(State<ChunkedParsingSink> state, int char) {
     final input = state.input;
     final start = input.start;
     final pos = state.pos;
-    state.ok = pos < input.end;
-    if (state.ok) {
-      final c = input.data.runeAt(pos - start);
-      state.ok = c == char;
+    if (pos < input.end) {
+      state.ok = input.data.runeAt(pos - start) == char;
       if (state.ok) {
-        state.pos += c > 0xffff ? 2 : 1;
+        state.pos += char > 0xffff ? 2 : 1;
         return char;
       }
-    }
-    if (!state.ok) {
-      state.fail(error);
+      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     return null;
   }''',

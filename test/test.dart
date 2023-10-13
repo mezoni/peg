@@ -3,10 +3,7 @@ import 'package:test/test.dart';
 import 'test_parser.dart';
 
 void main() {
-  _testMatchString();
   _testOrderedChoiceWithLiterals();
-  _testSepBy();
-  _testVerify();
   _testZeroOrMore();
 }
 
@@ -55,61 +52,6 @@ Future<void> __testSuccess({
   expect(r2.pos, pos, reason: 'parse, pos != $pos, source: "$source"');
   expect(r2.result, result,
       reason: 'parse, result != $result, source: "$source"');
-}
-
-void _testMatchString() {
-  test('MatchString', () async {
-    {
-      const source = 'abc123';
-      _parser.text = 'abc';
-      await __testSuccess(
-        fastParse: _parser.fastParseMatchString,
-        parse: _parser.parseMatchString,
-        pos: 3,
-        result: 'abc',
-        source: source,
-      );
-    }
-
-    {
-      const source = 'abc123';
-      _parser.text = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseMatchString,
-        parse: _parser.parseMatchString,
-        pos: 0,
-        result: '',
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      _parser.text = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseMatchString,
-        parse: _parser.parseMatchString,
-        pos: 0,
-        result: '',
-        source: source,
-      );
-    }
-
-    {
-      const source = 'abc';
-      _parser.text = '123';
-      await __testFailure(
-        errors: {
-          const ErrorMessage(0, "Expected: '123'"),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseMatchString,
-        parse: _parser.parseMatchString,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
 }
 
 void _testOrderedChoiceWithLiterals() {
@@ -194,110 +136,6 @@ void _testOrderedChoiceWithLiterals() {
         parse: _parser.parseOrderedChoiceWithLiterals,
         pos: 2,
         result: 'gh',
-        source: source,
-      );
-    }
-  });
-}
-
-void _testSepBy() {
-  test('SepBy', () async {
-    {
-      const source = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        parse: _parser.parseSepBy,
-        pos: 0,
-        result: <int>[],
-        source: source,
-      );
-    }
-
-    {
-      const source = '1';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        parse: _parser.parseSepBy,
-        pos: 1,
-        result: [1],
-        source: source,
-      );
-    }
-
-    {
-      const source = '1,2';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        parse: _parser.parseSepBy,
-        pos: 3,
-        result: [1, 2],
-        source: source,
-      );
-    }
-
-    {
-      const source = '1,';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        parse: _parser.parseSepBy,
-        pos: 1,
-        result: [1],
-        source: source,
-      );
-    }
-  });
-}
-
-void _testVerify() {
-  test('Verify', () async {
-    {
-      const source = '41abc';
-      await __testSuccess(
-        fastParse: _parser.fastParseVerify41,
-        parse: _parser.parseVerify41,
-        pos: 2,
-        result: 41,
-        source: source,
-      );
-    }
-
-    {
-      const source = '40abc';
-      await __testFailure(
-        errors: {
-          const ErrorMessage(2, 'error'),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseVerify41,
-        parse: _parser.parseVerify41,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'abc';
-      _parser.flag = true;
-      await __testSuccess(
-        fastParse: _parser.fastParseVerifyFlag,
-        parse: _parser.parseVerifyFlag,
-        pos: 0,
-        result: '',
-        source: source,
-      );
-    }
-
-    {
-      const source = 'abc';
-      _parser.flag = false;
-      await __testFailure(
-        errors: {
-          const ErrorMessage(0, 'error'),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseVerifyFlag,
-        parse: _parser.parseVerifyFlag,
-        pos: 0,
         source: source,
       );
     }

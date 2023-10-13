@@ -5,7 +5,7 @@ const CsvParser();
 %%
 
 @event
-Start = v:Rows Eof ;
+Start = v:Rows Eol? @eof() ;
 
 @inline
 Chars = ($[^"]+ / '""' <String>{ $$ = '"'; })* ;
@@ -13,25 +13,19 @@ Chars = ($[^"]+ / '""' <String>{ $$ = '"'; })* ;
 @inline
 CloseQuote = '"' Spaces ;
 
-@inline
-Eof = !. ;
-
 Eol = '\n' / '\r\n' / '\r' ;
 
 @event
 @inline
-Field = @buffer(String) / Text ;
+Field = String / Text ;
 
 @inline
 OpenQuote = Spaces '"' ;
 
-@inline
-RowEnding = Eol !Eof ;
-
 @event
 Row = @sepBy1(Field, ',' ↑) ;
 
-Rows = v:@sepBy1(Row, RowEnding ↑) Eol? ;
+Rows = v:@sepBy1(Row, Eol ↑) ;
 
 Spaces = [ \t]* ;
 

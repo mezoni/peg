@@ -123,7 +123,6 @@ class _ZeroOrMoreGenerator2 extends ExpressionGenerator<ZeroOrMoreExpression> {
     final values = <String, String>{};
     values['index'] = allocateName();
     values['text'] = allocateName();
-    values['char'] = charCode.toString();
     values['string'] = helper.escapeString(String.fromCharCode(charCode));
     const template = '''
 const {{text}} = {{string}};
@@ -132,7 +131,7 @@ state.ok = {{index}} != -1;
 if (state.ok) {
   state.pos = {{index}};
 } else {
-  state.failAt(state.input.length, const ErrorExpectedCharacter({{char}}));
+  state.failAt(state.input.length, const ErrorUnexpectedCharacter());
 }''';
     return render(template, values);
   }
