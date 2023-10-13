@@ -1,5 +1,6 @@
-# 4.0.2
+# 4.0.1
 
+- Changes in the file `README.md`.
 - Changes to the `calc.peg` grammar file.
 - Changes to the `csv.peg` grammar file.
 - Changes to the `json.peg` grammar file.
@@ -7,10 +8,6 @@
 - The source code for supporting the parser runtime has been reworked.
 - Added `@eof` meta expression.
 - Added `@expected` meta expression.
-
-# 4.0.1
-
-- Changes in the file `README.md`.
 
 # 4.0.0
 
