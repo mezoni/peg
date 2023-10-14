@@ -1,6 +1,7 @@
 import '../grammar/grammar.dart';
 import 'optional_expressions_resolver.dart';
 import 'result_type_resolver.dart';
+import 'sequence_with_cut_expression_resolver.dart';
 import 'starting_characters_resolver.dart';
 import 'starting_expressions_resolver.dart';
 
@@ -21,5 +22,8 @@ class ExpressionInitializer1 {
     //expressionResultUsageResolver.resolve(rules);
     //final expressionErrorResolver = ExpressionErrorResolver();
     //expressionErrorResolver.resolve(rules);
+    final sequenceWithCutExpressionResolver =
+        SequenceWithCutExpressionResolver();
+    sequenceWithCutExpressionResolver.resolve(rules);
   }
 }

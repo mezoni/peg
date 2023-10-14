@@ -12,6 +12,8 @@ void main() {
   _testEof();
   _testErrorHandler();
   _testExpected();
+  _testList();
+  _testList1();
   _testLiteral();
   _testMatchString();
   _testNotPredicate();
@@ -19,7 +21,6 @@ void main() {
   _testOptional();
   _testOrderedChoice();
   _testRepetition();
-  _testSepBy();
   _testSequence();
   _testSlice();
   _testStringChars();
@@ -518,6 +519,74 @@ void _testCut() {
         source: source,
       );
     }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseCut1,
+        fastParseAsync: _parser.fastParseCut1$Async,
+        parse: _parser.parseCut1,
+        parseAsync: _parser.parseCut1$Async,
+        pos: 1,
+        result: [0x30, null],
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCut1,
+        fastParseAsync: _parser.fastParseCut1$Async,
+        parse: _parser.parseCut1,
+        parseAsync: _parser.parseCut1$Async,
+        pos: 1,
+        result: 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseCut1,
+        fastParseAsync: _parser.fastParseCut1$Async,
+        parse: _parser.parseCut1,
+        parseAsync: _parser.parseCut1$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCutWithInner,
+        fastParseAsync: _parser.fastParseCutWithInner$Async,
+        parse: _parser.parseCutWithInner,
+        parseAsync: _parser.parseCutWithInner$Async,
+        pos: 3,
+        result: [0x30, null, 0x61, 0x31],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0b1';
+      await __testSuccess(
+        fastParse: _parser.fastParseCutWithInner,
+        fastParseAsync: _parser.fastParseCutWithInner$Async,
+        parse: _parser.parseCutWithInner,
+        parseAsync: _parser.parseCutWithInner$Async,
+        pos: 3,
+        result: [0x30, null, 0x62, 0x31],
+        source: source,
+      );
+    }
   });
 }
 
@@ -629,6 +698,121 @@ void _testExpected() {
         fastParseAsync: _parser.fastParseExpected$Async,
         parse: _parser.parseExpected,
         parseAsync: _parser.parseExpected$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testList() {
+  test('List', () async {
+    {
+      const source = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseList,
+        fastParseAsync: _parser.fastParseList$Async,
+        parse: _parser.parseList,
+        parseAsync: _parser.parseList$Async,
+        pos: 0,
+        result: [],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseList,
+        fastParseAsync: _parser.fastParseList$Async,
+        parse: _parser.parseList,
+        parseAsync: _parser.parseList$Async,
+        pos: 1,
+        result: [0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0,0';
+      await __testSuccess(
+        fastParse: _parser.fastParseList,
+        fastParseAsync: _parser.fastParseList$Async,
+        parse: _parser.parseList,
+        parseAsync: _parser.parseList$Async,
+        pos: 3,
+        result: [0x30, 0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0,';
+      await __testSuccess(
+        fastParse: _parser.fastParseList,
+        fastParseAsync: _parser.fastParseList$Async,
+        parse: _parser.parseList,
+        parseAsync: _parser.parseList$Async,
+        pos: 1,
+        result: [0x30],
+        source: source,
+      );
+    }
+  });
+}
+
+void _testList1() {
+  test('List1', () async {
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseList1,
+        fastParseAsync: _parser.fastParseList1$Async,
+        parse: _parser.parseList1,
+        parseAsync: _parser.parseList1$Async,
+        pos: 1,
+        result: [0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0,0';
+      await __testSuccess(
+        fastParse: _parser.fastParseList1,
+        fastParseAsync: _parser.fastParseList1$Async,
+        parse: _parser.parseList1,
+        parseAsync: _parser.parseList1$Async,
+        pos: 3,
+        result: [0x30, 0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '0,';
+      await __testSuccess(
+        fastParse: _parser.fastParseList1,
+        fastParseAsync: _parser.fastParseList1$Async,
+        parse: _parser.parseList1,
+        parseAsync: _parser.parseList1$Async,
+        pos: 1,
+        result: [0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseList1,
+        fastParseAsync: _parser.fastParseList1$Async,
+        parse: _parser.parseList1,
+        parseAsync: _parser.parseList1$Async,
         pos: 0,
         source: source,
       );
@@ -1306,62 +1490,6 @@ void _testRepetition() {
         parse: _parser.parseRepetitionN,
         parseAsync: _parser.parseRepetitionN$Async,
         pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testSepBy() {
-  test('SepBy', () async {
-    {
-      const source = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        fastParseAsync: _parser.fastParseSepBy$Async,
-        parse: _parser.parseSepBy,
-        parseAsync: _parser.parseSepBy$Async,
-        pos: 0,
-        result: [],
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        fastParseAsync: _parser.fastParseSepBy$Async,
-        parse: _parser.parseSepBy,
-        parseAsync: _parser.parseSepBy$Async,
-        pos: 1,
-        result: [0x30],
-        source: source,
-      );
-    }
-
-    {
-      const source = '0,0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        fastParseAsync: _parser.fastParseSepBy$Async,
-        parse: _parser.parseSepBy,
-        parseAsync: _parser.parseSepBy$Async,
-        pos: 3,
-        result: [0x30, 0x30],
-        source: source,
-      );
-    }
-
-    {
-      const source = '0,';
-      await __testSuccess(
-        fastParse: _parser.fastParseSepBy,
-        fastParseAsync: _parser.fastParseSepBy$Async,
-        parse: _parser.parseSepBy,
-        parseAsync: _parser.parseSepBy$Async,
-        pos: 1,
-        result: [0x30],
         source: source,
       );
     }

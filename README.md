@@ -2,7 +2,7 @@
 
 A command line tool for generating (streaming, chunk, file) top-down parsers from a parsing expression grammars (PEG).
 
-Version: 4.0.1
+Version: 4.0.2
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -345,14 +345,19 @@ Name: `Cut`
 Operator: `↑`  
 Number of operands: 0
 
+⚠️ **Important information:**  
+The behavior is to apply this expression only to the child expressions of the parent expression `SequenceExpression` and does not apply to child expressions of child expressions of the parent. Its scope is also limited by its parent. If a parsing error occurs within the scope of this expression, then such an error is considered unrecoverable, resulting in termination of parsing.
+
 Sets the internal parsing state such that parsing of input data before the current position becomes impossible.  
-That is, it effectively disables the ability to backtrack to any position less than the current (at the time this expression is executed) position.  
+That is, it effectively disallow the ability to backtrack to any position less than the current (at the time this expression is executed) position.  
 This expression is also used when creating grammars to parse input data asynchronously.
 
-Example:
+In the following example, the expression `cut` applies only to the sequence expression `Comma ↑ v:Field`.  
+If the expression `Comma` fails, then this will not be considered an unrecoverable parse error.  
+If the expression `v:Field` fails, it will be considered an unrecoverable parse error.  
 
 ```
-@sepBy1(Field, ',' ↑)
+@list(Field, Comma ↑ v:Field)
 ```
 
 An example of data cutting during asynchronous parsing, to implement the ability to remove unnecessary data from the buffer.
@@ -370,9 +375,9 @@ The following meta expression exist in the current version.
 - `@errorHandler`
 - `@eof`
 - `@expected`
+- `@list`
+- `@list1`
 - `@matchString`
-- `@sepBy`
-- `@sepBy1`
 - `@stringChars`
 - `@verify`
 
@@ -456,49 +461,37 @@ Example:
 Sep = @matchString({ separator }) ;
 ```
 
-### @sepBy
+### @list
 
-Name: `@sepBy`  
+Name: `@list`  
 Parameters:
-- An expression representing an `element`
-- An expression representing an `separator`
+- An expression representing the `first` element.
+- An expression representing the `next` element(s).
 
-The meta expression `@sepBy` parses zero or more occurrences of `element`, separated by `separator` and returns a list of elements as a result.
+The meta expression `@list` parses zero or more occurrences of the `first` and  `next` elements and returns a list of elements as a result.
 
 Example:
 
 ```
-Elements = @sepBy(Element, Separator ↑) ;
-```
-
-This was an example of an optimized version of the following expression.
-
-```
-v:h:Element t:(Separator v:Element ↑)* { $$ = v == null ? [] : [h, ...t]; }
+Elements = @list1(Element, Separator ↑ v:Element) ;
 ```
 
 Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
 As a result, the grammar becomes more readable, and the generated parser code works more efficiently.
 
-### @sepBy1
+### @list1
 
-Name: `@sepBy1`  
+Name: `@list1`  
 Parameters:
-- An expression representing an `element`
-- An expression representing an `separator`
+- An expression representing the `first` element.
+- An expression representing the `next` element(s).
 
-The meta expression `@sepBy` parses one or more occurrences of `element`, separated by `separator` and returns a list of elements as a result.
+The meta expression `@list1` parses one or more occurrences of the `first` and  `next` elements and returns a list of elements as a result.
 
 Example:
 
 ```
-Elements = @sepBy1(Element, Separator ↑) ;
-```
-
-This was an example of an optimized version of the following expression.
-
-```
-v:h:Element t:(Separator v:Element)* { $$ = [h, ...t]; }
+Elements = @list1(Element, Separator ↑ v:Element) ;
 ```
 
 Grammar optimization is achieved by reducing grammar expressions. Optimization of the generated code is achieved by reducing array creation operations.  
@@ -746,7 +739,28 @@ ___
 `Eof`
 
 ```
-Eof = !. ;
+Eof = @eof() ;
+```
+___
+
+`Expected`
+
+```
+Digits = @expected('digits', [0-9]+) ;
+```
+___
+
+`MatchConfigurableChar`
+
+```
+TextChar = @verify([^"\n\r], { if ($$ == _separatorChar) { error = const ErrorUnexpectedCharacter(); } }) ;
+```
+___
+
+`MatchConfigurableLiteral`
+
+```
+Separator = @matchString({ mySeparator }) ;
 ```
 ___
 
@@ -768,22 +782,21 @@ ___
 `SeparatedList`
 
 ```
-SeparatedList = @sepBy(Elem, Sep) ;
+SeparatedList = @list(Elem, Sep ↑ v:Elem) ;
 ```
 ___
 
 `SeparatedList1`
 
 ```
-<List<int>>
-SeparatedList1 = h:[a] t:([,] v:@sepBy([a], [,]))? { $$ = [h, if (t != null) ...t]; }
+SeparatedList1 = @list1(Elem, Sep ↑ v:Elem) ;
 ```
 ___
 
 `SeparatedPair`
 
 ```
-SeparatedPair = k:Key Sep v:Value ;
+SeparatedPair = k:Key Sep ↑ v:Value ;
 ```
 ___
 

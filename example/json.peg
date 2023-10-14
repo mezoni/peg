@@ -81,7 +81,7 @@ Key = String ;
 MapEntry<String, Object?>
 KeyValue = k:Key Colon ↑ v:Value { $$ = MapEntry(k, v); };
 
-KeyValues = @sepBy(KeyValue, Comma ↑);
+KeyValues = @list(KeyValue, Comma ↑ v:KeyValue);
 
 @inline
 Object?
@@ -138,4 +138,4 @@ Value = Array
   / False
   / Null ;
 
-Values = @sepBy(Value, Comma ↑) ;
+Values = @list(Value, Comma ↑ v:Value) ;

@@ -36,7 +36,17 @@ abstract class ExpressionGenerator<T extends Expression> {
       }
     }
 
+    final forceBuffering =
+        asyncGenerator.buffering == 0 && _needForceBuffering(expression);
+    if (forceBuffering) {
+      asyncGenerator.buffering++;
+    }
+
     final source = expression.accept(ruleGenerator);
+    if (forceBuffering) {
+      asyncGenerator.buffering--;
+    }
+
     buffer.writeln(source);
     return buffer.toString();
   }
@@ -88,5 +98,69 @@ abstract class ExpressionGenerator<T extends Expression> {
   String render(String template, Map<String, String> values,
       {bool removeEmptyLines = true}) {
     return helper.render(template, values);
+  }
+
+  bool _needForceBuffering(Expression expression) {
+    if (!expression.hasCutExpressions) {
+      return false;
+    }
+
+    final parent = expression.parent;
+    if (parent is! OrderedChoiceExpression) {
+      return false;
+    }
+
+    final children = parent.expressions;
+    final last = children.last;
+    if (expression == last) {
+      return false;
+    }
+
+    final indexOfExpression = children.indexOf(expression);
+    final alternatives = <Expression>[];
+    final current = expression.startingCharacters;
+    outer:
+    for (var i = indexOfExpression + 1; i < children.length; i++) {
+      final child = children[i];
+      final next = child.startingCharacters;
+      for (var i = 0; i < current.length; i++) {
+        final range = current[i];
+        final start = range.$1;
+        final end = range.$2;
+        for (var j = 0; j < current.length; j++) {
+          final range2 = next[j];
+          final start2 = range2.$1;
+          final end2 = range2.$2;
+          if (start >= start2 && start <= end2) {
+            alternatives.add(child);
+            break outer;
+          }
+
+          if (end >= start2 && end <= end2) {
+            alternatives.add(child);
+            break outer;
+          }
+
+          if (start > end2) {
+            break;
+          }
+        }
+      }
+    }
+
+    if (alternatives.isEmpty) {
+      return false;
+    }
+
+    final rule = expression.rule!.name;
+    final text = <String>[];
+    text.add('Force buffering for expression from ordered choice.');
+    text.add('Production rule: $rule');
+    text.add('Parent expression: $parent');
+    text.add('Buffered expression: $expression');
+    text.add('Non-disjoint subsequent alternative expression(s):');
+    text.add(alternatives.join('\n'));
+    print(text.join('\n'));
+    return true;
   }
 }

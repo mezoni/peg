@@ -115,7 +115,7 @@ if ({{c}} >= 0) {
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
     );
   }
 
@@ -144,7 +144,7 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
-      buffering: asyncGenerator.buffering == 0,
+      buffering: false,
     );
   }
 

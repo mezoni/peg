@@ -18,13 +18,10 @@ class AndPredicateGenerator
     }
 
     values['pos'] = allocateName();
-    values['cuttingPos'] = allocateName();
     values['p'] = generateExpression(child, false);
     const template = '''
 final {{pos}} = state.pos;
-final {{cuttingPos}} = state.cuttingPos;
 {{p}}
-state.cuttingPos = {{cuttingPos}};
 if (state.ok) {
   state.pos = {{pos}};
 }''';
@@ -33,6 +30,7 @@ if (state.ok) {
 
   @override
   String generateAsync() {
+    final values = <String, String>{};
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
@@ -40,21 +38,14 @@ if (state.ok) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    final values = <String, String>{};
     final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    final cuttingPos =
-        asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    final init = '''
-$pos = state.pos;
-$cuttingPos = state.cuttingPos;''';
-    values['cuttingPos'] = cuttingPos;
+    final key = (name: pos, value: 'state.pos');
     values['pos'] = pos;
     asyncGenerator.buffering++;
     values['p'] = generateAsyncExpression(child, false);
     asyncGenerator.buffering--;
     const template = '''
 {{p}}
-state.cuttingPos = {{cuttingPos}}!;
 if (state.ok) {
   state.pos = {{pos}}!;
 }''';
@@ -62,7 +53,7 @@ if (state.ok) {
     return asyncGenerator.renderAction(
       source,
       buffering: asyncGenerator.buffering == 0,
-      init: init,
+      key: key,
     );
   }
 }

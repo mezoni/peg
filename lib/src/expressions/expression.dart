@@ -5,6 +5,8 @@ export '../type_system/result_type.dart';
 export '../visitors/visitors.dart';
 
 abstract class Expression {
+  bool hasCutExpressions = false;
+
   int? id;
 
   int? index;

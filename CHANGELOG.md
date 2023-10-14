@@ -1,3 +1,8 @@
+# 4.0.2
+
+- Fixed bugs in `CutExpression`. The correct behavior is to apply this expression only to the child expressions of the parent expression `SequenceExpression` and does not apply to child expressions of child expressions of the parent. Its scope is also limited by its parent.
+- Breaking changes: Meta expressions `@sepBy` and `@sepBy1` have been replaced with meta expressions `@list` and `@list1`. This was done for the reason that the old expressions did not allow the use of the expression `cut`.
+
 # 4.0.1
 
 - Changes in the file `README.md`.

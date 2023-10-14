@@ -64,7 +64,6 @@ class ProductionRuleGenerator extends ExpressionVisitor<String> {
       }
 
       final values = <String, String>{};
-
       String? asyncResult;
       if (isAsync) {
         asyncResult = allocator.allocate();
@@ -360,14 +359,14 @@ return;''';
   }
 
   @override
-  String visitSepBy(SepByExpression node) {
-    final generator = SepByGenerator(expression: node, ruleGenerator: this);
+  String visitList(ListExpression node) {
+    final generator = ListGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
   @override
-  String visitSepBy1(SepBy1Expression node) {
-    final generator = SepBy1Generator(expression: node, ruleGenerator: this);
+  String visitList1(List1Expression node) {
+    final generator = List1Generator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 

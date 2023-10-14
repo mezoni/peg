@@ -80,6 +80,16 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitList(ListExpression node) {
+    _addNode(node);
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    _addNode(node);
+  }
+
+  @override
   void visitLiteral(LiteralExpression node) {
     final string = node.string;
     if (string.isEmpty) {
@@ -117,16 +127,6 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
 
   @override
   void visitRepetition(RepetitionExpression node) {
-    _addNode(node);
-  }
-
-  @override
-  void visitSepBy(SepByExpression node) {
-    _addNode(node);
-  }
-
-  @override
-  void visitSepBy1(SepBy1Expression node) {
     _addNode(node);
   }
 

@@ -74,6 +74,21 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitList(ListExpression node) {
+    node.visitChildren(this);
+    _setIsOptional(node, true);
+    _setMayNotConsumeInput(node, true);
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    node.visitChildren(this);
+    final first = node.first;
+    _setIsOptional(node, first.isOptional);
+    _setMayNotConsumeInput(node, first.mayNotConsumeInput);
+  }
+
+  @override
   void visitLiteral(LiteralExpression node) {
     final string = node.string;
     final isEmpty = string.isEmpty;
@@ -128,21 +143,6 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     final isOptional = node.min == 0 || node.max == 0 || child.isOptional;
     _setIsOptional(node, isOptional);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput || isOptional);
-  }
-
-  @override
-  void visitSepBy(SepByExpression node) {
-    node.visitChildren(this);
-    _setIsOptional(node, true);
-    _setMayNotConsumeInput(node, true);
-  }
-
-  @override
-  void visitSepBy1(SepBy1Expression node) {
-    node.visitChildren(this);
-    final expression = node.expression;
-    _setIsOptional(node, expression.isOptional);
-    _setMayNotConsumeInput(node, expression.mayNotConsumeInput);
   }
 
   @override

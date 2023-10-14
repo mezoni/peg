@@ -1,5 +1,276 @@
-class RuntimeGenerator {
-  static const _template = r'''
+class XParser {
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(State<String> state, int char) {
+    final input = state.input;
+    final pos = state.pos;
+    if (pos < input.length) {
+      state.ok = input.codeUnitAt(pos) == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16Async(State<ChunkedParsingSink> state, int char) {
+    final input = state.input;
+    final start = input.start;
+    final pos = state.pos;
+    if (pos < input.end) {
+      state.ok = input.data.codeUnitAt(pos - start) == char;
+      if (state.ok) {
+        state.pos++;
+        return char;
+      }
+      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    return null;
+  }
+
+  /// Start =
+  ///     ([0] / [1] ↑ [2])
+  ///   / [2]
+  ///   / [3]? [1]
+  ///   ;
+  Object? parseStart(State<String> state) {
+    Object? $0;
+    // ([0] / [1] ↑ [2])
+    // [0]
+    $0 = matchChar16(state, 48);
+    if (!state.ok && state.isRecoverable) {
+      // [1] ↑ [2]
+      final $7 = state.pos;
+      var $6 = true;
+      int? $3;
+      $3 = matchChar16(state, 49);
+      if (state.ok) {
+        $6 = false;
+        Object? $4;
+        state.ok = true;
+        if (state.ok) {
+          int? $5;
+          $5 = matchChar16(state, 50);
+          if (state.ok) {
+            $0 = [$3!, $4, $5!];
+          }
+        }
+      }
+      if (!state.ok) {
+        if (!$6) {
+          state.isRecoverable = false;
+        }
+        state.backtrack($7);
+      }
+    }
+    if (!state.ok && state.isRecoverable) {
+      // [2]
+      $0 = matchChar16(state, 50);
+      if (!state.ok && state.isRecoverable) {
+        // [3]? [1]
+        final $11 = state.pos;
+        int? $9;
+        $9 = matchChar16(state, 51);
+        if (!state.ok) {
+          state.setOk(true);
+        }
+        if (state.ok) {
+          int? $10;
+          $10 = matchChar16(state, 49);
+          if (state.ok) {
+            $0 = [$9, $10!];
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($11);
+        }
+      }
+    }
+    return $0;
+  }
+
+  /// Start =
+  ///     ([0] / [1] ↑ [2])
+  ///   / [2]
+  ///   / [3]? [1]
+  ///   ;
+  AsyncResult<Object?> parseStart$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<Object?>();
+    Object? $2;
+    int? $3;
+    int? $4;
+    int? $9;
+    int? $10;
+    bool? $11;
+    int? $6;
+    Object? $7;
+    int? $8;
+    int $14 = 0;
+    int? $18;
+    int? $19;
+    int? $16;
+    int? $17;
+    void $1() {
+      if ($14 & 0x8 == 0) {
+        $14 |= 0x8;
+        $3 = 0;
+      }
+      if ($3 == 0) {
+        // ([0] / [1] ↑ [2])
+        // ([0] / [1] ↑ [2])
+        // [0] / [1] ↑ [2]
+        if ($14 & 0x2 == 0) {
+          $14 |= 0x2;
+          $4 = 0;
+        }
+        if ($4 == 0) {
+          // [0]
+          // [0]
+          final $5 = state.input;
+          if (state.pos >= $5.end && !$5.isClosed) {
+            $5.sleep = true;
+            $5.handle = $1;
+            return;
+          }
+          $2 = matchChar16Async(state, 48);
+          $4 = state.ok
+              ? -1
+              : state.isRecoverable
+                  ? 1
+                  : -1;
+        }
+        if ($4 == 1) {
+          // [1] ↑ [2]
+          if ($14 & 0x1 == 0) {
+            $14 |= 0x1;
+            $9 = 0;
+            $10 = state.pos;
+            $11 = true;
+          }
+          if ($9 == 0) {
+            // [1]
+            final $12 = state.input;
+            if (state.pos >= $12.end && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
+              return;
+            }
+            $6 = matchChar16Async(state, 49);
+            $9 = state.ok ? 1 : -1;
+          }
+          if ($9 == 1) {
+            $11 = false;
+            // ↑
+            state.ok = true;
+            state.input.cut(state.pos);
+            $9 = state.ok ? 2 : -1;
+          }
+          if ($9 == 2) {
+            // [2]
+            final $13 = state.input;
+            if (state.pos >= $13.end && !$13.isClosed) {
+              $13.sleep = true;
+              $13.handle = $1;
+              return;
+            }
+            $8 = matchChar16Async(state, 50);
+            $9 = -1;
+          }
+          if (state.ok) {
+            $2 = [$6!, $7, $8!];
+          } else {
+            if (!$11!) {
+              state.isRecoverable = false;
+            }
+            state.backtrack($10!);
+          }
+          $14 &= ~0x1 & 0xffff;
+          $4 = -1;
+        }
+        $14 &= ~0x2 & 0xffff;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 1
+                : -1;
+      }
+      if ($3 == 1) {
+        // [2]
+        // [2]
+        final $15 = state.input;
+        if (state.pos >= $15.end && !$15.isClosed) {
+          $15.sleep = true;
+          $15.handle = $1;
+          return;
+        }
+        $2 = matchChar16Async(state, 50);
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
+      }
+      if ($3 == 2) {
+        // [3]? [1]
+        if ($14 & 0x4 == 0) {
+          $14 |= 0x4;
+          $18 = 0;
+          $19 = state.pos;
+        }
+        if ($18 == 0) {
+          // [3]?
+          // [3]
+          final $20 = state.input;
+          if (state.pos >= $20.end && !$20.isClosed) {
+            $20.sleep = true;
+            $20.handle = $1;
+            return;
+          }
+          $16 = matchChar16Async(state, 51);
+          if (!state.ok) {
+            state.setOk(true);
+          }
+          $18 = state.ok ? 1 : -1;
+        }
+        if ($18 == 1) {
+          // [1]
+          final $21 = state.input;
+          if (state.pos >= $21.end && !$21.isClosed) {
+            $21.sleep = true;
+            $21.handle = $1;
+            return;
+          }
+          $17 = matchChar16Async(state, 49);
+          $18 = -1;
+        }
+        if (state.ok) {
+          $2 = [$16, $17!];
+        } else {
+          state.backtrack($19!);
+        }
+        $14 &= ~0x4 & 0xffff;
+        $3 = -1;
+      }
+      $14 &= ~0x8 & 0xffff;
+      $0.value = $2;
+      $0.isComplete = true;
+      state.input.handle = $0.onComplete;
+      return;
+    }
+
+    $1();
+    return $0;
+  }
+}
+
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final result = tryParse(fastParse, source);
@@ -703,12 +974,5 @@ extension ParseStringExt on String {
       throw FormatException('Invalid UTF-16 character', this, index - 1);
     }
     return w1;
-  }
-}
-
-''';
-
-  String generate() {
-    return _template;
   }
 }

@@ -1,7 +1,7 @@
 import '../expressions/expressions.dart';
-import '../grammar/production_rule.dart';
+import '../grammar/grammar.dart';
 
-class StartingExpressionsResolver extends ExpressionVisitor<void> {
+class SequenceWithCutExpressionResolver extends ExpressionVisitor<void> {
   bool _hasModifications = false;
 
   void resolve(List<ProductionRule> rules) {
@@ -34,6 +34,7 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   @override
   void visitCut(CutExpression node) {
     node.visitChildren(this);
+    _markHasCutExpressions(node);
   }
 
   @override
@@ -60,22 +61,6 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final child = node.expression;
     _addChild(node, child);
-  }
-
-  @override
-  void visitList(ListExpression node) {
-    node.visitChildren(this);
-    final first = node.first;
-    final next = node.next;
-    _processSequence(node, [first, next]);
-  }
-
-  @override
-  void visitList1(List1Expression node) {
-    node.visitChildren(this);
-    final first = node.first;
-    final next = node.next;
-    _processSequence(node, [first, next]);
   }
 
   @override
@@ -127,6 +112,24 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitList(ListExpression node) {
+    node.visitChildren(this);
+    final expression = node.first;
+    final separator = node.next;
+    _addChild(node, expression);
+    _processSequence(node, [separator, expression]);
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    node.visitChildren(this);
+    final expression = node.first;
+    final separator = node.next;
+    _addChild(node, expression);
+    _processSequence(node, [separator, expression]);
+  }
+
+  @override
   void visitSequence(SequenceExpression node) {
     final children = node.expressions;
     node.visitChildren(this);
@@ -172,25 +175,23 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   void _addChild(Expression node, Expression child) {
-    _addStartingExpressions(node, [child, ...child.startingExpressions]);
+    if (child.hasCutExpressions) {
+      _markHasCutExpressions(node);
+    }
   }
 
-  void _addStartingExpressions(
-      Expression node, Iterable<Expression> expressions) {
-    final startingExpressions = node.startingExpressions;
-    for (final element in expressions) {
-      if (startingExpressions.add(element)) {
-        _hasModifications = true;
-      }
+  void _markHasCutExpressions(Expression node) {
+    if (!node.hasCutExpressions) {
+      node.hasCutExpressions = true;
+      _hasModifications = true;
     }
   }
 
   void _processSequence(Expression node, List<Expression> children) {
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      _addChild(node, child);
-      if (!child.mayNotConsumeInput) {
-        break;
+      if (child.hasCutExpressions) {
+        _addChild(node, child);
       }
     }
   }

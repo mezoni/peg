@@ -537,10 +537,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  Object? context;
-
-  int cuttingPos = 0;
-
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -560,11 +556,9 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void backtrack(int pos) {
-    if (pos >= cuttingPos) {
+    if (isRecoverable) {
       this.pos = pos;
-      return;
     }
-    isRecoverable = false;
   }
 
   @pragma('vm:prefer-inline')
@@ -574,14 +568,6 @@ class State<T> {
     return failPos == this.failPos
         ? errorCount < this.errorCount
         : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void cut(int pos) {
-    if (cuttingPos < pos) {
-      cuttingPos = pos;
-    }
   }
 
   @pragma('vm:prefer-inline')

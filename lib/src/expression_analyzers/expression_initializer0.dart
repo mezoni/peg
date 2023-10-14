@@ -74,6 +74,16 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitList(ListExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitLiteral(LiteralExpression node) {
     _initializeNode(node);
   }
@@ -105,16 +115,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   @override
   void visitRepetition(RepetitionExpression node) {
-    _initializeNode(node);
-  }
-
-  @override
-  void visitSepBy(SepByExpression node) {
-    _initializeNode(node);
-  }
-
-  @override
-  void visitSepBy1(SepBy1Expression node) {
     _initializeNode(node);
   }
 

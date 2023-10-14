@@ -79,6 +79,26 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitList(ListExpression node) {
+    node.visitChildren(this);
+    final first = node.first;
+    final next = node.next;
+    final types = {first.resultType!, next.resultType!};
+    final type = types.length == 1 ? first.resultType! : _nullableObjectType;
+    _setResultType(node, _getListResultType(type));
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    node.visitChildren(this);
+    final first = node.first;
+    final next = node.next;
+    final types = {first.resultType!, next.resultType!};
+    final type = types.length == 1 ? first.resultType! : _nullableObjectType;
+    _setResultType(node, _getListResultType(type));
+  }
+
+  @override
   void visitLiteral(LiteralExpression node) {
     node.visitChildren(this);
     _setResultType(node, GenericType(name: 'String'));
@@ -138,20 +158,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
 
   @override
   void visitRepetition(RepetitionExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _setResultType(node, _getListResultType(_getResultType(child)));
-  }
-
-  @override
-  void visitSepBy(SepByExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _setResultType(node, _getListResultType(_getResultType(child)));
-  }
-
-  @override
-  void visitSepBy1(SepBy1Expression node) {
     node.visitChildren(this);
     final child = node.expression;
     _setResultType(node, _getListResultType(_getResultType(child)));

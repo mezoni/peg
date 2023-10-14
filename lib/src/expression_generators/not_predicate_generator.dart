@@ -37,12 +37,11 @@ if (!state.ok) {
     final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    final key = (name: pos, value: 'state.pos');
+    values['pos'] = pos;
     asyncGenerator.buffering++;
     values['p'] = generateAsyncExpression(child, false);
     asyncGenerator.buffering--;
-    final init = '''
-$pos = state.pos;''';
-    values['pos'] = pos;
     const template = '''
 {{p}}
 state.setOk(!state.ok);
@@ -60,7 +59,7 @@ if (!state.ok) {
     return asyncGenerator.renderAction(
       source,
       buffering: asyncGenerator.buffering == 0,
-      init: init,
+      key: key,
     );
   }
 }

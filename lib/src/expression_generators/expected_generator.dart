@@ -1,6 +1,6 @@
 import '../expressions/expressions.dart';
-import 'expression_generator.dart';
 import '../helper.dart' as helper;
+import 'expression_generator.dart';
 
 class ExpectedGenerator extends ExpressionGenerator<ExpectedExpression> {
   ExpectedGenerator({

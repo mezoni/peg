@@ -67,13 +67,11 @@ class JsonParser {
   ///   ;
   AsyncResult<Object?> fastParseSpaces$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
-    Object? $4;
     void $1() {
       // [ \n\r\t]*
       // [ \n\r\t]*
       while (true) {
         // [ \n\r\t]
-        $4 ??= state.input.beginBuffering();
         final $3 = state.input;
         if (state.pos >= $3.end && !$3.isClosed) {
           $3.sleep = true;
@@ -89,8 +87,6 @@ class JsonParser {
             state.fail(const ErrorUnexpectedCharacter());
           }
         }
-        state.input.endBuffering();
-        $4 = null;
         if (!state.ok) {
           break;
         }
@@ -228,46 +224,51 @@ class JsonParser {
     beginEvent(JsonParserEvent.arrayEvent);
     List<Object?>? $0;
     // OpenBracket ↑ v:Values CloseBracket
-    final $1 = state.pos;
+    final $3 = state.pos;
+    var $2 = true;
     // @inline OpenBracket = v:'[' Spaces ;
     // v:'[' Spaces
-    final $3 = state.pos;
-    const $4 = '[';
-    matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
+    final $4 = state.pos;
+    const $5 = '[';
+    matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.backtrack($3);
+      state.backtrack($4);
     }
     if (state.ok) {
-      state.cut(state.pos);
+      $2 = false;
+      state.ok = true;
       if (state.ok) {
-        List<Object?>? $2;
+        List<Object?>? $1;
         // Values
-        $2 = parseValues(state);
+        $1 = parseValues(state);
         if (state.ok) {
           // @inline CloseBracket = v:']' Spaces ;
           // v:']' Spaces
-          final $5 = state.pos;
-          const $6 = ']';
-          matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
+          final $6 = state.pos;
+          const $7 = ']';
+          matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($5);
+            state.backtrack($6);
           }
           if (state.ok) {
-            $0 = $2;
+            $0 = $1;
           }
         }
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      if (!$2) {
+        state.isRecoverable = false;
+      }
+      state.backtrack($3);
     }
     $0 = endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $0, state.ok);
     return $0;
@@ -283,23 +284,23 @@ class JsonParser {
     List<Object?>? $2;
     int? $4;
     int? $5;
-    int? $6;
+    bool? $6;
     int? $7;
-    Object? $10;
+    int? $8;
     AsyncResult<Object?>? $11;
     int $13 = 0;
     List<Object?>? $3;
     AsyncResult<List<Object?>>? $14;
     int? $16;
     int? $17;
-    Object? $20;
-    AsyncResult<Object?>? $21;
+    AsyncResult<Object?>? $20;
     void $1() {
       // OpenBracket ↑ v:Values CloseBracket
       if ($13 & 0x20 == 0) {
         $13 |= 0x20;
         $4 = 0;
         $5 = state.pos;
+        $6 = true;
       }
       if ($4 == 0) {
         // OpenBracket
@@ -307,25 +308,22 @@ class JsonParser {
         // v:'[' Spaces
         if ($13 & 0x2 == 0) {
           $13 |= 0x2;
-          $6 = 0;
-          $7 = state.pos;
+          $7 = 0;
+          $8 = state.pos;
         }
-        if ($6 == 0) {
+        if ($7 == 0) {
           // '['
-          $10 ??= state.input.beginBuffering();
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
+          final $9 = state.input;
+          if (state.pos >= $9.end && !$9.isClosed) {
+            $9.sleep = true;
+            $9.handle = $1;
             return;
           }
-          const $9 = '[';
-          matchLiteral1Async(state, $9, const ErrorExpectedTags([$9]));
-          state.input.endBuffering();
-          $10 = null;
-          $6 = state.ok ? 1 : -1;
+          const $10 = '[';
+          matchLiteral1Async(state, $10, const ErrorExpectedTags([$10]));
+          $7 = state.ok ? 1 : -1;
         }
-        if ($6 == 1) {
+        if ($7 == 1) {
           // Spaces
           if ($13 & 0x1 == 0) {
             $13 |= 0x1;
@@ -337,17 +335,18 @@ class JsonParser {
             }
           }
           $13 &= ~0x1 & 0xffff;
-          $6 = -1;
+          $7 = -1;
         }
         if (!state.ok) {
-          state.backtrack($7!);
+          state.backtrack($8!);
         }
         $13 &= ~0x2 & 0xffff;
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
+        $6 = false;
         // ↑
-        state.cut(state.pos);
+        state.ok = true;
         state.input.cut(state.pos);
         $4 = state.ok ? 2 : -1;
       }
@@ -377,7 +376,6 @@ class JsonParser {
         }
         if ($16 == 0) {
           // ']'
-          $20 ??= state.input.beginBuffering();
           final $18 = state.input;
           if (state.pos >= $18.end && !$18.isClosed) {
             $18.sleep = true;
@@ -386,18 +384,16 @@ class JsonParser {
           }
           const $19 = ']';
           matchLiteral1Async(state, $19, const ErrorExpectedTags([$19]));
-          state.input.endBuffering();
-          $20 = null;
           $16 = state.ok ? 1 : -1;
         }
         if ($16 == 1) {
           // Spaces
           if ($13 & 0x8 == 0) {
             $13 |= 0x8;
-            $21 = fastParseSpaces$Async(state);
-            final $22 = $21!;
-            if (!$22.isComplete) {
-              $22.onComplete = $1;
+            $20 = fastParseSpaces$Async(state);
+            final $21 = $20!;
+            if (!$21.isComplete) {
+              $21.onComplete = $1;
               return;
             }
           }
@@ -413,6 +409,9 @@ class JsonParser {
       if (state.ok) {
         $2 = $3;
       } else {
+        if (!$6!) {
+          state.isRecoverable = false;
+        }
         state.backtrack($5!);
       }
       $13 &= ~0x20 & 0xffff;
@@ -434,7 +433,7 @@ class JsonParser {
   String? parseEscapeChar(State<String> state) {
     String? $0;
     // c:["/bfnrt\\] {}
-    int? $2;
+    int? $1;
     state.ok = state.pos < state.input.length;
     if (state.ok) {
       final $3 = state.input.codeUnitAt(state.pos);
@@ -444,7 +443,7 @@ class JsonParser {
               : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
       if (state.ok) {
         state.pos++;
-        $2 = $3;
+        $1 = $3;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
       }
@@ -453,7 +452,7 @@ class JsonParser {
     }
     if (state.ok) {
       String? $$;
-      final c = $2!;
+      final c = $1!;
       $$ = _escape(c);
       $0 = $$;
     }
@@ -468,11 +467,9 @@ class JsonParser {
     final $0 = AsyncResult<String>();
     String? $2;
     int? $3;
-    Object? $6;
     void $1() {
       // c:["/bfnrt\\] {}
       // ["/bfnrt\\]
-      $6 ??= state.input.beginBuffering();
       final $5 = state.input;
       if (state.pos >= $5.end && !$5.isClosed) {
         $5.sleep = true;
@@ -492,8 +489,6 @@ class JsonParser {
           state.fail(const ErrorUnexpectedCharacter());
         }
       }
-      state.input.endBuffering();
-      $6 = null;
       if (state.ok) {
         String? $$;
         final c = $3!;
@@ -517,22 +512,22 @@ class JsonParser {
   String? parseEscapeHex(State<String> state) {
     String? $0;
     // 'u' v:HexNumber {}
-    final $1 = state.pos;
+    final $2 = state.pos;
     const $3 = 'u';
     matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
     if (state.ok) {
-      int? $2;
+      int? $1;
       // HexNumber
-      $2 = parseHexNumber(state);
+      $1 = parseHexNumber(state);
       if (state.ok) {
         String? $$;
-        final v = $2!;
+        final v = $1!;
         $$ = String.fromCharCode(v);
         $0 = $$;
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      state.backtrack($2);
     }
     return $0;
   }
@@ -546,20 +541,18 @@ class JsonParser {
     String? $2;
     int? $4;
     int? $5;
-    Object? $8;
     int? $3;
-    AsyncResult<int>? $9;
-    int $11 = 0;
+    AsyncResult<int>? $8;
+    int $10 = 0;
     void $1() {
       // 'u' v:HexNumber {}
-      if ($11 & 0x2 == 0) {
-        $11 |= 0x2;
+      if ($10 & 0x2 == 0) {
+        $10 |= 0x2;
         $4 = 0;
         $5 = state.pos;
       }
       if ($4 == 0) {
         // 'u'
-        $8 ??= state.input.beginBuffering();
         final $6 = state.input;
         if (state.pos >= $6.end && !$6.isClosed) {
           $6.sleep = true;
@@ -568,23 +561,21 @@ class JsonParser {
         }
         const $7 = 'u';
         matchLiteral1Async(state, $7, const ErrorExpectedTags([$7]));
-        state.input.endBuffering();
-        $8 = null;
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
         // HexNumber
-        if ($11 & 0x1 == 0) {
-          $11 |= 0x1;
-          $9 = parseHexNumber$Async(state);
-          final $10 = $9!;
-          if (!$10.isComplete) {
-            $10.onComplete = $1;
+        if ($10 & 0x1 == 0) {
+          $10 |= 0x1;
+          $8 = parseHexNumber$Async(state);
+          final $9 = $8!;
+          if (!$9.isComplete) {
+            $9.onComplete = $1;
             return;
           }
         }
-        $3 = $9!.value;
-        $11 &= ~0x1 & 0xffff;
+        $3 = $8!.value;
+        $10 &= ~0x1 & 0xffff;
         $4 = -1;
       }
       if (state.ok) {
@@ -595,7 +586,7 @@ class JsonParser {
       } else {
         state.backtrack($5!);
       }
-      $11 &= ~0x2 & 0xffff;
+      $10 &= ~0x2 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -618,7 +609,7 @@ class JsonParser {
     // HexNumber_
     // int @inline HexNumber_ = v:$[0-9A-Fa-f]{4,4} {} ;
     // v:$[0-9A-Fa-f]{4,4} {}
-    String? $7;
+    String? $6;
     final $8 = state.pos;
     final $9 = state.pos;
     var $10 = 0;
@@ -647,11 +638,11 @@ class JsonParser {
       state.backtrack($9);
     }
     if (state.ok) {
-      $7 = state.input.substring($8, state.pos);
+      $6 = state.input.substring($8, state.pos);
     }
     if (state.ok) {
       int? $$;
-      final v = $7!;
+      final v = $6!;
       $$ = int.parse(v, radix: 16);
       $0 = $$;
     }
@@ -806,37 +797,39 @@ class JsonParser {
     beginEvent(JsonParserEvent.keyValueEvent);
     MapEntry<String, Object?>? $0;
     // k:Key Colon ↑ v:Value {}
-    final $1 = state.pos;
-    String? $2;
+    final $4 = state.pos;
+    var $3 = true;
+    String? $1;
     beginEvent(JsonParserEvent.keyEvent);
     // @inline @event Key = String ;
     // String
     // String
-    $2 = parseString(state);
-    $2 = endEvent<String>(JsonParserEvent.keyEvent, $2, state.ok);
+    $1 = parseString(state);
+    $1 = endEvent<String>(JsonParserEvent.keyEvent, $1, state.ok);
     if (state.ok) {
       // @inline Colon = v:':' Spaces ;
       // v:':' Spaces
-      final $5 = state.pos;
-      const $6 = ':';
-      matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
+      final $6 = state.pos;
+      const $7 = ':';
+      matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
       if (state.ok) {
         // Spaces
         fastParseSpaces(state);
       }
       if (!state.ok) {
-        state.backtrack($5);
+        state.backtrack($6);
       }
       if (state.ok) {
-        state.cut(state.pos);
+        $3 = false;
+        state.ok = true;
         if (state.ok) {
-          Object? $3;
+          Object? $2;
           // Value
-          $3 = parseValue(state);
+          $2 = parseValue(state);
           if (state.ok) {
             MapEntry<String, Object?>? $$;
-            final k = $2!;
-            final v = $3;
+            final k = $1!;
+            final v = $2;
             $$ = MapEntry(k, v);
             $0 = $$;
           }
@@ -844,7 +837,10 @@ class JsonParser {
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      if (!$3) {
+        state.isRecoverable = false;
+      }
+      state.backtrack($4);
     }
     $0 = endEvent<MapEntry<String, Object?>>(
         JsonParserEvent.keyValueEvent, $0, state.ok);
@@ -863,74 +859,72 @@ class JsonParser {
     MapEntry<String, Object?>? $2;
     int? $5;
     int? $6;
+    bool? $7;
     String? $3;
-    AsyncResult<String>? $7;
-    int $9 = 0;
-    int? $10;
+    AsyncResult<String>? $8;
+    int $10 = 0;
     int? $11;
-    Object? $14;
+    int? $12;
     AsyncResult<Object?>? $15;
     Object? $4;
     AsyncResult<Object?>? $17;
     void $1() {
       // k:Key Colon ↑ v:Value {}
-      if ($9 & 0x20 == 0) {
-        $9 |= 0x20;
+      if ($10 & 0x20 == 0) {
+        $10 |= 0x20;
         $5 = 0;
         $6 = state.pos;
+        $7 = true;
       }
       if ($5 == 0) {
         // Key
-        if ($9 & 0x2 == 0) {
-          $9 |= 0x2;
+        if ($10 & 0x2 == 0) {
+          $10 |= 0x2;
           beginEvent(JsonParserEvent.keyEvent);
         }
         // String
         // String
         // String
-        if ($9 & 0x1 == 0) {
-          $9 |= 0x1;
-          $7 = parseString$Async(state);
-          final $8 = $7!;
-          if (!$8.isComplete) {
-            $8.onComplete = $1;
+        if ($10 & 0x1 == 0) {
+          $10 |= 0x1;
+          $8 = parseString$Async(state);
+          final $9 = $8!;
+          if (!$9.isComplete) {
+            $9.onComplete = $1;
             return;
           }
         }
-        $3 = $7!.value;
-        $9 &= ~0x1 & 0xffff;
+        $3 = $8!.value;
+        $10 &= ~0x1 & 0xffff;
         $3 = endEvent<String>(JsonParserEvent.keyEvent, $3, state.ok);
-        $9 &= ~0x2 & 0xffff;
+        $10 &= ~0x2 & 0xffff;
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
         // Colon
         // v:':' Spaces
         // v:':' Spaces
-        if ($9 & 0x8 == 0) {
-          $9 |= 0x8;
-          $10 = 0;
-          $11 = state.pos;
+        if ($10 & 0x8 == 0) {
+          $10 |= 0x8;
+          $11 = 0;
+          $12 = state.pos;
         }
-        if ($10 == 0) {
+        if ($11 == 0) {
           // ':'
-          $14 ??= state.input.beginBuffering();
-          final $12 = state.input;
-          if (state.pos >= $12.end && !$12.isClosed) {
-            $12.sleep = true;
-            $12.handle = $1;
+          final $13 = state.input;
+          if (state.pos >= $13.end && !$13.isClosed) {
+            $13.sleep = true;
+            $13.handle = $1;
             return;
           }
-          const $13 = ':';
-          matchLiteral1Async(state, $13, const ErrorExpectedTags([$13]));
-          state.input.endBuffering();
-          $14 = null;
-          $10 = state.ok ? 1 : -1;
+          const $14 = ':';
+          matchLiteral1Async(state, $14, const ErrorExpectedTags([$14]));
+          $11 = state.ok ? 1 : -1;
         }
-        if ($10 == 1) {
+        if ($11 == 1) {
           // Spaces
-          if ($9 & 0x4 == 0) {
-            $9 |= 0x4;
+          if ($10 & 0x4 == 0) {
+            $10 |= 0x4;
             $15 = fastParseSpaces$Async(state);
             final $16 = $15!;
             if (!$16.isComplete) {
@@ -938,25 +932,26 @@ class JsonParser {
               return;
             }
           }
-          $9 &= ~0x4 & 0xffff;
-          $10 = -1;
+          $10 &= ~0x4 & 0xffff;
+          $11 = -1;
         }
         if (!state.ok) {
-          state.backtrack($11!);
+          state.backtrack($12!);
         }
-        $9 &= ~0x8 & 0xffff;
+        $10 &= ~0x8 & 0xffff;
         $5 = state.ok ? 2 : -1;
       }
       if ($5 == 2) {
+        $7 = false;
         // ↑
-        state.cut(state.pos);
+        state.ok = true;
         state.input.cut(state.pos);
         $5 = state.ok ? 3 : -1;
       }
       if ($5 == 3) {
         // Value
-        if ($9 & 0x10 == 0) {
-          $9 |= 0x10;
+        if ($10 & 0x10 == 0) {
+          $10 |= 0x10;
           $17 = parseValue$Async(state);
           final $18 = $17!;
           if (!$18.isComplete) {
@@ -965,7 +960,7 @@ class JsonParser {
           }
         }
         $4 = $17!.value;
-        $9 &= ~0x10 & 0xffff;
+        $10 &= ~0x10 & 0xffff;
         $5 = -1;
       }
       if (state.ok) {
@@ -975,9 +970,12 @@ class JsonParser {
         $$ = MapEntry(k, v);
         $2 = $$;
       } else {
+        if (!$7!) {
+          state.isRecoverable = false;
+        }
         state.backtrack($6!);
       }
-      $9 &= ~0x20 & 0xffff;
+      $10 &= ~0x20 & 0xffff;
       $2 = endEvent<MapEntry<String, Object?>>(
           JsonParserEvent.keyValueEvent, $2, state.ok);
       $0.value = $2;
@@ -991,46 +989,57 @@ class JsonParser {
   }
 
   /// KeyValues =
-  ///   @sepBy(KeyValue, Comma ↑)
+  ///   @list(KeyValue, Comma ↑ v:KeyValue)
   ///   ;
   List<MapEntry<String, Object?>>? parseKeyValues(State<String> state) {
     List<MapEntry<String, Object?>>? $0;
-    // @sepBy(KeyValue, Comma ↑)
+    // @list(KeyValue, Comma ↑ v:KeyValue)
     final $2 = <MapEntry<String, Object?>>[];
-    var $4 = state.pos;
-    while (true) {
-      MapEntry<String, Object?>? $3;
-      // KeyValue
-      // KeyValue
-      $3 = parseKeyValue(state);
-      if (!state.ok) {
-        state.backtrack($4);
-        break;
-      }
+    MapEntry<String, Object?>? $3;
+    // KeyValue
+    // KeyValue
+    $3 = parseKeyValue(state);
+    if (state.ok) {
       $2.add($3!);
-      $4 = state.pos;
-      // Comma ↑
-      final $6 = state.pos;
-      // @inline Comma = v:',' Spaces ;
-      // v:',' Spaces
-      final $7 = state.pos;
-      const $8 = ',';
-      matchLiteral1(state, $8, const ErrorExpectedTags([$8]));
-      if (state.ok) {
-        // Spaces
-        fastParseSpaces(state);
-      }
-      if (!state.ok) {
-        state.backtrack($7);
-      }
-      if (state.ok) {
-        state.cut(state.pos);
-      }
-      if (!state.ok) {
-        state.backtrack($6);
-      }
-      if (!state.ok) {
-        break;
+      while (true) {
+        MapEntry<String, Object?>? $4;
+        // Comma ↑ v:KeyValue
+        final $9 = state.pos;
+        var $8 = true;
+        // @inline Comma = v:',' Spaces ;
+        // v:',' Spaces
+        final $10 = state.pos;
+        const $11 = ',';
+        matchLiteral1(state, $11, const ErrorExpectedTags([$11]));
+        if (state.ok) {
+          // Spaces
+          fastParseSpaces(state);
+        }
+        if (!state.ok) {
+          state.backtrack($10);
+        }
+        if (state.ok) {
+          $8 = false;
+          state.ok = true;
+          if (state.ok) {
+            MapEntry<String, Object?>? $7;
+            // KeyValue
+            $7 = parseKeyValue(state);
+            if (state.ok) {
+              $4 = $7;
+            }
+          }
+        }
+        if (!state.ok) {
+          if (!$8) {
+            state.isRecoverable = false;
+          }
+          state.backtrack($9);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $2.add($4!);
       }
     }
     state.setOk(true);
@@ -1041,131 +1050,151 @@ class JsonParser {
   }
 
   /// KeyValues =
-  ///   @sepBy(KeyValue, Comma ↑)
+  ///   @list(KeyValue, Comma ↑ v:KeyValue)
   ///   ;
   AsyncResult<List<MapEntry<String, Object?>>> parseKeyValues$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<List<MapEntry<String, Object?>>>();
     List<MapEntry<String, Object?>>? $2;
     int? $3;
-    List<MapEntry<String, Object?>>? $4;
-    int? $6;
-    AsyncResult<MapEntry<String, Object?>>? $7;
-    int $9 = 0;
-    int? $10;
-    int? $11;
+    int? $4;
+    List<MapEntry<String, Object?>>? $5;
+    AsyncResult<MapEntry<String, Object?>>? $8;
+    int $10 = 0;
     int? $12;
     int? $13;
-    Object? $16;
-    AsyncResult<Object?>? $17;
+    bool? $14;
+    int? $15;
+    int? $16;
+    AsyncResult<Object?>? $19;
+    MapEntry<String, Object?>? $11;
+    AsyncResult<MapEntry<String, Object?>>? $21;
     void $1() {
-      // @sepBy(KeyValue, Comma ↑)
-      // @sepBy(KeyValue, Comma ↑)
-      if ($9 & 0x10 == 0) {
-        $9 |= 0x10;
-        $4 = [];
-        $6 = state.pos;
-        $3 = 0;
+      // @list(KeyValue, Comma ↑ v:KeyValue)
+      // @list(KeyValue, Comma ↑ v:KeyValue)
+      if ($3 == null) {
+        $3 = state.pos;
+        $4 = 0;
+        $5 = [];
       }
       while (true) {
-        if ($3 == 0) {
-          MapEntry<String, Object?>? $5;
+        if ($4 == 0) {
+          MapEntry<String, Object?>? $6;
           // KeyValue
           // KeyValue
-          if ($9 & 0x1 == 0) {
-            $9 |= 0x1;
-            $7 = parseKeyValue$Async(state);
-            final $8 = $7!;
-            if (!$8.isComplete) {
-              $8.onComplete = $1;
+          if ($10 & 0x1 == 0) {
+            $10 |= 0x1;
+            $8 = parseKeyValue$Async(state);
+            final $9 = $8!;
+            if (!$9.isComplete) {
+              $9.onComplete = $1;
               return;
             }
           }
-          $5 = $7!.value;
-          $9 &= ~0x1 & 0xffff;
+          $6 = $8!.value;
+          $10 &= ~0x1 & 0xffff;
           if (!state.ok) {
-            state.backtrack($6!);
-            $5 = null;
             break;
           }
-          $4!.add($5!);
-          $5 = null;
-          $6 = state.pos;
-          $3 = 1;
+          $5!.add($6!);
+          $6 = null;
+          $4 = 1;
         }
-        if ($3 == 1) {
-          // Comma ↑
-          if ($9 & 0x8 == 0) {
-            $9 |= 0x8;
-            $10 = 0;
-            $11 = state.pos;
+        if ($4 == 1) {
+          MapEntry<String, Object?>? $7;
+          // Comma ↑ v:KeyValue
+          if ($10 & 0x10 == 0) {
+            $10 |= 0x10;
+            $12 = 0;
+            $13 = state.pos;
+            $14 = true;
           }
-          if ($10 == 0) {
+          if ($12 == 0) {
             // Comma
             // v:',' Spaces
             // v:',' Spaces
-            if ($9 & 0x4 == 0) {
-              $9 |= 0x4;
-              $12 = 0;
-              $13 = state.pos;
+            if ($10 & 0x4 == 0) {
+              $10 |= 0x4;
+              $15 = 0;
+              $16 = state.pos;
             }
-            if ($12 == 0) {
+            if ($15 == 0) {
               // ','
-              $16 ??= state.input.beginBuffering();
-              final $14 = state.input;
-              if (state.pos >= $14.end && !$14.isClosed) {
-                $14.sleep = true;
-                $14.handle = $1;
+              final $17 = state.input;
+              if (state.pos >= $17.end && !$17.isClosed) {
+                $17.sleep = true;
+                $17.handle = $1;
                 return;
               }
-              const $15 = ',';
-              matchLiteral1Async(state, $15, const ErrorExpectedTags([$15]));
-              state.input.endBuffering();
-              $16 = null;
-              $12 = state.ok ? 1 : -1;
+              const $18 = ',';
+              matchLiteral1Async(state, $18, const ErrorExpectedTags([$18]));
+              $15 = state.ok ? 1 : -1;
             }
-            if ($12 == 1) {
+            if ($15 == 1) {
               // Spaces
-              if ($9 & 0x2 == 0) {
-                $9 |= 0x2;
-                $17 = fastParseSpaces$Async(state);
-                final $18 = $17!;
-                if (!$18.isComplete) {
-                  $18.onComplete = $1;
+              if ($10 & 0x2 == 0) {
+                $10 |= 0x2;
+                $19 = fastParseSpaces$Async(state);
+                final $20 = $19!;
+                if (!$20.isComplete) {
+                  $20.onComplete = $1;
                   return;
                 }
               }
-              $9 &= ~0x2 & 0xffff;
-              $12 = -1;
+              $10 &= ~0x2 & 0xffff;
+              $15 = -1;
             }
             if (!state.ok) {
-              state.backtrack($13!);
+              state.backtrack($16!);
             }
-            $9 &= ~0x4 & 0xffff;
-            $10 = state.ok ? 1 : -1;
+            $10 &= ~0x4 & 0xffff;
+            $12 = state.ok ? 1 : -1;
           }
-          if ($10 == 1) {
+          if ($12 == 1) {
+            $14 = false;
             // ↑
-            state.cut(state.pos);
+            state.ok = true;
             state.input.cut(state.pos);
-            $10 = -1;
+            $12 = state.ok ? 2 : -1;
           }
-          if (!state.ok) {
-            state.backtrack($11!);
+          if ($12 == 2) {
+            // KeyValue
+            if ($10 & 0x8 == 0) {
+              $10 |= 0x8;
+              $21 = parseKeyValue$Async(state);
+              final $22 = $21!;
+              if (!$22.isComplete) {
+                $22.onComplete = $1;
+                return;
+              }
+            }
+            $11 = $21!.value;
+            $10 &= ~0x8 & 0xffff;
+            $12 = -1;
           }
-          $9 &= ~0x8 & 0xffff;
+          if (state.ok) {
+            $7 = $11;
+          } else {
+            if (!$14!) {
+              state.isRecoverable = false;
+            }
+            state.backtrack($13!);
+          }
+          $10 &= ~0x10 & 0xffff;
           if (!state.ok) {
+            $4 = -1;
             break;
           }
-          $3 = 0;
+          $5!.add($7!);
+          $7 = null;
         }
       }
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
-        $4 = null;
+        $2 = $5;
+        $5 = null;
       }
-      $9 &= ~0x10 & 0xffff;
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1183,15 +1212,15 @@ class JsonParser {
   num? parseNumber(State<String> state) {
     num? $0;
     // v:@expected('number' ,Number_) Spaces
-    final $1 = state.pos;
-    num? $2;
+    final $2 = state.pos;
+    num? $1;
     final $3 = state.pos;
     final $4 = state.failPos;
     final $5 = state.errorCount;
     // Number_
     // num @inline Number_ = v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {} ;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
-    String? $8;
+    String? $7;
     final $9 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
     final $10 = state.pos;
@@ -1243,17 +1272,19 @@ class JsonParser {
       }
       if (state.ok) {
         // [.] ↑ [0-9]+
-        final $15 = state.pos;
+        final $16 = state.pos;
+        var $15 = true;
         matchChar16(state, 46);
         if (state.ok) {
-          state.cut(state.pos);
+          $15 = false;
+          state.ok = true;
           if (state.ok) {
-            var $16 = false;
+            var $17 = false;
             while (true) {
               state.ok = state.pos < state.input.length;
               if (state.ok) {
-                final $17 = state.input.codeUnitAt(state.pos);
-                state.ok = $17 >= 48 && $17 <= 57;
+                final $18 = state.input.codeUnitAt(state.pos);
+                state.ok = $18 >= 48 && $18 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1265,24 +1296,28 @@ class JsonParser {
               if (!state.ok) {
                 break;
               }
-              $16 = true;
+              $17 = true;
             }
-            state.setOk($16);
+            state.setOk($17);
           }
         }
         if (!state.ok) {
-          state.backtrack($15);
+          if (!$15) {
+            state.isRecoverable = false;
+          }
+          state.backtrack($16);
         }
         if (!state.ok) {
           state.setOk(true);
         }
         if (state.ok) {
           // [eE] ↑ [-+]? [0-9]+
-          final $18 = state.pos;
+          final $20 = state.pos;
+          var $19 = true;
           state.ok = state.pos < state.input.length;
           if (state.ok) {
-            final $19 = state.input.codeUnitAt(state.pos);
-            state.ok = $19 == 69 || $19 == 101;
+            final $21 = state.input.codeUnitAt(state.pos);
+            state.ok = $21 == 69 || $21 == 101;
             if (state.ok) {
               state.pos++;
             } else {
@@ -1292,12 +1327,13 @@ class JsonParser {
             state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            state.cut(state.pos);
+            $19 = false;
+            state.ok = true;
             if (state.ok) {
               state.ok = state.pos < state.input.length;
               if (state.ok) {
-                final $20 = state.input.codeUnitAt(state.pos);
-                state.ok = $20 == 43 || $20 == 45;
+                final $22 = state.input.codeUnitAt(state.pos);
+                state.ok = $22 == 43 || $22 == 45;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1310,12 +1346,12 @@ class JsonParser {
                 state.setOk(true);
               }
               if (state.ok) {
-                var $21 = false;
+                var $23 = false;
                 while (true) {
                   state.ok = state.pos < state.input.length;
                   if (state.ok) {
-                    final $22 = state.input.codeUnitAt(state.pos);
-                    state.ok = $22 >= 48 && $22 <= 57;
+                    final $24 = state.input.codeUnitAt(state.pos);
+                    state.ok = $24 >= 48 && $24 <= 57;
                     if (state.ok) {
                       state.pos++;
                     } else {
@@ -1327,14 +1363,17 @@ class JsonParser {
                   if (!state.ok) {
                     break;
                   }
-                  $21 = true;
+                  $23 = true;
                 }
-                state.setOk($21);
+                state.setOk($23);
               }
             }
           }
           if (!state.ok) {
-            state.backtrack($18);
+            if (!$19) {
+              state.isRecoverable = false;
+            }
+            state.backtrack($20);
           }
           if (!state.ok) {
             state.setOk(true);
@@ -1346,13 +1385,13 @@ class JsonParser {
       state.backtrack($10);
     }
     if (state.ok) {
-      $8 = state.input.substring($9, state.pos);
+      $7 = state.input.substring($9, state.pos);
     }
     if (state.ok) {
       num? $$;
-      final v = $8!;
+      final v = $7!;
       $$ = num.parse(v);
-      $2 = $$;
+      $1 = $$;
     }
     if (!state.ok && state.canHandleError($4, $5)) {
       if (state.failPos == $3) {
@@ -1364,11 +1403,11 @@ class JsonParser {
       // Spaces
       fastParseSpaces(state);
       if (state.ok) {
-        $0 = $2;
+        $0 = $1;
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      state.backtrack($2);
     }
     return $0;
   }
@@ -1396,11 +1435,13 @@ class JsonParser {
     int $22 = 0;
     int? $23;
     int? $24;
-    bool? $26;
-    int? $29;
+    bool? $25;
+    bool? $27;
     int? $30;
-    bool? $35;
-    AsyncResult<Object?>? $38;
+    int? $31;
+    bool? $32;
+    bool? $37;
+    AsyncResult<Object?>? $40;
     void $1() {
       // v:@expected('number' ,Number_) Spaces
       if ($22 & 0x100 == 0) {
@@ -1543,38 +1584,40 @@ class JsonParser {
             $22 |= 0x4;
             $23 = 0;
             $24 = state.pos;
+            $25 = true;
           }
           if ($23 == 0) {
             // [.]
-            final $25 = state.input;
-            if (state.pos >= $25.end && !$25.isClosed) {
-              $25.sleep = true;
-              $25.handle = $1;
+            final $26 = state.input;
+            if (state.pos >= $26.end && !$26.isClosed) {
+              $26.sleep = true;
+              $26.handle = $1;
               return;
             }
             matchChar16Async(state, 46);
             $23 = state.ok ? 1 : -1;
           }
           if ($23 == 1) {
+            $25 = false;
             // ↑
-            state.cut(state.pos);
+            state.ok = true;
             state.input.cut(state.pos);
             $23 = state.ok ? 2 : -1;
           }
           if ($23 == 2) {
             // [0-9]+
-            $26 ??= false;
+            $27 ??= false;
             while (true) {
               // [0-9]
-              final $28 = state.input;
-              if (state.pos >= $28.end && !$28.isClosed) {
-                $28.sleep = true;
-                $28.handle = $1;
+              final $29 = state.input;
+              if (state.pos >= $29.end && !$29.isClosed) {
+                $29.sleep = true;
+                $29.handle = $1;
                 return;
               }
-              final $27 = readChar16Async(state);
-              if ($27 >= 0) {
-                state.ok = $27 >= 48 && $27 <= 57;
+              final $28 = readChar16Async(state);
+              if ($28 >= 0) {
+                state.ok = $28 >= 48 && $28 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1584,13 +1627,16 @@ class JsonParser {
               if (!state.ok) {
                 break;
               }
-              $26 = true;
+              $27 = true;
             }
-            state.setOk($26!);
-            $26 = null;
+            state.setOk($27!);
+            $27 = null;
             $23 = -1;
           }
           if (!state.ok) {
+            if (!$25!) {
+              state.isRecoverable = false;
+            }
             state.backtrack($24!);
           }
           $22 &= ~0x4 & 0xffff;
@@ -1606,37 +1652,12 @@ class JsonParser {
           // [eE] ↑ [-+]? [0-9]+
           if ($22 & 0x8 == 0) {
             $22 |= 0x8;
-            $29 = 0;
-            $30 = state.pos;
+            $30 = 0;
+            $31 = state.pos;
+            $32 = true;
           }
-          if ($29 == 0) {
+          if ($30 == 0) {
             // [eE]
-            final $32 = state.input;
-            if (state.pos >= $32.end && !$32.isClosed) {
-              $32.sleep = true;
-              $32.handle = $1;
-              return;
-            }
-            final $31 = readChar16Async(state);
-            if ($31 >= 0) {
-              state.ok = $31 == 69 || $31 == 101;
-              if (state.ok) {
-                state.pos++;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            }
-            $29 = state.ok ? 1 : -1;
-          }
-          if ($29 == 1) {
-            // ↑
-            state.cut(state.pos);
-            state.input.cut(state.pos);
-            $29 = state.ok ? 2 : -1;
-          }
-          if ($29 == 2) {
-            // [-+]?
-            // [-+]
             final $34 = state.input;
             if (state.pos >= $34.end && !$34.isClosed) {
               $34.sleep = true;
@@ -1645,7 +1666,34 @@ class JsonParser {
             }
             final $33 = readChar16Async(state);
             if ($33 >= 0) {
-              state.ok = $33 == 43 || $33 == 45;
+              state.ok = $33 == 69 || $33 == 101;
+              if (state.ok) {
+                state.pos++;
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            }
+            $30 = state.ok ? 1 : -1;
+          }
+          if ($30 == 1) {
+            $32 = false;
+            // ↑
+            state.ok = true;
+            state.input.cut(state.pos);
+            $30 = state.ok ? 2 : -1;
+          }
+          if ($30 == 2) {
+            // [-+]?
+            // [-+]
+            final $36 = state.input;
+            if (state.pos >= $36.end && !$36.isClosed) {
+              $36.sleep = true;
+              $36.handle = $1;
+              return;
+            }
+            final $35 = readChar16Async(state);
+            if ($35 >= 0) {
+              state.ok = $35 == 43 || $35 == 45;
               if (state.ok) {
                 state.pos++;
               } else {
@@ -1655,22 +1703,22 @@ class JsonParser {
             if (!state.ok) {
               state.setOk(true);
             }
-            $29 = state.ok ? 3 : -1;
+            $30 = state.ok ? 3 : -1;
           }
-          if ($29 == 3) {
+          if ($30 == 3) {
             // [0-9]+
-            $35 ??= false;
+            $37 ??= false;
             while (true) {
               // [0-9]
-              final $37 = state.input;
-              if (state.pos >= $37.end && !$37.isClosed) {
-                $37.sleep = true;
-                $37.handle = $1;
+              final $39 = state.input;
+              if (state.pos >= $39.end && !$39.isClosed) {
+                $39.sleep = true;
+                $39.handle = $1;
                 return;
               }
-              final $36 = readChar16Async(state);
-              if ($36 >= 0) {
-                state.ok = $36 >= 48 && $36 <= 57;
+              final $38 = readChar16Async(state);
+              if ($38 >= 0) {
+                state.ok = $38 >= 48 && $38 <= 57;
                 if (state.ok) {
                   state.pos++;
                 } else {
@@ -1680,14 +1728,17 @@ class JsonParser {
               if (!state.ok) {
                 break;
               }
-              $35 = true;
+              $37 = true;
             }
-            state.setOk($35!);
-            $35 = null;
-            $29 = -1;
+            state.setOk($37!);
+            $37 = null;
+            $30 = -1;
           }
           if (!state.ok) {
-            state.backtrack($30!);
+            if (!$32!) {
+              state.isRecoverable = false;
+            }
+            state.backtrack($31!);
           }
           $22 &= ~0x8 & 0xffff;
           if (!state.ok) {
@@ -1726,10 +1777,10 @@ class JsonParser {
         // Spaces
         if ($22 & 0x80 == 0) {
           $22 |= 0x80;
-          $38 = fastParseSpaces$Async(state);
-          final $39 = $38!;
-          if (!$39.isComplete) {
-            $39.onComplete = $1;
+          $40 = fastParseSpaces$Async(state);
+          final $41 = $40!;
+          if (!$41.isComplete) {
+            $41.onComplete = $1;
             return;
           }
         }
@@ -1761,41 +1812,43 @@ class JsonParser {
     beginEvent(JsonParserEvent.objectEvent);
     Map<String, Object?>? $0;
     // OpenBrace ↑ kv:KeyValues CloseBrace {}
-    final $1 = state.pos;
+    final $3 = state.pos;
+    var $2 = true;
     // @inline OpenBrace = v:'{' Spaces ;
     // v:'{' Spaces
-    final $3 = state.pos;
-    const $4 = '{';
-    matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
+    final $4 = state.pos;
+    const $5 = '{';
+    matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.backtrack($3);
+      state.backtrack($4);
     }
     if (state.ok) {
-      state.cut(state.pos);
+      $2 = false;
+      state.ok = true;
       if (state.ok) {
-        List<MapEntry<String, Object?>>? $2;
+        List<MapEntry<String, Object?>>? $1;
         // KeyValues
-        $2 = parseKeyValues(state);
+        $1 = parseKeyValues(state);
         if (state.ok) {
           // @inline CloseBrace = v:'}' Spaces ;
           // v:'}' Spaces
-          final $5 = state.pos;
-          const $6 = '}';
-          matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
+          final $6 = state.pos;
+          const $7 = '}';
+          matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($5);
+            state.backtrack($6);
           }
           if (state.ok) {
             Map<String, Object?>? $$;
-            final kv = $2!;
+            final kv = $1!;
             $$ = kv.isEmpty ? const {} : Map.fromEntries(kv);
             $0 = $$;
           }
@@ -1803,7 +1856,10 @@ class JsonParser {
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      if (!$2) {
+        state.isRecoverable = false;
+      }
+      state.backtrack($3);
     }
     $0 = endEvent<Map<String, Object?>>(
         JsonParserEvent.objectEvent, $0, state.ok);
@@ -1822,23 +1878,23 @@ class JsonParser {
     Map<String, Object?>? $2;
     int? $4;
     int? $5;
-    int? $6;
+    bool? $6;
     int? $7;
-    Object? $10;
+    int? $8;
     AsyncResult<Object?>? $11;
     int $13 = 0;
     List<MapEntry<String, Object?>>? $3;
     AsyncResult<List<MapEntry<String, Object?>>>? $14;
     int? $16;
     int? $17;
-    Object? $20;
-    AsyncResult<Object?>? $21;
+    AsyncResult<Object?>? $20;
     void $1() {
       // OpenBrace ↑ kv:KeyValues CloseBrace {}
       if ($13 & 0x20 == 0) {
         $13 |= 0x20;
         $4 = 0;
         $5 = state.pos;
+        $6 = true;
       }
       if ($4 == 0) {
         // OpenBrace
@@ -1846,25 +1902,22 @@ class JsonParser {
         // v:'{' Spaces
         if ($13 & 0x2 == 0) {
           $13 |= 0x2;
-          $6 = 0;
-          $7 = state.pos;
+          $7 = 0;
+          $8 = state.pos;
         }
-        if ($6 == 0) {
+        if ($7 == 0) {
           // '{'
-          $10 ??= state.input.beginBuffering();
-          final $8 = state.input;
-          if (state.pos >= $8.end && !$8.isClosed) {
-            $8.sleep = true;
-            $8.handle = $1;
+          final $9 = state.input;
+          if (state.pos >= $9.end && !$9.isClosed) {
+            $9.sleep = true;
+            $9.handle = $1;
             return;
           }
-          const $9 = '{';
-          matchLiteral1Async(state, $9, const ErrorExpectedTags([$9]));
-          state.input.endBuffering();
-          $10 = null;
-          $6 = state.ok ? 1 : -1;
+          const $10 = '{';
+          matchLiteral1Async(state, $10, const ErrorExpectedTags([$10]));
+          $7 = state.ok ? 1 : -1;
         }
-        if ($6 == 1) {
+        if ($7 == 1) {
           // Spaces
           if ($13 & 0x1 == 0) {
             $13 |= 0x1;
@@ -1876,17 +1929,18 @@ class JsonParser {
             }
           }
           $13 &= ~0x1 & 0xffff;
-          $6 = -1;
+          $7 = -1;
         }
         if (!state.ok) {
-          state.backtrack($7!);
+          state.backtrack($8!);
         }
         $13 &= ~0x2 & 0xffff;
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
+        $6 = false;
         // ↑
-        state.cut(state.pos);
+        state.ok = true;
         state.input.cut(state.pos);
         $4 = state.ok ? 2 : -1;
       }
@@ -1916,7 +1970,6 @@ class JsonParser {
         }
         if ($16 == 0) {
           // '}'
-          $20 ??= state.input.beginBuffering();
           final $18 = state.input;
           if (state.pos >= $18.end && !$18.isClosed) {
             $18.sleep = true;
@@ -1925,18 +1978,16 @@ class JsonParser {
           }
           const $19 = '}';
           matchLiteral1Async(state, $19, const ErrorExpectedTags([$19]));
-          state.input.endBuffering();
-          $20 = null;
           $16 = state.ok ? 1 : -1;
         }
         if ($16 == 1) {
           // Spaces
           if ($13 & 0x8 == 0) {
             $13 |= 0x8;
-            $21 = fastParseSpaces$Async(state);
-            final $22 = $21!;
-            if (!$22.isComplete) {
-              $22.onComplete = $1;
+            $20 = fastParseSpaces$Async(state);
+            final $21 = $20!;
+            if (!$21.isComplete) {
+              $21.onComplete = $1;
               return;
             }
           }
@@ -1955,6 +2006,9 @@ class JsonParser {
         $$ = kv.isEmpty ? const {} : Map.fromEntries(kv);
         $2 = $$;
       } else {
+        if (!$6!) {
+          state.isRecoverable = false;
+        }
         state.backtrack($5!);
       }
       $13 &= ~0x20 & 0xffff;
@@ -1978,25 +2032,25 @@ class JsonParser {
     beginEvent(JsonParserEvent.startEvent);
     Object? $0;
     // Spaces v:Value @eof()
-    final $1 = state.pos;
+    final $2 = state.pos;
     // Spaces
     fastParseSpaces(state);
     if (state.ok) {
-      Object? $2;
+      Object? $1;
       // Value
-      $2 = parseValue(state);
+      $1 = parseValue(state);
       if (state.ok) {
         state.ok = state.pos >= state.input.length;
         if (!state.ok) {
           state.fail(const ErrorExpectedEndOfInput());
         }
         if (state.ok) {
-          $0 = $2;
+          $0 = $1;
         }
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      state.backtrack($2);
     }
     $0 = endEvent<Object?>(JsonParserEvent.startEvent, $0, state.ok);
     return $0;
@@ -2090,32 +2144,34 @@ class JsonParser {
   String? parseString(State<String> state) {
     String? $0;
     // '"' ↑ v:StringChars Quote
-    final $1 = state.pos;
-    const $3 = '"';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    final $3 = state.pos;
+    var $2 = true;
+    const $4 = '"';
+    matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
     if (state.ok) {
-      state.cut(state.pos);
+      $2 = false;
+      state.ok = true;
       if (state.ok) {
-        String? $2;
+        String? $1;
         // @inline StringChars = @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex)) ;
         // @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex))
-        final $15 = state.input;
-        List<String>? $16;
-        String? $17;
-        while (state.pos < $15.length) {
-          String? $5;
+        final $16 = state.input;
+        List<String>? $17;
+        String? $18;
+        while (state.pos < $16.length) {
+          String? $6;
           // $[ -!#-[\]-\u{10ffff}]+
-          final $8 = state.pos;
-          var $9 = false;
+          final $9 = state.pos;
+          var $10 = false;
           while (true) {
             state.ok = state.pos < state.input.length;
             if (state.ok) {
-              final $10 = state.input.runeAt(state.pos);
-              state.ok = $10 <= 91
-                  ? $10 >= 32 && $10 <= 33 || $10 >= 35
-                  : $10 >= 93 && $10 <= 1114111;
+              final $11 = state.input.runeAt(state.pos);
+              state.ok = $11 <= 91
+                  ? $11 >= 32 && $11 <= 33 || $11 >= 35
+                  : $11 >= 93 && $11 <= 1114111;
               if (state.ok) {
-                state.pos += $10 > 0xffff ? 2 : 1;
+                state.pos += $11 > 0xffff ? 2 : 1;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
@@ -2125,20 +2181,20 @@ class JsonParser {
             if (!state.ok) {
               break;
             }
-            $9 = true;
+            $10 = true;
           }
-          state.setOk($9);
+          state.setOk($10);
           if (state.ok) {
-            $5 = state.input.substring($8, state.pos);
+            $6 = state.input.substring($9, state.pos);
           }
           if (state.ok) {
-            final v = $5!;
-            if ($17 == null) {
-              $17 = v;
-            } else if ($16 == null) {
-              $16 = [$17, v];
+            final v = $6!;
+            if ($18 == null) {
+              $18 = v;
+            } else if ($17 == null) {
+              $17 = [$18, v];
             } else {
-              $16.add(v);
+              $17.add(v);
             }
           }
           final pos = state.pos;
@@ -2147,59 +2203,62 @@ class JsonParser {
           if (!state.ok) {
             break;
           }
-          String? $6;
+          String? $7;
           // (EscapeChar / EscapeHex)
           // EscapeChar
           // EscapeChar
-          $6 = parseEscapeChar(state);
+          $7 = parseEscapeChar(state);
           if (!state.ok && state.isRecoverable) {
             // EscapeHex
             // EscapeHex
-            $6 = parseEscapeHex(state);
+            $7 = parseEscapeHex(state);
           }
           if (!state.ok) {
             state.backtrack(pos);
             break;
           }
-          if ($17 == null) {
-            $17 = $6!;
+          if ($18 == null) {
+            $18 = $7!;
           } else {
-            if ($16 == null) {
-              $16 = [$17, $6!];
+            if ($17 == null) {
+              $17 = [$18, $7!];
             } else {
-              $16.add($6!);
+              $17.add($7!);
             }
           }
         }
         state.ok = true;
-        if ($17 == null) {
-          $2 = '';
-        } else if ($16 == null) {
-          $2 = $17;
+        if ($18 == null) {
+          $1 = '';
+        } else if ($17 == null) {
+          $1 = $18;
         } else {
-          $2 = $16.join();
+          $1 = $17.join();
         }
         if (state.ok) {
           // @inline Quote = v:'"' Spaces ;
           // v:'"' Spaces
-          final $18 = state.pos;
-          const $19 = '"';
-          matchLiteral1(state, $19, const ErrorExpectedTags([$19]));
+          final $19 = state.pos;
+          const $20 = '"';
+          matchLiteral1(state, $20, const ErrorExpectedTags([$20]));
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($18);
+            state.backtrack($19);
           }
           if (state.ok) {
-            $0 = $2;
+            $0 = $1;
           }
         }
       }
     }
     if (!state.ok) {
-      state.backtrack($1);
+      if (!$2) {
+        state.isRecoverable = false;
+      }
+      state.backtrack($3);
     }
     return $0;
   }
@@ -2213,7 +2272,7 @@ class JsonParser {
     String? $2;
     int? $4;
     int? $5;
-    Object? $8;
+    bool? $6;
     String? $3;
     int? $9;
     int? $10;
@@ -2223,40 +2282,37 @@ class JsonParser {
     int? $15;
     bool? $16;
     int $19 = 0;
-    Object? $21;
     String? $12;
-    int? $22;
-    AsyncResult<String>? $23;
-    AsyncResult<String>? $25;
+    int? $21;
+    AsyncResult<String>? $22;
+    AsyncResult<String>? $24;
+    int? $26;
     int? $27;
-    int? $28;
-    Object? $31;
-    AsyncResult<Object?>? $32;
+    AsyncResult<Object?>? $30;
     void $1() {
       // '"' ↑ v:StringChars Quote
       if ($19 & 0x80 == 0) {
         $19 |= 0x80;
         $4 = 0;
         $5 = state.pos;
+        $6 = true;
       }
       if ($4 == 0) {
         // '"'
-        $8 ??= state.input.beginBuffering();
-        final $6 = state.input;
-        if (state.pos >= $6.end && !$6.isClosed) {
-          $6.sleep = true;
-          $6.handle = $1;
+        final $7 = state.input;
+        if (state.pos >= $7.end && !$7.isClosed) {
+          $7.sleep = true;
+          $7.handle = $1;
           return;
         }
-        const $7 = '"';
-        matchLiteral1Async(state, $7, const ErrorExpectedTags([$7]));
-        state.input.endBuffering();
-        $8 = null;
+        const $8 = '"';
+        matchLiteral1Async(state, $8, const ErrorExpectedTags([$8]));
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
+        $6 = false;
         // ↑
-        state.cut(state.pos);
+        state.ok = true;
         state.input.cut(state.pos);
         $4 = state.ok ? 2 : -1;
       }
@@ -2334,7 +2390,6 @@ class JsonParser {
             // [\\]
             // [\\]
             // [\\]
-            $21 ??= state.input.beginBuffering();
             final $20 = state.input;
             if (state.pos >= $20.end && !$20.isClosed) {
               $20.sleep = true;
@@ -2342,8 +2397,6 @@ class JsonParser {
               return;
             }
             matchChar16Async(state, 92);
-            state.input.endBuffering();
-            $21 = null;
             if (!state.ok) {
               break;
             }
@@ -2356,43 +2409,43 @@ class JsonParser {
             // EscapeChar / EscapeHex
             if ($19 & 0x8 == 0) {
               $19 |= 0x8;
-              $22 = 0;
+              $21 = 0;
             }
-            if ($22 == 0) {
+            if ($21 == 0) {
               // EscapeChar
               // EscapeChar
               if ($19 & 0x2 == 0) {
                 $19 |= 0x2;
-                $23 = parseEscapeChar$Async(state);
-                final $24 = $23!;
-                if (!$24.isComplete) {
-                  $24.onComplete = $1;
+                $22 = parseEscapeChar$Async(state);
+                final $23 = $22!;
+                if (!$23.isComplete) {
+                  $23.onComplete = $1;
                   return;
                 }
               }
-              $12 = $23!.value;
+              $12 = $22!.value;
               $19 &= ~0x2 & 0xffff;
-              $22 = state.ok
+              $21 = state.ok
                   ? -1
                   : state.isRecoverable
                       ? 1
                       : -1;
             }
-            if ($22 == 1) {
+            if ($21 == 1) {
               // EscapeHex
               // EscapeHex
               if ($19 & 0x4 == 0) {
                 $19 |= 0x4;
-                $25 = parseEscapeHex$Async(state);
-                final $26 = $25!;
-                if (!$26.isComplete) {
-                  $26.onComplete = $1;
+                $24 = parseEscapeHex$Async(state);
+                final $25 = $24!;
+                if (!$25.isComplete) {
+                  $25.onComplete = $1;
                   return;
                 }
               }
-              $12 = $25!.value;
+              $12 = $24!.value;
               $19 &= ~0x4 & 0xffff;
-              $22 = -1;
+              $21 = -1;
             }
             $19 &= ~0x8 & 0xffff;
             if (!state.ok) {
@@ -2428,40 +2481,37 @@ class JsonParser {
         // v:'"' Spaces
         if ($19 & 0x40 == 0) {
           $19 |= 0x40;
-          $27 = 0;
-          $28 = state.pos;
+          $26 = 0;
+          $27 = state.pos;
         }
-        if ($27 == 0) {
+        if ($26 == 0) {
           // '"'
-          $31 ??= state.input.beginBuffering();
-          final $29 = state.input;
-          if (state.pos >= $29.end && !$29.isClosed) {
-            $29.sleep = true;
-            $29.handle = $1;
+          final $28 = state.input;
+          if (state.pos >= $28.end && !$28.isClosed) {
+            $28.sleep = true;
+            $28.handle = $1;
             return;
           }
-          const $30 = '"';
-          matchLiteral1Async(state, $30, const ErrorExpectedTags([$30]));
-          state.input.endBuffering();
-          $31 = null;
-          $27 = state.ok ? 1 : -1;
+          const $29 = '"';
+          matchLiteral1Async(state, $29, const ErrorExpectedTags([$29]));
+          $26 = state.ok ? 1 : -1;
         }
-        if ($27 == 1) {
+        if ($26 == 1) {
           // Spaces
           if ($19 & 0x20 == 0) {
             $19 |= 0x20;
-            $32 = fastParseSpaces$Async(state);
-            final $33 = $32!;
-            if (!$33.isComplete) {
-              $33.onComplete = $1;
+            $30 = fastParseSpaces$Async(state);
+            final $31 = $30!;
+            if (!$31.isComplete) {
+              $31.onComplete = $1;
               return;
             }
           }
           $19 &= ~0x20 & 0xffff;
-          $27 = -1;
+          $26 = -1;
         }
         if (!state.ok) {
-          state.backtrack($28!);
+          state.backtrack($27!);
         }
         $19 &= ~0x40 & 0xffff;
         $4 = -1;
@@ -2469,6 +2519,9 @@ class JsonParser {
       if (state.ok) {
         $2 = $3;
       } else {
+        if (!$6!) {
+          state.isRecoverable = false;
+        }
         state.backtrack($5!);
       }
       $19 &= ~0x80 & 0xffff;
@@ -2628,16 +2681,13 @@ class JsonParser {
     AsyncResult<num>? $13;
     int? $15;
     int? $16;
-    Object? $18;
-    AsyncResult<Object?>? $19;
+    AsyncResult<Object?>? $18;
+    int? $20;
     int? $21;
-    int? $22;
-    Object? $24;
-    AsyncResult<Object?>? $25;
-    int? $27;
-    int? $28;
-    Object? $30;
-    AsyncResult<Object?>? $31;
+    AsyncResult<Object?>? $23;
+    int? $25;
+    int? $26;
+    AsyncResult<Object?>? $28;
     void $1() {
       if ($6 & 0x800 == 0) {
         $6 |= 0x800;
@@ -2755,7 +2805,6 @@ class JsonParser {
         }
         if ($15 == 0) {
           // 'true'
-          $18 ??= state.input.beginBuffering();
           final $17 = state.input;
           if (state.pos + 3 >= $17.end && !$17.isClosed) {
             $17.sleep = true;
@@ -2764,18 +2813,16 @@ class JsonParser {
           }
           const string = 'true';
           matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          state.input.endBuffering();
-          $18 = null;
           $15 = state.ok ? 1 : -1;
         }
         if ($15 == 1) {
           // Spaces
           if ($6 & 0x20 == 0) {
             $6 |= 0x20;
-            $19 = fastParseSpaces$Async(state);
-            final $20 = $19!;
-            if (!$20.isComplete) {
-              $20.onComplete = $1;
+            $18 = fastParseSpaces$Async(state);
+            final $19 = $18!;
+            if (!$19.isComplete) {
+              $19.onComplete = $1;
               return;
             }
           }
@@ -2803,44 +2850,41 @@ class JsonParser {
         // 'false' Spaces {}
         if ($6 & 0x100 == 0) {
           $6 |= 0x100;
-          $21 = 0;
-          $22 = state.pos;
+          $20 = 0;
+          $21 = state.pos;
         }
-        if ($21 == 0) {
+        if ($20 == 0) {
           // 'false'
-          $24 ??= state.input.beginBuffering();
-          final $23 = state.input;
-          if (state.pos + 4 >= $23.end && !$23.isClosed) {
-            $23.sleep = true;
-            $23.handle = $1;
+          final $22 = state.input;
+          if (state.pos + 4 >= $22.end && !$22.isClosed) {
+            $22.sleep = true;
+            $22.handle = $1;
             return;
           }
           const string = 'false';
           matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          state.input.endBuffering();
-          $24 = null;
-          $21 = state.ok ? 1 : -1;
+          $20 = state.ok ? 1 : -1;
         }
-        if ($21 == 1) {
+        if ($20 == 1) {
           // Spaces
           if ($6 & 0x80 == 0) {
             $6 |= 0x80;
-            $25 = fastParseSpaces$Async(state);
-            final $26 = $25!;
-            if (!$26.isComplete) {
-              $26.onComplete = $1;
+            $23 = fastParseSpaces$Async(state);
+            final $24 = $23!;
+            if (!$24.isComplete) {
+              $24.onComplete = $1;
               return;
             }
           }
           $6 &= ~0x80 & 0xffff;
-          $21 = -1;
+          $20 = -1;
         }
         if (state.ok) {
           bool? $$;
           $$ = false;
           $2 = $$;
         } else {
-          state.backtrack($22!);
+          state.backtrack($21!);
         }
         $6 &= ~0x100 & 0xffff;
         $3 = state.ok
@@ -2856,44 +2900,41 @@ class JsonParser {
         // 'null' Spaces {}
         if ($6 & 0x400 == 0) {
           $6 |= 0x400;
-          $27 = 0;
-          $28 = state.pos;
+          $25 = 0;
+          $26 = state.pos;
         }
-        if ($27 == 0) {
+        if ($25 == 0) {
           // 'null'
-          $30 ??= state.input.beginBuffering();
-          final $29 = state.input;
-          if (state.pos + 3 >= $29.end && !$29.isClosed) {
-            $29.sleep = true;
-            $29.handle = $1;
+          final $27 = state.input;
+          if (state.pos + 3 >= $27.end && !$27.isClosed) {
+            $27.sleep = true;
+            $27.handle = $1;
             return;
           }
           const string = 'null';
           matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          state.input.endBuffering();
-          $30 = null;
-          $27 = state.ok ? 1 : -1;
+          $25 = state.ok ? 1 : -1;
         }
-        if ($27 == 1) {
+        if ($25 == 1) {
           // Spaces
           if ($6 & 0x200 == 0) {
             $6 |= 0x200;
-            $31 = fastParseSpaces$Async(state);
-            final $32 = $31!;
-            if (!$32.isComplete) {
-              $32.onComplete = $1;
+            $28 = fastParseSpaces$Async(state);
+            final $29 = $28!;
+            if (!$29.isComplete) {
+              $29.onComplete = $1;
               return;
             }
           }
           $6 &= ~0x200 & 0xffff;
-          $27 = -1;
+          $25 = -1;
         }
         if (state.ok) {
           Object? $$;
           $$ = null;
           $2 = $$;
         } else {
-          state.backtrack($28!);
+          state.backtrack($26!);
         }
         $6 &= ~0x400 & 0xffff;
         $3 = -1;
@@ -2911,46 +2952,57 @@ class JsonParser {
   }
 
   /// Values =
-  ///   @sepBy(Value, Comma ↑)
+  ///   @list(Value, Comma ↑ v:Value)
   ///   ;
   List<Object?>? parseValues(State<String> state) {
     List<Object?>? $0;
-    // @sepBy(Value, Comma ↑)
+    // @list(Value, Comma ↑ v:Value)
     final $2 = <Object?>[];
-    var $4 = state.pos;
-    while (true) {
-      Object? $3;
-      // Value
-      // Value
-      $3 = parseValue(state);
-      if (!state.ok) {
-        state.backtrack($4);
-        break;
-      }
+    Object? $3;
+    // Value
+    // Value
+    $3 = parseValue(state);
+    if (state.ok) {
       $2.add($3);
-      $4 = state.pos;
-      // Comma ↑
-      final $6 = state.pos;
-      // @inline Comma = v:',' Spaces ;
-      // v:',' Spaces
-      final $7 = state.pos;
-      const $8 = ',';
-      matchLiteral1(state, $8, const ErrorExpectedTags([$8]));
-      if (state.ok) {
-        // Spaces
-        fastParseSpaces(state);
-      }
-      if (!state.ok) {
-        state.backtrack($7);
-      }
-      if (state.ok) {
-        state.cut(state.pos);
-      }
-      if (!state.ok) {
-        state.backtrack($6);
-      }
-      if (!state.ok) {
-        break;
+      while (true) {
+        Object? $4;
+        // Comma ↑ v:Value
+        final $9 = state.pos;
+        var $8 = true;
+        // @inline Comma = v:',' Spaces ;
+        // v:',' Spaces
+        final $10 = state.pos;
+        const $11 = ',';
+        matchLiteral1(state, $11, const ErrorExpectedTags([$11]));
+        if (state.ok) {
+          // Spaces
+          fastParseSpaces(state);
+        }
+        if (!state.ok) {
+          state.backtrack($10);
+        }
+        if (state.ok) {
+          $8 = false;
+          state.ok = true;
+          if (state.ok) {
+            Object? $7;
+            // Value
+            $7 = parseValue(state);
+            if (state.ok) {
+              $4 = $7;
+            }
+          }
+        }
+        if (!state.ok) {
+          if (!$8) {
+            state.isRecoverable = false;
+          }
+          state.backtrack($9);
+        }
+        if (!state.ok) {
+          break;
+        }
+        $2.add($4);
       }
     }
     state.setOk(true);
@@ -2961,131 +3013,151 @@ class JsonParser {
   }
 
   /// Values =
-  ///   @sepBy(Value, Comma ↑)
+  ///   @list(Value, Comma ↑ v:Value)
   ///   ;
   AsyncResult<List<Object?>> parseValues$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<List<Object?>>();
     List<Object?>? $2;
     int? $3;
-    List<Object?>? $4;
-    int? $6;
-    AsyncResult<Object?>? $7;
-    int $9 = 0;
-    int? $10;
-    int? $11;
+    int? $4;
+    List<Object?>? $5;
+    AsyncResult<Object?>? $8;
+    int $10 = 0;
     int? $12;
     int? $13;
-    Object? $16;
-    AsyncResult<Object?>? $17;
+    bool? $14;
+    int? $15;
+    int? $16;
+    AsyncResult<Object?>? $19;
+    Object? $11;
+    AsyncResult<Object?>? $21;
     void $1() {
-      // @sepBy(Value, Comma ↑)
-      // @sepBy(Value, Comma ↑)
-      if ($9 & 0x10 == 0) {
-        $9 |= 0x10;
-        $4 = [];
-        $6 = state.pos;
-        $3 = 0;
+      // @list(Value, Comma ↑ v:Value)
+      // @list(Value, Comma ↑ v:Value)
+      if ($3 == null) {
+        $3 = state.pos;
+        $4 = 0;
+        $5 = [];
       }
       while (true) {
-        if ($3 == 0) {
-          Object? $5;
+        if ($4 == 0) {
+          Object? $6;
           // Value
           // Value
-          if ($9 & 0x1 == 0) {
-            $9 |= 0x1;
-            $7 = parseValue$Async(state);
-            final $8 = $7!;
-            if (!$8.isComplete) {
-              $8.onComplete = $1;
+          if ($10 & 0x1 == 0) {
+            $10 |= 0x1;
+            $8 = parseValue$Async(state);
+            final $9 = $8!;
+            if (!$9.isComplete) {
+              $9.onComplete = $1;
               return;
             }
           }
-          $5 = $7!.value;
-          $9 &= ~0x1 & 0xffff;
+          $6 = $8!.value;
+          $10 &= ~0x1 & 0xffff;
           if (!state.ok) {
-            state.backtrack($6!);
-            $5 = null;
             break;
           }
-          $4!.add($5);
-          $5 = null;
-          $6 = state.pos;
-          $3 = 1;
+          $5!.add($6);
+          $6 = null;
+          $4 = 1;
         }
-        if ($3 == 1) {
-          // Comma ↑
-          if ($9 & 0x8 == 0) {
-            $9 |= 0x8;
-            $10 = 0;
-            $11 = state.pos;
+        if ($4 == 1) {
+          Object? $7;
+          // Comma ↑ v:Value
+          if ($10 & 0x10 == 0) {
+            $10 |= 0x10;
+            $12 = 0;
+            $13 = state.pos;
+            $14 = true;
           }
-          if ($10 == 0) {
+          if ($12 == 0) {
             // Comma
             // v:',' Spaces
             // v:',' Spaces
-            if ($9 & 0x4 == 0) {
-              $9 |= 0x4;
-              $12 = 0;
-              $13 = state.pos;
+            if ($10 & 0x4 == 0) {
+              $10 |= 0x4;
+              $15 = 0;
+              $16 = state.pos;
             }
-            if ($12 == 0) {
+            if ($15 == 0) {
               // ','
-              $16 ??= state.input.beginBuffering();
-              final $14 = state.input;
-              if (state.pos >= $14.end && !$14.isClosed) {
-                $14.sleep = true;
-                $14.handle = $1;
+              final $17 = state.input;
+              if (state.pos >= $17.end && !$17.isClosed) {
+                $17.sleep = true;
+                $17.handle = $1;
                 return;
               }
-              const $15 = ',';
-              matchLiteral1Async(state, $15, const ErrorExpectedTags([$15]));
-              state.input.endBuffering();
-              $16 = null;
-              $12 = state.ok ? 1 : -1;
+              const $18 = ',';
+              matchLiteral1Async(state, $18, const ErrorExpectedTags([$18]));
+              $15 = state.ok ? 1 : -1;
             }
-            if ($12 == 1) {
+            if ($15 == 1) {
               // Spaces
-              if ($9 & 0x2 == 0) {
-                $9 |= 0x2;
-                $17 = fastParseSpaces$Async(state);
-                final $18 = $17!;
-                if (!$18.isComplete) {
-                  $18.onComplete = $1;
+              if ($10 & 0x2 == 0) {
+                $10 |= 0x2;
+                $19 = fastParseSpaces$Async(state);
+                final $20 = $19!;
+                if (!$20.isComplete) {
+                  $20.onComplete = $1;
                   return;
                 }
               }
-              $9 &= ~0x2 & 0xffff;
-              $12 = -1;
+              $10 &= ~0x2 & 0xffff;
+              $15 = -1;
             }
             if (!state.ok) {
-              state.backtrack($13!);
+              state.backtrack($16!);
             }
-            $9 &= ~0x4 & 0xffff;
-            $10 = state.ok ? 1 : -1;
+            $10 &= ~0x4 & 0xffff;
+            $12 = state.ok ? 1 : -1;
           }
-          if ($10 == 1) {
+          if ($12 == 1) {
+            $14 = false;
             // ↑
-            state.cut(state.pos);
+            state.ok = true;
             state.input.cut(state.pos);
-            $10 = -1;
+            $12 = state.ok ? 2 : -1;
           }
-          if (!state.ok) {
-            state.backtrack($11!);
+          if ($12 == 2) {
+            // Value
+            if ($10 & 0x8 == 0) {
+              $10 |= 0x8;
+              $21 = parseValue$Async(state);
+              final $22 = $21!;
+              if (!$22.isComplete) {
+                $22.onComplete = $1;
+                return;
+              }
+            }
+            $11 = $21!.value;
+            $10 &= ~0x8 & 0xffff;
+            $12 = -1;
           }
-          $9 &= ~0x8 & 0xffff;
+          if (state.ok) {
+            $7 = $11;
+          } else {
+            if (!$14!) {
+              state.isRecoverable = false;
+            }
+            state.backtrack($13!);
+          }
+          $10 &= ~0x10 & 0xffff;
           if (!state.ok) {
+            $4 = -1;
             break;
           }
-          $3 = 0;
+          $5!.add($7);
+          $7 = null;
         }
       }
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
-        $4 = null;
+        $2 = $5;
+        $5 = null;
       }
-      $9 &= ~0x10 & 0xffff;
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -3673,10 +3745,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  Object? context;
-
-  int cuttingPos = 0;
-
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -3696,11 +3764,9 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void backtrack(int pos) {
-    if (pos >= cuttingPos) {
+    if (isRecoverable) {
       this.pos = pos;
-      return;
     }
-    isRecoverable = false;
   }
 
   @pragma('vm:prefer-inline')
@@ -3710,14 +3776,6 @@ class State<T> {
     return failPos == this.failPos
         ? errorCount < this.errorCount
         : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void cut(int pos) {
-    if (cuttingPos < pos) {
-      cuttingPos = pos;
-    }
   }
 
   @pragma('vm:prefer-inline')

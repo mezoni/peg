@@ -180,9 +180,9 @@ Primary =
   / Eof
   / ErrorHandler
   / Expected
+  / List
+  / List1
   / MatchString
-  / SepBy
-  / SepBy1
   / StringChars
   / Verify ;
 
@@ -216,13 +216,13 @@ Expression
 Expected = '@expected' LeftParenthesis t:String Comma e:Expression RightParenthesis { $$ = ExpectedExpression(expression: e, tag: t); } ;
 
 Expression
+List = '@list' LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = ListExpression(first: h, next: t); } ;
+
+Expression
+List1 = '@list1' LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = List1Expression(first: h, next: t); } ;
+
+Expression
 MatchString = '@matchString' LeftParenthesis b:Block RightParenthesis { $$ = MatchStringExpression(value: b); } ;
-
-Expression
-SepBy = '@sepBy' LeftParenthesis e:Expression Comma s:Expression RightParenthesis { $$ = SepByExpression(expression: e, separator: s); } ;
-
-Expression
-SepBy1 = '@sepBy1' LeftParenthesis e:Expression Comma s:Expression RightParenthesis { $$ = SepBy1Expression(expression: e, separator: s); } ;
 
 Expression
 StringChars = '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;

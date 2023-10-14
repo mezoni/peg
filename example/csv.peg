@@ -23,9 +23,9 @@ Field = String / Text ;
 OpenQuote = Spaces '"' ;
 
 @event
-Row = @sepBy1(Field, ',' ↑) ;
+Row = @list1(Field, ',' ↑ v:Field) ;
 
-Rows = v:@sepBy1(Row, Eol ↑) ;
+Rows = v:@list1(Row, Eol ↑ v:Row) ;
 
 Spaces = [ \t]* ;
 

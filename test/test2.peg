@@ -15,6 +15,8 @@ Start =
   / (v:CharacterClassCharNegate32 CharacterClassCharNegate32)
   / (v:CharacterClassRange32 CharacterClassRange32)
   / (v:Cut Cut)
+  / (v:Cut1 Cut1)
+  / (v:CutWithInner CutWithInner)
   / (v:ErrorHandler ErrorHandler)
   / (v:Eof Eof)
   / (v:Expected Expected)
@@ -22,6 +24,8 @@ Start =
   / (v:Literal1 Literal1)
   / (v:Literal2 Literal2)
   / (v:Literals Literals)
+  / (v:List List)
+  / (v:List1 List1)
   / (v:MatchString MatchString)
   / (v:NotPredicate NotPredicate)
   / (v:OneOrMore OneOrMore)
@@ -32,7 +36,6 @@ Start =
   / (v:RepetitionMin RepetitionMin)
   / (v:RepetitionMinMax RepetitionMinMax)
   / (v:RepetitionN RepetitionN)
-  / (v:SepBy SepBy)
   / (v:Sequence1 Sequence1)
   / (v:Sequence1WithAction Sequence1WithAction)
   / (v:Sequence1WithVariable Sequence1WithVariable)
@@ -66,6 +69,16 @@ CharacterClassRange32 = [ -🚀] ;
 
 Cut =
     [0] [+] ↑ [1]
+  / [0]
+  ;
+
+Cut1 =
+    [0] ↑
+  / [1]
+  ;
+
+CutWithInner =
+    [0] ↑ ([a] / [b]) [1]
   / [0]
   ;
 
@@ -106,7 +119,9 @@ RepetitionMinMax = [🚀]{2,3} ;
 
 RepetitionN = [🚀]{3} ;
 
-SepBy = @sepBy([0], [,]) ;
+List = @list([0], [,] v:[0]) ;
+
+List1 = @list1([0], [,] v:[0]) ;
 
 Sequence1 = [0] ;
 

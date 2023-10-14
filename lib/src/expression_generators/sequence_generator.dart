@@ -16,13 +16,27 @@ class SequenceGenerator extends ExpressionGenerator<SequenceExpression> {
           'List of expressions must not be empty\n$expression\n$rule');
     }
 
-    values['pos'] = allocateName();
     final variable = ruleGenerator.getExpressionVariable(expression);
     final action = expression.action;
     final (declareVariable, result) = _generateResult(children);
+    final hasCutExpression = children.any((e) => e is CutExpression);
+    final ok = hasCutExpression && children.length > 1 ? allocateName() : '';
+    var cutExpressionCount = 0;
+    values['pos'] = allocateName();
     String plunge(int i) {
       final values = <String, String>{};
       final child = children[i];
+      var assignOk = '';
+      if (child is CutExpression) {
+        if (cutExpressionCount++ == 0) {
+          if (ok.isNotEmpty) {
+            assignOk = '''
+$ok = false;
+''';
+          }
+        }
+      }
+
       var template = '';
       values['p'] = generateExpression(child, declareVariable);
       if (i < children.length - 1) {
@@ -32,7 +46,9 @@ class SequenceGenerator extends ExpressionGenerator<SequenceExpression> {
 if (state.ok) {
   {{next}}
 }''';
-        return render(template, values);
+
+        final template2 = '$assignOk$template';
+        return render(template2, values);
       }
 
       if (action != null) {
@@ -72,22 +88,48 @@ if (state.ok) {
         }
       }
 
-      return render(template, values);
+      final template2 = '$assignOk$template';
+      return render(template2, values);
     }
 
-    final inner = plunge(0);
+    values['inner'] = plunge(0);
+    var template = '';
+    values['ok'] = ok;
+    values['declare_vars'] = '';
+    values['set_is_recoverable'] = '';
     if (children.length == 1) {
-      return inner;
-    } else {
-      values['inner'] = inner;
-      const template = '''
-final {{pos}} = state.pos;
+      if (hasCutExpression) {
+        template = '''
 {{inner}}
 if (!state.ok) {
+  state.isRecoverable = false;
+}''';
+      } else {
+        template = '''
+{{inner}}''';
+      }
+    } else {
+      if (hasCutExpression) {
+        if (ok.isNotEmpty) {
+          values['declare_vars'] = 'var $ok = true;';
+          values['set_is_recoverable'] = '''
+if (!$ok) {
+  state.isRecoverable = false;
+}''';
+        }
+      }
+
+      template = '''
+final {{pos}} = state.pos;
+{{declare_vars}}
+{{inner}}
+if (!state.ok) {
+  {{set_is_recoverable}}
   state.backtrack({{pos}});
 }''';
-      return render(template, values);
     }
+
+    return render(template, values);
   }
 
   @override
@@ -129,20 +171,39 @@ if (!state.ok) {
 {{p}}''';
       }
 
+      if (child is CutExpression) {
+        const template2 = '''
+if (!state.ok) {
+  state.isRecoverable = false;
+}''';
+        template = '$template$template2';
+      }
+
       final source = render(template, values);
       return asyncGenerator.renderAction(
         source,
         buffering: false,
       );
     } else {
+      final hasCutExpression = children.any((e) => e is CutExpression);
       final state = asyncGenerator.allocateVariable(GenericType(name: 'int'));
       final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      const initTemplate = '''
-{{state}} = 0;
-{{pos}} = state.pos;''';
-      final init = render(initTemplate, {
+      final ok = !hasCutExpression
+          ? ''
+          : asyncGenerator.allocateVariable(GenericType(name: 'bool'));
+      var cutExpressionCount = 0;
+      final initList = <String>[
+        '{{state}} = 0;',
+        '{{pos}} = state.pos;',
+      ];
+      if (hasCutExpression) {
+        initList.add('{{ok}} = true;');
+      }
+
+      final init = render(initList.join('\n'), {
         'pos': pos,
         'state': state,
+        if (ok.isNotEmpty) 'ok': ok,
       });
       final buffer = StringBuffer();
       for (var i = 0; i < children.length; i++) {
@@ -151,17 +212,31 @@ if (!state.ok) {
         values['index'] = '$i';
         values['state'] = state;
         values['p'] = generateAsyncExpression(child, declareVariable);
+        var assignOk = '';
+        if (child is CutExpression) {
+          if (cutExpressionCount++ == 0) {
+            if (ok.isNotEmpty) {
+              assignOk = '''
+$ok = false;
+''';
+            }
+          }
+        }
+
         var template = '';
+        values['assign_ok'] = assignOk;
         if (i < children.length - 1) {
           values['next_index'] = '${i + 1}';
           template = '''
 if ({{state}} == {{index}}) {
+  {{assign_ok}}
   {{p}}
   {{state}} = state.ok ? {{next_index}} : -1;
 }''';
         } else {
           template = '''
 if ({{state}} == {{index}}) {
+  {{assign_ok}}
   {{p}}
   {{state}} = -1;
 }''';
@@ -172,28 +247,38 @@ if ({{state}} == {{index}}) {
 
       {
         final values = <String, String>{};
-        values['body'] = buffer.toString();
+        values['inner'] = buffer.toString();
         values['pos'] = pos;
+        values['set_is_recoverable'] = '';
+        if (hasCutExpression) {
+          values['set_is_recoverable'] = '''
+if (!$ok!) {
+  state.isRecoverable = false;
+}''';
+        }
+
         var template = '';
         if (variable != null) {
           values['r'] = variable;
           if (action != null) {
             values['action'] = _generateActionTemplate();
             template = '''
-{{body}}
+{{inner}}
 if (state.ok) {
   {{action}}
   {{r}} = \$\$;
 } else {
+  {{set_is_recoverable}}
   state.backtrack({{pos}}!);
 }''';
           } else {
             values['result'] = result;
             template = '''
-{{body}}
+{{inner}}
 if (state.ok) {
   {{r}} = {{result}};
 } else {
+  {{set_is_recoverable}}
   state.backtrack({{pos}}!);
 }''';
           }
@@ -201,16 +286,18 @@ if (state.ok) {
           if (action != null) {
             values['action'] = _generateActionTemplate();
             template = '''
-{{body}}
+{{inner}}
 if (state.ok) {
   {{action}}
 } else {
+  {{set_is_recoverable}}
   state.backtrack({{pos}}!);
 }''';
           } else {
             template = '''
-{{body}}
+{{inner}}
 if (!state.ok) {
+  {{set_is_recoverable}}
   state.backtrack({{pos}}!);
 }''';
           }

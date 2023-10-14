@@ -11,7 +11,7 @@ class CutGenerator extends ExpressionGenerator<CutExpression> {
   String generate() {
     final values = <String, String>{};
     const template = '''
- state.cut(state.pos);''';
+ state.ok = true;''';
     return render(template, values);
   }
 
@@ -21,7 +21,7 @@ class CutGenerator extends ExpressionGenerator<CutExpression> {
 
     final asyncGenerator = ruleGenerator.asyncGenerator;
     const template = '''
- state.cut(state.pos);
+ state.ok = true;
  state.input.cut(state.pos);''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
