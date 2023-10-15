@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 Future<void> main(List<String> args) async {
-  final exitCodes = <Future<int>>[];
+  final exitCodes = <int>[];
   const files = <String, List<String>>{
     'example/calc.peg': ['--no-runtime'],
     'example/csv.peg': ['--async'],
@@ -15,13 +15,12 @@ Future<void> main(List<String> args) async {
       ...file.value,
       file.key,
     ]);
-    unawaited(process.stdout.transform(utf8.decoder).forEach(print));
-    unawaited(process.stderr.transform(utf8.decoder).forEach(print));
-    exitCodes.add(process.exitCode);
+    unawaited(process.stdout.transform(utf8.decoder).forEach(stdout.write));
+    unawaited(process.stderr.transform(utf8.decoder).forEach(stderr.write));
+    exitCodes.add(await process.exitCode);
   }
 
-  final results = await Future.wait(exitCodes);
-  final failed = results.where((e) => e != 0);
+  final failed = exitCodes.where((e) => e != 0);
   if (failed.isNotEmpty) {
     exit(failed.first);
   }

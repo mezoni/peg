@@ -97,7 +97,7 @@ Literal1 = '0' ;
 
 Literal2 = '01' ;
 
-Literals = '012' / '01' ;
+Literals = '0123' / '012' / '01' / 'ab' / 'a' / 'A' ;
 
 MatchString = @matchString({ text }) ;
 

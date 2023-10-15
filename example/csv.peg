@@ -25,7 +25,10 @@ OpenQuote = Spaces '"' ;
 @event
 Row = @list1(Field, ',' ↑ v:Field) ;
 
-Rows = v:@list1(Row, Eol ↑ v:Row) ;
+@inline
+RowEnding = Eol !@eof() ;
+
+Rows = v:@list1(Row, RowEnding ↑ v:Row) ;
 
 Spaces = [ \t]* ;
 

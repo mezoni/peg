@@ -235,8 +235,8 @@ class CalcParser {
     state.ok = false;
     final $7 = state.input;
     if (state.pos < $7.length) {
-      final $6 = $7.runeAt(state.pos);
-      state.pos += $6 > 0xffff ? 2 : 1;
+      final $6 = $7.codeUnitAt(state.pos);
+      state.pos++;
       switch ($6) {
         case 45:
           state.ok = true;
@@ -364,8 +364,8 @@ class CalcParser {
     state.ok = false;
     final $7 = state.input;
     if (state.pos < $7.length) {
-      final $6 = $7.runeAt(state.pos);
-      state.pos += $6 > 0xffff ? 2 : 1;
+      final $6 = $7.codeUnitAt(state.pos);
+      state.pos++;
       switch ($6) {
         case 47:
           state.ok = true;

@@ -1,3 +1,9 @@
+# 4.0.4
+
+- Fixed bug in method `matchLiteralAsync()`.
+- Code generation for `OrderedChoice` consisting of literals only has been improved.
+- Changes to the `csv.peg` grammar file.
+
 # 4.0.3
 
  - The implementation of the generated code for the meta expression `@errorHandler` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.

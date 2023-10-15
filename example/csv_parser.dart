@@ -19,16 +19,16 @@ class CsvParser {
     state.ok = false;
     final $1 = state.input;
     if (state.pos < $1.length) {
-      final $0 = $1.runeAt(state.pos);
-      state.pos += $0 > 0xffff ? 2 : 1;
+      final $0 = $1.codeUnitAt(state.pos);
+      state.pos++;
       switch ($0) {
         case 10:
           state.ok = true;
           break;
         case 13:
-          state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 10;
+          state.ok = state.pos < $1.length && $1.codeUnitAt(state.pos) == 10;
           if (state.ok) {
-            state.pos += 1;
+            state.pos++;
           } else {
             state.ok = true;
           }

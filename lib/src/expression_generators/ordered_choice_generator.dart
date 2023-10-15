@@ -17,7 +17,7 @@ class OrderedChoiceGenerator
           'List of expressions must not be empty\n$expression\n$rule');
     }
 
-    final optimized = _OrderedChoiceGenerator2.optimize(this);
+    final optimized = _OrderedChoiceOfLiterals.optimize(this);
     if (optimized != null) {
       return optimized;
     }
@@ -116,11 +116,11 @@ if ({{state}} == {{index}}) {
   }
 }
 
-class _OrderedChoiceGenerator2
+class _OrderedChoiceOfLiterals
     extends ExpressionGenerator<OrderedChoiceExpression> {
   final List<String> strings;
 
-  _OrderedChoiceGenerator2({
+  _OrderedChoiceOfLiterals({
     required super.expression,
     required super.ruleGenerator,
     required this.strings,
@@ -133,9 +133,8 @@ class _OrderedChoiceGenerator2
     final map = <int, List<String>>{};
     for (var i = 0; i < strings.length; i++) {
       final string = strings[i];
-      final runes = string.runes.toList();
-      final charCode = runes[0];
-      (map[charCode] ??= []).add(string);
+      final codeUnit = string.codeUnitAt(0);
+      (map[codeUnit] ??= []).add(string);
     }
 
     final c = allocateName();
@@ -147,14 +146,8 @@ class _OrderedChoiceGenerator2
       String plunge(int i) {
         final values = <String, String>{};
         final value = strings[i];
-        final runes = value.runes.toList();
         final string = allocateName();
         final text = helper.escapeString(value);
-        final firstRuneSize = value.isEmpty
-            ? 0
-            : runes[0] > 0xffff
-                ? 2
-                : 1;
         values['string'] = string;
         values['input'] = input;
         values['text'] = text;
@@ -163,28 +156,37 @@ class _OrderedChoiceGenerator2
           var template = '';
           if (variable != null) {
             values['r'] = variable;
-            if (runes.length == 1) {
+            if (value.length == 1) {
               template = '''
 state.ok = true;
 {{r}} = {{text}};''';
-            } else if (runes.length == 2) {
-              final rune2 = runes[1];
-              values['char'] = rune2.toString();
-              values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+            } else if (value.length < 5) {
+              final tests = <String>[];
+              for (var i = 1; i < value.length; i++) {
+                final char = value.codeUnitAt(i);
+                final offset = i == 1 ? '' : '+ ${i - 1}';
+                tests.add('$input.codeUnitAt(state.pos$offset) == $char');
+              }
+
+              values['adjust_state_pos'] = value.length == 2
+                  ? 'state.pos++;'
+                  : 'state.pos += ${value.length - 1};';
+              values['offset'] =
+                  value.length == 2 ? '' : ' + ${value.length - 2}';
+              values['tests'] = tests.join('  &&\n');
               template = '''
-state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
 if (state.ok) {
-  state.pos += {{size}};
+  {{adjust_state_pos}}
   {{r}} = {{text}};
 } else {
   {{next}}
 }''';
             } else {
-              values['offset'] = firstRuneSize.toString();
-              values['size'] = (value.length - firstRuneSize).toString();
+              values['size'] = (value.length - 1).toString();
               template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+state.ok = {{input}}.startsWith({{string}}, state.pos - 1);
 if (state.ok) {
   state.pos += {{size}};
   {{r}} = {{string}};
@@ -193,26 +195,35 @@ if (state.ok) {
 }''';
             }
           } else {
-            if (runes.length == 1) {
+            if (value.length == 1) {
               template = '''
 state.ok = true;''';
-            } else if (runes.length == 2) {
-              final rune2 = runes[1];
-              values['char'] = rune2.toString();
-              values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+            } else if (value.length < 5) {
+              final tests = <String>[];
+              for (var i = 1; i < value.length; i++) {
+                final char = value.codeUnitAt(i);
+                final offset = i == 1 ? '' : '+ ${i - 1}';
+                tests.add('$input.codeUnitAt(state.pos$offset) == $char');
+              }
+
+              values['adjust_state_pos'] = value.length == 2
+                  ? 'state.pos++;'
+                  : 'state.pos += ${value.length - 1};';
+              values['offset'] =
+                  value.length == 2 ? '' : ' + ${value.length - 2}';
+              values['tests'] = tests.join('  &&\n');
               template = '''
-state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
 if (state.ok) {
-  state.pos += {{size}};
+  {{adjust_state_pos}}
 } else {
   {{next}}
 }''';
             } else {
-              values['offset'] = firstRuneSize.toString();
-              values['size'] = (value.length - firstRuneSize).toString();
+              values['size'] = (value.length - 1).toString();
               template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+state.ok = {{input}}.startsWith({{string}}, state.pos - 1;
 if (state.ok) {
   state.pos += {{size}};
 } else {
@@ -227,50 +238,68 @@ if (state.ok) {
         var template = '';
         if (variable != null) {
           values['r'] = variable;
-          if (runes.length == 1) {
+          if (value.length == 1) {
             template = '''
 state.ok = true;
 {{r}} = {{text}};''';
-          } else if (runes.length == 2) {
-            final rune2 = runes[1];
-            values['char'] = rune2.toString();
-            values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+          } else if (value.length < 5) {
+            final tests = <String>[];
+            for (var i = 1; i < value.length; i++) {
+              final char = value.codeUnitAt(i);
+              final offset = i == 1 ? '' : '+ ${i - 1}';
+              tests.add('$input.codeUnitAt(state.pos$offset) == $char');
+            }
+
+            values['adjust_state_pos'] = value.length == 2
+                ? 'state.pos++;'
+                : 'state.pos += ${value.length - 1};';
+            values['offset'] =
+                value.length == 2 ? '' : ' + ${value.length - 2}';
+            values['tests'] = tests.join('  &&\n');
             template = '''
-state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
 if (state.ok) {
-  state.pos += {{size}};
+  {{adjust_state_pos}}
   {{r}} = {{text}};
 }''';
           } else {
-            values['offset'] = firstRuneSize.toString();
-            values['size'] = (value.length - firstRuneSize).toString();
+            values['size'] = (value.length - 1).toString();
             template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+state.ok = {{input}}.startsWith({{string}}, state.pos - 1});
 if (state.ok) {
   state.pos += {{size}};
   {{r}} = {{string}};
 }''';
           }
         } else {
-          if (runes.length == 1) {
+          if (value.length == 1) {
             template = '''
 state.ok = true;''';
-          } else if (runes.length == 2) {
-            final rune2 = runes[1];
-            values['char'] = rune2.toString();
-            values['size'] = (rune2 > 0xffff ? 2 : 1).toString();
+          } else if (value.length < 5) {
+            final tests = <String>[];
+            for (var i = 1; i < value.length; i++) {
+              final char = value.codeUnitAt(i);
+              final offset = i == 1 ? '' : '+ ${i - 1}';
+              tests.add('$input.codeUnitAt(state.pos$offset) == $char');
+            }
+
+            values['adjust_state_pos'] = value.length == 2
+                ? 'state.pos++;'
+                : 'state.pos += ${value.length - 1};';
+            values['offset'] =
+                value.length == 2 ? '' : ' + ${value.length - 2}';
+            values['tests'] = tests.join('  &&\n');
             template = '''
-state.ok = state.pos < {{input}}.length && {{input}}.runeAt(state.pos) == {{char}};
+state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
 if (state.ok) {
-  state.pos += {{size}};
+  {{adjust_state_pos}}
 }''';
           } else {
-            values['offset'] = firstRuneSize.toString();
-            values['size'] = (value.length - firstRuneSize).toString();
+            values['size'] = (value.length - 1).toString();
             template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - {{offset}});
+state.ok = {{input}}.startsWith({{string}}, state.pos - 1);
 if (state.ok) {
   state.pos += {{size}};
 }''';
@@ -302,8 +331,8 @@ final {{pos}} = state.pos;
 state.ok = false;
 final {{input}} = state.input;
 if (state.pos < {{input}}.length) {
-  final {{c}} = {{input}}.runeAt(state.pos);
-  state.pos += {{c}} > 0xffff ? 2 : 1;
+  final {{c}} = {{input}}.codeUnitAt(state.pos);
+  state.pos++;
   switch ({{c}}) {
     {{cases}}
   }
@@ -355,7 +384,60 @@ if (!state.ok) {
       return null;
     }
 
-    final generator2 = _OrderedChoiceGenerator2(
+    final stringSet = strings.toSet();
+    if (stringSet.length != strings.length) {
+      stringSet.clear();
+      final duplicates = <String>[];
+      for (var i = 0; i < strings.length; i++) {
+        final string = strings[i];
+        if (!stringSet.add(string)) {
+          duplicates.add(string);
+        }
+      }
+
+      final rule = expression.rule;
+      final text = <String>[];
+      text.add('Duplicate literals in ordered choice.');
+      text.add('Production rule: ${rule!.name}');
+      text.add('Ordered choice: $expression');
+      text.add('Duplicate literals:');
+      text.add(duplicates.map(helper.escapeString).join(' '));
+      print(text.join('\n'));
+      return null;
+    }
+
+    final map = <int, List<String>>{};
+    var orderedList = strings.toList();
+    orderedList.sort();
+    orderedList = orderedList.reversed.toList();
+    for (var i = 0; i < orderedList.length; i++) {
+      final string = orderedList[i];
+      final codeUnit = string.codeUnitAt(0);
+      (map[codeUnit] ??= []).add(string);
+    }
+
+    for (final entry in map.entries) {
+      final codeUnit = entry.key;
+      final list1 = entry.value;
+      final list2 = strings.where((e) => e.codeUnitAt(0) == codeUnit).toList();
+      for (var i = 0; i < list1.length; i++) {
+        if (list1[i] != list2[i]) {
+          final rule = expression.rule;
+          final text = <String>[];
+          text.add('Invalid order of literals in ordered choice.');
+          text.add('Production rule: ${rule!.name}');
+          text.add('Ordered choice: $expression');
+          text.add('Invalid ordered literals:');
+          text.add(list2.map(helper.escapeString).join(' '));
+          text.add('Expected order of literals:');
+          text.add(list1.map(helper.escapeString).join(' '));
+          print(text.join('\n'));
+          return null;
+        }
+      }
+    }
+
+    final generator2 = _OrderedChoiceOfLiterals(
       expression: expression,
       ruleGenerator: generator.ruleGenerator,
       strings: strings,

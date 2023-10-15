@@ -983,7 +983,7 @@ class Test2Parser {
       matchChar16Async(state, 48);
       if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
-        final start = $2;
+        final start = $2!;
         ParseError? error;
         // ignore: prefer_final_locals
         var rollbackErrors = false;
@@ -1453,61 +1453,91 @@ class Test2Parser {
   }
 
   /// Literals =
-  ///     '012'
+  ///     '0123'
+  ///   / '012'
   ///   / '01'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'A'
   ///   ;
   void fastParseLiterals(State<String> state) {
-    final $4 = state.pos;
+    final $8 = state.pos;
     state.ok = false;
     final $1 = state.input;
     if (state.pos < $1.length) {
-      final $0 = $1.runeAt(state.pos);
-      state.pos += $0 > 0xffff ? 2 : 1;
+      final $0 = $1.codeUnitAt(state.pos);
+      state.pos++;
       switch ($0) {
         case 48:
-          const $2 = '012';
-          state.ok = $1.startsWith($2, state.pos - 1);
+          state.ok = state.pos + 2 < $1.length &&
+              $1.codeUnitAt(state.pos) == 49 &&
+              $1.codeUnitAt(state.pos + 1) == 50 &&
+              $1.codeUnitAt(state.pos + 2) == 51;
           if (state.ok) {
-            state.pos += 2;
+            state.pos += 3;
           } else {
-            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 49;
+            state.ok = state.pos + 1 < $1.length &&
+                $1.codeUnitAt(state.pos) == 49 &&
+                $1.codeUnitAt(state.pos + 1) == 50;
             if (state.ok) {
-              state.pos += 1;
+              state.pos += 2;
+            } else {
+              state.ok =
+                  state.pos < $1.length && $1.codeUnitAt(state.pos) == 49;
+              if (state.ok) {
+                state.pos++;
+              }
             }
           }
+          break;
+        case 97:
+          state.ok = state.pos < $1.length && $1.codeUnitAt(state.pos) == 98;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.ok = true;
+          }
+          break;
+        case 65:
+          state.ok = true;
           break;
       }
     }
     if (!state.ok) {
-      state.pos = $4;
-      state.fail(const ErrorExpectedTags(['012', '01']));
+      state.pos = $8;
+      state
+          .fail(const ErrorExpectedTags(['0123', '012', '01', 'ab', 'a', 'A']));
     }
   }
 
   /// Literals =
-  ///     '012'
+  ///     '0123'
+  ///   / '012'
   ///   / '01'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'A'
   ///   ;
   AsyncResult<Object?> fastParseLiterals$Async(
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     int? $2;
-    int $6 = 0;
+    int $13 = 0;
     void $1() {
-      if ($6 & 0x1 == 0) {
-        $6 |= 0x1;
+      if ($13 & 0x1 == 0) {
+        $13 |= 0x1;
         $2 = 0;
       }
       if ($2 == 0) {
-        // '012'
-        // '012'
+        // '0123'
+        // '0123'
         final $3 = state.input;
-        if (state.pos + 2 >= $3.end && !$3.isClosed) {
+        if (state.pos + 3 >= $3.end && !$3.isClosed) {
           $3.sleep = true;
           $3.handle = $1;
           return;
         }
-        const string = '012';
+        const string = '0123';
         matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
         $2 = state.ok
             ? -1
@@ -1516,19 +1546,87 @@ class Test2Parser {
                 : -1;
       }
       if ($2 == 1) {
-        // '01'
-        // '01'
+        // '012'
+        // '012'
         final $4 = state.input;
-        if (state.pos + 1 >= $4.end && !$4.isClosed) {
+        if (state.pos + 2 >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
-        const $5 = '01';
-        matchLiteral2Async(state, $5, const ErrorExpectedTags([$5]));
+        const string = '012';
+        matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
+      }
+      if ($2 == 2) {
+        // '01'
+        // '01'
+        final $5 = state.input;
+        if (state.pos + 1 >= $5.end && !$5.isClosed) {
+          $5.sleep = true;
+          $5.handle = $1;
+          return;
+        }
+        const $6 = '01';
+        matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 3
+                : -1;
+      }
+      if ($2 == 3) {
+        // 'ab'
+        // 'ab'
+        final $7 = state.input;
+        if (state.pos + 1 >= $7.end && !$7.isClosed) {
+          $7.sleep = true;
+          $7.handle = $1;
+          return;
+        }
+        const $8 = 'ab';
+        matchLiteral2Async(state, $8, const ErrorExpectedTags([$8]));
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 4
+                : -1;
+      }
+      if ($2 == 4) {
+        // 'a'
+        // 'a'
+        final $9 = state.input;
+        if (state.pos >= $9.end && !$9.isClosed) {
+          $9.sleep = true;
+          $9.handle = $1;
+          return;
+        }
+        const $10 = 'a';
+        matchLiteral1Async(state, $10, const ErrorExpectedTags([$10]));
+        $2 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 5
+                : -1;
+      }
+      if ($2 == 5) {
+        // 'A'
+        // 'A'
+        final $11 = state.input;
+        if (state.pos >= $11.end && !$11.isClosed) {
+          $11.sleep = true;
+          $11.handle = $1;
+          return;
+        }
+        const $12 = 'A';
+        matchLiteral1Async(state, $12, const ErrorExpectedTags([$12]));
         $2 = -1;
       }
-      $6 &= ~0x1 & 0xffff;
+      $13 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -3512,7 +3610,7 @@ class Test2Parser {
     final data = input.data;
     final pos = state.pos;
     final index = pos - start;
-    state.ok = pos <= input.end &&
+    state.ok = pos < input.end &&
         data.codeUnitAt(index) == string.codeUnitAt(0) &&
         data.startsWith(string, index);
     if (state.ok) {
@@ -4625,7 +4723,7 @@ class Test2Parser {
       $2 = matchChar16Async(state, 48);
       if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
-        final start = $3;
+        final start = $3!;
         ParseError? error;
         // ignore: prefer_final_locals
         var rollbackErrors = false;
@@ -5179,65 +5277,99 @@ class Test2Parser {
   }
 
   /// Literals =
-  ///     '012'
+  ///     '0123'
+  ///   / '012'
   ///   / '01'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'A'
   ///   ;
   String? parseLiterals(State<String> state) {
     String? $0;
-    final $5 = state.pos;
+    final $9 = state.pos;
     state.ok = false;
     final $2 = state.input;
     if (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
-      state.pos += $1 > 0xffff ? 2 : 1;
+      final $1 = $2.codeUnitAt(state.pos);
+      state.pos++;
       switch ($1) {
         case 48:
-          const $3 = '012';
-          state.ok = $2.startsWith($3, state.pos - 1);
+          state.ok = state.pos + 2 < $2.length &&
+              $2.codeUnitAt(state.pos) == 49 &&
+              $2.codeUnitAt(state.pos + 1) == 50 &&
+              $2.codeUnitAt(state.pos + 2) == 51;
           if (state.ok) {
-            state.pos += 2;
-            $0 = $3;
+            state.pos += 3;
+            $0 = '0123';
           } else {
-            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 49;
+            state.ok = state.pos + 1 < $2.length &&
+                $2.codeUnitAt(state.pos) == 49 &&
+                $2.codeUnitAt(state.pos + 1) == 50;
             if (state.ok) {
-              state.pos += 1;
-              $0 = '01';
+              state.pos += 2;
+              $0 = '012';
+            } else {
+              state.ok =
+                  state.pos < $2.length && $2.codeUnitAt(state.pos) == 49;
+              if (state.ok) {
+                state.pos++;
+                $0 = '01';
+              }
             }
           }
+          break;
+        case 97:
+          state.ok = state.pos < $2.length && $2.codeUnitAt(state.pos) == 98;
+          if (state.ok) {
+            state.pos++;
+            $0 = 'ab';
+          } else {
+            state.ok = true;
+            $0 = 'a';
+          }
+          break;
+        case 65:
+          state.ok = true;
+          $0 = 'A';
           break;
       }
     }
     if (!state.ok) {
-      state.pos = $5;
-      state.fail(const ErrorExpectedTags(['012', '01']));
+      state.pos = $9;
+      state
+          .fail(const ErrorExpectedTags(['0123', '012', '01', 'ab', 'a', 'A']));
     }
     return $0;
   }
 
   /// Literals =
-  ///     '012'
+  ///     '0123'
+  ///   / '012'
   ///   / '01'
+  ///   / 'ab'
+  ///   / 'a'
+  ///   / 'A'
   ///   ;
   AsyncResult<String> parseLiterals$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<String>();
     String? $2;
     int? $3;
-    int $7 = 0;
+    int $14 = 0;
     void $1() {
-      if ($7 & 0x1 == 0) {
-        $7 |= 0x1;
+      if ($14 & 0x1 == 0) {
+        $14 |= 0x1;
         $3 = 0;
       }
       if ($3 == 0) {
-        // '012'
-        // '012'
+        // '0123'
+        // '0123'
         final $4 = state.input;
-        if (state.pos + 2 >= $4.end && !$4.isClosed) {
+        if (state.pos + 3 >= $4.end && !$4.isClosed) {
           $4.sleep = true;
           $4.handle = $1;
           return;
         }
-        const string = '012';
+        const string = '0123';
         $2 =
             matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
         $3 = state.ok
@@ -5247,19 +5379,88 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 1) {
-        // '01'
-        // '01'
+        // '012'
+        // '012'
         final $5 = state.input;
-        if (state.pos + 1 >= $5.end && !$5.isClosed) {
+        if (state.pos + 2 >= $5.end && !$5.isClosed) {
           $5.sleep = true;
           $5.handle = $1;
           return;
         }
-        const $6 = '01';
-        $2 = matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
+        const string = '012';
+        $2 =
+            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 2
+                : -1;
+      }
+      if ($3 == 2) {
+        // '01'
+        // '01'
+        final $6 = state.input;
+        if (state.pos + 1 >= $6.end && !$6.isClosed) {
+          $6.sleep = true;
+          $6.handle = $1;
+          return;
+        }
+        const $7 = '01';
+        $2 = matchLiteral2Async(state, $7, const ErrorExpectedTags([$7]));
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 3
+                : -1;
+      }
+      if ($3 == 3) {
+        // 'ab'
+        // 'ab'
+        final $8 = state.input;
+        if (state.pos + 1 >= $8.end && !$8.isClosed) {
+          $8.sleep = true;
+          $8.handle = $1;
+          return;
+        }
+        const $9 = 'ab';
+        $2 = matchLiteral2Async(state, $9, const ErrorExpectedTags([$9]));
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 4
+                : -1;
+      }
+      if ($3 == 4) {
+        // 'a'
+        // 'a'
+        final $10 = state.input;
+        if (state.pos >= $10.end && !$10.isClosed) {
+          $10.sleep = true;
+          $10.handle = $1;
+          return;
+        }
+        const $11 = 'a';
+        $2 = matchLiteral1Async(state, $11, const ErrorExpectedTags([$11]));
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 5
+                : -1;
+      }
+      if ($3 == 5) {
+        // 'A'
+        // 'A'
+        final $12 = state.input;
+        if (state.pos >= $12.end && !$12.isClosed) {
+          $12.sleep = true;
+          $12.handle = $1;
+          return;
+        }
+        const $13 = 'A';
+        $2 = matchLiteral1Async(state, $13, const ErrorExpectedTags([$13]));
         $3 = -1;
       }
-      $7 &= ~0x1 & 0xffff;
+      $14 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;

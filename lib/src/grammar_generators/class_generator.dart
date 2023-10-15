@@ -266,7 +266,7 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     final data = input.data;
     final pos = state.pos;
     final index = pos - start;
-    state.ok = pos <= input.end &&
+    state.ok = pos < input.end &&
         data.codeUnitAt(index) == string.codeUnitAt(0) &&
         data.startsWith(string, index);
     if (state.ok) {

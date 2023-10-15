@@ -894,6 +894,19 @@ void _testLiteral() {
     }
 
     {
+      const source = '0123';
+      await __testSuccess(
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 4,
+        result: '0123',
+        source: source,
+      );
+    }
+
+    {
       const source = '012';
       await __testSuccess(
         fastParse: _parser.fastParseLiterals,
@@ -923,7 +936,81 @@ void _testLiteral() {
       const source = '0';
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['01', '012']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
+              .getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'A';
+      await __testSuccess(
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 1,
+        result: 'A',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'ab';
+      await __testSuccess(
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 2,
+        result: 'ab',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      await __testSuccess(
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 1,
+        result: 'a',
+        source: source,
+      );
+    }
+
+    {
+      const source = 'x';
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
+              .getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseLiterals,
+        fastParseAsync: _parser.fastParseLiterals$Async,
+        parse: _parser.parseLiterals,
+        parseAsync: _parser.parseLiterals$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
+              .getErrorMessage(source, 0),
         },
         failPos: 0,
         fastParse: _parser.fastParseLiterals,
