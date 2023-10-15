@@ -19,20 +19,24 @@ class ExpectedGenerator extends ExpressionGenerator<ExpectedExpression> {
     }
 
     values['pos'] = allocateName();
-    values['failPos'] = allocateName();
+    values['lastFailPos'] = allocateName();
     values['errorCount'] = allocateName();
     values['tag'] = helper.escapeString(tag);
     values['p'] = generateExpression(child, false);
+    values['lastFailPos'] = allocateName();
     const template = '''
 final {{pos}} = state.pos;
-final {{failPos}} = state.failPos;
+final {{lastFailPos}} = state.lastFailPos;
 final {{errorCount}} = state.errorCount;
+state.lastFailPos = -1;
 {{p}}
-if (!state.ok && state.canHandleError({{failPos}}, {{errorCount}})) {
-  if (state.failPos == {{pos}}) {
-    state.rollbackErrors({{failPos}}, {{errorCount}});
-    state.fail(const ErrorExpectedTags([{{tag}}]));
-  }
+if (!state.ok && state.lastFailPos >= state.failPos &&
+  state.lastFailPos == {{pos}}) {
+  state.errorCount = {{errorCount}};
+  state.fail(const ErrorExpectedTags([{{tag}}]));
+}
+if (state.lastFailPos < {{lastFailPos}}) {
+  state.lastFailPos = {{lastFailPos}};
 }''';
     return render(template, values);
   }
@@ -48,30 +52,35 @@ if (!state.ok && state.canHandleError({{failPos}}, {{errorCount}})) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['pos'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    values['failPos'] =
+    final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
+    values['pos'] = pos;
+    values['lastFailPos'] =
         asyncGenerator.allocateVariable(GenericType(name: 'int'));
     values['errorCount'] =
         asyncGenerator.allocateVariable(GenericType(name: 'int'));
     values['tag'] = helper.escapeString(tag);
+    final key = (name: pos, value: 'state.pos');
     const initTemplate = '''
-{{pos}} = state.pos;
-{{failPos}} = state.failPos;
-{{errorCount}} = state.errorCount;''';
+{{lastFailPos}} = state.lastFailPos;
+{{errorCount}} = state.errorCount;
+state.lastFailPos = -1;''';
     final init = render(initTemplate, values);
     values['p'] = generateAsyncExpression(child, false);
     const template = '''
 {{p}}
-if (!state.ok && state.canHandleError({{failPos}}!, {{errorCount}}!)) {
-  if (state.failPos == {{pos}}!) {
-    state.rollbackErrors({{failPos}}!, {{errorCount}}!);
-    state.fail(const ErrorExpectedTags([{{tag}}]));
-  }
+if (!state.ok && state.lastFailPos >= state.failPos &&
+  state.lastFailPos == {{pos}}!) {
+  state.errorCount = {{errorCount}}!;
+  state.fail(const ErrorExpectedTags([{{tag}}]));
+}
+if (state.lastFailPos < {{lastFailPos}}!) {
+  state.lastFailPos = {{lastFailPos}}!;
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
       buffering: false,
+      key: key,
       init: init,
     );
   }

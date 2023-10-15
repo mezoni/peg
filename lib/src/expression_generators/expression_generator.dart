@@ -123,12 +123,12 @@ abstract class ExpressionGenerator<T extends Expression> {
     for (var i = indexOfExpression + 1; i < children.length; i++) {
       final child = children[i];
       final next = child.startingCharacters;
-      for (var i = 0; i < current.length; i++) {
-        final range = current[i];
+      for (var j = 0; j < current.length; j++) {
+        final range = current[j];
         final start = range.$1;
         final end = range.$2;
-        for (var j = 0; j < current.length; j++) {
-          final range2 = next[j];
+        for (var k = 0; k < next.length; k++) {
+          final range2 = next[k];
           final start2 = range2.$1;
           final end2 = range2.$2;
           if (start >= start2 && start <= end2) {
@@ -154,11 +154,11 @@ abstract class ExpressionGenerator<T extends Expression> {
 
     final rule = expression.rule!.name;
     final text = <String>[];
-    text.add('Force buffering for expression from ordered choice.');
+    text.add('Force buffering of alternative from ordered choice.');
     text.add('Production rule: $rule');
-    text.add('Parent expression: $parent');
-    text.add('Buffered expression: $expression');
-    text.add('Non-disjoint subsequent alternative expression(s):');
+    text.add('Ordered choice: $parent');
+    text.add('Buffered alternative: $expression');
+    text.add('Overlapping alternative(s):');
     text.add(alternatives.join('\n'));
     print(text.join('\n'));
     return true;

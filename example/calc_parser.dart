@@ -35,7 +35,7 @@ class CalcParser {
     }
 
     switch (operator) {
-      case '+':
+      case '-':
         return -operand;
       default:
         throw StateError('Unknown operator: $operator');
@@ -228,8 +228,9 @@ class CalcParser {
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $4 = state.failPos;
+    final $11 = state.lastFailPos;
     final $5 = state.errorCount;
+    state.lastFailPos = -1;
     final $10 = state.pos;
     state.ok = false;
     final $7 = state.input;
@@ -251,11 +252,14 @@ class CalcParser {
       state.pos = $10;
       state.fail(const ErrorExpectedTags(['-', '+']));
     }
-    if (!state.ok && state.canHandleError($4, $5)) {
-      if (state.failPos == $3) {
-        state.rollbackErrors($4, $5);
-        state.fail(const ErrorExpectedTags(['operator']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $3) {
+      state.errorCount = $5;
+      state.fail(const ErrorExpectedTags(['operator']));
+    }
+    if (state.lastFailPos < $11) {
+      state.lastFailPos = $11;
     }
     if (state.ok) {
       // Spaces
@@ -353,8 +357,9 @@ class CalcParser {
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $4 = state.failPos;
+    final $11 = state.lastFailPos;
     final $5 = state.errorCount;
+    state.lastFailPos = -1;
     final $10 = state.pos;
     state.ok = false;
     final $7 = state.input;
@@ -376,11 +381,14 @@ class CalcParser {
       state.pos = $10;
       state.fail(const ErrorExpectedTags(['/', '*']));
     }
-    if (!state.ok && state.canHandleError($4, $5)) {
-      if (state.failPos == $3) {
-        state.rollbackErrors($4, $5);
-        state.fail(const ErrorExpectedTags(['operator']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $3) {
+      state.errorCount = $5;
+      state.fail(const ErrorExpectedTags(['operator']));
+    }
+    if (state.lastFailPos < $11) {
+      state.lastFailPos = $11;
     }
     if (state.ok) {
       // Spaces
@@ -404,8 +412,9 @@ class CalcParser {
     final $2 = state.pos;
     num? $1;
     final $3 = state.pos;
-    final $4 = state.failPos;
+    final $25 = state.lastFailPos;
     final $5 = state.errorCount;
+    state.lastFailPos = -1;
     // Number_
     // num @inline Number_ = v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {} ;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
@@ -582,11 +591,14 @@ class CalcParser {
       $$ = num.parse(v);
       $1 = $$;
     }
-    if (!state.ok && state.canHandleError($4, $5)) {
-      if (state.failPos == $3) {
-        state.rollbackErrors($4, $5);
-        state.fail(const ErrorExpectedTags(['number']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $3) {
+      state.errorCount = $5;
+      state.fail(const ErrorExpectedTags(['number']));
+    }
+    if (state.lastFailPos < $25) {
+      state.lastFailPos = $25;
     }
     if (state.ok) {
       // Spaces
@@ -603,65 +615,87 @@ class CalcParser {
 
   /// num
   /// Prefix =
-  ///   o:'-'? e:Primary {}
+  ///   @expected('expression' ,Prefix_)
   ///   ;
   num? parsePrefix(State<String> state) {
     num? $0;
+    // @expected('expression' ,Prefix_)
+    final $2 = state.pos;
+    final $19 = state.lastFailPos;
+    final $4 = state.errorCount;
+    state.lastFailPos = -1;
+    // Prefix_
+    // num @inline Prefix_ = o:'-'? e:Primary {} ;
     // o:'-'? e:Primary {}
-    final $3 = state.pos;
-    String? $1;
-    const $4 = '-';
-    $1 = matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
+    final $8 = state.pos;
+    String? $6;
+    const $9 = '-';
+    $6 = matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
-      num? $2;
-      // Primary
-      $2 = parsePrimary(state);
+      num? $7;
+      // @inline Primary = @expected('expression' ,Primary_) ;
+      // @expected('expression' ,Primary_)
+      final $11 = state.pos;
+      final $18 = state.lastFailPos;
+      final $13 = state.errorCount;
+      state.lastFailPos = -1;
+      // Primary_
+      // @inline Primary_ = Number / OpenParenthesis v:Expression CloseParenthesis ;
+      // Number
+      // Number
+      $7 = parseNumber(state);
+      if (!state.ok && state.isRecoverable) {
+        // OpenParenthesis v:Expression CloseParenthesis
+        final $17 = state.pos;
+        // OpenParenthesis
+        fastParseOpenParenthesis(state);
+        if (state.ok) {
+          num? $16;
+          // Expression
+          $16 = parseExpression(state);
+          if (state.ok) {
+            // CloseParenthesis
+            fastParseCloseParenthesis(state);
+            if (state.ok) {
+              $7 = $16;
+            }
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($17);
+        }
+      }
+      if (!state.ok &&
+          state.lastFailPos >= state.failPos &&
+          state.lastFailPos == $11) {
+        state.errorCount = $13;
+        state.fail(const ErrorExpectedTags(['expression']));
+      }
+      if (state.lastFailPos < $18) {
+        state.lastFailPos = $18;
+      }
       if (state.ok) {
         num? $$;
-        final o = $1;
-        final e = $2!;
+        final o = $6;
+        final e = $7!;
         $$ = _prefix(o, e);
         $0 = $$;
       }
     }
     if (!state.ok) {
-      state.backtrack($3);
+      state.backtrack($8);
     }
-    return $0;
-  }
-
-  /// Primary =
-  ///     Number
-  ///   / OpenParenthesis v:Number CloseParenthesis
-  ///   ;
-  num? parsePrimary(State<String> state) {
-    num? $0;
-    // Number
-    // Number
-    $0 = parseNumber(state);
-    if (!state.ok && state.isRecoverable) {
-      // OpenParenthesis v:Number CloseParenthesis
-      final $3 = state.pos;
-      // OpenParenthesis
-      fastParseOpenParenthesis(state);
-      if (state.ok) {
-        num? $2;
-        // Number
-        $2 = parseNumber(state);
-        if (state.ok) {
-          // CloseParenthesis
-          fastParseCloseParenthesis(state);
-          if (state.ok) {
-            $0 = $2;
-          }
-        }
-      }
-      if (!state.ok) {
-        state.backtrack($3);
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $2) {
+      state.errorCount = $4;
+      state.fail(const ErrorExpectedTags(['expression']));
+    }
+    if (state.lastFailPos < $19) {
+      state.lastFailPos = $19;
     }
     return $0;
   }

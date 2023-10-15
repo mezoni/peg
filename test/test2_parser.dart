@@ -922,9 +922,11 @@ class Test2Parser {
     final $1 = state.pos;
     final $2 = state.failPos;
     final $3 = state.errorCount;
+    final $4 = state.lastFailPos;
+    state.lastFailPos = -1;
     // [0]
     matchChar16(state, 48);
-    if (!state.ok && state.canHandleError($2, $3)) {
+    if (!state.ok && state.lastFailPos >= state.failPos) {
       // ignore: unused_local_variable
       final start = $1;
       ParseError? error;
@@ -933,7 +935,7 @@ class Test2Parser {
       rollbackErrors = true;
       error = const ErrorMessage(0, 'error');
       if (rollbackErrors == true) {
-        state.rollbackErrors($2, $3);
+        state.errorCount = state.lastFailPos > $2 ? 0 : $3;
         // ignore: unnecessary_null_comparison, prefer_conditional_assignment
         if (error == null) {
           error = const ErrorUnknownError();
@@ -943,6 +945,9 @@ class Test2Parser {
       if (error != null) {
         state.failAt(state.failPos, error);
       }
+    }
+    if (state.lastFailPos < $4) {
+      state.lastFailPos = $4;
     }
   }
 
@@ -955,36 +960,37 @@ class Test2Parser {
     int? $2;
     int? $3;
     int? $4;
-    int $6 = 0;
+    int? $5;
     void $1() {
       // @errorHandler([0])
       // @errorHandler([0])
-      if ($6 & 0x1 == 0) {
-        $6 |= 0x1;
+      if ($2 == null) {
         $2 = state.pos;
         $3 = state.failPos;
         $4 = state.errorCount;
+        $5 = state.lastFailPos;
+        state.lastFailPos = -1;
       }
       // [0]
       // [0]
       // [0]
-      final $5 = state.input;
-      if (state.pos >= $5.end && !$5.isClosed) {
-        $5.sleep = true;
-        $5.handle = $1;
+      final $6 = state.input;
+      if (state.pos >= $6.end && !$6.isClosed) {
+        $6.sleep = true;
+        $6.handle = $1;
         return;
       }
       matchChar16Async(state, 48);
-      if (!state.ok && state.canHandleError($3!, $4!)) {
+      if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
-        final start = $2!;
+        final start = $2;
         ParseError? error;
         // ignore: prefer_final_locals
         var rollbackErrors = false;
         rollbackErrors = true;
         error = const ErrorMessage(0, 'error');
         if (rollbackErrors == true) {
-          state.rollbackErrors($3!, $4!);
+          state.errorCount = state.lastFailPos > $3! ? 0 : $4!;
           // ignore: unnecessary_null_comparison, prefer_conditional_assignment
           if (error == null) {
             error = const ErrorUnknownError();
@@ -995,7 +1001,10 @@ class Test2Parser {
           state.failAt(state.failPos, error);
         }
       }
-      $6 &= ~0x1 & 0xffff;
+      if (state.lastFailPos < $5!) {
+        state.lastFailPos = $5!;
+      }
+      $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1011,8 +1020,9 @@ class Test2Parser {
   void fastParseExpected(State<String> state) {
     // @expected('digits' ,[0-9]{2,})
     final $1 = state.pos;
-    final $2 = state.failPos;
+    final $8 = state.lastFailPos;
     final $3 = state.errorCount;
+    state.lastFailPos = -1;
     // [0-9]{2,}
     final $5 = state.pos;
     var $6 = 0;
@@ -1038,11 +1048,14 @@ class Test2Parser {
     if (!state.ok) {
       state.backtrack($5);
     }
-    if (!state.ok && state.canHandleError($2, $3)) {
-      if (state.failPos == $1) {
-        state.rollbackErrors($2, $3);
-        state.fail(const ErrorExpectedTags(['digits']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $1) {
+      state.errorCount = $3;
+      state.fail(const ErrorExpectedTags(['digits']));
+    }
+    if (state.lastFailPos < $8) {
+      state.lastFailPos = $8;
     }
   }
 
@@ -1057,15 +1070,14 @@ class Test2Parser {
     int? $4;
     int? $5;
     int? $6;
-    int $9 = 0;
     void $1() {
       // @expected('digits' ,[0-9]{2,})
       // @expected('digits' ,[0-9]{2,})
-      if ($9 & 0x1 == 0) {
-        $9 |= 0x1;
+      if ($2 == null) {
         $2 = state.pos;
-        $3 = state.failPos;
+        $3 = state.lastFailPos;
         $4 = state.errorCount;
+        state.lastFailPos = -1;
       }
       // [0-9]{2,}
       // [0-9]{2,}
@@ -1101,13 +1113,16 @@ class Test2Parser {
         state.backtrack($6!);
       }
       $5 = null;
-      if (!state.ok && state.canHandleError($3!, $4!)) {
-        if (state.failPos == $2!) {
-          state.rollbackErrors($3!, $4!);
-          state.fail(const ErrorExpectedTags(['digits']));
-        }
+      if (!state.ok &&
+          state.lastFailPos >= state.failPos &&
+          state.lastFailPos == $2!) {
+        state.errorCount = $4!;
+        state.fail(const ErrorExpectedTags(['digits']));
       }
-      $9 &= ~0x1 & 0xffff;
+      if (state.lastFailPos < $3!) {
+        state.lastFailPos = $3!;
+      }
+      $2 = null;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1227,10 +1242,10 @@ class Test2Parser {
   }
 
   /// List1 =
-  ///   @lit1([0], [,] v:[0])
+  ///   @list1([0], [,] v:[0])
   ///   ;
   void fastParseList1(State<String> state) {
-    // @lit1([0], [,] v:[0])
+    // @list1([0], [,] v:[0])
     var $1 = false;
     // [0]
     matchChar16(state, 48);
@@ -1255,7 +1270,7 @@ class Test2Parser {
   }
 
   /// List1 =
-  ///   @lit1([0], [,] v:[0])
+  ///   @list1([0], [,] v:[0])
   ///   ;
   AsyncResult<Object?> fastParseList1$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
@@ -1266,8 +1281,8 @@ class Test2Parser {
     int? $7;
     int $10 = 0;
     void $1() {
-      // @lit1([0], [,] v:[0])
-      // @lit1([0], [,] v:[0])
+      // @list1([0], [,] v:[0])
+      // @list1([0], [,] v:[0])
       if ($2 == null) {
         $2 = state.pos;
         $3 = 0;
@@ -4548,9 +4563,11 @@ class Test2Parser {
     final $2 = state.pos;
     final $3 = state.failPos;
     final $4 = state.errorCount;
+    final $5 = state.lastFailPos;
+    state.lastFailPos = -1;
     // [0]
     $0 = matchChar16(state, 48);
-    if (!state.ok && state.canHandleError($3, $4)) {
+    if (!state.ok && state.lastFailPos >= state.failPos) {
       // ignore: unused_local_variable
       final start = $2;
       ParseError? error;
@@ -4559,7 +4576,7 @@ class Test2Parser {
       rollbackErrors = true;
       error = const ErrorMessage(0, 'error');
       if (rollbackErrors == true) {
-        state.rollbackErrors($3, $4);
+        state.errorCount = state.lastFailPos > $3 ? 0 : $4;
         // ignore: unnecessary_null_comparison, prefer_conditional_assignment
         if (error == null) {
           error = const ErrorUnknownError();
@@ -4569,6 +4586,9 @@ class Test2Parser {
       if (error != null) {
         state.failAt(state.failPos, error);
       }
+    }
+    if (state.lastFailPos < $5) {
+      state.lastFailPos = $5;
     }
     return $0;
   }
@@ -4582,36 +4602,37 @@ class Test2Parser {
     int? $3;
     int? $4;
     int? $5;
-    int $7 = 0;
+    int? $6;
     void $1() {
       // @errorHandler([0])
       // @errorHandler([0])
-      if ($7 & 0x1 == 0) {
-        $7 |= 0x1;
+      if ($3 == null) {
         $3 = state.pos;
         $4 = state.failPos;
         $5 = state.errorCount;
+        $6 = state.lastFailPos;
+        state.lastFailPos = -1;
       }
       // [0]
       // [0]
       // [0]
-      final $6 = state.input;
-      if (state.pos >= $6.end && !$6.isClosed) {
-        $6.sleep = true;
-        $6.handle = $1;
+      final $7 = state.input;
+      if (state.pos >= $7.end && !$7.isClosed) {
+        $7.sleep = true;
+        $7.handle = $1;
         return;
       }
       $2 = matchChar16Async(state, 48);
-      if (!state.ok && state.canHandleError($4!, $5!)) {
+      if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
-        final start = $3!;
+        final start = $3;
         ParseError? error;
         // ignore: prefer_final_locals
         var rollbackErrors = false;
         rollbackErrors = true;
         error = const ErrorMessage(0, 'error');
         if (rollbackErrors == true) {
-          state.rollbackErrors($4!, $5!);
+          state.errorCount = state.lastFailPos > $4! ? 0 : $5!;
           // ignore: unnecessary_null_comparison, prefer_conditional_assignment
           if (error == null) {
             error = const ErrorUnknownError();
@@ -4622,7 +4643,10 @@ class Test2Parser {
           state.failAt(state.failPos, error);
         }
       }
-      $7 &= ~0x1 & 0xffff;
+      if (state.lastFailPos < $6!) {
+        state.lastFailPos = $6!;
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4640,8 +4664,9 @@ class Test2Parser {
     List<int>? $0;
     // @expected('digits' ,[0-9]{2,})
     final $2 = state.pos;
-    final $3 = state.failPos;
+    final $10 = state.lastFailPos;
     final $4 = state.errorCount;
+    state.lastFailPos = -1;
     // [0-9]{2,}
     final $6 = state.pos;
     final $7 = <int>[];
@@ -4671,11 +4696,14 @@ class Test2Parser {
     } else {
       state.backtrack($6);
     }
-    if (!state.ok && state.canHandleError($3, $4)) {
-      if (state.failPos == $2) {
-        state.rollbackErrors($3, $4);
-        state.fail(const ErrorExpectedTags(['digits']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $2) {
+      state.errorCount = $4;
+      state.fail(const ErrorExpectedTags(['digits']));
+    }
+    if (state.lastFailPos < $10) {
+      state.lastFailPos = $10;
     }
     return $0;
   }
@@ -4692,15 +4720,14 @@ class Test2Parser {
     List<int>? $6;
     int? $8;
     int? $7;
-    int $11 = 0;
     void $1() {
       // @expected('digits' ,[0-9]{2,})
       // @expected('digits' ,[0-9]{2,})
-      if ($11 & 0x1 == 0) {
-        $11 |= 0x1;
+      if ($3 == null) {
         $3 = state.pos;
-        $4 = state.failPos;
+        $4 = state.lastFailPos;
         $5 = state.errorCount;
+        state.lastFailPos = -1;
       }
       // [0-9]{2,}
       // [0-9]{2,}
@@ -4741,13 +4768,16 @@ class Test2Parser {
         state.backtrack($8!);
       }
       $6 = null;
-      if (!state.ok && state.canHandleError($4!, $5!)) {
-        if (state.failPos == $3!) {
-          state.rollbackErrors($4!, $5!);
-          state.fail(const ErrorExpectedTags(['digits']));
-        }
+      if (!state.ok &&
+          state.lastFailPos >= state.failPos &&
+          state.lastFailPos == $3!) {
+        state.errorCount = $5!;
+        state.fail(const ErrorExpectedTags(['digits']));
       }
-      $11 &= ~0x1 & 0xffff;
+      if (state.lastFailPos < $4!) {
+        state.lastFailPos = $4!;
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -4899,11 +4929,11 @@ class Test2Parser {
   }
 
   /// List1 =
-  ///   @lit1([0], [,] v:[0])
+  ///   @list1([0], [,] v:[0])
   ///   ;
   List<int>? parseList1(State<String> state) {
     List<int>? $0;
-    // @lit1([0], [,] v:[0])
+    // @list1([0], [,] v:[0])
     final $2 = <int>[];
     int? $3;
     // [0]
@@ -4939,7 +4969,7 @@ class Test2Parser {
   }
 
   /// List1 =
-  ///   @lit1([0], [,] v:[0])
+  ///   @list1([0], [,] v:[0])
   ///   ;
   AsyncResult<List<int>> parseList1$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<List<int>>();
@@ -4952,8 +4982,8 @@ class Test2Parser {
     int? $9;
     int $14 = 0;
     void $1() {
-      // @lit1([0], [,] v:[0])
-      // @lit1([0], [,] v:[0])
+      // @list1([0], [,] v:[0])
+      // @list1([0], [,] v:[0])
       if ($3 == null) {
         $3 = state.pos;
         $4 = 0;
@@ -11395,6 +11425,8 @@ class State<T> {
 
   bool isRecoverable = true;
 
+  int lastFailPos = -1;
+
   bool ok = false;
 
   int pos = 0;
@@ -11411,17 +11443,12 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -11438,6 +11465,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -11456,6 +11487,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -11474,6 +11509,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -11488,17 +11527,6 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
   }
 
   @pragma('vm:prefer-inline')

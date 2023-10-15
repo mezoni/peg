@@ -1,3 +1,10 @@
+# 4.0.3
+
+ - The implementation of the generated code for the meta expression `@errorHandler` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
+ - The implementation of the generated code for the meta expression `@expected` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
+ - The source code for supporting the parser runtime has been changed. The no longer needed methods `canHandleError` and `rollbackErrors` have been removed. Added a new field `int lastFailPos` to the `State` class.
+ - Changes to the `calc.peg` grammar file.
+
 # 4.0.2
 
 - Fixed bugs in `CutExpression`. The correct behavior is to apply this expression only to the child expressions of the parent expression `SequenceExpression` and does not apply to child expressions of child expressions of the parent. Its scope is also limited by its parent.

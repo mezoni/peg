@@ -37,7 +37,7 @@ void main(List<String> args) {
     }
 
     switch (operator) {
-      case '+':
+      case '-':
         return -operand;
       default:
         throw StateError('Unknown operator: $operator');
@@ -60,11 +60,19 @@ Mul = h:Prefix t:(op:MulOp ↑ expr:Prefix)* { $$ = t.isEmpty ? h : t.fold(h, _c
 MulOp = v:@expected('operator', '/' / '*') Spaces ;
 
 num
-Prefix = o:'-'? e:Primary { $$ = _prefix(o, e); } ;
+Prefix = @expected('expression', Prefix_) ;
 
-Primary =
+@inline
+num
+Prefix_ = o:'-'? e:Primary { $$ = _prefix(o, e); } ;
+
+@inline
+Primary = @expected('expression', Primary_);
+
+@inline
+Primary_ =
     Number
-  / OpenParenthesis v:Number CloseParenthesis ;
+  / OpenParenthesis v:Expression CloseParenthesis ;
 
 Number = v:@expected('number', Number_) Spaces ;
 

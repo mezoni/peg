@@ -129,8 +129,8 @@ bool
 True = 'true' Spaces { $$ = true; } ;
 
 @event
-Value = Array
-  / String
+Value =
+    String
   / Object
   / Array
   / Number

@@ -1855,6 +1855,8 @@ class State<T> {
 
   bool isRecoverable = true;
 
+  int lastFailPos = -1;
+
   bool ok = false;
 
   int pos = 0;
@@ -1871,17 +1873,12 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -1898,6 +1895,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -1916,6 +1917,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -1934,6 +1939,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -1948,17 +1957,6 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
   }
 
   @pragma('vm:prefer-inline')

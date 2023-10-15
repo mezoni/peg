@@ -606,20 +606,22 @@ class JsonParser {
     final $2 = state.pos;
     final $3 = state.failPos;
     final $4 = state.errorCount;
+    final $5 = state.lastFailPos;
+    state.lastFailPos = -1;
     // HexNumber_
     // int @inline HexNumber_ = v:$[0-9A-Fa-f]{4,4} {} ;
     // v:$[0-9A-Fa-f]{4,4} {}
-    String? $6;
-    final $8 = state.pos;
+    String? $7;
     final $9 = state.pos;
-    var $10 = 0;
-    while ($10 < 4) {
+    final $10 = state.pos;
+    var $11 = 0;
+    while ($11 < 4) {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
-        final $11 = state.input.codeUnitAt(state.pos);
-        state.ok = $11 <= 70
-            ? $11 >= 48 && $11 <= 57 || $11 >= 65
-            : $11 >= 97 && $11 <= 102;
+        final $12 = state.input.codeUnitAt(state.pos);
+        state.ok = $12 <= 70
+            ? $12 >= 48 && $12 <= 57 || $12 >= 65
+            : $12 >= 97 && $12 <= 102;
         if (state.ok) {
           state.pos++;
         } else {
@@ -631,22 +633,22 @@ class JsonParser {
       if (!state.ok) {
         break;
       }
-      $10++;
+      $11++;
     }
-    state.setOk($10 == 4);
+    state.setOk($11 == 4);
     if (!state.ok) {
-      state.backtrack($9);
+      state.backtrack($10);
     }
     if (state.ok) {
-      $6 = state.input.substring($8, state.pos);
+      $7 = state.input.substring($9, state.pos);
     }
     if (state.ok) {
       int? $$;
-      final v = $6!;
+      final v = $7!;
       $$ = int.parse(v, radix: 16);
       $0 = $$;
     }
-    if (!state.ok && state.canHandleError($3, $4)) {
+    if (!state.ok && state.lastFailPos >= state.failPos) {
       // ignore: unused_local_variable
       final start = $2;
       ParseError? error;
@@ -656,7 +658,7 @@ class JsonParser {
       error =
           ErrorMessage(start - state.failPos, 'Expected 4 digit hex number');
       if (rollbackErrors == true) {
-        state.rollbackErrors($3, $4);
+        state.errorCount = state.lastFailPos > $3 ? 0 : $4;
         // ignore: unnecessary_null_comparison, prefer_conditional_assignment
         if (error == null) {
           error = const ErrorUnknownError();
@@ -666,6 +668,9 @@ class JsonParser {
       if (error != null) {
         state.failAt(state.failPos, error);
       }
+    }
+    if (state.lastFailPos < $5) {
+      state.lastFailPos = $5;
     }
     return $0;
   }
@@ -679,19 +684,21 @@ class JsonParser {
     int? $3;
     int? $4;
     int? $5;
-    String? $6;
-    int? $7;
+    int? $6;
+    String? $7;
     int? $8;
-    int? $10;
-    int $13 = 0;
+    int? $9;
+    int? $11;
+    int $14 = 0;
     void $1() {
       // @errorHandler(HexNumber_)
       // @errorHandler(HexNumber_)
-      if ($13 & 0x2 == 0) {
-        $13 |= 0x2;
+      if ($3 == null) {
         $3 = state.pos;
         $4 = state.failPos;
         $5 = state.errorCount;
+        $6 = state.lastFailPos;
+        state.lastFailPos = -1;
       }
       // HexNumber_
       // HexNumber_
@@ -699,29 +706,29 @@ class JsonParser {
       // v:$[0-9A-Fa-f]{4,4} {}
       // v:$[0-9A-Fa-f]{4,4} {}
       // $[0-9A-Fa-f]{4,4}
-      if ($13 & 0x1 == 0) {
-        $13 |= 0x1;
+      if ($14 & 0x1 == 0) {
+        $14 |= 0x1;
         state.input.beginBuffering();
-        $7 = state.pos;
+        $8 = state.pos;
       }
       // [0-9A-Fa-f]{4,4}
-      if ($8 == null) {
-        $8 = 0;
-        $10 = state.pos;
+      if ($9 == null) {
+        $9 = 0;
+        $11 = state.pos;
       }
       while (true) {
         // [0-9A-Fa-f]
-        final $12 = state.input;
-        if (state.pos >= $12.end && !$12.isClosed) {
-          $12.sleep = true;
-          $12.handle = $1;
+        final $13 = state.input;
+        if (state.pos >= $13.end && !$13.isClosed) {
+          $13.sleep = true;
+          $13.handle = $1;
           return;
         }
-        final $11 = readChar16Async(state);
-        if ($11 >= 0) {
-          state.ok = $11 <= 70
-              ? $11 >= 48 && $11 <= 57 || $11 >= 65
-              : $11 >= 97 && $11 <= 102;
+        final $12 = readChar16Async(state);
+        if ($12 >= 0) {
+          state.ok = $12 <= 70
+              ? $12 >= 48 && $12 <= 57 || $12 >= 65
+              : $12 >= 97 && $12 <= 102;
           if (state.ok) {
             state.pos++;
           } else {
@@ -731,32 +738,32 @@ class JsonParser {
         if (!state.ok) {
           break;
         }
-        final $9 = $8! + 1;
-        $8 = $9;
-        if ($9 == 4) {
+        final $10 = $9! + 1;
+        $9 = $10;
+        if ($10 == 4) {
           break;
         }
       }
-      state.setOk($8! == 4);
+      state.setOk($9! == 4);
       if (!state.ok) {
-        state.backtrack($10!);
+        state.backtrack($11!);
       }
-      $8 = null;
+      $9 = null;
       if (state.ok) {
         final input = state.input;
         final start = input.start;
-        final pos = $7!;
-        $6 = input.data.substring(pos - start, state.pos - start);
+        final pos = $8!;
+        $7 = input.data.substring(pos - start, state.pos - start);
       }
       state.input.endBuffering();
-      $13 &= ~0x1 & 0xffff;
+      $14 &= ~0x1 & 0xffff;
       if (state.ok) {
         int? $$;
-        final v = $6!;
+        final v = $7!;
         $$ = int.parse(v, radix: 16);
         $2 = $$;
       }
-      if (!state.ok && state.canHandleError($4!, $5!)) {
+      if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
         final start = $3!;
         ParseError? error;
@@ -766,7 +773,7 @@ class JsonParser {
         error =
             ErrorMessage(start - state.failPos, 'Expected 4 digit hex number');
         if (rollbackErrors == true) {
-          state.rollbackErrors($4!, $5!);
+          state.errorCount = state.lastFailPos > $4! ? 0 : $5!;
           // ignore: unnecessary_null_comparison, prefer_conditional_assignment
           if (error == null) {
             error = const ErrorUnknownError();
@@ -777,7 +784,10 @@ class JsonParser {
           state.failAt(state.failPos, error);
         }
       }
-      $13 &= ~0x2 & 0xffff;
+      if (state.lastFailPos < $6!) {
+        state.lastFailPos = $6!;
+      }
+      $3 = null;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -1215,8 +1225,9 @@ class JsonParser {
     final $2 = state.pos;
     num? $1;
     final $3 = state.pos;
-    final $4 = state.failPos;
+    final $25 = state.lastFailPos;
     final $5 = state.errorCount;
+    state.lastFailPos = -1;
     // Number_
     // num @inline Number_ = v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {} ;
     // v:$([-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?) {}
@@ -1393,11 +1404,14 @@ class JsonParser {
       $$ = num.parse(v);
       $1 = $$;
     }
-    if (!state.ok && state.canHandleError($4, $5)) {
-      if (state.failPos == $3) {
-        state.rollbackErrors($4, $5);
-        state.fail(const ErrorExpectedTags(['number']));
-      }
+    if (!state.ok &&
+        state.lastFailPos >= state.failPos &&
+        state.lastFailPos == $3) {
+      state.errorCount = $5;
+      state.fail(const ErrorExpectedTags(['number']));
+    }
+    if (state.lastFailPos < $25) {
+      state.lastFailPos = $25;
     }
     if (state.ok) {
       // Spaces
@@ -1444,18 +1458,18 @@ class JsonParser {
     AsyncResult<Object?>? $40;
     void $1() {
       // v:@expected('number' ,Number_) Spaces
-      if ($22 & 0x100 == 0) {
-        $22 |= 0x100;
+      if ($22 & 0x80 == 0) {
+        $22 |= 0x80;
         $4 = 0;
         $5 = state.pos;
       }
       if ($4 == 0) {
         // @expected('number' ,Number_)
-        if ($22 & 0x40 == 0) {
-          $22 |= 0x40;
+        if ($6 == null) {
           $6 = state.pos;
-          $7 = state.failPos;
+          $7 = state.lastFailPos;
           $8 = state.errorCount;
+          state.lastFailPos = -1;
         }
         // Number_
         // Number_
@@ -1764,19 +1778,22 @@ class JsonParser {
           $$ = num.parse(v);
           $3 = $$;
         }
-        if (!state.ok && state.canHandleError($7!, $8!)) {
-          if (state.failPos == $6!) {
-            state.rollbackErrors($7!, $8!);
-            state.fail(const ErrorExpectedTags(['number']));
-          }
+        if (!state.ok &&
+            state.lastFailPos >= state.failPos &&
+            state.lastFailPos == $6!) {
+          state.errorCount = $8!;
+          state.fail(const ErrorExpectedTags(['number']));
         }
-        $22 &= ~0x40 & 0xffff;
+        if (state.lastFailPos < $7!) {
+          state.lastFailPos = $7!;
+        }
+        $6 = null;
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
         // Spaces
-        if ($22 & 0x80 == 0) {
-          $22 |= 0x80;
+        if ($22 & 0x40 == 0) {
+          $22 |= 0x40;
           $40 = fastParseSpaces$Async(state);
           final $41 = $40!;
           if (!$41.isComplete) {
@@ -1784,7 +1801,7 @@ class JsonParser {
             return;
           }
         }
-        $22 &= ~0x80 & 0xffff;
+        $22 &= ~0x40 & 0xffff;
         $4 = -1;
       }
       if (state.ok) {
@@ -1792,7 +1809,7 @@ class JsonParser {
       } else {
         state.backtrack($5!);
       }
-      $22 &= ~0x100 & 0xffff;
+      $22 &= ~0x80 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -2537,8 +2554,7 @@ class JsonParser {
 
   /// @event
   /// Value =
-  ///     Array
-  ///   / String
+  ///     String
   ///   / Object
   ///   / Array
   ///   / Number
@@ -2549,103 +2565,98 @@ class JsonParser {
   Object? parseValue(State<String> state) {
     beginEvent(JsonParserEvent.valueEvent);
     Object? $0;
-    // Array
-    // Array
-    $0 = parseArray(state);
+    // String
+    // String
+    $0 = parseString(state);
     if (!state.ok && state.isRecoverable) {
-      // String
-      // String
-      $0 = parseString(state);
+      // Object
+      // Object
+      $0 = parseObject(state);
       if (!state.ok && state.isRecoverable) {
-        // Object
-        // Object
-        $0 = parseObject(state);
+        // Array
+        // Array
+        $0 = parseArray(state);
         if (!state.ok && state.isRecoverable) {
-          // Array
-          // Array
-          $0 = parseArray(state);
+          // Number
+          // Number
+          $0 = parseNumber(state);
           if (!state.ok && state.isRecoverable) {
-            // Number
-            // Number
-            $0 = parseNumber(state);
-            if (!state.ok && state.isRecoverable) {
-              // True
-              // bool @inline True = 'true' Spaces {} ;
-              // 'true' Spaces {}
-              final $7 = state.pos;
-              const $8 = 'true';
-              state.ok = state.pos < state.input.length &&
-                  state.input.codeUnitAt(state.pos) == 116 &&
-                  state.input.startsWith($8, state.pos);
+            // True
+            // bool @inline True = 'true' Spaces {} ;
+            // 'true' Spaces {}
+            final $6 = state.pos;
+            const $7 = 'true';
+            state.ok = state.pos < state.input.length &&
+                state.input.codeUnitAt(state.pos) == 116 &&
+                state.input.startsWith($7, state.pos);
+            if (state.ok) {
+              state.pos += 4;
+            } else {
+              state.fail(const ErrorExpectedTags([$7]));
+            }
+            if (state.ok) {
+              // Spaces
+              fastParseSpaces(state);
               if (state.ok) {
-                state.pos += 4;
+                bool? $$;
+                $$ = true;
+                $0 = $$;
+              }
+            }
+            if (!state.ok) {
+              state.backtrack($6);
+            }
+            if (!state.ok && state.isRecoverable) {
+              // False
+              // bool @inline False = 'false' Spaces {} ;
+              // 'false' Spaces {}
+              final $9 = state.pos;
+              const $10 = 'false';
+              state.ok = state.pos < state.input.length &&
+                  state.input.codeUnitAt(state.pos) == 102 &&
+                  state.input.startsWith($10, state.pos);
+              if (state.ok) {
+                state.pos += 5;
               } else {
-                state.fail(const ErrorExpectedTags([$8]));
+                state.fail(const ErrorExpectedTags([$10]));
               }
               if (state.ok) {
                 // Spaces
                 fastParseSpaces(state);
                 if (state.ok) {
                   bool? $$;
-                  $$ = true;
+                  $$ = false;
                   $0 = $$;
                 }
               }
               if (!state.ok) {
-                state.backtrack($7);
+                state.backtrack($9);
               }
               if (!state.ok && state.isRecoverable) {
-                // False
-                // bool @inline False = 'false' Spaces {} ;
-                // 'false' Spaces {}
-                final $10 = state.pos;
-                const $11 = 'false';
+                // Null
+                // Object? @inline Null = 'null' Spaces {} ;
+                // 'null' Spaces {}
+                final $12 = state.pos;
+                const $13 = 'null';
                 state.ok = state.pos < state.input.length &&
-                    state.input.codeUnitAt(state.pos) == 102 &&
-                    state.input.startsWith($11, state.pos);
+                    state.input.codeUnitAt(state.pos) == 110 &&
+                    state.input.startsWith($13, state.pos);
                 if (state.ok) {
-                  state.pos += 5;
+                  state.pos += 4;
                 } else {
-                  state.fail(const ErrorExpectedTags([$11]));
+                  state.fail(const ErrorExpectedTags([$13]));
                 }
                 if (state.ok) {
                   // Spaces
                   fastParseSpaces(state);
                   if (state.ok) {
-                    bool? $$;
-                    $$ = false;
+                    Object? $$;
+                    $$ = null;
                     $0 = $$;
                   }
                 }
                 if (!state.ok) {
-                  state.backtrack($10);
-                }
-                if (!state.ok && state.isRecoverable) {
-                  // Null
-                  // Object? @inline Null = 'null' Spaces {} ;
-                  // 'null' Spaces {}
-                  final $13 = state.pos;
-                  const $14 = 'null';
-                  state.ok = state.pos < state.input.length &&
-                      state.input.codeUnitAt(state.pos) == 110 &&
-                      state.input.startsWith($14, state.pos);
-                  if (state.ok) {
-                    state.pos += 4;
-                  } else {
-                    state.fail(const ErrorExpectedTags([$14]));
-                  }
-                  if (state.ok) {
-                    // Spaces
-                    fastParseSpaces(state);
-                    if (state.ok) {
-                      Object? $$;
-                      $$ = null;
-                      $0 = $$;
-                    }
-                  }
-                  if (!state.ok) {
-                    state.backtrack($13);
-                  }
+                  state.backtrack($12);
                 }
               }
             }
@@ -2659,8 +2670,7 @@ class JsonParser {
 
   /// @event
   /// Value =
-  ///     Array
-  ///   / String
+  ///     String
   ///   / Object
   ///   / Array
   ///   / Number
@@ -2673,32 +2683,31 @@ class JsonParser {
     beginEvent(JsonParserEvent.valueEvent);
     Object? $2;
     int? $3;
-    AsyncResult<List<Object?>>? $4;
+    AsyncResult<String>? $4;
     int $6 = 0;
-    AsyncResult<String>? $7;
-    AsyncResult<Map<String, Object?>>? $9;
-    AsyncResult<List<Object?>>? $11;
-    AsyncResult<num>? $13;
-    int? $15;
-    int? $16;
-    AsyncResult<Object?>? $18;
-    int? $20;
-    int? $21;
-    AsyncResult<Object?>? $23;
-    int? $25;
-    int? $26;
-    AsyncResult<Object?>? $28;
+    AsyncResult<Map<String, Object?>>? $7;
+    AsyncResult<List<Object?>>? $9;
+    AsyncResult<num>? $11;
+    int? $13;
+    int? $14;
+    AsyncResult<Object?>? $16;
+    int? $18;
+    int? $19;
+    AsyncResult<Object?>? $21;
+    int? $23;
+    int? $24;
+    AsyncResult<Object?>? $26;
     void $1() {
-      if ($6 & 0x800 == 0) {
-        $6 |= 0x800;
+      if ($6 & 0x400 == 0) {
+        $6 |= 0x400;
         $3 = 0;
       }
       if ($3 == 0) {
-        // Array
-        // Array
+        // String
+        // String
         if ($6 & 0x1 == 0) {
           $6 |= 0x1;
-          $4 = parseArray$Async(state);
+          $4 = parseString$Async(state);
           final $5 = $4!;
           if (!$5.isComplete) {
             $5.onComplete = $1;
@@ -2714,11 +2723,11 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 1) {
-        // String
-        // String
+        // Object
+        // Object
         if ($6 & 0x2 == 0) {
           $6 |= 0x2;
-          $7 = parseString$Async(state);
+          $7 = parseObject$Async(state);
           final $8 = $7!;
           if (!$8.isComplete) {
             $8.onComplete = $1;
@@ -2734,11 +2743,11 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 2) {
-        // Object
-        // Object
+        // Array
+        // Array
         if ($6 & 0x4 == 0) {
           $6 |= 0x4;
-          $9 = parseObject$Async(state);
+          $9 = parseArray$Async(state);
           final $10 = $9!;
           if (!$10.isComplete) {
             $10.onComplete = $1;
@@ -2754,11 +2763,11 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 3) {
-        // Array
-        // Array
+        // Number
+        // Number
         if ($6 & 0x8 == 0) {
           $6 |= 0x8;
-          $11 = parseArray$Async(state);
+          $11 = parseNumber$Async(state);
           final $12 = $11!;
           if (!$12.isComplete) {
             $12.onComplete = $1;
@@ -2774,19 +2783,49 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 4) {
-        // Number
-        // Number
-        if ($6 & 0x10 == 0) {
-          $6 |= 0x10;
-          $13 = parseNumber$Async(state);
-          final $14 = $13!;
-          if (!$14.isComplete) {
-            $14.onComplete = $1;
+        // True
+        // True
+        // 'true' Spaces {}
+        // 'true' Spaces {}
+        if ($6 & 0x20 == 0) {
+          $6 |= 0x20;
+          $13 = 0;
+          $14 = state.pos;
+        }
+        if ($13 == 0) {
+          // 'true'
+          final $15 = state.input;
+          if (state.pos + 3 >= $15.end && !$15.isClosed) {
+            $15.sleep = true;
+            $15.handle = $1;
             return;
           }
+          const string = 'true';
+          matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+          $13 = state.ok ? 1 : -1;
         }
-        $2 = $13!.value;
-        $6 &= ~0x10 & 0xffff;
+        if ($13 == 1) {
+          // Spaces
+          if ($6 & 0x10 == 0) {
+            $6 |= 0x10;
+            $16 = fastParseSpaces$Async(state);
+            final $17 = $16!;
+            if (!$17.isComplete) {
+              $17.onComplete = $1;
+              return;
+            }
+          }
+          $6 &= ~0x10 & 0xffff;
+          $13 = -1;
+        }
+        if (state.ok) {
+          bool? $$;
+          $$ = true;
+          $2 = $$;
+        } else {
+          state.backtrack($14!);
+        }
+        $6 &= ~0x20 & 0xffff;
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -2794,49 +2833,49 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 5) {
-        // True
-        // True
-        // 'true' Spaces {}
-        // 'true' Spaces {}
-        if ($6 & 0x40 == 0) {
-          $6 |= 0x40;
-          $15 = 0;
-          $16 = state.pos;
+        // False
+        // False
+        // 'false' Spaces {}
+        // 'false' Spaces {}
+        if ($6 & 0x80 == 0) {
+          $6 |= 0x80;
+          $18 = 0;
+          $19 = state.pos;
         }
-        if ($15 == 0) {
-          // 'true'
-          final $17 = state.input;
-          if (state.pos + 3 >= $17.end && !$17.isClosed) {
-            $17.sleep = true;
-            $17.handle = $1;
+        if ($18 == 0) {
+          // 'false'
+          final $20 = state.input;
+          if (state.pos + 4 >= $20.end && !$20.isClosed) {
+            $20.sleep = true;
+            $20.handle = $1;
             return;
           }
-          const string = 'true';
+          const string = 'false';
           matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          $15 = state.ok ? 1 : -1;
+          $18 = state.ok ? 1 : -1;
         }
-        if ($15 == 1) {
+        if ($18 == 1) {
           // Spaces
-          if ($6 & 0x20 == 0) {
-            $6 |= 0x20;
-            $18 = fastParseSpaces$Async(state);
-            final $19 = $18!;
-            if (!$19.isComplete) {
-              $19.onComplete = $1;
+          if ($6 & 0x40 == 0) {
+            $6 |= 0x40;
+            $21 = fastParseSpaces$Async(state);
+            final $22 = $21!;
+            if (!$22.isComplete) {
+              $22.onComplete = $1;
               return;
             }
           }
-          $6 &= ~0x20 & 0xffff;
-          $15 = -1;
+          $6 &= ~0x40 & 0xffff;
+          $18 = -1;
         }
         if (state.ok) {
           bool? $$;
-          $$ = true;
+          $$ = false;
           $2 = $$;
         } else {
-          state.backtrack($16!);
+          state.backtrack($19!);
         }
-        $6 &= ~0x40 & 0xffff;
+        $6 &= ~0x80 & 0xffff;
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -2844,102 +2883,52 @@ class JsonParser {
                 : -1;
       }
       if ($3 == 6) {
-        // False
-        // False
-        // 'false' Spaces {}
-        // 'false' Spaces {}
-        if ($6 & 0x100 == 0) {
-          $6 |= 0x100;
-          $20 = 0;
-          $21 = state.pos;
-        }
-        if ($20 == 0) {
-          // 'false'
-          final $22 = state.input;
-          if (state.pos + 4 >= $22.end && !$22.isClosed) {
-            $22.sleep = true;
-            $22.handle = $1;
-            return;
-          }
-          const string = 'false';
-          matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          $20 = state.ok ? 1 : -1;
-        }
-        if ($20 == 1) {
-          // Spaces
-          if ($6 & 0x80 == 0) {
-            $6 |= 0x80;
-            $23 = fastParseSpaces$Async(state);
-            final $24 = $23!;
-            if (!$24.isComplete) {
-              $24.onComplete = $1;
-              return;
-            }
-          }
-          $6 &= ~0x80 & 0xffff;
-          $20 = -1;
-        }
-        if (state.ok) {
-          bool? $$;
-          $$ = false;
-          $2 = $$;
-        } else {
-          state.backtrack($21!);
-        }
-        $6 &= ~0x100 & 0xffff;
-        $3 = state.ok
-            ? -1
-            : state.isRecoverable
-                ? 7
-                : -1;
-      }
-      if ($3 == 7) {
         // Null
         // Null
         // 'null' Spaces {}
         // 'null' Spaces {}
-        if ($6 & 0x400 == 0) {
-          $6 |= 0x400;
-          $25 = 0;
-          $26 = state.pos;
+        if ($6 & 0x200 == 0) {
+          $6 |= 0x200;
+          $23 = 0;
+          $24 = state.pos;
         }
-        if ($25 == 0) {
+        if ($23 == 0) {
           // 'null'
-          final $27 = state.input;
-          if (state.pos + 3 >= $27.end && !$27.isClosed) {
-            $27.sleep = true;
-            $27.handle = $1;
+          final $25 = state.input;
+          if (state.pos + 3 >= $25.end && !$25.isClosed) {
+            $25.sleep = true;
+            $25.handle = $1;
             return;
           }
           const string = 'null';
           matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
-          $25 = state.ok ? 1 : -1;
+          $23 = state.ok ? 1 : -1;
         }
-        if ($25 == 1) {
+        if ($23 == 1) {
           // Spaces
-          if ($6 & 0x200 == 0) {
-            $6 |= 0x200;
-            $28 = fastParseSpaces$Async(state);
-            final $29 = $28!;
-            if (!$29.isComplete) {
-              $29.onComplete = $1;
+          if ($6 & 0x100 == 0) {
+            $6 |= 0x100;
+            $26 = fastParseSpaces$Async(state);
+            final $27 = $26!;
+            if (!$27.isComplete) {
+              $27.onComplete = $1;
               return;
             }
           }
-          $6 &= ~0x200 & 0xffff;
-          $25 = -1;
+          $6 &= ~0x100 & 0xffff;
+          $23 = -1;
         }
         if (state.ok) {
           Object? $$;
           $$ = null;
           $2 = $$;
         } else {
-          state.backtrack($26!);
+          state.backtrack($24!);
         }
-        $6 &= ~0x400 & 0xffff;
+        $6 &= ~0x200 & 0xffff;
         $3 = -1;
       }
-      $6 &= ~0x800 & 0xffff;
+      $6 &= ~0x400 & 0xffff;
       $2 = endEvent<Object?>(JsonParserEvent.valueEvent, $2, state.ok);
       $0.value = $2;
       $0.isComplete = true;
@@ -3755,6 +3744,8 @@ class State<T> {
 
   bool isRecoverable = true;
 
+  int lastFailPos = -1;
+
   bool ok = false;
 
   int pos = 0;
@@ -3771,17 +3762,12 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -3798,6 +3784,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -3816,6 +3806,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -3834,6 +3828,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -3848,17 +3846,6 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
   }
 
   @pragma('vm:prefer-inline')
