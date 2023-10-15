@@ -1,6 +1,6 @@
 name: peg
 description: A command line tool for generating (streaming, chunk, file) top-down parsers from a parsing expression grammars (PEG).
-version: 4.0.2
+version: 4.0.3
 homepage: https://github.com/mezoni/peg
 topics:
   - parser
