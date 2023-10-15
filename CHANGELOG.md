@@ -1,3 +1,7 @@
+# 4.0.5
+
+- The source code for supporting the parser runtime has been reworked.
+
 # 4.0.4
 
 - Fixed bug in method `matchLiteralAsync()`.

@@ -17,41 +17,43 @@ class TestParser {
     state.ok = false;
     final $1 = state.input;
     if (state.pos < $1.length) {
-      final $0 = $1.runeAt(state.pos);
-      state.pos += $0 > 0xffff ? 2 : 1;
+      final $0 = $1.codeUnitAt(state.pos);
+      state.pos++;
       switch ($0) {
         case 97:
-          const $2 = 'abc';
-          state.ok = $1.startsWith($2, state.pos - 1);
+          state.ok = state.pos + 1 < $1.length &&
+              $1.codeUnitAt(state.pos) == 98 &&
+              $1.codeUnitAt(state.pos + 1) == 99;
           if (state.ok) {
             state.pos += 2;
           } else {
-            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 98;
+            state.ok = state.pos < $1.length && $1.codeUnitAt(state.pos) == 98;
             if (state.ok) {
-              state.pos += 1;
+              state.pos++;
             } else {
               state.ok = true;
             }
           }
           break;
         case 100:
-          const $5 = 'def';
-          state.ok = $1.startsWith($5, state.pos - 1);
+          state.ok = state.pos + 1 < $1.length &&
+              $1.codeUnitAt(state.pos) == 101 &&
+              $1.codeUnitAt(state.pos + 1) == 102;
           if (state.ok) {
             state.pos += 2;
           } else {
-            state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 101;
+            state.ok = state.pos < $1.length && $1.codeUnitAt(state.pos) == 101;
             if (state.ok) {
-              state.pos += 1;
+              state.pos++;
             } else {
               state.ok = true;
             }
           }
           break;
         case 103:
-          state.ok = state.pos < $1.length && $1.runeAt(state.pos) == 104;
+          state.ok = state.pos < $1.length && $1.codeUnitAt(state.pos) == 104;
           if (state.ok) {
-            state.pos += 1;
+            state.pos++;
           }
           break;
       }
@@ -156,19 +158,20 @@ class TestParser {
     state.ok = false;
     final $2 = state.input;
     if (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
-      state.pos += $1 > 0xffff ? 2 : 1;
+      final $1 = $2.codeUnitAt(state.pos);
+      state.pos++;
       switch ($1) {
         case 97:
-          const $3 = 'abc';
-          state.ok = $2.startsWith($3, state.pos - 1);
+          state.ok = state.pos + 1 < $2.length &&
+              $2.codeUnitAt(state.pos) == 98 &&
+              $2.codeUnitAt(state.pos + 1) == 99;
           if (state.ok) {
             state.pos += 2;
-            $0 = $3;
+            $0 = 'abc';
           } else {
-            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 98;
+            state.ok = state.pos < $2.length && $2.codeUnitAt(state.pos) == 98;
             if (state.ok) {
-              state.pos += 1;
+              state.pos++;
               $0 = 'ab';
             } else {
               state.ok = true;
@@ -177,15 +180,16 @@ class TestParser {
           }
           break;
         case 100:
-          const $6 = 'def';
-          state.ok = $2.startsWith($6, state.pos - 1);
+          state.ok = state.pos + 1 < $2.length &&
+              $2.codeUnitAt(state.pos) == 101 &&
+              $2.codeUnitAt(state.pos + 1) == 102;
           if (state.ok) {
             state.pos += 2;
-            $0 = $6;
+            $0 = 'def';
           } else {
-            state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 101;
+            state.ok = state.pos < $2.length && $2.codeUnitAt(state.pos) == 101;
             if (state.ok) {
-              state.pos += 1;
+              state.pos++;
               $0 = 'de';
             } else {
               state.ok = true;
@@ -194,9 +198,9 @@ class TestParser {
           }
           break;
         case 103:
-          state.ok = state.pos < $2.length && $2.runeAt(state.pos) == 104;
+          state.ok = state.pos < $2.length && $2.codeUnitAt(state.pos) == 104;
           if (state.ok) {
-            state.pos += 1;
+            state.pos++;
             $0 = 'gh';
           }
           break;
@@ -220,7 +224,7 @@ class TestParser {
     while (true) {
       int? $3;
       // ![E] v:.
-      final $4 = state.pos;
+      final $5 = state.pos;
       final $6 = state.pos;
       matchChar16(state, 69);
       state.setOk(!state.ok);
@@ -235,22 +239,22 @@ class TestParser {
         state.backtrack($6);
       }
       if (state.ok) {
-        int? $5;
+        int? $4;
         final $8 = state.input;
         if (state.pos < $8.length) {
           final $7 = $8.runeAt(state.pos);
           state.pos += $7 > 0xffff ? 2 : 1;
           state.ok = true;
-          $5 = $7;
+          $4 = $7;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $3 = $5;
+          $3 = $4;
         }
       }
       if (!state.ok) {
-        state.backtrack($4);
+        state.backtrack($5);
       }
       if (!state.ok) {
         break;
@@ -274,7 +278,7 @@ class TestParser {
     while (true) {
       int? $3;
       // !'END' v:.
-      final $4 = state.pos;
+      final $5 = state.pos;
       final $6 = state.pos;
       const $7 = 'END';
       state.ok = state.pos < state.input.length &&
@@ -297,22 +301,22 @@ class TestParser {
         state.backtrack($6);
       }
       if (state.ok) {
-        int? $5;
+        int? $4;
         final $9 = state.input;
         if (state.pos < $9.length) {
           final $8 = $9.runeAt(state.pos);
           state.pos += $8 > 0xffff ? 2 : 1;
           state.ok = true;
-          $5 = $8;
+          $4 = $8;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $3 = $5;
+          $3 = $4;
         }
       }
       if (!state.ok) {
-        state.backtrack($4);
+        state.backtrack($5);
       }
       if (!state.ok) {
         break;
@@ -338,104 +342,104 @@ class TestParser {
     Object? $0;
     // (v:SkipUntil SkipUntil)
     // v:SkipUntil SkipUntil
-    final $2 = state.pos;
-    List<int>? $3;
+    final $3 = state.pos;
+    List<int>? $2;
     // SkipUntil
-    $3 = parseSkipUntil(state);
+    $2 = parseSkipUntil(state);
     if (state.ok) {
       // SkipUntil
       fastParseSkipUntil(state);
       if (state.ok) {
-        $0 = $3;
+        $0 = $2;
       }
     }
     if (!state.ok) {
-      state.backtrack($2);
+      state.backtrack($3);
     }
     if (!state.ok && state.isRecoverable) {
       // (v:SkipTil SkipTil)
       // v:SkipTil SkipTil
-      final $5 = state.pos;
-      List<int>? $6;
+      final $6 = state.pos;
+      List<int>? $5;
       // SkipTil
-      $6 = parseSkipTil(state);
+      $5 = parseSkipTil(state);
       if (state.ok) {
         // SkipTil
         fastParseSkipTil(state);
         if (state.ok) {
-          $0 = $6;
+          $0 = $5;
         }
       }
       if (!state.ok) {
-        state.backtrack($5);
+        state.backtrack($6);
       }
       if (!state.ok && state.isRecoverable) {
         // (v:TakeUntil TakeUntil)
         // v:TakeUntil TakeUntil
-        final $8 = state.pos;
-        String? $9;
+        final $9 = state.pos;
+        String? $8;
         // TakeUntil
-        $9 = parseTakeUntil(state);
+        $8 = parseTakeUntil(state);
         if (state.ok) {
           // TakeUntil
           fastParseTakeUntil(state);
           if (state.ok) {
-            $0 = $9;
+            $0 = $8;
           }
         }
         if (!state.ok) {
-          state.backtrack($8);
+          state.backtrack($9);
         }
         if (!state.ok && state.isRecoverable) {
           // (v:TakeTil TakeTil)
           // v:TakeTil TakeTil
-          final $11 = state.pos;
-          String? $12;
+          final $12 = state.pos;
+          String? $11;
           // TakeTil
-          $12 = parseTakeTil(state);
+          $11 = parseTakeTil(state);
           if (state.ok) {
             // TakeTil
             fastParseTakeTil(state);
             if (state.ok) {
-              $0 = $12;
+              $0 = $11;
             }
           }
           if (!state.ok) {
-            state.backtrack($11);
+            state.backtrack($12);
           }
           if (!state.ok && state.isRecoverable) {
             // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
             // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-            final $14 = state.pos;
-            String? $15;
+            final $15 = state.pos;
+            String? $14;
             // OrderedChoiceWithLiterals
-            $15 = parseOrderedChoiceWithLiterals(state);
+            $14 = parseOrderedChoiceWithLiterals(state);
             if (state.ok) {
               // OrderedChoiceWithLiterals
               fastParseOrderedChoiceWithLiterals(state);
               if (state.ok) {
-                $0 = $15;
+                $0 = $14;
               }
             }
             if (!state.ok) {
-              state.backtrack($14);
+              state.backtrack($15);
             }
             if (!state.ok && state.isRecoverable) {
               // (v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals)
               // v:OrderedChoiceWithLiterals OrderedChoiceWithLiterals
-              final $17 = state.pos;
-              String? $18;
+              final $18 = state.pos;
+              String? $17;
               // OrderedChoiceWithLiterals
-              $18 = parseOrderedChoiceWithLiterals(state);
+              $17 = parseOrderedChoiceWithLiterals(state);
               if (state.ok) {
                 // OrderedChoiceWithLiterals
                 fastParseOrderedChoiceWithLiterals(state);
                 if (state.ok) {
-                  $0 = $18;
+                  $0 = $17;
                 }
               }
               if (!state.ok) {
-                state.backtrack($17);
+                state.backtrack($18);
               }
             }
           }
@@ -490,8 +494,10 @@ class TestParser {
 
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
-  final result = tryParse(fastParse, source);
-  result.getResult();
+  final state = State(source);
+  fastParse(state);
+  final parseResult = _createParseResult<String, Object?>(state, null);
+  parseResult.getResult();
 }
 
 Sink<String> parseAsync<O>(
@@ -516,13 +522,17 @@ Sink<String> parseAsync<O>(
 }
 
 O parseString<O>(O? Function(State<String> state) parse, String source) {
-  final result = tryParse(parse, source);
-  return result.getResult();
+  final state = State(source);
+  final result = parse(state);
+  final parseResult = _createParseResult<String, O>(state, result);
+  return parseResult.getResult();
 }
 
 ParseResult<I, O> tryParse<I, O>(O? Function(State<I> state) parse, I input) {
-  final result = _parse<I, O>(parse, input);
-  return result;
+  final state = State(input);
+  final result = parse(state);
+  final parseResult = _createParseResult<I, O>(state, result);
+  return parseResult;
 }
 
 ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
@@ -691,12 +701,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   }
 
   return errorMap.values.toList();
-}
-
-ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
-  final state = State(input);
-  final result = parse(state);
-  return _createParseResult<I, O>(state, result);
 }
 
 class AsyncResult<T> {
@@ -1027,10 +1031,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  Object? context;
-
-  int cuttingPos = 0;
-
   final List<ParseError?> errors = List.filled(64, null, growable: false);
 
   int errorCount = 0;
@@ -1041,6 +1041,8 @@ class State<T> {
 
   bool isRecoverable = true;
 
+  int lastFailPos = -1;
+
   bool ok = false;
 
   int pos = 0;
@@ -1050,27 +1052,8 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void backtrack(int pos) {
-    if (pos >= cuttingPos) {
+    if (isRecoverable) {
       this.pos = pos;
-      return;
-    }
-    isRecoverable = false;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void cut(int pos) {
-    if (cuttingPos < pos) {
-      cuttingPos = pos;
     }
   }
 
@@ -1078,6 +1061,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -1094,6 +1081,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -1112,6 +1103,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -1130,6 +1125,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -1144,17 +1143,6 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
   }
 
   @pragma('vm:prefer-inline')

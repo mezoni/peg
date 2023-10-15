@@ -3247,8 +3247,10 @@ class PegParser {
 
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
-  final result = tryParse(fastParse, source);
-  result.getResult();
+  final state = State(source);
+  fastParse(state);
+  final parseResult = _createParseResult<String, Object?>(state, null);
+  parseResult.getResult();
 }
 
 Sink<String> parseAsync<O>(
@@ -3273,13 +3275,17 @@ Sink<String> parseAsync<O>(
 }
 
 O parseString<O>(O? Function(State<String> state) parse, String source) {
-  final result = tryParse(parse, source);
-  return result.getResult();
+  final state = State(source);
+  final result = parse(state);
+  final parseResult = _createParseResult<String, O>(state, result);
+  return parseResult.getResult();
 }
 
 ParseResult<I, O> tryParse<I, O>(O? Function(State<I> state) parse, I input) {
-  final result = _parse<I, O>(parse, input);
-  return result;
+  final state = State(input);
+  final result = parse(state);
+  final parseResult = _createParseResult<I, O>(state, result);
+  return parseResult;
 }
 
 ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
@@ -3448,12 +3454,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   }
 
   return errorMap.values.toList();
-}
-
-ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
-  final state = State(input);
-  final result = parse(state);
-  return _createParseResult<I, O>(state, result);
 }
 
 class AsyncResult<T> {
@@ -3794,6 +3794,8 @@ class State<T> {
 
   bool isRecoverable = true;
 
+  int lastFailPos = -1;
+
   bool ok = false;
 
   int pos = 0;
@@ -3810,17 +3812,12 @@ class State<T> {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  bool canHandleError(int failPos, int errorCount) {
-    return failPos == this.failPos
-        ? errorCount < this.errorCount
-        : failPos < this.failPos;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -3837,6 +3834,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (pos >= failPos) {
       if (failPos < pos) {
         failPos = pos;
@@ -3855,6 +3856,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -3873,6 +3878,10 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
+    if (lastFailPos < pos) {
+      lastFailPos = pos;
+    }
+
     if (offset >= failPos) {
       if (failPos < offset) {
         failPos = offset;
@@ -3887,17 +3896,6 @@ class State<T> {
 
   List<ParseError> getErrors() {
     return List.generate(errorCount, (i) => errors[i]!);
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  // ignore: unused_element
-  void rollbackErrors(int failPos, int errorCount) {
-    if (this.failPos == failPos) {
-      this.errorCount = errorCount;
-    } else if (this.failPos > failPos) {
-      this.errorCount = 0;
-    }
   }
 
   @pragma('vm:prefer-inline')

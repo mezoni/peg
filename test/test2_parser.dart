@@ -11079,8 +11079,10 @@ class Test2Parser {
 
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
-  final result = tryParse(fastParse, source);
-  result.getResult();
+  final state = State(source);
+  fastParse(state);
+  final parseResult = _createParseResult<String, Object?>(state, null);
+  parseResult.getResult();
 }
 
 Sink<String> parseAsync<O>(
@@ -11105,13 +11107,17 @@ Sink<String> parseAsync<O>(
 }
 
 O parseString<O>(O? Function(State<String> state) parse, String source) {
-  final result = tryParse(parse, source);
-  return result.getResult();
+  final state = State(source);
+  final result = parse(state);
+  final parseResult = _createParseResult<String, O>(state, result);
+  return parseResult.getResult();
 }
 
 ParseResult<I, O> tryParse<I, O>(O? Function(State<I> state) parse, I input) {
-  final result = _parse<I, O>(parse, input);
-  return result;
+  final state = State(input);
+  final result = parse(state);
+  final parseResult = _createParseResult<I, O>(state, result);
+  return parseResult;
 }
 
 ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
@@ -11280,12 +11286,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   }
 
   return errorMap.values.toList();
-}
-
-ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
-  final state = State(input);
-  final result = parse(state);
-  return _createParseResult<I, O>(state, result);
 }
 
 class AsyncResult<T> {

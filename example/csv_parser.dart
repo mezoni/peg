@@ -545,11 +545,11 @@ class CsvParser {
   }
 
   /// Rows =
-  ///   v:@list1(Row, Eol ↑ v:Row)
+  ///   v:@list1(Row, RowEnding ↑ v:Row)
   ///   ;
   List<List<String>>? parseRows(State<String> state) {
     List<List<String>>? $0;
-    // v:@list1(Row, Eol ↑ v:Row)
+    // v:@list1(Row, RowEnding ↑ v:Row)
     final $2 = <List<String>>[];
     List<String>? $3;
     // Row
@@ -559,11 +559,35 @@ class CsvParser {
       $2.add($3!);
       while (true) {
         List<String>? $4;
-        // Eol ↑ v:Row
+        // RowEnding ↑ v:Row
         final $9 = state.pos;
         var $8 = true;
+        // @inline RowEnding = Eol !@eof() ;
+        // Eol !@eof()
+        final $10 = state.pos;
         // Eol
         fastParseEol(state);
+        if (state.ok) {
+          final $11 = state.pos;
+          state.ok = state.pos >= state.input.length;
+          if (!state.ok) {
+            state.fail(const ErrorExpectedEndOfInput());
+          }
+          state.setOk(!state.ok);
+          if (!state.ok) {
+            final length = $11 - state.pos;
+            state.fail(switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(-1),
+              2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
+            state.backtrack($11);
+          }
+        }
+        if (!state.ok) {
+          state.backtrack($10);
+        }
         if (state.ok) {
           $8 = false;
           state.ok = true;
@@ -596,7 +620,7 @@ class CsvParser {
   }
 
   /// Rows =
-  ///   v:@list1(Row, Eol ↑ v:Row)
+  ///   v:@list1(Row, RowEnding ↑ v:Row)
   ///   ;
   AsyncResult<List<List<String>>> parseRows$Async(
       State<ChunkedParsingSink> state) {
@@ -610,12 +634,15 @@ class CsvParser {
     int? $12;
     int? $13;
     bool? $14;
-    AsyncResult<Object?>? $15;
+    int? $15;
+    int? $16;
+    AsyncResult<Object?>? $17;
+    int? $19;
     List<String>? $11;
-    AsyncResult<List<String>>? $17;
+    AsyncResult<List<String>>? $21;
     void $1() {
-      // v:@list1(Row, Eol ↑ v:Row)
-      // @list1(Row, Eol ↑ v:Row)
+      // v:@list1(Row, RowEnding ↑ v:Row)
+      // @list1(Row, RowEnding ↑ v:Row)
       if ($3 == null) {
         $3 = state.pos;
         $4 = 0;
@@ -646,25 +673,72 @@ class CsvParser {
         }
         if ($4 == 1) {
           List<String>? $7;
-          // Eol ↑ v:Row
-          if ($10 & 0x8 == 0) {
-            $10 |= 0x8;
+          // RowEnding ↑ v:Row
+          if ($10 & 0x10 == 0) {
+            $10 |= 0x10;
             $12 = 0;
             $13 = state.pos;
             $14 = true;
           }
           if ($12 == 0) {
-            // Eol
-            if ($10 & 0x2 == 0) {
-              $10 |= 0x2;
-              $15 = fastParseEol$Async(state);
-              final $16 = $15!;
-              if (!$16.isComplete) {
-                $16.onComplete = $1;
+            // RowEnding
+            // Eol !@eof()
+            // Eol !@eof()
+            if ($10 & 0x4 == 0) {
+              $10 |= 0x4;
+              $15 = 0;
+              $16 = state.pos;
+            }
+            if ($15 == 0) {
+              // Eol
+              if ($10 & 0x2 == 0) {
+                $10 |= 0x2;
+                $17 = fastParseEol$Async(state);
+                final $18 = $17!;
+                if (!$18.isComplete) {
+                  $18.onComplete = $1;
+                  return;
+                }
+              }
+              $10 &= ~0x2 & 0xffff;
+              $15 = state.ok ? 1 : -1;
+            }
+            if ($15 == 1) {
+              // !@eof()
+              if ($19 == null) {
+                $19 = state.pos;
+                state.input.beginBuffering();
+              }
+              // @eof()
+              final $20 = state.input;
+              if (state.pos >= $20.end && !$20.isClosed) {
+                $20.sleep = true;
+                $20.handle = $1;
                 return;
               }
+              state.ok = state.pos >= $20.end;
+              if (!state.ok) {
+                state.fail(const ErrorExpectedEndOfInput());
+              }
+              state.setOk(!state.ok);
+              if (!state.ok) {
+                final length = $19! - state.pos;
+                state.fail(switch (length) {
+                  0 => const ErrorUnexpectedInput(0),
+                  1 => const ErrorUnexpectedInput(-1),
+                  2 => const ErrorUnexpectedInput(-2),
+                  _ => ErrorUnexpectedInput(length)
+                });
+                state.backtrack($19!);
+              }
+              state.input.endBuffering();
+              $19 = null;
+              $15 = -1;
             }
-            $10 &= ~0x2 & 0xffff;
+            if (!state.ok) {
+              state.backtrack($16!);
+            }
+            $10 &= ~0x4 & 0xffff;
             $12 = state.ok ? 1 : -1;
           }
           if ($12 == 1) {
@@ -676,17 +750,17 @@ class CsvParser {
           }
           if ($12 == 2) {
             // Row
-            if ($10 & 0x4 == 0) {
-              $10 |= 0x4;
-              $17 = parseRow$Async(state);
-              final $18 = $17!;
-              if (!$18.isComplete) {
-                $18.onComplete = $1;
+            if ($10 & 0x8 == 0) {
+              $10 |= 0x8;
+              $21 = parseRow$Async(state);
+              final $22 = $21!;
+              if (!$22.isComplete) {
+                $22.onComplete = $1;
                 return;
               }
             }
-            $11 = $17!.value;
-            $10 &= ~0x4 & 0xffff;
+            $11 = $21!.value;
+            $10 &= ~0x8 & 0xffff;
             $12 = -1;
           }
           if (state.ok) {
@@ -697,7 +771,7 @@ class CsvParser {
             }
             state.backtrack($13!);
           }
-          $10 &= ~0x8 & 0xffff;
+          $10 &= ~0x10 & 0xffff;
           if (!state.ok) {
             $4 = -1;
             break;
@@ -1308,8 +1382,10 @@ enum CsvParserEvent { startEvent, fieldEvent, rowEvent }
 
 void fastParseString(
     void Function(State<String> state) fastParse, String source) {
-  final result = tryParse(fastParse, source);
-  result.getResult();
+  final state = State(source);
+  fastParse(state);
+  final parseResult = _createParseResult<String, Object?>(state, null);
+  parseResult.getResult();
 }
 
 Sink<String> parseAsync<O>(
@@ -1334,13 +1410,17 @@ Sink<String> parseAsync<O>(
 }
 
 O parseString<O>(O? Function(State<String> state) parse, String source) {
-  final result = tryParse(parse, source);
-  return result.getResult();
+  final state = State(source);
+  final result = parse(state);
+  final parseResult = _createParseResult<String, O>(state, result);
+  return parseResult.getResult();
 }
 
 ParseResult<I, O> tryParse<I, O>(O? Function(State<I> state) parse, I input) {
-  final result = _parse<I, O>(parse, input);
-  return result;
+  final state = State(input);
+  final result = parse(state);
+  final parseResult = _createParseResult<I, O>(state, result);
+  return parseResult;
 }
 
 ParseResult<I, O> _createParseResult<I, O>(State<I> state, O? result) {
@@ -1509,12 +1589,6 @@ List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   }
 
   return errorMap.values.toList();
-}
-
-ParseResult<I, O> _parse<I, O>(O? Function(State<I> input) parse, I input) {
-  final state = State(input);
-  final result = parse(state);
-  return _createParseResult<I, O>(state, result);
 }
 
 class AsyncResult<T> {
