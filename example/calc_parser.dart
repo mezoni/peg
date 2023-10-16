@@ -87,28 +87,7 @@ class CalcParser {
             (c == 13 || c >= 9 && c <= 10 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = true;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.codeUnitAt(pos) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
   }
 
   @pragma('vm:prefer-inline')
@@ -413,13 +392,25 @@ class CalcParser {
     final $9 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
     final $10 = state.pos;
-    matchChar16(state, 45);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 45;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
       // [0]
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok && state.isRecoverable) {
         // [1-9] [0-9]*
         final $12 = state.pos;
@@ -429,11 +420,10 @@ class CalcParser {
           state.ok = $13 >= 49 && $13 <= 57;
           if (state.ok) {
             state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           for (var c = 0;
@@ -442,9 +432,6 @@ class CalcParser {
                   (c >= 48 && c <= 57);
               // ignore: curly_braces_in_flow_control_structures, empty_statements
               state.pos++);
-          state.pos < state.input.length
-              ? state.fail(const ErrorUnexpectedCharacter())
-              : state.fail(const ErrorUnexpectedEndOfInput());
           state.ok = true;
         }
         if (!state.ok) {
@@ -455,7 +442,13 @@ class CalcParser {
         // [.] ↑ [0-9]+
         final $15 = state.pos;
         var $14 = true;
-        matchChar16(state, 46);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 46;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           $14 = false;
           state.ok = true;
@@ -468,10 +461,10 @@ class CalcParser {
                 state.pos++,
                 // ignore: curly_braces_in_flow_control_structures, empty_statements
                 $16 = true);
-            state.pos < state.input.length
-                ? state.fail(const ErrorUnexpectedCharacter())
-                : state.fail(const ErrorUnexpectedEndOfInput());
             state.ok = $16;
+            if (!state.ok) {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
           }
         }
         if (!state.ok) {
@@ -493,11 +486,10 @@ class CalcParser {
             state.ok = $19 == 69 || $19 == 101;
             if (state.ok) {
               state.pos++;
-            } else {
-              state.fail(const ErrorUnexpectedCharacter());
             }
-          } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
+          }
+          if (!state.ok) {
+            state.fail(const ErrorUnexpectedCharacter());
           }
           if (state.ok) {
             $17 = false;
@@ -509,11 +501,10 @@ class CalcParser {
                 state.ok = $20 == 43 || $20 == 45;
                 if (state.ok) {
                   state.pos++;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
                 }
-              } else {
-                state.fail(const ErrorUnexpectedEndOfInput());
+              }
+              if (!state.ok) {
+                state.fail(const ErrorUnexpectedCharacter());
               }
               if (!state.ok) {
                 state.setOk(true);
@@ -527,10 +518,10 @@ class CalcParser {
                     state.pos++,
                     // ignore: curly_braces_in_flow_control_structures, empty_statements
                     $21 = true);
-                state.pos < state.input.length
-                    ? state.fail(const ErrorUnexpectedCharacter())
-                    : state.fail(const ErrorUnexpectedEndOfInput());
                 state.ok = $21;
+                if (!state.ok) {
+                  state.fail(const ErrorUnexpectedCharacter());
+                }
               }
             }
           }

@@ -123,9 +123,6 @@ class CsvParser {
             (c == 9 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = true;
   }
 
@@ -145,14 +142,16 @@ class CsvParser {
           $3.handle = $1;
           return;
         }
-        final $2 = readChar16Async(state);
-        if ($2 >= 0) {
+        state.ok = state.pos < $3.end;
+        if (state.ok) {
+          final $2 = $3.data.codeUnitAt(state.pos - $3.start);
           state.ok = $2 == 9 || $2 == 32;
           if (state.ok) {
             state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (!state.ok) {
           break;
@@ -565,13 +564,15 @@ class CsvParser {
           }
           state.setOk(!state.ok);
           if (!state.ok) {
-            final length = $11 - state.pos;
-            state.fail(switch (length) {
-              0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(-1),
-              2 => const ErrorUnexpectedInput(-2),
-              _ => ErrorUnexpectedInput(length)
-            });
+            final length = state.pos - $11;
+            state.failAt(
+                $11,
+                switch (length) {
+                  0 => const ErrorUnexpectedInput(0),
+                  1 => const ErrorUnexpectedInput(-1),
+                  2 => const ErrorUnexpectedInput(-2),
+                  _ => ErrorUnexpectedInput(length)
+                });
             state.backtrack($11);
           }
         }
@@ -712,14 +713,17 @@ class CsvParser {
               }
               state.setOk(!state.ok);
               if (!state.ok) {
-                final length = $19! - state.pos;
-                state.fail(switch (length) {
-                  0 => const ErrorUnexpectedInput(0),
-                  1 => const ErrorUnexpectedInput(-1),
-                  2 => const ErrorUnexpectedInput(-2),
-                  _ => ErrorUnexpectedInput(length)
-                });
-                state.backtrack($19!);
+                final pos = $19!;
+                final length = state.pos - pos;
+                state.failAt(
+                    pos,
+                    switch (length) {
+                      0 => const ErrorUnexpectedInput(0),
+                      1 => const ErrorUnexpectedInput(-1),
+                      2 => const ErrorUnexpectedInput(-2),
+                      _ => ErrorUnexpectedInput(length)
+                    });
+                state.backtrack(pos);
               }
               state.input.endBuffering();
               $19 = null;
@@ -949,10 +953,10 @@ class CsvParser {
               state.pos += c > 0xffff ? 2 : 1,
               // ignore: curly_braces_in_flow_control_structures, empty_statements
               $11 = true);
-          state.pos < state.input.length
-              ? state.fail(const ErrorUnexpectedCharacter())
-              : state.fail(const ErrorUnexpectedEndOfInput());
           state.ok = $11;
+          if (!state.ok) {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $8 = state.input.substring($10, state.pos);
           }
@@ -1116,14 +1120,16 @@ class CsvParser {
                 $20.handle = $1;
                 return;
               }
-              final $19 = readChar32Async(state);
-              if ($19 >= 0) {
+              state.ok = state.pos < $20.end;
+              if (state.ok) {
+                final $19 = $20.data.runeAt(state.pos - $20.start);
                 state.ok = $19 != 34;
                 if (state.ok) {
                   state.pos += $19 > 0xffff ? 2 : 1;
-                } else {
-                  state.fail(const ErrorUnexpectedCharacter());
                 }
+              }
+              if (!state.ok) {
+                state.fail(const ErrorUnexpectedCharacter());
               }
               if (!state.ok) {
                 break;
@@ -1256,9 +1262,6 @@ class CsvParser {
             (!(c == 13 || c == 10 || c == 34 || c == 44));
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos += c > 0xffff ? 2 : 1);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = true;
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
@@ -1291,14 +1294,16 @@ class CsvParser {
           $5.handle = $1;
           return;
         }
-        final $4 = readChar32Async(state);
-        if ($4 >= 0) {
+        state.ok = state.pos < $5.end;
+        if (state.ok) {
+          final $4 = $5.data.runeAt(state.pos - $5.start);
           state.ok = !($4 == 13 || $4 == 10 || $4 == 34 || $4 == 44);
           if (state.ok) {
             state.pos += $4 > 0xffff ? 2 : 1;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (!state.ok) {
           break;
@@ -1321,34 +1326,6 @@ class CsvParser {
 
     $1();
     return $0;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar16Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.codeUnitAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar32Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.runeAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
   }
 }
 
@@ -1542,6 +1519,24 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
+  var isEof = false;
+  if (input is String) {
+    if (offset >= input.length) {
+      isEof = true;
+    }
+  } else if (input is ChunkedParsingSink) {
+    if (input.isClosed && offset >= input.end) {
+      isEof = true;
+    }
+  }
+
+  if (isEof) {
+    errorList.add(const ErrorUnexpectedEndOfInput());
+    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
+  } else if (errorList.isEmpty) {
+    errorList.add(const ErrorUnexpectedCharacter());
+  }
+
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
   if (expectedTags.isNotEmpty) {
     errorList.removeWhere((e) => e is ErrorExpectedTags);
@@ -1767,7 +1762,7 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        if (offset >= input.start && offset <= input.end) {
+        if (offset >= input.start && offset < input.end) {
           final index = offset - input.start;
           char = input.data.runeAt(index);
         } else if (input.isClosed && offset >= input.end) {

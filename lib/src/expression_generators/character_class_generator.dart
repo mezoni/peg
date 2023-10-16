@@ -64,11 +64,10 @@ if (state.ok) {
   if (state.ok) {
     {{assign_state_pos}};
     {{assign_result}}
-  } else {
-    state.fail(const ErrorUnexpectedCharacter());
   }
-} else {
-  state.fail(const ErrorUnexpectedEndOfInput());
+}
+if (!state.ok) {
+  state.fail(const ErrorUnexpectedCharacter());
 }''';
     return render(template, values);
   }
@@ -84,7 +83,7 @@ if (state.ok) {
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
     values['assign_state_pos'] = helper.assignStatePos(c, ranges, negate);
-    values['read_char_async'] = helper.readCharAsync(ranges, negate);
+    values['char_at'] = helper.charAt(ranges, negate);
     values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
     if (variable != null) {
       values['assign_result'] = '$variable = $c;';
@@ -101,15 +100,18 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.handle = {{handle}};
   return;
 }
-final {{c}} = {{read_char_async}}(state);
-if ({{c}} >= 0) {
+{{clear_result}}
+state.ok = state.pos < {{input}}.end;
+if (state.ok) {
+  final {{c}} = {{input}}.data.{{char_at}}(state.pos - {{input}}.start);
   state.ok = {{predicate}};
   if (state.ok) {
     {{assign_state_pos}};
     {{assign_result}}
-  } else {
-    state.fail(const ErrorUnexpectedCharacter());
   }
+}
+if (!state.ok) {
+  state.fail(const ErrorUnexpectedCharacter());
 }''';
 
     final source = render(template, values);
@@ -126,9 +128,11 @@ if ({{c}} >= 0) {
     values['char'] = '$char';
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
-    values['match_char_async'] = helper.matchCharAsync(char);
+    values['char_at'] = helper.charAt([(char, char)], false);
+    values['adjust_state_pos'] =
+        helper.assignStatePos('$char', [(char, char)], false);
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $char;';
     } else {
       values['assign_result'] = '';
     }
@@ -140,7 +144,14 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.handle = {{handle}};
   return;
 }
-{{assign_result}}{{match_char_async}}(state, {{char}});''';
+state.ok = state.pos < {{input}}.end &&
+  {{input}}.data.{{char_at}}(state.pos - {{input}}.start) == {{char}};
+if (state.ok) {
+  {{adjust_state_pos}};
+  {{assign_result}}
+} else {
+  state.fail(const ErrorUnexpectedCharacter());
+}''';
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
@@ -152,15 +163,25 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     values['char'] = '$char';
-    values['match_char'] = helper.matchChar(char);
+    values['char_at'] = helper.charAt([(char, char)], false);
+    values['adjust_state_pos'] =
+        helper.assignStatePos('$char', [(char, char)], false);
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
+      values['assign_result'] = '$variable = $char;';
     } else {
       values['assign_result'] = '';
     }
 
     const template = '''
-{{assign_result}}{{match_char}}(state, {{char}});''';
+state.ok = state.pos < state.input.length &&
+    state.input.{{char_at}}(state.pos) == {{char}};
+if (state.ok) {
+  {{adjust_state_pos}};
+  {{assign_result}}
+} else {
+  state.fail(const ErrorUnexpectedCharacter());
+}''';
+
     return render(template, values);
   }
 }

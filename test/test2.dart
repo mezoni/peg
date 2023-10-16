@@ -1009,6 +1009,7 @@ void _testLiteral() {
       const source = '';
       await __testFailure(
         errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
           ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
               .getErrorMessage(source, 0),
         },
@@ -1105,8 +1106,8 @@ void _testNotPredicate() {
     {
       const source = '012';
       await __testFailure(
-        errors: {ErrorUnexpectedInput(3).getErrorMessage(source, 0)},
-        failPos: 3,
+        errors: {ErrorUnexpectedInput(0).getErrorMessage(source, 0)},
+        failPos: 0,
         fastParse: _parser.fastParseNotPredicate,
         fastParseAsync: _parser.fastParseNotPredicate$Async,
         parse: _parser.parseNotPredicate,

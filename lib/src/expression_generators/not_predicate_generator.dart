@@ -19,8 +19,8 @@ final {{pos}} = state.pos;
 {{p}}
 state.setOk(!state.ok);
 if (!state.ok) {
-  final length = {{pos}} - state.pos;
-  state.fail(switch (length) {
+  final length = state.pos - {{pos}};
+  state.failAt({{pos}}, switch (length) {
     0 => const ErrorUnexpectedInput(0),
     1 => const ErrorUnexpectedInput(-1),
     2 => const ErrorUnexpectedInput(-2),
@@ -46,14 +46,15 @@ if (!state.ok) {
 {{p}}
 state.setOk(!state.ok);
 if (!state.ok) {
-  final length = {{pos}}! - state.pos;
-  state.fail(switch (length) {
+  final pos = {{pos}}!;
+  final length = state.pos - pos;
+  state.failAt(pos, switch (length) {
     0 => const ErrorUnexpectedInput(0),
     1 => const ErrorUnexpectedInput(-1),
     2 => const ErrorUnexpectedInput(-2),
     _ => ErrorUnexpectedInput(length)
   });
-  state.backtrack({{pos}}!);
+  state.backtrack(pos);
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(

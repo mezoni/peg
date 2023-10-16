@@ -144,9 +144,6 @@ for (var c = 0;
     {{assign_state_pos}},
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{list}}.add(c));
-state.pos < state.input.length
-    ? state.fail(const ErrorUnexpectedCharacter())
-    : state.fail(const ErrorUnexpectedEndOfInput());
 state.ok = true;
 if (state.ok) {
   {{r}} = {{list}};
@@ -158,9 +155,6 @@ for (var c = 0;
     (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{assign_state_pos}});
-state.pos < state.input.length
-    ? state.fail(const ErrorUnexpectedCharacter())
-    : state.fail(const ErrorUnexpectedEndOfInput());
 state.ok = true;''';
     }
 

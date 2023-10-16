@@ -86,80 +86,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
 
   void _addInternalMethods(Map<String, String> methods) {
     const methodMap = {
-      'matchChar16': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.codeUnitAt(pos) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }''',
-      'matchChar16Async': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16Async(State<ChunkedParsingSink> state, int char) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      state.ok = input.data.codeUnitAt(pos - start) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }''',
-      'matchChar32': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.runeAt(pos) == char;
-      if (state.ok) {
-        state.pos += char > 0xffff ? 2 : 1;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }''',
-      'matchChar32Async': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32Async(State<ChunkedParsingSink> state, int char) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      state.ok = input.data.runeAt(pos - start) == char;
-      if (state.ok) {
-        state.pos += char > 0xffff ? 2 : 1;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }''',
       'matchLiteral': '''
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -273,35 +199,7 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
     }
     state.fail(error);
     return null;
-  }''',
-      'readChar16Async': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar16Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.codeUnitAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
-  }''',
-      'readChar32Async': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar32Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.runeAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
-  }''',
+  }'''
     };
     final source = methods.values.join('\n\n');
     for (final entry in methodMap.entries) {

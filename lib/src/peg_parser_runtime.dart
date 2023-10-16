@@ -186,6 +186,24 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
+  var isEof = false;
+  if (input is String) {
+    if (offset >= input.length) {
+      isEof = true;
+    }
+  } else if (input is ChunkedParsingSink) {
+    if (input.isClosed && offset >= input.end) {
+      isEof = true;
+    }
+  }
+
+  if (isEof) {
+    errorList.add(const ErrorUnexpectedEndOfInput());
+    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
+  } else if (errorList.isEmpty) {
+    errorList.add(const ErrorUnexpectedCharacter());
+  }
+
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
   if (expectedTags.isNotEmpty) {
     errorList.removeWhere((e) => e is ErrorExpectedTags);
@@ -411,7 +429,7 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        if (offset >= input.start && offset <= input.end) {
+        if (offset >= input.start && offset < input.end) {
           final index = offset - input.start;
           char = input.data.runeAt(index);
         } else if (input.isClosed && offset >= input.end) {

@@ -1,5 +1,4 @@
 import '../expressions/expressions.dart';
-import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
 class AnyCharacterGenerator
@@ -23,32 +22,26 @@ class AnyCharacterGenerator
     }
 
     const template = '''
-final {{input}} = state.input;
-if (state.pos < {{input}}.length) {
-  final {{c}} = {{input}}.runeAt(state.pos);
+state.ok = state.pos < state.input.length;
+if (state.ok) {
+  final {{c}} = state.input.runeAt(state.pos);
   state.pos += {{c}} > 0xffff ? 2 : 1;
-  state.ok = true;
   {{assign_result}}
 } else {
-  state.fail(const ErrorUnexpectedEndOfInput());
+  state.fail(const ErrorUnexpectedCharacter());
 }''';
     return render(template, values);
   }
 
   @override
   String generateAsync() {
-    const ranges = [(0, 0x10ffff)];
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final c = allocateName();
-    values['c'] = c;
     values['handle'] = asyncGenerator.functionName;
     values['input'] = allocateName();
-    values['read_char_async'] = helper.readCharAsync(ranges, false);
-    values['assign_state_pos'] = helper.assignStatePos(c, ranges, false);
     if (variable != null) {
-      values['assign_result'] = '$variable = $c;';
+      values['assign_result'] = '$variable = c;';
       values['clear_result'] = '$variable = null;';
     } else {
       values['assign_result'] = '';
@@ -62,11 +55,13 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.handle = {{handle}};
   return;
 }
-final {{c}} = {{read_char_async}}(state);
-state.ok = {{c}} >= 0;
+state.ok = state.pos < {{input}}.end;
 if (state.ok) {
-  {{assign_state_pos}};
+  final c = {{input}}.data.runeAt(state.pos - {{input}}.start);
+  state.pos += c > 0xffff ? 2 : 1;
   {{assign_result}}
+} else {
+  state.fail(const ErrorUnexpectedCharacter());
 }''';
     final source = render(template, values);
     return asyncGenerator.renderAction(

@@ -125,24 +125,6 @@ class TestParser {
     }
   }
 
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.codeUnitAt(pos) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }
-
   /// OrderedChoiceWithLiterals =
   ///     'abc'
   ///   / 'ab'
@@ -226,28 +208,35 @@ class TestParser {
       // ![E] v:.
       final $5 = state.pos;
       final $6 = state.pos;
-      matchChar16(state, 69);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 69;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       state.setOk(!state.ok);
       if (!state.ok) {
-        final length = $6 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(-1),
-          2 => const ErrorUnexpectedInput(-2),
-          _ => ErrorUnexpectedInput(length)
-        });
+        final length = state.pos - $6;
+        state.failAt(
+            $6,
+            switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(-1),
+              2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
         state.backtrack($6);
       }
       if (state.ok) {
         int? $4;
-        final $8 = state.input;
-        if (state.pos < $8.length) {
-          final $7 = $8.runeAt(state.pos);
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $7 = state.input.runeAt(state.pos);
           state.pos += $7 > 0xffff ? 2 : 1;
-          state.ok = true;
           $4 = $7;
         } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           $3 = $4;
@@ -291,25 +280,26 @@ class TestParser {
       }
       state.setOk(!state.ok);
       if (!state.ok) {
-        final length = $6 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(-1),
-          2 => const ErrorUnexpectedInput(-2),
-          _ => ErrorUnexpectedInput(length)
-        });
+        final length = state.pos - $6;
+        state.failAt(
+            $6,
+            switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(-1),
+              2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
         state.backtrack($6);
       }
       if (state.ok) {
         int? $4;
-        final $9 = state.input;
-        if (state.pos < $9.length) {
-          final $8 = $9.runeAt(state.pos);
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $8 = state.input.runeAt(state.pos);
           state.pos += $8 > 0xffff ? 2 : 1;
-          state.ok = true;
           $4 = $8;
         } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           $3 = $4;
@@ -496,6 +486,10 @@ void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final state = State(source);
   fastParse(state);
+  if (state.ok) {
+    return;
+  }
+
   final parseResult = _createParseResult<String, Object?>(state, null);
   parseResult.getResult();
 }
@@ -524,6 +518,10 @@ Sink<String> parseAsync<O>(
 O parseString<O>(O? Function(State<String> state) parse, String source) {
   final state = State(source);
   final result = parse(state);
+  if (state.ok) {
+    return result as O;
+  }
+
   final parseResult = _createParseResult<String, O>(state, result);
   return parseResult.getResult();
 }
@@ -672,6 +670,24 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
+  var isEof = false;
+  if (input is String) {
+    if (offset >= input.length) {
+      isEof = true;
+    }
+  } else if (input is ChunkedParsingSink) {
+    if (input.isClosed && offset >= input.end) {
+      isEof = true;
+    }
+  }
+
+  if (isEof) {
+    errorList.add(const ErrorUnexpectedEndOfInput());
+    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
+  } else if (errorList.isEmpty) {
+    errorList.add(const ErrorUnexpectedCharacter());
+  }
+
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
   if (expectedTags.isNotEmpty) {
     errorList.removeWhere((e) => e is ErrorExpectedTags);
@@ -897,7 +913,7 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        if (offset >= input.start && offset <= input.end) {
+        if (offset >= input.start && offset < input.end) {
           final index = offset - input.start;
           char = input.data.runeAt(index);
         } else if (input.isClosed && offset >= input.end) {

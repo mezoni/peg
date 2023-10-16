@@ -146,12 +146,11 @@ for (var c = 0;
     {{assign_state_pos}},
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{list}}.add(c));
-state.pos < state.input.length
-    ? state.fail(const ErrorUnexpectedCharacter())
-    : state.fail(const ErrorUnexpectedEndOfInput());
 state.ok = {{list}}.isNotEmpty;
 if (state.ok) {
   {{r}} = {{list}};
+} else {
+  state.fail(const ErrorUnexpectedCharacter());
 }''';
     } else {
       template = '''
@@ -162,10 +161,10 @@ for (var c = 0;
     {{assign_state_pos}},
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{ok}} = true);
-state.pos < state.input.length
-    ? state.fail(const ErrorUnexpectedCharacter())
-    : state.fail(const ErrorUnexpectedEndOfInput());
-state.ok = {{ok}};''';
+state.ok = {{ok}};
+if (!state.ok) {
+  state.fail(const ErrorUnexpectedCharacter());
+}''';
     }
 
     return render(template, values);

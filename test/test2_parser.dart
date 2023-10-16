@@ -12,11 +12,29 @@ class Test2Parser {
     final $1 = state.pos;
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar16(state, 50);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -26,11 +44,29 @@ class Test2Parser {
       state.pos = $1;
     }
     if (state.ok) {
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar16(state, 49);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
         if (state.ok) {
-          matchChar16(state, 50);
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (state.ok) {
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
       }
     }
@@ -80,7 +116,13 @@ class Test2Parser {
             $7.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $7.end &&
+              $7.data.codeUnitAt(state.pos - $7.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
@@ -91,7 +133,13 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
@@ -102,7 +150,13 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          matchChar16Async(state, 50);
+          state.ok = state.pos < $9.end &&
+              $9.data.codeUnitAt(state.pos - $9.start) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = -1;
         }
         if (!state.ok) {
@@ -124,7 +178,13 @@ class Test2Parser {
           $11.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $11.end &&
+            $11.data.codeUnitAt(state.pos - $11.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 2 : -1;
       }
       if ($2 == 2) {
@@ -135,7 +195,13 @@ class Test2Parser {
           $12.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $12.end &&
+            $12.data.codeUnitAt(state.pos - $12.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 3 : -1;
       }
       if ($2 == 3) {
@@ -146,7 +212,13 @@ class Test2Parser {
           $13.handle = $1;
           return;
         }
-        matchChar16Async(state, 50);
+        state.ok = state.pos < $13.end &&
+            $13.data.codeUnitAt(state.pos - $13.start) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -167,13 +239,12 @@ class Test2Parser {
   ///   ;
   void fastParseAnyCharacter(State<String> state) {
     // .
-    final $2 = state.input;
-    if (state.pos < $2.length) {
-      final $1 = $2.runeAt(state.pos);
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $1 = state.input.runeAt(state.pos);
       state.pos += $1 > 0xffff ? 2 : 1;
-      state.ok = true;
     } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -186,16 +257,18 @@ class Test2Parser {
     void $1() {
       // .
       // .
-      final $3 = state.input;
-      if (state.pos >= $3.end && !$3.isClosed) {
-        $3.sleep = true;
-        $3.handle = $1;
+      final $2 = state.input;
+      if (state.pos >= $2.end && !$2.isClosed) {
+        $2.sleep = true;
+        $2.handle = $1;
         return;
       }
-      final $2 = readChar32Async(state);
-      state.ok = $2 >= 0;
+      state.ok = state.pos < $2.end;
       if (state.ok) {
-        state.pos += $2 > 0xffff ? 2 : 1;
+        final c = $2.data.runeAt(state.pos - $2.start);
+        state.pos += c > 0xffff ? 2 : 1;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -217,11 +290,10 @@ class Test2Parser {
       state.ok = $1 >= 48 && $1 <= 57;
       if (state.ok) {
         state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -240,14 +312,16 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      final $2 = readChar16Async(state);
-      if ($2 >= 0) {
+      state.ok = state.pos < $3.end;
+      if (state.ok) {
+        final $2 = $3.data.codeUnitAt(state.pos - $3.start);
         state.ok = $2 >= 48 && $2 <= 57;
         if (state.ok) {
           state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -263,7 +337,13 @@ class Test2Parser {
   ///   ;
   void fastParseCharacterClassChar32(State<String> state) {
     // [\u{1f680}]
-    matchChar32(state, 128640);
+    state.ok = state.pos < state.input.length &&
+        state.input.runeAt(state.pos) == 128640;
+    if (state.ok) {
+      state.pos += 2;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
   }
 
   /// CharacterClassChar32 =
@@ -281,7 +361,13 @@ class Test2Parser {
         $2.handle = $1;
         return;
       }
-      matchChar32Async(state, 128640);
+      state.ok =
+          state.pos < $2.end && $2.data.runeAt(state.pos - $2.start) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -302,11 +388,10 @@ class Test2Parser {
       state.ok = $1 != 48;
       if (state.ok) {
         state.pos += $1 > 0xffff ? 2 : 1;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -325,14 +410,16 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      final $2 = readChar32Async(state);
-      if ($2 >= 0) {
+      state.ok = state.pos < $3.end;
+      if (state.ok) {
+        final $2 = $3.data.runeAt(state.pos - $3.start);
         state.ok = $2 != 48;
         if (state.ok) {
           state.pos += $2 > 0xffff ? 2 : 1;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -354,11 +441,10 @@ class Test2Parser {
       state.ok = $1 != 128640;
       if (state.ok) {
         state.pos += $1 > 0xffff ? 2 : 1;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -377,14 +463,16 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      final $2 = readChar32Async(state);
-      if ($2 >= 0) {
+      state.ok = state.pos < $3.end;
+      if (state.ok) {
+        final $2 = $3.data.runeAt(state.pos - $3.start);
         state.ok = $2 != 128640;
         if (state.ok) {
           state.pos += $2 > 0xffff ? 2 : 1;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -406,11 +494,10 @@ class Test2Parser {
       state.ok = $1 >= 32 && $1 <= 128640;
       if (state.ok) {
         state.pos += $1 > 0xffff ? 2 : 1;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -429,14 +516,16 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      final $2 = readChar32Async(state);
-      if ($2 >= 0) {
+      state.ok = state.pos < $3.end;
+      if (state.ok) {
+        final $2 = $3.data.runeAt(state.pos - $3.start);
         state.ok = $2 >= 32 && $2 <= 128640;
         if (state.ok) {
           state.pos += $2 > 0xffff ? 2 : 1;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -455,14 +544,32 @@ class Test2Parser {
     // [0] [+] ↑ [1]
     final $1 = state.pos;
     var $0 = true;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 43);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 43;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $0 = false;
         state.ok = true;
         if (state.ok) {
-          matchChar16(state, 49);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
       }
     }
@@ -474,7 +581,13 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [0]
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
   }
 
@@ -510,7 +623,13 @@ class Test2Parser {
             $6.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $6.end &&
+              $6.data.codeUnitAt(state.pos - $6.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
@@ -521,7 +640,13 @@ class Test2Parser {
             $7.handle = $1;
             return;
           }
-          matchChar16Async(state, 43);
+          state.ok = state.pos < $7.end &&
+              $7.data.codeUnitAt(state.pos - $7.start) == 43;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 2 : -1;
         }
         if ($3 == 2) {
@@ -539,7 +664,13 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = -1;
         }
         if (!state.ok) {
@@ -564,7 +695,13 @@ class Test2Parser {
           $10.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $10.end &&
+            $10.data.codeUnitAt(state.pos - $10.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       $9 &= ~0x2 & 0xffff;
@@ -585,7 +722,13 @@ class Test2Parser {
     // [0] ↑
     final $1 = state.pos;
     var $0 = true;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $0 = false;
       state.ok = true;
@@ -598,7 +741,13 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
   }
 
@@ -634,7 +783,13 @@ class Test2Parser {
             $6.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $6.end &&
+              $6.data.codeUnitAt(state.pos - $6.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
@@ -666,7 +821,13 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       $7 &= ~0x2 & 0xffff;
@@ -687,19 +848,43 @@ class Test2Parser {
     // [0] ↑ ([a] / [b]) [1]
     final $1 = state.pos;
     var $0 = true;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $0 = false;
       state.ok = true;
       if (state.ok) {
         // [a]
-        matchChar16(state, 97);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 97;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok && state.isRecoverable) {
           // [b]
-          matchChar16(state, 98);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 98;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
         if (state.ok) {
-          matchChar16(state, 49);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
       }
     }
@@ -711,7 +896,13 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [0]
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
   }
 
@@ -749,7 +940,13 @@ class Test2Parser {
             $6.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $6.end &&
+              $6.data.codeUnitAt(state.pos - $6.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
@@ -775,7 +972,13 @@ class Test2Parser {
               $8.handle = $1;
               return;
             }
-            matchChar16Async(state, 97);
+            state.ok = state.pos < $8.end &&
+                $8.data.codeUnitAt(state.pos - $8.start) == 97;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $7 = state.ok
                 ? -1
                 : state.isRecoverable
@@ -791,7 +994,13 @@ class Test2Parser {
               $9.handle = $1;
               return;
             }
-            matchChar16Async(state, 98);
+            state.ok = state.pos < $9.end &&
+                $9.data.codeUnitAt(state.pos - $9.start) == 98;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $7 = -1;
           }
           $10 &= ~0x1 & 0xffff;
@@ -805,7 +1014,13 @@ class Test2Parser {
             $11.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $11.end &&
+              $11.data.codeUnitAt(state.pos - $11.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = -1;
         }
         if (!state.ok) {
@@ -830,7 +1045,13 @@ class Test2Parser {
           $12.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $12.end &&
+            $12.data.codeUnitAt(state.pos - $12.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       $10 &= ~0x4 & 0xffff;
@@ -849,7 +1070,13 @@ class Test2Parser {
   void fastParseEof(State<String> state) {
     // [0] @eof()
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       state.ok = state.pos >= state.input.length;
       if (!state.ok) {
@@ -884,7 +1111,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -925,7 +1158,13 @@ class Test2Parser {
     final $4 = state.lastFailPos;
     state.lastFailPos = -1;
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.lastFailPos >= state.failPos) {
       // ignore: unused_local_variable
       final start = $1;
@@ -980,7 +1219,13 @@ class Test2Parser {
         $6.handle = $1;
         return;
       }
-      matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $6.end && $6.data.codeUnitAt(state.pos - $6.start) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
         final start = $2!;
@@ -1033,11 +1278,10 @@ class Test2Parser {
         state.ok = $7 >= 48 && $7 <= 57;
         if (state.ok) {
           state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (!state.ok) {
         break;
@@ -1094,14 +1338,16 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        final $7 = readChar16Async(state);
-        if ($7 >= 0) {
+        state.ok = state.pos < $8.end;
+        if (state.ok) {
+          final $7 = $8.data.codeUnitAt(state.pos - $8.start);
           state.ok = $7 >= 48 && $7 <= 57;
           if (state.ok) {
             state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (!state.ok) {
           break;
@@ -1138,14 +1384,32 @@ class Test2Parser {
   void fastParseList(State<String> state) {
     // @list([0], [,] v:[0])
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       while (true) {
         // [,] v:[0]
         final $3 = state.pos;
-        matchChar16(state, 44);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
         if (state.ok) {
-          matchChar16(state, 48);
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (state.ok) {
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
         if (!state.ok) {
           state.backtrack($3);
@@ -1185,7 +1449,13 @@ class Test2Parser {
             $4.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $4.end &&
+              $4.data.codeUnitAt(state.pos - $4.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -1206,7 +1476,13 @@ class Test2Parser {
               $7.handle = $1;
               return;
             }
-            matchChar16Async(state, 44);
+            state.ok = state.pos < $7.end &&
+                $7.data.codeUnitAt(state.pos - $7.start) == 44;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $5 = state.ok ? 1 : -1;
           }
           if ($5 == 1) {
@@ -1217,7 +1493,13 @@ class Test2Parser {
               $8.handle = $1;
               return;
             }
-            matchChar16Async(state, 48);
+            state.ok = state.pos < $8.end &&
+                $8.data.codeUnitAt(state.pos - $8.start) == 48;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $5 = -1;
           }
           if (!state.ok) {
@@ -1248,15 +1530,33 @@ class Test2Parser {
     // @list1([0], [,] v:[0])
     var $1 = false;
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $1 = true;
       while (true) {
         // [,] v:[0]
         final $4 = state.pos;
-        matchChar16(state, 44);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
         if (state.ok) {
-          matchChar16(state, 48);
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+        if (state.ok) {
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
         if (!state.ok) {
           state.backtrack($4);
@@ -1298,7 +1598,13 @@ class Test2Parser {
             $5.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $5.end &&
+              $5.data.codeUnitAt(state.pos - $5.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -1320,7 +1626,13 @@ class Test2Parser {
               $8.handle = $1;
               return;
             }
-            matchChar16Async(state, 44);
+            state.ok = state.pos < $8.end &&
+                $8.data.codeUnitAt(state.pos - $8.start) == 44;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $6 = state.ok ? 1 : -1;
           }
           if ($6 == 1) {
@@ -1331,7 +1643,13 @@ class Test2Parser {
               $9.handle = $1;
               return;
             }
-            matchChar16Async(state, 48);
+            state.ok = state.pos < $9.end &&
+                $9.data.codeUnitAt(state.pos - $9.start) == 48;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $6 = -1;
           }
           if (!state.ok) {
@@ -1692,11 +2010,29 @@ class Test2Parser {
     final $1 = state.pos;
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar16(state, 50);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -1704,19 +2040,33 @@ class Test2Parser {
     }
     state.setOk(!state.ok);
     if (!state.ok) {
-      final length = $1 - state.pos;
-      state.fail(switch (length) {
-        0 => const ErrorUnexpectedInput(0),
-        1 => const ErrorUnexpectedInput(-1),
-        2 => const ErrorUnexpectedInput(-2),
-        _ => ErrorUnexpectedInput(length)
-      });
+      final length = state.pos - $1;
+      state.failAt(
+          $1,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(-1),
+            2 => const ErrorUnexpectedInput(-2),
+            _ => ErrorUnexpectedInput(length)
+          });
       state.backtrack($1);
     }
     if (state.ok) {
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar16(state, 49);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -1765,7 +2115,13 @@ class Test2Parser {
             $7.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $7.end &&
+              $7.data.codeUnitAt(state.pos - $7.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
@@ -1776,7 +2132,13 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
@@ -1787,7 +2149,13 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          matchChar16Async(state, 50);
+          state.ok = state.pos < $9.end &&
+              $9.data.codeUnitAt(state.pos - $9.start) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = -1;
         }
         if (!state.ok) {
@@ -1796,14 +2164,17 @@ class Test2Parser {
         $10 &= ~0x1 & 0xffff;
         state.setOk(!state.ok);
         if (!state.ok) {
-          final length = $4! - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(-1),
-            2 => const ErrorUnexpectedInput(-2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($4!);
+          final pos = $4!;
+          final length = state.pos - pos;
+          state.failAt(
+              pos,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(-1),
+                2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
+          state.backtrack(pos);
         }
         state.input.endBuffering();
         $4 = null;
@@ -1817,7 +2188,13 @@ class Test2Parser {
           $11.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $11.end &&
+            $11.data.codeUnitAt(state.pos - $11.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 2 : -1;
       }
       if ($2 == 2) {
@@ -1828,7 +2205,13 @@ class Test2Parser {
           $12.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $12.end &&
+            $12.data.codeUnitAt(state.pos - $12.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -1857,10 +2240,10 @@ class Test2Parser {
         state.pos++,
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         $1 = true);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = $1;
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
   }
 
   /// OneOrMore =
@@ -1882,7 +2265,13 @@ class Test2Parser {
           $3.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $3.end &&
+            $3.data.codeUnitAt(state.pos - $3.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -1905,12 +2294,24 @@ class Test2Parser {
   void fastParseOptional(State<String> state) {
     // [0]? [1]
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
-      matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     if (!state.ok) {
       state.backtrack($0);
@@ -1942,7 +2343,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           state.setOk(true);
         }
@@ -1956,7 +2363,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -1978,10 +2391,22 @@ class Test2Parser {
   ///   ;
   void fastParseOrderedChoice2(State<String> state) {
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
   }
 
@@ -2008,7 +2433,13 @@ class Test2Parser {
           $3.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $3.end &&
+            $3.data.codeUnitAt(state.pos - $3.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -2024,7 +2455,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       $5 &= ~0x1 & 0xffff;
@@ -2044,13 +2481,31 @@ class Test2Parser {
   ///   ;
   void fastParseOrderedChoice3(State<String> state) {
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok && state.isRecoverable) {
         // [2]
-        matchChar16(state, 50);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
   }
@@ -2079,7 +2534,13 @@ class Test2Parser {
           $3.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $3.end &&
+            $3.data.codeUnitAt(state.pos - $3.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -2095,7 +2556,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -2111,7 +2578,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 50);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       $6 &= ~0x1 & 0xffff;
@@ -2131,7 +2604,13 @@ class Test2Parser {
     // [\u{1f680}]{,3}
     var $1 = 0;
     while ($1 < 3) {
-      matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -2159,7 +2638,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar32Async(state, 128640);
+        state.ok = state.pos < $4.end &&
+            $4.data.runeAt(state.pos - $4.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -2188,7 +2673,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while (true) {
-      matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -2223,7 +2714,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar32Async(state, 128640);
+        state.ok = state.pos < $4.end &&
+            $4.data.runeAt(state.pos - $4.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -2251,7 +2748,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while ($2 < 3) {
-      matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -2286,7 +2789,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar32Async(state, 128640);
+        state.ok = state.pos < $5.end &&
+            $5.data.runeAt(state.pos - $5.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -2319,7 +2828,13 @@ class Test2Parser {
     final $1 = state.pos;
     var $2 = 0;
     while ($2 < 3) {
-      matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -2354,7 +2869,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar32Async(state, 128640);
+        state.ok = state.pos < $5.end &&
+            $5.data.runeAt(state.pos - $5.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -2383,7 +2904,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1(State<String> state) {
     // [0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
   }
 
   /// Sequence1 =
@@ -2401,7 +2928,13 @@ class Test2Parser {
         $2.handle = $1;
         return;
       }
-      matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $2.end && $2.data.codeUnitAt(state.pos - $2.start) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -2416,7 +2949,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1WithAction(State<String> state) {
     // [0] <int>{}
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       // ignore: unused_local_variable
       int? $$;
@@ -2439,7 +2978,13 @@ class Test2Parser {
         $2.handle = $1;
         return;
       }
-      matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $2.end && $2.data.codeUnitAt(state.pos - $2.start) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2459,7 +3004,13 @@ class Test2Parser {
   ///   ;
   void fastParseSequence1WithVariable(State<String> state) {
     // v:[0]
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
   }
 
   /// Sequence1WithVariable =
@@ -2477,7 +3028,13 @@ class Test2Parser {
         $2.handle = $1;
         return;
       }
-      matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $2.end && $2.data.codeUnitAt(state.pos - $2.start) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -2493,7 +3050,14 @@ class Test2Parser {
   void fastParseSequence1WithVariableWithAction(State<String> state) {
     // v:[0] <int>{}
     int? $0;
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       // ignore: unused_local_variable
       int? $$;
@@ -2518,7 +3082,14 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      $2 = matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2540,9 +3111,21 @@ class Test2Parser {
   void fastParseSequence2(State<String> state) {
     // [0] [1]
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     if (!state.ok) {
       state.backtrack($0);
@@ -2573,7 +3156,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -2584,7 +3173,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -2606,9 +3201,21 @@ class Test2Parser {
   void fastParseSequence2WithAction(State<String> state) {
     // [0] [1] <int>{}
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2644,7 +3251,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -2655,7 +3268,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (state.ok) {
@@ -2681,9 +3300,21 @@ class Test2Parser {
   void fastParseSequence2WithVariable(State<String> state) {
     // v:[0] [1]
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     if (!state.ok) {
       state.backtrack($0);
@@ -2714,7 +3345,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -2725,7 +3362,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -2748,9 +3391,22 @@ class Test2Parser {
     // v:[0] [1] <int>{}
     final $1 = state.pos;
     int? $0;
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2788,7 +3444,14 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = state.ok ? 1 : -1;
       }
       if ($3 == 1) {
@@ -2799,7 +3462,13 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       if (state.ok) {
@@ -2826,9 +3495,21 @@ class Test2Parser {
   void fastParseSequence2WithVariables(State<String> state) {
     // v1:[0] v2:[1]
     final $0 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     if (!state.ok) {
       state.backtrack($0);
@@ -2859,7 +3540,13 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = state.ok ? 1 : -1;
       }
       if ($2 == 1) {
@@ -2870,7 +3557,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $2 = -1;
       }
       if (!state.ok) {
@@ -2893,10 +3586,24 @@ class Test2Parser {
     // v1:[0] v2:[1] <int>{}
     final $2 = state.pos;
     int? $0;
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $1;
-      $1 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $1 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         int? $$;
@@ -2936,7 +3643,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
@@ -2947,7 +3661,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 49);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $3 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = -1;
       }
       if (state.ok) {
@@ -2977,11 +3698,29 @@ class Test2Parser {
     // $([0] [1] [2])
     // [0] [1] [2]
     final $2 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar16(state, 50);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -2991,9 +3730,21 @@ class Test2Parser {
       // $([0] [1])
       // [0] [1]
       final $5 = state.pos;
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar16(state, 49);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       if (!state.ok) {
         state.backtrack($5);
@@ -3040,7 +3791,13 @@ class Test2Parser {
             $5.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $5.end &&
+              $5.data.codeUnitAt(state.pos - $5.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 1 : -1;
         }
         if ($3 == 1) {
@@ -3051,7 +3808,13 @@ class Test2Parser {
             $6.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $6.end &&
+              $6.data.codeUnitAt(state.pos - $6.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = state.ok ? 2 : -1;
         }
         if ($3 == 2) {
@@ -3062,7 +3825,13 @@ class Test2Parser {
             $7.handle = $1;
             return;
           }
-          matchChar16Async(state, 50);
+          state.ok = state.pos < $7.end &&
+              $7.data.codeUnitAt(state.pos - $7.start) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $3 = -1;
         }
         if (!state.ok) {
@@ -3097,7 +3866,13 @@ class Test2Parser {
             $12.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $12.end &&
+              $12.data.codeUnitAt(state.pos - $12.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $10 = state.ok ? 1 : -1;
         }
         if ($10 == 1) {
@@ -3108,7 +3883,13 @@ class Test2Parser {
             $13.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $13.end &&
+              $13.data.codeUnitAt(state.pos - $13.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $10 = -1;
         }
         if (!state.ok) {
@@ -3145,18 +3926,30 @@ class Test2Parser {
           state.pos++,
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           $3 = true);
-      state.pos < state.input.length
-          ? state.fail(const ErrorUnexpectedCharacter())
-          : state.fail(const ErrorUnexpectedEndOfInput());
       state.ok = $3;
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       final pos = state.pos;
       // [\\]
-      matchChar16(state, 92);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
       // [t] <String>{}
-      matchChar16(state, 116);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 116;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         // ignore: unused_local_variable
         String? $$;
@@ -3204,14 +3997,16 @@ class Test2Parser {
               $6.handle = $1;
               return;
             }
-            final $5 = readChar16Async(state);
-            if ($5 >= 0) {
+            state.ok = state.pos < $6.end;
+            if (state.ok) {
+              final $5 = $6.data.codeUnitAt(state.pos - $6.start);
               state.ok = $5 >= 48 && $5 <= 57;
               if (state.ok) {
                 state.pos++;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
               }
+            }
+            if (!state.ok) {
+              state.fail(const ErrorUnexpectedCharacter());
             }
             if (!state.ok) {
               break;
@@ -3235,7 +4030,13 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 92);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 92;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -3251,7 +4052,13 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          matchChar16Async(state, 116);
+          state.ok = state.pos < $9.end &&
+              $9.data.codeUnitAt(state.pos - $9.start) == 116;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             // ignore: unused_local_variable
             String? $$;
@@ -3285,14 +4092,13 @@ class Test2Parser {
     final $2 = state.errorCount;
     int? $1;
     // .
-    final $7 = state.input;
-    if (state.pos < $7.length) {
-      final $6 = $7.runeAt(state.pos);
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $6 = state.input.runeAt(state.pos);
       state.pos += $6 > 0xffff ? 2 : 1;
-      state.ok = true;
       $1 = $6;
     } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+      state.fail(const ErrorUnexpectedCharacter());
     }
     if (state.ok) {
       final pos = $4;
@@ -3324,12 +4130,12 @@ class Test2Parser {
     int? $4;
     int? $5;
     int? $2;
-    int $8 = 0;
+    int $7 = 0;
     void $1() {
       // @verify(.)
       // @verify(.)
-      if ($8 & 0x1 == 0) {
-        $8 |= 0x1;
+      if ($7 & 0x1 == 0) {
+        $7 |= 0x1;
         state.input.beginBuffering();
         $3 = state.pos;
         $4 = state.failPos;
@@ -3338,17 +4144,19 @@ class Test2Parser {
       // .
       // .
       // .
-      final $7 = state.input;
-      if (state.pos >= $7.end && !$7.isClosed) {
-        $7.sleep = true;
-        $7.handle = $1;
+      final $6 = state.input;
+      if (state.pos >= $6.end && !$6.isClosed) {
+        $6.sleep = true;
+        $6.handle = $1;
         return;
       }
-      final $6 = readChar32Async(state);
-      state.ok = $6 >= 0;
+      state.ok = state.pos < $6.end;
       if (state.ok) {
-        state.pos += $6 > 0xffff ? 2 : 1;
-        $2 = $6;
+        final c = $6.data.runeAt(state.pos - $6.start);
+        state.pos += c > 0xffff ? 2 : 1;
+        $2 = c;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (state.ok) {
         final pos = $3!;
@@ -3370,7 +4178,7 @@ class Test2Parser {
         state.backtrack($3!);
       }
       state.input.endBuffering();
-      $8 &= ~0x1 & 0xffff;
+      $7 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -3391,9 +4199,6 @@ class Test2Parser {
             (c == 48);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = true;
   }
 
@@ -3414,7 +4219,13 @@ class Test2Parser {
           $2.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $2.end &&
+            $2.data.codeUnitAt(state.pos - $2.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -3427,80 +4238,6 @@ class Test2Parser {
 
     $1();
     return $0;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.codeUnitAt(pos) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar16Async(State<ChunkedParsingSink> state, int char) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      state.ok = input.data.codeUnitAt(pos - start) == char;
-      if (state.ok) {
-        state.pos++;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32(State<String> state, int char) {
-    final input = state.input;
-    final pos = state.pos;
-    if (pos < input.length) {
-      state.ok = input.runeAt(pos) == char;
-      if (state.ok) {
-        state.pos += char > 0xffff ? 2 : 1;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int? matchChar32Async(State<ChunkedParsingSink> state, int char) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      state.ok = input.data.runeAt(pos - start) == char;
-      if (state.ok) {
-        state.pos += char > 0xffff ? 2 : 1;
-        return char;
-      }
-      state.fail(const ErrorUnexpectedCharacter());
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return null;
   }
 
   @pragma('vm:prefer-inline')
@@ -3629,13 +4366,34 @@ class Test2Parser {
     // [0] [1] [2]
     final $10 = state.pos;
     int? $7;
-    $7 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $7 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $8;
-      $8 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $8 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $9;
-        $9 = matchChar16(state, 50);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+          $9 = 50;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           $1 = [$7!, $8!, $9!];
         }
@@ -3649,13 +4407,34 @@ class Test2Parser {
     }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $3;
-        $3 = matchChar16(state, 49);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+          $3 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           int? $4;
-          $4 = matchChar16(state, 50);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 50;
+          if (state.ok) {
+            state.pos++;
+            $4 = 50;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $0 = [$1!, $2!, $3!, $4!];
           }
@@ -3717,7 +4496,14 @@ class Test2Parser {
             $15.handle = $1;
             return;
           }
-          $10 = matchChar16Async(state, 48);
+          state.ok = state.pos < $15.end &&
+              $15.data.codeUnitAt(state.pos - $15.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $10 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $13 = state.ok ? 1 : -1;
         }
         if ($13 == 1) {
@@ -3728,7 +4514,14 @@ class Test2Parser {
             $16.handle = $1;
             return;
           }
-          $11 = matchChar16Async(state, 49);
+          state.ok = state.pos < $16.end &&
+              $16.data.codeUnitAt(state.pos - $16.start) == 49;
+          if (state.ok) {
+            state.pos++;
+            $11 = 49;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $13 = state.ok ? 2 : -1;
         }
         if ($13 == 2) {
@@ -3739,7 +4532,14 @@ class Test2Parser {
             $17.handle = $1;
             return;
           }
-          $12 = matchChar16Async(state, 50);
+          state.ok = state.pos < $17.end &&
+              $17.data.codeUnitAt(state.pos - $17.start) == 50;
+          if (state.ok) {
+            state.pos++;
+            $12 = 50;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $13 = -1;
         }
         if (state.ok) {
@@ -3763,7 +4563,14 @@ class Test2Parser {
           $19.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 48);
+        state.ok = state.pos < $19.end &&
+            $19.data.codeUnitAt(state.pos - $19.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $4 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $7 = state.ok ? 2 : -1;
       }
       if ($7 == 2) {
@@ -3774,7 +4581,14 @@ class Test2Parser {
           $20.handle = $1;
           return;
         }
-        $5 = matchChar16Async(state, 49);
+        state.ok = state.pos < $20.end &&
+            $20.data.codeUnitAt(state.pos - $20.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $5 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $7 = state.ok ? 3 : -1;
       }
       if ($7 == 3) {
@@ -3785,7 +4599,14 @@ class Test2Parser {
           $21.handle = $1;
           return;
         }
-        $6 = matchChar16Async(state, 50);
+        state.ok = state.pos < $21.end &&
+            $21.data.codeUnitAt(state.pos - $21.start) == 50;
+        if (state.ok) {
+          state.pos++;
+          $6 = 50;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $7 = -1;
       }
       if (state.ok) {
@@ -3810,14 +4631,13 @@ class Test2Parser {
   int? parseAnyCharacter(State<String> state) {
     int? $0;
     // .
-    final $3 = state.input;
-    if (state.pos < $3.length) {
-      final $2 = $3.runeAt(state.pos);
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $2 = state.input.runeAt(state.pos);
       state.pos += $2 > 0xffff ? 2 : 1;
-      state.ok = true;
       $0 = $2;
     } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -3831,17 +4651,19 @@ class Test2Parser {
     void $1() {
       // .
       // .
-      final $4 = state.input;
-      if (state.pos >= $4.end && !$4.isClosed) {
-        $4.sleep = true;
-        $4.handle = $1;
+      final $3 = state.input;
+      if (state.pos >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
         return;
       }
-      final $3 = readChar32Async(state);
-      state.ok = $3 >= 0;
+      state.ok = state.pos < $3.end;
       if (state.ok) {
-        state.pos += $3 > 0xffff ? 2 : 1;
-        $2 = $3;
+        final c = $3.data.runeAt(state.pos - $3.start);
+        state.pos += c > 0xffff ? 2 : 1;
+        $2 = c;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.value = $2;
       $0.isComplete = true;
@@ -3866,11 +4688,10 @@ class Test2Parser {
       if (state.ok) {
         state.pos++;
         $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -3890,15 +4711,18 @@ class Test2Parser {
         $4.handle = $1;
         return;
       }
-      final $3 = readChar16Async(state);
-      if ($3 >= 0) {
+      $2 = null;
+      state.ok = state.pos < $4.end;
+      if (state.ok) {
+        final $3 = $4.data.codeUnitAt(state.pos - $4.start);
         state.ok = $3 >= 48 && $3 <= 57;
         if (state.ok) {
           state.pos++;
           $2 = $3;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.value = $2;
       $0.isComplete = true;
@@ -3916,7 +4740,14 @@ class Test2Parser {
   int? parseCharacterClassChar32(State<String> state) {
     int? $0;
     // [\u{1f680}]
-    $0 = matchChar32(state, 128640);
+    state.ok = state.pos < state.input.length &&
+        state.input.runeAt(state.pos) == 128640;
+    if (state.ok) {
+      state.pos += 2;
+      $0 = 128640;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     return $0;
   }
 
@@ -3936,7 +4767,14 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      $2 = matchChar32Async(state, 128640);
+      state.ok =
+          state.pos < $3.end && $3.data.runeAt(state.pos - $3.start) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $2 = 128640;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -3960,11 +4798,10 @@ class Test2Parser {
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -3985,15 +4822,18 @@ class Test2Parser {
         $4.handle = $1;
         return;
       }
-      final $3 = readChar32Async(state);
-      if ($3 >= 0) {
+      $2 = null;
+      state.ok = state.pos < $4.end;
+      if (state.ok) {
+        final $3 = $4.data.runeAt(state.pos - $4.start);
         state.ok = $3 != 48;
         if (state.ok) {
           state.pos += $3 > 0xffff ? 2 : 1;
           $2 = $3;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.value = $2;
       $0.isComplete = true;
@@ -4018,11 +4858,10 @@ class Test2Parser {
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -4043,15 +4882,18 @@ class Test2Parser {
         $4.handle = $1;
         return;
       }
-      final $3 = readChar32Async(state);
-      if ($3 >= 0) {
+      $2 = null;
+      state.ok = state.pos < $4.end;
+      if (state.ok) {
+        final $3 = $4.data.runeAt(state.pos - $4.start);
         state.ok = $3 != 128640;
         if (state.ok) {
           state.pos += $3 > 0xffff ? 2 : 1;
           $2 = $3;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.value = $2;
       $0.isComplete = true;
@@ -4076,11 +4918,10 @@ class Test2Parser {
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -4101,15 +4942,18 @@ class Test2Parser {
         $4.handle = $1;
         return;
       }
-      final $3 = readChar32Async(state);
-      if ($3 >= 0) {
+      $2 = null;
+      state.ok = state.pos < $4.end;
+      if (state.ok) {
+        final $3 = $4.data.runeAt(state.pos - $4.start);
         state.ok = $3 >= 32 && $3 <= 128640;
         if (state.ok) {
           state.pos += $3 > 0xffff ? 2 : 1;
           $2 = $3;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       $0.value = $2;
       $0.isComplete = true;
@@ -4131,17 +4975,38 @@ class Test2Parser {
     final $6 = state.pos;
     var $5 = true;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 43);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 43;
+      if (state.ok) {
+        state.pos++;
+        $2 = 43;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $5 = false;
         Object? $3;
         state.ok = true;
         if (state.ok) {
           int? $4;
-          $4 = matchChar16(state, 49);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+            $4 = 49;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $0 = [$1!, $2!, $3, $4!];
           }
@@ -4156,7 +5021,14 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [0]
-      $0 = matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $0 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     return $0;
   }
@@ -4198,7 +5070,14 @@ class Test2Parser {
             $11.handle = $1;
             return;
           }
-          $4 = matchChar16Async(state, 48);
+          state.ok = state.pos < $11.end &&
+              $11.data.codeUnitAt(state.pos - $11.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $4 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $8 = state.ok ? 1 : -1;
         }
         if ($8 == 1) {
@@ -4209,7 +5088,14 @@ class Test2Parser {
             $12.handle = $1;
             return;
           }
-          $5 = matchChar16Async(state, 43);
+          state.ok = state.pos < $12.end &&
+              $12.data.codeUnitAt(state.pos - $12.start) == 43;
+          if (state.ok) {
+            state.pos++;
+            $5 = 43;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $8 = state.ok ? 2 : -1;
         }
         if ($8 == 2) {
@@ -4227,7 +5113,14 @@ class Test2Parser {
             $13.handle = $1;
             return;
           }
-          $7 = matchChar16Async(state, 49);
+          state.ok = state.pos < $13.end &&
+              $13.data.codeUnitAt(state.pos - $13.start) == 49;
+          if (state.ok) {
+            state.pos++;
+            $7 = 49;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $8 = -1;
         }
         if (state.ok) {
@@ -4254,7 +5147,14 @@ class Test2Parser {
           $15.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $15.end &&
+            $15.data.codeUnitAt(state.pos - $15.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       $14 &= ~0x2 & 0xffff;
@@ -4278,7 +5178,14 @@ class Test2Parser {
     final $4 = state.pos;
     var $3 = true;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $3 = false;
       Object? $2;
@@ -4295,7 +5202,14 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      $0 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $0 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     return $0;
   }
@@ -4335,7 +5249,14 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          $4 = matchChar16Async(state, 48);
+          state.ok = state.pos < $9.end &&
+              $9.data.codeUnitAt(state.pos - $9.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $4 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $6 = state.ok ? 1 : -1;
         }
         if ($6 == 1) {
@@ -4369,7 +5290,14 @@ class Test2Parser {
           $11.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 49);
+        state.ok = state.pos < $11.end &&
+            $11.data.codeUnitAt(state.pos - $11.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $2 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       $10 &= ~0x2 & 0xffff;
@@ -4393,7 +5321,14 @@ class Test2Parser {
     final $6 = state.pos;
     var $5 = true;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $5 = false;
       Object? $2;
@@ -4401,14 +5336,35 @@ class Test2Parser {
       if (state.ok) {
         int? $3;
         // [a]
-        $3 = matchChar16(state, 97);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 97;
+        if (state.ok) {
+          state.pos++;
+          $3 = 97;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok && state.isRecoverable) {
           // [b]
-          $3 = matchChar16(state, 98);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 98;
+          if (state.ok) {
+            state.pos++;
+            $3 = 98;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
         }
         if (state.ok) {
           int? $4;
-          $4 = matchChar16(state, 49);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 49;
+          if (state.ok) {
+            state.pos++;
+            $4 = 49;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $0 = [$1!, $2, $3!, $4!];
           }
@@ -4423,7 +5379,14 @@ class Test2Parser {
     }
     if (!state.ok && state.isRecoverable) {
       // [0]
-      $0 = matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $0 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     return $0;
   }
@@ -4467,7 +5430,14 @@ class Test2Parser {
             $11.handle = $1;
             return;
           }
-          $4 = matchChar16Async(state, 48);
+          state.ok = state.pos < $11.end &&
+              $11.data.codeUnitAt(state.pos - $11.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $4 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $8 = state.ok ? 1 : -1;
         }
         if ($8 == 1) {
@@ -4493,7 +5463,14 @@ class Test2Parser {
               $13.handle = $1;
               return;
             }
-            $6 = matchChar16Async(state, 97);
+            state.ok = state.pos < $13.end &&
+                $13.data.codeUnitAt(state.pos - $13.start) == 97;
+            if (state.ok) {
+              state.pos++;
+              $6 = 97;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $12 = state.ok
                 ? -1
                 : state.isRecoverable
@@ -4509,7 +5486,14 @@ class Test2Parser {
               $14.handle = $1;
               return;
             }
-            $6 = matchChar16Async(state, 98);
+            state.ok = state.pos < $14.end &&
+                $14.data.codeUnitAt(state.pos - $14.start) == 98;
+            if (state.ok) {
+              state.pos++;
+              $6 = 98;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $12 = -1;
           }
           $15 &= ~0x1 & 0xffff;
@@ -4523,7 +5507,14 @@ class Test2Parser {
             $16.handle = $1;
             return;
           }
-          $7 = matchChar16Async(state, 49);
+          state.ok = state.pos < $16.end &&
+              $16.data.codeUnitAt(state.pos - $16.start) == 49;
+          if (state.ok) {
+            state.pos++;
+            $7 = 49;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $8 = -1;
         }
         if (state.ok) {
@@ -4550,7 +5541,14 @@ class Test2Parser {
           $17.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $17.end &&
+            $17.data.codeUnitAt(state.pos - $17.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       $15 &= ~0x4 & 0xffff;
@@ -4572,7 +5570,14 @@ class Test2Parser {
     // [0] @eof()
     final $3 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       Object? $2;
       state.ok = state.pos >= state.input.length;
@@ -4615,7 +5620,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
@@ -4660,7 +5672,14 @@ class Test2Parser {
     final $5 = state.lastFailPos;
     state.lastFailPos = -1;
     // [0]
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.lastFailPos >= state.failPos) {
       // ignore: unused_local_variable
       final start = $2;
@@ -4716,7 +5735,14 @@ class Test2Parser {
         $7.handle = $1;
         return;
       }
-      $2 = matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $7.end && $7.data.codeUnitAt(state.pos - $7.start) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok && state.lastFailPos >= state.failPos) {
         // ignore: unused_local_variable
         final start = $3!;
@@ -4773,11 +5799,10 @@ class Test2Parser {
         if (state.ok) {
           state.pos++;
           $8 = $9;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (!state.ok) {
         break;
@@ -4838,15 +5863,18 @@ class Test2Parser {
           $10.handle = $1;
           return;
         }
-        final $9 = readChar16Async(state);
-        if ($9 >= 0) {
+        $7 = null;
+        state.ok = state.pos < $10.end;
+        if (state.ok) {
+          final $9 = $10.data.codeUnitAt(state.pos - $10.start);
           state.ok = $9 >= 48 && $9 <= 57;
           if (state.ok) {
             state.pos++;
             $7 = $9;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (!state.ok) {
           break;
@@ -4891,17 +5919,37 @@ class Test2Parser {
     final $2 = <int>[];
     int? $3;
     // [0]
-    $3 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $3 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $2.add($3!);
       while (true) {
         int? $4;
         // [,] v:[0]
         final $8 = state.pos;
-        matchChar16(state, 44);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           int? $7;
-          $7 = matchChar16(state, 48);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 48;
+          if (state.ok) {
+            state.pos++;
+            $7 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $4 = $7;
           }
@@ -4954,7 +6002,14 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          $6 = matchChar16Async(state, 48);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $6 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -4978,7 +6033,13 @@ class Test2Parser {
               $12.handle = $1;
               return;
             }
-            matchChar16Async(state, 44);
+            state.ok = state.pos < $12.end &&
+                $12.data.codeUnitAt(state.pos - $12.start) == 44;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $10 = state.ok ? 1 : -1;
           }
           if ($10 == 1) {
@@ -4989,7 +6050,14 @@ class Test2Parser {
               $13.handle = $1;
               return;
             }
-            $9 = matchChar16Async(state, 48);
+            state.ok = state.pos < $13.end &&
+                $13.data.codeUnitAt(state.pos - $13.start) == 48;
+            if (state.ok) {
+              state.pos++;
+              $9 = 48;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $10 = -1;
           }
           if (state.ok) {
@@ -5031,17 +6099,37 @@ class Test2Parser {
     final $2 = <int>[];
     int? $3;
     // [0]
-    $3 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $3 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $2.add($3!);
       while (true) {
         int? $4;
         // [,] v:[0]
         final $8 = state.pos;
-        matchChar16(state, 44);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           int? $7;
-          $7 = matchChar16(state, 48);
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 48;
+          if (state.ok) {
+            state.pos++;
+            $7 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             $4 = $7;
           }
@@ -5094,7 +6182,14 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          $6 = matchChar16Async(state, 48);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 48;
+          if (state.ok) {
+            state.pos++;
+            $6 = 48;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -5118,7 +6213,13 @@ class Test2Parser {
               $12.handle = $1;
               return;
             }
-            matchChar16Async(state, 44);
+            state.ok = state.pos < $12.end &&
+                $12.data.codeUnitAt(state.pos - $12.start) == 44;
+            if (state.ok) {
+              state.pos++;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $10 = state.ok ? 1 : -1;
           }
           if ($10 == 1) {
@@ -5129,7 +6230,14 @@ class Test2Parser {
               $13.handle = $1;
               return;
             }
-            $9 = matchChar16Async(state, 48);
+            state.ok = state.pos < $13.end &&
+                $13.data.codeUnitAt(state.pos - $13.start) == 48;
+            if (state.ok) {
+              state.pos++;
+              $9 = 48;
+            } else {
+              state.fail(const ErrorUnexpectedCharacter());
+            }
             $10 = -1;
           }
           if (state.ok) {
@@ -5530,11 +6638,29 @@ class Test2Parser {
     final $5 = state.pos;
     // [0] [1] [2]
     final $6 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar16(state, 50);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -5542,21 +6668,37 @@ class Test2Parser {
     }
     state.setOk(!state.ok);
     if (!state.ok) {
-      final length = $5 - state.pos;
-      state.fail(switch (length) {
-        0 => const ErrorUnexpectedInput(0),
-        1 => const ErrorUnexpectedInput(-1),
-        2 => const ErrorUnexpectedInput(-2),
-        _ => ErrorUnexpectedInput(length)
-      });
+      final length = state.pos - $5;
+      state.failAt(
+          $5,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(-1),
+            2 => const ErrorUnexpectedInput(-2),
+            _ => ErrorUnexpectedInput(length)
+          });
       state.backtrack($5);
     }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $3;
-        $3 = matchChar16(state, 49);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+          $3 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (state.ok) {
           $0 = [$1, $2!, $3!];
         }
@@ -5613,7 +6755,13 @@ class Test2Parser {
             $11.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $11.end &&
+              $11.data.codeUnitAt(state.pos - $11.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $9 = state.ok ? 1 : -1;
         }
         if ($9 == 1) {
@@ -5624,7 +6772,13 @@ class Test2Parser {
             $12.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $12.end &&
+              $12.data.codeUnitAt(state.pos - $12.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $9 = state.ok ? 2 : -1;
         }
         if ($9 == 2) {
@@ -5635,7 +6789,13 @@ class Test2Parser {
             $13.handle = $1;
             return;
           }
-          matchChar16Async(state, 50);
+          state.ok = state.pos < $13.end &&
+              $13.data.codeUnitAt(state.pos - $13.start) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $9 = -1;
         }
         if (!state.ok) {
@@ -5644,14 +6804,17 @@ class Test2Parser {
         $14 &= ~0x1 & 0xffff;
         state.setOk(!state.ok);
         if (!state.ok) {
-          final length = $8! - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(-1),
-            2 => const ErrorUnexpectedInput(-2),
-            _ => ErrorUnexpectedInput(length)
-          });
-          state.backtrack($8!);
+          final pos = $8!;
+          final length = state.pos - pos;
+          state.failAt(
+              pos,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(-1),
+                2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
+          state.backtrack(pos);
         }
         state.input.endBuffering();
         $8 = null;
@@ -5665,7 +6828,14 @@ class Test2Parser {
           $15.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 48);
+        state.ok = state.pos < $15.end &&
+            $15.data.codeUnitAt(state.pos - $15.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $4 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $6 = state.ok ? 2 : -1;
       }
       if ($6 == 2) {
@@ -5676,7 +6846,14 @@ class Test2Parser {
           $16.handle = $1;
           return;
         }
-        $5 = matchChar16Async(state, 49);
+        state.ok = state.pos < $16.end &&
+            $16.data.codeUnitAt(state.pos - $16.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $5 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $6 = -1;
       }
       if (state.ok) {
@@ -5709,12 +6886,11 @@ class Test2Parser {
         state.pos++,
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         $2.add(c));
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = $2.isNotEmpty;
     if (state.ok) {
       $0 = $2;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     return $0;
   }
@@ -5739,7 +6915,14 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 48);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $4 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           $4 = null;
           break;
@@ -5771,13 +6954,27 @@ class Test2Parser {
     // [0]? [1]
     final $3 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $2 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $0 = [$1, $2!];
       }
@@ -5816,7 +7013,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           state.setOk(true);
         }
@@ -5830,7 +7034,14 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 49);
+        state.ok = state.pos < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = -1;
       }
       if (state.ok) {
@@ -5856,10 +7067,24 @@ class Test2Parser {
   int? parseOrderedChoice2(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      $0 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $0 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     }
     return $0;
   }
@@ -5887,7 +7112,14 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -5903,7 +7135,14 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $2 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       $6 &= ~0x1 & 0xffff;
@@ -5925,13 +7164,34 @@ class Test2Parser {
   int? parseOrderedChoice3(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (!state.ok && state.isRecoverable) {
       // [1]
-      $0 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $0 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok && state.isRecoverable) {
         // [2]
-        $0 = matchChar16(state, 50);
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+          $0 = 50;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     return $0;
@@ -5961,7 +7221,14 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 48);
+        state.ok = state.pos < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $2 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -5977,7 +7244,14 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 49);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $2 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -5993,7 +7267,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $2 = matchChar16Async(state, 50);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 50;
+        if (state.ok) {
+          state.pos++;
+          $2 = 50;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       $7 &= ~0x1 & 0xffff;
@@ -6016,7 +7297,14 @@ class Test2Parser {
     final $2 = <int>[];
     while ($2.length < 3) {
       int? $3;
-      $3 = matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $3 = 128640;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -6050,7 +7338,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $5 = matchChar32Async(state, 128640);
+        state.ok = state.pos < $6.end &&
+            $6.data.runeAt(state.pos - $6.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+          $5 = 128640;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           $5 = null;
           break;
@@ -6088,7 +7383,14 @@ class Test2Parser {
     final $3 = <int>[];
     while (true) {
       int? $4;
-      $4 = matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -6128,7 +7430,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $4 = matchChar32Async(state, 128640);
+        state.ok = state.pos < $6.end &&
+            $6.data.runeAt(state.pos - $6.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+          $4 = 128640;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -6163,7 +7472,14 @@ class Test2Parser {
     final $3 = <int>[];
     while ($3.length < 3) {
       int? $4;
-      $4 = matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -6203,7 +7519,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $5 = matchChar32Async(state, 128640);
+        state.ok = state.pos < $7.end &&
+            $7.data.runeAt(state.pos - $7.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+          $5 = 128640;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           break;
         }
@@ -6242,7 +7565,14 @@ class Test2Parser {
     final $3 = <int>[];
     while ($3.length < 3) {
       int? $4;
-      $4 = matchChar32(state, 128640);
+      state.ok = state.pos < state.input.length &&
+          state.input.runeAt(state.pos) == 128640;
+      if (state.ok) {
+        state.pos += 2;
+        $4 = 128640;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
@@ -6282,7 +7612,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $5 = matchChar32Async(state, 128640);
+        state.ok = state.pos < $7.end &&
+            $7.data.runeAt(state.pos - $7.start) == 128640;
+        if (state.ok) {
+          state.pos += 2;
+          $5 = 128640;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           $5 = null;
           break;
@@ -6318,7 +7655,14 @@ class Test2Parser {
   int? parseSequence1(State<String> state) {
     int? $0;
     // [0]
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     return $0;
   }
 
@@ -6337,7 +7681,14 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      $2 = matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -6354,7 +7705,13 @@ class Test2Parser {
   int? parseSequence1WithAction(State<String> state) {
     int? $0;
     // [0] <int>{}
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $$;
       $$ = 0x30;
@@ -6379,7 +7736,13 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $$;
         $$ = 0x30;
@@ -6401,7 +7764,14 @@ class Test2Parser {
   int? parseSequence1WithVariable(State<String> state) {
     int? $0;
     // v:[0]
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     return $0;
   }
 
@@ -6421,7 +7791,14 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      $2 = matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -6438,7 +7815,14 @@ class Test2Parser {
   int? parseSequence1WithVariableWithAction(State<String> state) {
     int? $0;
     // v:[0] <int>{}
-    $0 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $0 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $$;
       final v = $0!;
@@ -6464,7 +7848,14 @@ class Test2Parser {
         $3.handle = $1;
         return;
       }
-      $2 = matchChar16Async(state, 48);
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        state.pos++;
+        $2 = 48;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $$;
         final v = $2!;
@@ -6489,10 +7880,24 @@ class Test2Parser {
     // [0] [1]
     final $3 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $2 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $0 = [$1!, $2!];
       }
@@ -6530,7 +7935,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
@@ -6541,7 +7953,14 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 49);
+        state.ok = state.pos < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = -1;
       }
       if (state.ok) {
@@ -6567,9 +7986,21 @@ class Test2Parser {
     int? $0;
     // [0] [1] <int>{}
     final $1 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $$;
         $$ = 0x30;
@@ -6607,7 +8038,13 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        matchChar16Async(state, 48);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 48;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = state.ok ? 1 : -1;
       }
       if ($3 == 1) {
@@ -6618,7 +8055,13 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $3 = -1;
       }
       if (state.ok) {
@@ -6647,9 +8090,22 @@ class Test2Parser {
     // v:[0] [1]
     final $2 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $0 = $1;
       }
@@ -6686,7 +8142,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
@@ -6697,7 +8160,13 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = -1;
       }
       if (state.ok) {
@@ -6724,9 +8193,22 @@ class Test2Parser {
     // v:[0] [1] <int>{}
     final $2 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $$;
         final v = $1!;
@@ -6766,7 +8248,14 @@ class Test2Parser {
           $6.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = state.ok ? 1 : -1;
       }
       if ($4 == 1) {
@@ -6777,7 +8266,13 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        matchChar16Async(state, 49);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $4 = -1;
       }
       if (state.ok) {
@@ -6807,10 +8302,24 @@ class Test2Parser {
     // v1:[0] v2:[1]
     final $3 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $2 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $0 = (v1: $1!, v2: $2!);
       }
@@ -6848,7 +8357,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
@@ -6859,7 +8375,14 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 49);
+        state.ok = state.pos < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = -1;
       }
       if (state.ok) {
@@ -6886,10 +8409,24 @@ class Test2Parser {
     // v1:[0] v2:[1] <int>{}
     final $3 = state.pos;
     int? $1;
-    $1 = matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      state.pos++;
+      $1 = 48;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       int? $2;
-      $2 = matchChar16(state, 49);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
+      if (state.ok) {
+        state.pos++;
+        $2 = 49;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         int? $$;
         final v1 = $1!;
@@ -6931,7 +8468,14 @@ class Test2Parser {
           $7.handle = $1;
           return;
         }
-        $3 = matchChar16Async(state, 48);
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $3 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = state.ok ? 1 : -1;
       }
       if ($5 == 1) {
@@ -6942,7 +8486,14 @@ class Test2Parser {
           $8.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 49);
+        state.ok = state.pos < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 49;
+        if (state.ok) {
+          state.pos++;
+          $4 = 49;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         $5 = -1;
       }
       if (state.ok) {
@@ -6975,11 +8526,29 @@ class Test2Parser {
     final $2 = state.pos;
     // [0] [1] [2]
     final $3 = state.pos;
-    matchChar16(state, 48);
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
     if (state.ok) {
-      matchChar16(state, 49);
+      state.pos++;
+    } else {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
+    if (state.ok) {
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 49;
       if (state.ok) {
-        matchChar16(state, 50);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 50;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
     }
     if (!state.ok) {
@@ -6993,9 +8562,21 @@ class Test2Parser {
       final $5 = state.pos;
       // [0] [1]
       final $6 = state.pos;
-      matchChar16(state, 48);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 48;
       if (state.ok) {
-        matchChar16(state, 49);
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+      if (state.ok) {
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 49;
+        if (state.ok) {
+          state.pos++;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       }
       if (!state.ok) {
         state.backtrack($6);
@@ -7051,7 +8632,13 @@ class Test2Parser {
             $7.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $7.end &&
+              $7.data.codeUnitAt(state.pos - $7.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 1 : -1;
         }
         if ($5 == 1) {
@@ -7062,7 +8649,13 @@ class Test2Parser {
             $8.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $8.end &&
+              $8.data.codeUnitAt(state.pos - $8.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = state.ok ? 2 : -1;
         }
         if ($5 == 2) {
@@ -7073,7 +8666,13 @@ class Test2Parser {
             $9.handle = $1;
             return;
           }
-          matchChar16Async(state, 50);
+          state.ok = state.pos < $9.end &&
+              $9.data.codeUnitAt(state.pos - $9.start) == 50;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $5 = -1;
         }
         if (!state.ok) {
@@ -7118,7 +8717,13 @@ class Test2Parser {
             $14.handle = $1;
             return;
           }
-          matchChar16Async(state, 48);
+          state.ok = state.pos < $14.end &&
+              $14.data.codeUnitAt(state.pos - $14.start) == 48;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $12 = state.ok ? 1 : -1;
         }
         if ($12 == 1) {
@@ -7129,7 +8734,13 @@ class Test2Parser {
             $15.handle = $1;
             return;
           }
-          matchChar16Async(state, 49);
+          state.ok = state.pos < $15.end &&
+              $15.data.codeUnitAt(state.pos - $15.start) == 49;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           $12 = -1;
         }
         if (!state.ok) {
@@ -10659,10 +12270,10 @@ class Test2Parser {
           state.pos++,
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           $6 = true);
-      state.pos < state.input.length
-          ? state.fail(const ErrorUnexpectedCharacter())
-          : state.fail(const ErrorUnexpectedEndOfInput());
       state.ok = $6;
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $2 = state.input.substring($5, state.pos);
       }
@@ -10678,13 +12289,25 @@ class Test2Parser {
       }
       final pos = state.pos;
       // [\\]
-      matchChar16(state, 92);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (!state.ok) {
         break;
       }
       String? $3;
       // [t] <String>{}
-      matchChar16(state, 116);
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 116;
+      if (state.ok) {
+        state.pos++;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         String? $$;
         $$ = '\t';
@@ -10759,14 +12382,16 @@ class Test2Parser {
               $12.handle = $1;
               return;
             }
-            final $11 = readChar16Async(state);
-            if ($11 >= 0) {
+            state.ok = state.pos < $12.end;
+            if (state.ok) {
+              final $11 = $12.data.codeUnitAt(state.pos - $12.start);
               state.ok = $11 >= 48 && $11 <= 57;
               if (state.ok) {
                 state.pos++;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
               }
+            }
+            if (!state.ok) {
+              state.fail(const ErrorUnexpectedCharacter());
             }
             if (!state.ok) {
               break;
@@ -10806,7 +12431,13 @@ class Test2Parser {
             $14.handle = $1;
             return;
           }
-          matchChar16Async(state, 92);
+          state.ok = state.pos < $14.end &&
+              $14.data.codeUnitAt(state.pos - $14.start) == 92;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (!state.ok) {
             break;
           }
@@ -10822,7 +12453,13 @@ class Test2Parser {
             $15.handle = $1;
             return;
           }
-          matchChar16Async(state, 116);
+          state.ok = state.pos < $15.end &&
+              $15.data.codeUnitAt(state.pos - $15.start) == 116;
+          if (state.ok) {
+            state.pos++;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
           if (state.ok) {
             String? $$;
             $$ = '\t';
@@ -10873,14 +12510,13 @@ class Test2Parser {
     final $3 = state.failPos;
     final $2 = state.errorCount;
     // .
-    final $7 = state.input;
-    if (state.pos < $7.length) {
-      final $6 = $7.runeAt(state.pos);
+    state.ok = state.pos < state.input.length;
+    if (state.ok) {
+      final $6 = state.input.runeAt(state.pos);
       state.pos += $6 > 0xffff ? 2 : 1;
-      state.ok = true;
       $0 = $6;
     } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+      state.fail(const ErrorUnexpectedCharacter());
     }
     if (state.ok) {
       final pos = $4;
@@ -10913,12 +12549,12 @@ class Test2Parser {
     int? $3;
     int? $4;
     int? $5;
-    int $8 = 0;
+    int $7 = 0;
     void $1() {
       // @verify(.)
       // @verify(.)
-      if ($8 & 0x1 == 0) {
-        $8 |= 0x1;
+      if ($7 & 0x1 == 0) {
+        $7 |= 0x1;
         state.input.beginBuffering();
         $3 = state.pos;
         $4 = state.failPos;
@@ -10927,17 +12563,19 @@ class Test2Parser {
       // .
       // .
       // .
-      final $7 = state.input;
-      if (state.pos >= $7.end && !$7.isClosed) {
-        $7.sleep = true;
-        $7.handle = $1;
+      final $6 = state.input;
+      if (state.pos >= $6.end && !$6.isClosed) {
+        $6.sleep = true;
+        $6.handle = $1;
         return;
       }
-      final $6 = readChar32Async(state);
-      state.ok = $6 >= 0;
+      state.ok = state.pos < $6.end;
       if (state.ok) {
-        state.pos += $6 > 0xffff ? 2 : 1;
-        $2 = $6;
+        final c = $6.data.runeAt(state.pos - $6.start);
+        state.pos += c > 0xffff ? 2 : 1;
+        $2 = c;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (state.ok) {
         final pos = $3!;
@@ -10960,7 +12598,7 @@ class Test2Parser {
         state.backtrack($3!);
       }
       state.input.endBuffering();
-      $8 &= ~0x1 & 0xffff;
+      $7 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -10985,9 +12623,6 @@ class Test2Parser {
         state.pos++,
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         $2.add(c));
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = true;
     if (state.ok) {
       $0 = $2;
@@ -11016,7 +12651,14 @@ class Test2Parser {
           $5.handle = $1;
           return;
         }
-        $4 = matchChar16Async(state, 48);
+        state.ok = state.pos < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 48;
+        if (state.ok) {
+          state.pos++;
+          $4 = 48;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
         if (!state.ok) {
           $4 = null;
           break;
@@ -11038,34 +12680,6 @@ class Test2Parser {
 
     $1();
     return $0;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar16Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.codeUnitAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int readChar32Async(State<ChunkedParsingSink> state) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    if (pos < input.end) {
-      return input.data.runeAt(pos - start);
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
-    }
-    return -1;
   }
 }
 
@@ -11257,6 +12871,24 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
+  var isEof = false;
+  if (input is String) {
+    if (offset >= input.length) {
+      isEof = true;
+    }
+  } else if (input is ChunkedParsingSink) {
+    if (input.isClosed && offset >= input.end) {
+      isEof = true;
+    }
+  }
+
+  if (isEof) {
+    errorList.add(const ErrorUnexpectedEndOfInput());
+    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
+  } else if (errorList.isEmpty) {
+    errorList.add(const ErrorUnexpectedCharacter());
+  }
+
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
   if (expectedTags.isNotEmpty) {
     errorList.removeWhere((e) => e is ErrorExpectedTags);
@@ -11482,7 +13114,7 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        if (offset >= input.start && offset <= input.end) {
+        if (offset >= input.start && offset < input.end) {
           final index = offset - input.start;
           char = input.data.runeAt(index);
         } else if (input.isClosed && offset >= input.end) {

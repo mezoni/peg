@@ -83,22 +83,6 @@ bool isTypeNullable(String? type) {
   return type.endsWith('?') || type == 'dynamic';
 }
 
-String matchChar(int char) {
-  if (is32BitRanges([(char, char)], false)) {
-    return 'matchChar32';
-  }
-
-  return 'matchChar16';
-}
-
-String matchCharAsync(int char) {
-  if (is32BitRanges([(char, char)], false)) {
-    return 'matchChar32Async';
-  }
-
-  return 'matchChar16Async';
-}
-
 List<(int, int)> normalizeRanges(List<(int, int)> ranges) {
   final result = <(int, int)>[];
   final temp = ranges.toList();
@@ -270,14 +254,6 @@ String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
   }
 
   return '!($result)';
-}
-
-String readCharAsync(List<(int, int)> ranges, bool negate) {
-  if (is32BitRanges(ranges, negate)) {
-    return 'readChar32Async';
-  }
-
-  return 'readChar16Async';
 }
 
 String render(String template, Map<String, String> values,

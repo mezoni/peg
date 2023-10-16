@@ -117,23 +117,24 @@ class PegParser {
       matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
       state.setOk(!state.ok);
       if (!state.ok) {
-        final length = $4 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(-1),
-          2 => const ErrorUnexpectedInput(-2),
-          _ => ErrorUnexpectedInput(length)
-        });
+        final length = state.pos - $4;
+        state.failAt(
+            $4,
+            switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(-1),
+              2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
         state.backtrack($4);
       }
       if (state.ok) {
-        final $7 = state.input;
-        if (state.pos < $7.length) {
-          final $6 = $7.runeAt(state.pos);
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $6 = state.input.runeAt(state.pos);
           state.pos += $6 > 0xffff ? 2 : 1;
-          state.ok = true;
         } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+          state.fail(const ErrorUnexpectedCharacter());
         }
       }
       if (!state.ok) {
@@ -195,31 +196,31 @@ class PegParser {
           state.ok = $4 == 10 || $4 == 13;
           if (state.ok) {
             state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         state.setOk(!state.ok);
         if (!state.ok) {
-          final length = $3 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(-1),
-            2 => const ErrorUnexpectedInput(-2),
-            _ => ErrorUnexpectedInput(length)
-          });
+          final length = state.pos - $3;
+          state.failAt(
+              $3,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(-1),
+                2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
           state.backtrack($3);
         }
         if (state.ok) {
-          final $6 = state.input;
-          if (state.pos < $6.length) {
-            final $5 = $6.runeAt(state.pos);
+          state.ok = state.pos < state.input.length;
+          if (state.ok) {
+            final $5 = state.input.runeAt(state.pos);
             state.pos += $5 > 0xffff ? 2 : 1;
-            state.ok = true;
           } else {
-            state.fail(const ErrorUnexpectedEndOfInput());
+            state.fail(const ErrorUnexpectedCharacter());
           }
         }
         if (!state.ok) {
@@ -489,11 +490,10 @@ class PegParser {
       state.ok = $1 == 13 || $1 >= 9 && $1 <= 10 || $1 == 32;
       if (state.ok) {
         state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
   }
 
@@ -722,13 +722,15 @@ class PegParser {
         matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
         state.setOk(!state.ok);
         if (!state.ok) {
-          final length = $8 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(-1),
-            2 => const ErrorUnexpectedInput(-2),
-            _ => ErrorUnexpectedInput(length)
-          });
+          final length = state.pos - $8;
+          state.failAt(
+              $8,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(-1),
+                2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
           state.backtrack($8);
         }
         if (state.ok) {
@@ -782,13 +784,15 @@ class PegParser {
           matchLiteral1(state, $18, const ErrorExpectedTags([$18]));
           state.setOk(!state.ok);
           if (!state.ok) {
-            final length = $17 - state.pos;
-            state.fail(switch (length) {
-              0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(-1),
-              2 => const ErrorUnexpectedInput(-2),
-              _ => ErrorUnexpectedInput(length)
-            });
+            final length = state.pos - $17;
+            state.failAt(
+                $17,
+                switch (length) {
+                  0 => const ErrorUnexpectedInput(0),
+                  1 => const ErrorUnexpectedInput(-1),
+                  2 => const ErrorUnexpectedInput(-2),
+                  _ => ErrorUnexpectedInput(length)
+                });
             state.backtrack($17);
           }
           if (state.ok) {
@@ -1292,10 +1296,10 @@ class PegParser {
           state.pos++,
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           $5 = true);
-      state.pos < state.input.length
-          ? state.fail(const ErrorUnexpectedCharacter())
-          : state.fail(const ErrorUnexpectedEndOfInput());
       state.ok = $5;
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
       if (state.ok) {
         $1 = state.input.substring($4, state.pos);
       }
@@ -1334,11 +1338,10 @@ class PegParser {
       state.ok = $5 >= 65 && $5 <= 90 || $5 >= 97 && $5 <= 122;
       if (state.ok) {
         state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     if (state.ok) {
       for (var c = 0;
@@ -1349,9 +1352,6 @@ class PegParser {
                   : c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           state.pos++);
-      state.pos < state.input.length
-          ? state.fail(const ErrorUnexpectedCharacter())
-          : state.fail(const ErrorUnexpectedEndOfInput());
       state.ok = true;
     }
     if (!state.ok) {
@@ -1390,10 +1390,10 @@ class PegParser {
         state.pos++,
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         $4 = true);
-    state.pos < state.input.length
-        ? state.fail(const ErrorUnexpectedCharacter())
-        : state.fail(const ErrorUnexpectedEndOfInput());
     state.ok = $4;
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
+    }
     if (state.ok) {
       $1 = state.input.substring($3, state.pos);
     }
@@ -2029,11 +2029,10 @@ class PegParser {
           $5 <= 90 ? $5 == 36 || $5 >= 65 : $5 == 95 || $5 >= 97 && $5 <= 122;
       if (state.ok) {
         state.pos++;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     if (state.ok) {
       for (var c = 0;
@@ -2046,9 +2045,6 @@ class PegParser {
                   : c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           state.pos++);
-      state.pos < state.input.length
-          ? state.fail(const ErrorUnexpectedCharacter())
-          : state.fail(const ErrorUnexpectedEndOfInput());
       state.ok = true;
     }
     if (!state.ok) {
@@ -2463,11 +2459,10 @@ class PegParser {
         if (state.ok) {
           state.pos++;
           $1 = $5;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
         }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (!state.ok) {
+        state.fail(const ErrorUnexpectedCharacter());
       }
       if (state.ok) {
         int? $$;
@@ -2495,25 +2490,26 @@ class PegParser {
       matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
       state.setOk(!state.ok);
       if (!state.ok) {
-        final length = $9 - state.pos;
-        state.fail(switch (length) {
-          0 => const ErrorUnexpectedInput(0),
-          1 => const ErrorUnexpectedInput(-1),
-          2 => const ErrorUnexpectedInput(-2),
-          _ => ErrorUnexpectedInput(length)
-        });
+        final length = state.pos - $9;
+        state.failAt(
+            $9,
+            switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(-1),
+              2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
         state.backtrack($9);
       }
       if (state.ok) {
         int? $7;
-        final $12 = state.input;
-        if (state.pos < $12.length) {
-          final $11 = $12.runeAt(state.pos);
+        state.ok = state.pos < state.input.length;
+        if (state.ok) {
+          final $11 = state.input.runeAt(state.pos);
           state.pos += $11 > 0xffff ? 2 : 1;
-          state.ok = true;
           $7 = $11;
         } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           $0 = $7;
@@ -2801,13 +2797,15 @@ class PegParser {
         matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
         state.setOk(!state.ok);
         if (!state.ok) {
-          final length = $8 - state.pos;
-          state.fail(switch (length) {
-            0 => const ErrorUnexpectedInput(0),
-            1 => const ErrorUnexpectedInput(-1),
-            2 => const ErrorUnexpectedInput(-2),
-            _ => ErrorUnexpectedInput(length)
-          });
+          final length = state.pos - $8;
+          state.failAt(
+              $8,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(-1),
+                2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
           state.backtrack($8);
         }
         if (state.ok) {
@@ -2866,11 +2864,10 @@ class PegParser {
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
-      } else {
-        state.fail(const ErrorUnexpectedCharacter());
       }
-    } else {
-      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (!state.ok) {
+      state.fail(const ErrorUnexpectedCharacter());
     }
     if (!state.ok && state.isRecoverable) {
       // '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
@@ -2890,11 +2887,10 @@ class PegParser {
           if (state.ok) {
             state.pos++;
             $3 = $7;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
           }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (!state.ok) {
+          state.fail(const ErrorUnexpectedCharacter());
         }
         if (state.ok) {
           int? $$;
@@ -3397,6 +3393,24 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
+  var isEof = false;
+  if (input is String) {
+    if (offset >= input.length) {
+      isEof = true;
+    }
+  } else if (input is ChunkedParsingSink) {
+    if (input.isClosed && offset >= input.end) {
+      isEof = true;
+    }
+  }
+
+  if (isEof) {
+    errorList.add(const ErrorUnexpectedEndOfInput());
+    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
+  } else if (errorList.isEmpty) {
+    errorList.add(const ErrorUnexpectedCharacter());
+  }
+
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
   if (expectedTags.isNotEmpty) {
     errorList.removeWhere((e) => e is ErrorExpectedTags);
@@ -3622,7 +3636,7 @@ class ErrorUnexpectedCharacter extends ParseError {
           argument = '<EOF>';
         }
       } else if (input is ChunkedParsingSink) {
-        if (offset >= input.start && offset <= input.end) {
+        if (offset >= input.start && offset < input.end) {
           final index = offset - input.start;
           char = input.data.runeAt(index);
         } else if (input.isClosed && offset >= input.end) {

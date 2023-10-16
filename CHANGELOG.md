@@ -2,6 +2,7 @@
 
 - The source code for supporting the parser runtime has been reworked.
 - The generated code has been optimized for some cases of using the expressions `OneOrMoreGenerator` and `ZeroOrMoreGenerator`.
+- The error post-processing system has been slightly improved. With a few changes, it is now possible to reduce the number of errors generated at runtime when parsing characters, without losing information about the actual errors.  Because such errors can be recovered without any problems at the end of the parsing, if the parsing fails. This results in a slight increase in overall parsing performance (5-20%), especially in cases where increasing performance is almost impossible.
 
 # 4.0.4
 
