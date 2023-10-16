@@ -282,6 +282,39 @@ String render(String template, Map<String, String> values,
   return buffer.toString();
 }
 
+String testLiteral({
+  required List<int> codeUnits,
+  required String end,
+  required String input,
+  String? start,
+}) {
+  if (codeUnits.isEmpty) {
+    throw ArgumentError('Must not be empty', 'string');
+  }
+
+  final buffer = StringBuffer();
+  buffer.write('state.pos');
+  if (codeUnits.length - 1 > 0) {
+    buffer.write(' + ${codeUnits.length - 1}');
+  }
+
+  buffer.write(' < $end &&');
+  for (var i = 0; i < codeUnits.length; i++) {
+    final char = codeUnits[i];
+    var statePos = start == null ? 'state.pos' : 'state.pos - $start';
+    if (i > 0) {
+      statePos = '$statePos + $i';
+    }
+
+    buffer.write('$input.codeUnitAt($statePos) == $char');
+    if (i < codeUnits.length - 1) {
+      buffer.writeln(' &&');
+    }
+  }
+
+  return buffer.toString();
+}
+
 class _Code extends _Expression {
   final String code;
 

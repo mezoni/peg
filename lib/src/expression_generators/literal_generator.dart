@@ -18,8 +18,8 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
     final string = expression.string;
     if (string.isEmpty) {
       return _generateEmptyString(variable);
-    } else if (string.length == 1 || string.length == 2) {
-      return _generateString1(string, variable);
+    } else if (string.length < 9) {
+      return _generateShortString(string, variable);
     }
 
     return _generate(string, variable);
@@ -30,8 +30,8 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
     final string = expression.string;
     if (string.isEmpty) {
       return _generateAsyncEmptyString();
-    } else if (string.length == 1 || string.length == 2) {
-      return _generateAsyncString1();
+    } else if (string.length < 9) {
+      return _generateAsyncShortString();
     } else {
       return _generateAsync();
     }
@@ -39,30 +39,37 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
 
   String _generate(String string, String? variable) {
     final values = <String, String>{};
-    final char = string.codeUnitAt(0);
-    final literal = allocateName();
-    values['char'] = '$char';
-    values['length'] = string.length.toString();
-    values['literal'] = literal;
+    values['literal'] = allocateName();
+    values['char'] = string.codeUnitAt(0).toString();
     values['string'] = helper.escapeString(string);
-    values['char'] = '$char';
-    if (variable != null) {
-      values['assign_result'] = '$variable = $literal;';
+    if (string.length == 1) {
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['assign_result'] = '';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
     }
 
-    const template = '''
+    var template = '';
+    if (variable != null) {
+      values['r'] = variable;
+      template = '''
 const {{literal}} = {{string}};
 state.ok = state.pos < state.input.length &&
     state.input.codeUnitAt(state.pos) == {{char}} &&
     state.input.startsWith({{literal}}, state.pos);
 if (state.ok) {
-  state.pos += {{length}};
-  {{assign_result}}
+  {{adjust_state_pos}};
+  {{r}} = {{literal}};
 } else {
   state.fail(const ErrorExpectedTags([{{literal}}]));
 }''';
+    } else {
+      template = '''
+const {{literal}} = {{string}};
+state.ok = state.pos < state.input.length &&
+    state.input.codeUnitAt(state.pos) == {{char}} &&
+    state.input.startsWith({{literal}}, state.pos);
+state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+    }
 
     return render(template, values);
   }
@@ -72,27 +79,56 @@ if (state.ok) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
-    final input = allocateName();
+    values['input'] = allocateName();
+    values['string'] = allocateName();
+    values['pos'] = allocateName();
     values['handle'] = asyncGenerator.functionName;
-    values['input'] = input;
-    values['length'] = string.length.toString();
+    values['char'] = string.codeUnitAt(0).toString();
     values['literal'] = helper.escapeString(string);
     values['offset'] = (string.length - 1).toString();
-    if (variable != null) {
-      values['assign_result'] = '$variable = ';
+    if (string.length == 1) {
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['assign_result'] = '';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
     }
 
-    const template = '''
+    var template = '';
+    if (variable != null) {
+      values['r'] = variable;
+      template = '''
 final {{input}} = state.input;
 if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }
-const string = {{literal}};
-{{assign_result}}matchLiteralAsync(state, string, const ErrorExpectedTags([string]));''';
+const {{string}} = {{literal}};
+final {{pos}} = state.pos - {{input}}.start;
+state.ok = state.pos < {{input}}.end &&
+  {{input}}.data.codeUnitAt({{pos}}) == {{char}} &&
+  {{input}}.data.startsWith({{string}}, {{pos}});
+if (state.ok) {
+  {{adjust_state_pos}};
+  {{r}} = {{string}};
+} else {
+  state.fail(const ErrorExpectedTags([{{string}}]));
+}''';
+    } else {
+      template = '''
+final {{input}} = state.input;
+if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
+  {{input}}.sleep = true;
+  {{input}}.handle = {{handle}};
+  return;
+}
+const {{string}} = {{literal}};
+final {{pos}} = state.pos - {{input}}.start;
+state.ok = state.pos < {{input}}.end &&
+  {{input}}.data.codeUnitAt({{pos}}) == {{char}} &&
+  {{input}}.data.startsWith({{string}}, {{pos}});
+state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+    }
+
     final source = render(template, values);
     return asyncGenerator.renderAction(
       source,
@@ -115,7 +151,7 @@ state.ok = true;
     return render(template, values);
   }
 
-  String _generateAsyncString1() {
+  String _generateAsyncShortString() {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
@@ -125,33 +161,53 @@ state.ok = true;
     values['input'] = input;
     values['string'] = helper.escapeString(string);
     values['literal'] = allocateName();
-    if (variable != null) {
-      values['assign_result'] = '$variable = ';
+    values['test'] = helper.testLiteral(
+      codeUnits: string.codeUnits,
+      end: '$input.end',
+      input: '$input.data',
+      start: '$input.start',
+    );
+    if (string.length == 1) {
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['assign_result'] = '';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
+    }
+
+    if (string.length > 1) {
+      values['size'] = ' + ${string.length - 1}';
+    } else {
+      values['size'] = '';
     }
 
     var template = '';
-    if (string.length == 1) {
+    if (variable != null) {
+      values['r'] = variable;
       template = '''
 final {{input}} = state.input;
-if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos{{size}} >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral1Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = {{test}};
+if (state.ok) {
+  {{r}} = {{literal}};
+  {{adjust_state_pos}};
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
     } else {
       template = '''
 final {{input}} = state.input;
-if (state.pos + 1 >= {{input}}.end && !{{input}}.isClosed) {
+if (state.pos{{size}} >= {{input}}.end && !{{input}}.isClosed) {
   {{input}}.sleep = true;
   {{input}}.handle = {{handle}};
   return;
 }
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral2Async(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = {{test}};
+state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
     }
 
     final source = render(template, values);
@@ -178,26 +234,39 @@ state.ok = true;''';
     return render(template, values);
   }
 
-  String _generateString1(String string, String? variable) {
+  String _generateShortString(String string, String? variable) {
     final values = <String, String>{};
     final literal = allocateName();
     values['literal'] = literal;
     values['string'] = helper.escapeString(string);
-    if (variable != null) {
-      values['assign_result'] = '$variable = ';
+    values['test'] = helper.testLiteral(
+      codeUnits: string.codeUnits,
+      end: 'state.input.length',
+      input: 'state.input',
+    );
+    if (string.length == 1) {
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['assign_result'] = '';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
     }
 
     var template = '';
-    if (string.length == 1) {
+    if (variable != null) {
+      values['r'] = variable;
       template = '''
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral1(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = {{test}};
+if (state.ok) {
+  {{r}} = {{literal}};
+  {{adjust_state_pos}};
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
     } else {
       template = '''
 const {{literal}} = {{string}};
-{{assign_result}}matchLiteral2(state, {{literal}}, const ErrorExpectedTags([{{literal}}]));''';
+state.ok = {{test}};
+state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
     }
 
     return render(template, values);

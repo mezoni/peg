@@ -65,7 +65,9 @@ class CsvParser {
           return;
         }
         const $4 = '\n';
-        matchLiteral1Async(state, $4, const ErrorExpectedTags([$4]));
+        state.ok = state.pos < $3.end &&
+            $3.data.codeUnitAt(state.pos - $3.start) == 10;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$4]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -82,7 +84,10 @@ class CsvParser {
           return;
         }
         const $6 = '\r\n';
-        matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
+        state.ok = state.pos + 1 < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 13 &&
+            $5.data.codeUnitAt(state.pos - $5.start + 1) == 10;
+        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$6]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -99,7 +104,9 @@ class CsvParser {
           return;
         }
         const $8 = '\r';
-        matchLiteral1Async(state, $8, const ErrorExpectedTags([$8]));
+        state.ok = state.pos < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 13;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$8]));
         $2 = -1;
       }
       $9 &= ~0x1 & 0xffff;
@@ -167,96 +174,6 @@ class CsvParser {
     return $0;
   }
 
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    state.ok = pos < input.end &&
-        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    final pos2 = pos + 1;
-    state.ok = pos2 < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.codeUnitAt(pos2) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final data = input.data;
-    final pos = state.pos;
-    final index = pos - start;
-    state.ok = pos + 1 < input.end &&
-        data.codeUnitAt(index) == string.codeUnitAt(0) &&
-        data.codeUnitAt(index + 1) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
   /// @event
   /// Row =
   ///   @list1(Field, ',' ↑ v:Field)
@@ -287,7 +204,9 @@ class CsvParser {
         final $11 = state.pos;
         var $10 = true;
         const $12 = ',';
-        matchLiteral1(state, $12, const ErrorExpectedTags([$12]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 44;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$12]));
         if (state.ok) {
           $10 = false;
           state.ok = true;
@@ -437,7 +356,9 @@ class CsvParser {
               return;
             }
             const $19 = ',';
-            matchLiteral1Async(state, $19, const ErrorExpectedTags([$19]));
+            state.ok = state.pos < $18.end &&
+                $18.data.codeUnitAt(state.pos - $18.start) == 44;
+            state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$19]));
             $15 = state.ok ? 1 : -1;
           }
           if ($15 == 1) {
@@ -928,7 +849,9 @@ class CsvParser {
     fastParseSpaces(state);
     if (state.ok) {
       const $5 = '"';
-      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 34;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$5]));
     }
     if (!state.ok) {
       state.backtrack($4);
@@ -963,7 +886,12 @@ class CsvParser {
           if (!state.ok && state.isRecoverable) {
             // '""' <String>{}
             const $13 = '""';
-            matchLiteral2(state, $13, const ErrorExpectedTags([$13]));
+            state.ok = state.pos + 1 < state.input.length &&
+                state.input.codeUnitAt(state.pos) == 34 &&
+                state.input.codeUnitAt(state.pos + 1) == 34;
+            state.ok
+                ? state.pos += 2
+                : state.fail(const ErrorExpectedTags([$13]));
             if (state.ok) {
               String? $$;
               $$ = '"';
@@ -984,7 +912,9 @@ class CsvParser {
           // '"' Spaces
           final $14 = state.pos;
           const $15 = '"';
-          matchLiteral1(state, $15, const ErrorExpectedTags([$15]));
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 34;
+          state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$15]));
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
@@ -1073,7 +1003,9 @@ class CsvParser {
             return;
           }
           const $13 = '"';
-          matchLiteral1Async(state, $13, const ErrorExpectedTags([$13]));
+          state.ok = state.pos < $12.end &&
+              $12.data.codeUnitAt(state.pos - $12.start) == 34;
+          state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$13]));
           $7 = -1;
         }
         if (!state.ok) {
@@ -1162,7 +1094,12 @@ class CsvParser {
               return;
             }
             const $22 = '""';
-            matchLiteral2Async(state, $22, const ErrorExpectedTags([$22]));
+            state.ok = state.pos + 1 < $21.end &&
+                $21.data.codeUnitAt(state.pos - $21.start) == 34 &&
+                $21.data.codeUnitAt(state.pos - $21.start + 1) == 34;
+            state.ok
+                ? state.pos += 2
+                : state.fail(const ErrorExpectedTags([$22]));
             if (state.ok) {
               String? $$;
               $$ = '"';
@@ -1204,7 +1141,9 @@ class CsvParser {
             return;
           }
           const $26 = '"';
-          matchLiteral1Async(state, $26, const ErrorExpectedTags([$26]));
+          state.ok = state.pos < $25.end &&
+              $25.data.codeUnitAt(state.pos - $25.start) == 34;
+          state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$26]));
           $23 = state.ok ? 1 : -1;
         }
         if ($23 == 1) {

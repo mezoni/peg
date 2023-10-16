@@ -270,14 +270,11 @@ class TestParser {
       final $5 = state.pos;
       final $6 = state.pos;
       const $7 = 'END';
-      state.ok = state.pos < state.input.length &&
+      state.ok = state.pos + 2 < state.input.length &&
           state.input.codeUnitAt(state.pos) == 69 &&
-          state.input.startsWith($7, state.pos);
-      if (state.ok) {
-        state.pos += 3;
-      } else {
-        state.fail(const ErrorExpectedTags([$7]));
-      }
+          state.input.codeUnitAt(state.pos + 1) == 78 &&
+          state.input.codeUnitAt(state.pos + 2) == 68;
+      state.ok ? state.pos += 3 : state.fail(const ErrorExpectedTags([$7]));
       state.setOk(!state.ok);
       if (!state.ok) {
         final length = state.pos - $6;

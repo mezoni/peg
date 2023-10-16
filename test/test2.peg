@@ -23,6 +23,7 @@ Start =
   / (v:Literal0 Literal0)
   / (v:Literal1 Literal1)
   / (v:Literal2 Literal2)
+  / (v:Literal10 Literal10)
   / (v:Literals Literals)
   / (v:List List)
   / (v:List1 List1)
@@ -96,6 +97,8 @@ Literal0 = '' ;
 Literal1 = '0' ;
 
 Literal2 = '01' ;
+
+Literal10 = '0123456789' ;
 
 Literals = '0123' / '012' / '01' / 'ab' / 'a' / 'A' ;
 

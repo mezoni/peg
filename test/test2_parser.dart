@@ -1706,7 +1706,9 @@ class Test2Parser {
   void fastParseLiteral1(State<String> state) {
     // '0'
     const $1 = '0';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
   }
 
   /// Literal1 =
@@ -1725,7 +1727,53 @@ class Test2Parser {
         return;
       }
       const $3 = '0';
-      matchLiteral1Async(state, $3, const ErrorExpectedTags([$3]));
+      state.ok =
+          state.pos < $2.end && $2.data.codeUnitAt(state.pos - $2.start) == 48;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
+      $0.isComplete = true;
+      state.input.handle = $0.onComplete;
+      return;
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Literal10 =
+  ///   '0123456789'
+  ///   ;
+  void fastParseLiteral10(State<String> state) {
+    // '0123456789'
+    const $1 = '0123456789';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.startsWith($1, state.pos);
+    state.ok ? state.pos += 10 : state.fail(const ErrorExpectedTags([$1]));
+  }
+
+  /// Literal10 =
+  ///   '0123456789'
+  ///   ;
+  AsyncResult<Object?> fastParseLiteral10$Async(
+      State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<Object?>();
+    void $1() {
+      // '0123456789'
+      // '0123456789'
+      final $2 = state.input;
+      if (state.pos + 9 >= $2.end && !$2.isClosed) {
+        $2.sleep = true;
+        $2.handle = $1;
+        return;
+      }
+      const $3 = '0123456789';
+      final $4 = state.pos - $2.start;
+      state.ok = state.pos < $2.end &&
+          $2.data.codeUnitAt($4) == 48 &&
+          $2.data.startsWith($3, $4);
+      state.ok
+          ? state.pos += 10
+          : state.fail(const ErrorExpectedTags(['0123456789']));
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1741,7 +1789,10 @@ class Test2Parser {
   void fastParseLiteral2(State<String> state) {
     // '01'
     const $1 = '01';
-    matchLiteral2(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.codeUnitAt(state.pos + 1) == 49;
+    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$1]));
   }
 
   /// Literal2 =
@@ -1760,7 +1811,10 @@ class Test2Parser {
         return;
       }
       const $3 = '01';
-      matchLiteral2Async(state, $3, const ErrorExpectedTags([$3]));
+      state.ok = state.pos + 1 < $2.end &&
+          $2.data.codeUnitAt(state.pos - $2.start) == 48 &&
+          $2.data.codeUnitAt(state.pos - $2.start + 1) == 49;
+      state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -1840,10 +1894,10 @@ class Test2Parser {
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     int? $2;
-    int $13 = 0;
+    int $15 = 0;
     void $1() {
-      if ($13 & 0x1 == 0) {
-        $13 |= 0x1;
+      if ($15 & 0x1 == 0) {
+        $15 |= 0x1;
         $2 = 0;
       }
       if ($2 == 0) {
@@ -1855,8 +1909,13 @@ class Test2Parser {
           $3.handle = $1;
           return;
         }
-        const string = '0123';
-        matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        const $4 = '0123';
+        state.ok = state.pos + 3 < $3.end &&
+            $3.data.codeUnitAt(state.pos - $3.start) == 48 &&
+            $3.data.codeUnitAt(state.pos - $3.start + 1) == 49 &&
+            $3.data.codeUnitAt(state.pos - $3.start + 2) == 50 &&
+            $3.data.codeUnitAt(state.pos - $3.start + 3) == 51;
+        state.ok ? state.pos += 4 : state.fail(const ErrorExpectedTags([$4]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -1866,14 +1925,18 @@ class Test2Parser {
       if ($2 == 1) {
         // '012'
         // '012'
-        final $4 = state.input;
-        if (state.pos + 2 >= $4.end && !$4.isClosed) {
-          $4.sleep = true;
-          $4.handle = $1;
+        final $5 = state.input;
+        if (state.pos + 2 >= $5.end && !$5.isClosed) {
+          $5.sleep = true;
+          $5.handle = $1;
           return;
         }
-        const string = '012';
-        matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        const $6 = '012';
+        state.ok = state.pos + 2 < $5.end &&
+            $5.data.codeUnitAt(state.pos - $5.start) == 48 &&
+            $5.data.codeUnitAt(state.pos - $5.start + 1) == 49 &&
+            $5.data.codeUnitAt(state.pos - $5.start + 2) == 50;
+        state.ok ? state.pos += 3 : state.fail(const ErrorExpectedTags([$6]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -1883,14 +1946,17 @@ class Test2Parser {
       if ($2 == 2) {
         // '01'
         // '01'
-        final $5 = state.input;
-        if (state.pos + 1 >= $5.end && !$5.isClosed) {
-          $5.sleep = true;
-          $5.handle = $1;
+        final $7 = state.input;
+        if (state.pos + 1 >= $7.end && !$7.isClosed) {
+          $7.sleep = true;
+          $7.handle = $1;
           return;
         }
-        const $6 = '01';
-        matchLiteral2Async(state, $6, const ErrorExpectedTags([$6]));
+        const $8 = '01';
+        state.ok = state.pos + 1 < $7.end &&
+            $7.data.codeUnitAt(state.pos - $7.start) == 48 &&
+            $7.data.codeUnitAt(state.pos - $7.start + 1) == 49;
+        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$8]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -1900,14 +1966,17 @@ class Test2Parser {
       if ($2 == 3) {
         // 'ab'
         // 'ab'
-        final $7 = state.input;
-        if (state.pos + 1 >= $7.end && !$7.isClosed) {
-          $7.sleep = true;
-          $7.handle = $1;
+        final $9 = state.input;
+        if (state.pos + 1 >= $9.end && !$9.isClosed) {
+          $9.sleep = true;
+          $9.handle = $1;
           return;
         }
-        const $8 = 'ab';
-        matchLiteral2Async(state, $8, const ErrorExpectedTags([$8]));
+        const $10 = 'ab';
+        state.ok = state.pos + 1 < $9.end &&
+            $9.data.codeUnitAt(state.pos - $9.start) == 97 &&
+            $9.data.codeUnitAt(state.pos - $9.start + 1) == 98;
+        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$10]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -1917,14 +1986,16 @@ class Test2Parser {
       if ($2 == 4) {
         // 'a'
         // 'a'
-        final $9 = state.input;
-        if (state.pos >= $9.end && !$9.isClosed) {
-          $9.sleep = true;
-          $9.handle = $1;
+        final $11 = state.input;
+        if (state.pos >= $11.end && !$11.isClosed) {
+          $11.sleep = true;
+          $11.handle = $1;
           return;
         }
-        const $10 = 'a';
-        matchLiteral1Async(state, $10, const ErrorExpectedTags([$10]));
+        const $12 = 'a';
+        state.ok = state.pos < $11.end &&
+            $11.data.codeUnitAt(state.pos - $11.start) == 97;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$12]));
         $2 = state.ok
             ? -1
             : state.isRecoverable
@@ -1934,17 +2005,19 @@ class Test2Parser {
       if ($2 == 5) {
         // 'A'
         // 'A'
-        final $11 = state.input;
-        if (state.pos >= $11.end && !$11.isClosed) {
-          $11.sleep = true;
-          $11.handle = $1;
+        final $13 = state.input;
+        if (state.pos >= $13.end && !$13.isClosed) {
+          $13.sleep = true;
+          $13.handle = $1;
           return;
         }
-        const $12 = 'A';
-        matchLiteral1Async(state, $12, const ErrorExpectedTags([$12]));
+        const $14 = 'A';
+        state.ok = state.pos < $13.end &&
+            $13.data.codeUnitAt(state.pos - $13.start) == 65;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$14]));
         $2 = -1;
       }
-      $13 &= ~0x1 & 0xffff;
+      $15 &= ~0x1 & 0xffff;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
       return;
@@ -4242,96 +4315,6 @@ class Test2Parser {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final pos = state.pos;
-    state.ok = pos < input.end &&
-        input.data.codeUnitAt(pos - start) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    final pos2 = pos + 1;
-    state.ok = pos2 < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.codeUnitAt(pos2) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2Async(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    final input = state.input;
-    final start = input.start;
-    final data = input.data;
-    final pos = state.pos;
-    final index = pos - start;
-    state.ok = pos + 1 < input.end &&
-        data.codeUnitAt(index) == string.codeUnitAt(0) &&
-        data.codeUnitAt(index + 1) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   String? matchLiteralAsync(
       State<ChunkedParsingSink> state, String string, ParseError error) {
     if (string.isEmpty) {
@@ -6311,7 +6294,14 @@ class Test2Parser {
     String? $0;
     // '0'
     const $2 = '0';
-    $0 = matchLiteral1(state, $2, const ErrorExpectedTags([$2]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48;
+    if (state.ok) {
+      $0 = $2;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
     return $0;
   }
 
@@ -6331,7 +6321,69 @@ class Test2Parser {
         return;
       }
       const $4 = '0';
-      $2 = matchLiteral1Async(state, $4, const ErrorExpectedTags([$4]));
+      state.ok =
+          state.pos < $3.end && $3.data.codeUnitAt(state.pos - $3.start) == 48;
+      if (state.ok) {
+        $2 = $4;
+        state.pos++;
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
+      $0.value = $2;
+      $0.isComplete = true;
+      state.input.handle = $0.onComplete;
+      return;
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Literal10 =
+  ///   '0123456789'
+  ///   ;
+  String? parseLiteral10(State<String> state) {
+    String? $0;
+    // '0123456789'
+    const $2 = '0123456789';
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.startsWith($2, state.pos);
+    if (state.ok) {
+      state.pos += 10;
+      $0 = $2;
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
+    return $0;
+  }
+
+  /// Literal10 =
+  ///   '0123456789'
+  ///   ;
+  AsyncResult<String> parseLiteral10$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<String>();
+    String? $2;
+    void $1() {
+      // '0123456789'
+      // '0123456789'
+      final $3 = state.input;
+      if (state.pos + 9 >= $3.end && !$3.isClosed) {
+        $3.sleep = true;
+        $3.handle = $1;
+        return;
+      }
+      const $4 = '0123456789';
+      final $5 = state.pos - $3.start;
+      state.ok = state.pos < $3.end &&
+          $3.data.codeUnitAt($5) == 48 &&
+          $3.data.startsWith($4, $5);
+      if (state.ok) {
+        state.pos += 10;
+        $2 = $4;
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -6349,7 +6401,15 @@ class Test2Parser {
     String? $0;
     // '01'
     const $2 = '01';
-    $0 = matchLiteral2(state, $2, const ErrorExpectedTags([$2]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 48 &&
+        state.input.codeUnitAt(state.pos + 1) == 49;
+    if (state.ok) {
+      $0 = $2;
+      state.pos += 2;
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
     return $0;
   }
 
@@ -6369,7 +6429,15 @@ class Test2Parser {
         return;
       }
       const $4 = '01';
-      $2 = matchLiteral2Async(state, $4, const ErrorExpectedTags([$4]));
+      state.ok = state.pos + 1 < $3.end &&
+          $3.data.codeUnitAt(state.pos - $3.start) == 48 &&
+          $3.data.codeUnitAt(state.pos - $3.start + 1) == 49;
+      if (state.ok) {
+        $2 = $4;
+        state.pos += 2;
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -6458,10 +6526,10 @@ class Test2Parser {
     final $0 = AsyncResult<String>();
     String? $2;
     int? $3;
-    int $14 = 0;
+    int $16 = 0;
     void $1() {
-      if ($14 & 0x1 == 0) {
-        $14 |= 0x1;
+      if ($16 & 0x1 == 0) {
+        $16 |= 0x1;
         $3 = 0;
       }
       if ($3 == 0) {
@@ -6473,9 +6541,18 @@ class Test2Parser {
           $4.handle = $1;
           return;
         }
-        const string = '0123';
-        $2 =
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        const $5 = '0123';
+        state.ok = state.pos + 3 < $4.end &&
+            $4.data.codeUnitAt(state.pos - $4.start) == 48 &&
+            $4.data.codeUnitAt(state.pos - $4.start + 1) == 49 &&
+            $4.data.codeUnitAt(state.pos - $4.start + 2) == 50 &&
+            $4.data.codeUnitAt(state.pos - $4.start + 3) == 51;
+        if (state.ok) {
+          $2 = $5;
+          state.pos += 4;
+        } else {
+          state.fail(const ErrorExpectedTags([$5]));
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -6485,15 +6562,23 @@ class Test2Parser {
       if ($3 == 1) {
         // '012'
         // '012'
-        final $5 = state.input;
-        if (state.pos + 2 >= $5.end && !$5.isClosed) {
-          $5.sleep = true;
-          $5.handle = $1;
+        final $6 = state.input;
+        if (state.pos + 2 >= $6.end && !$6.isClosed) {
+          $6.sleep = true;
+          $6.handle = $1;
           return;
         }
-        const string = '012';
-        $2 =
-            matchLiteralAsync(state, string, const ErrorExpectedTags([string]));
+        const $7 = '012';
+        state.ok = state.pos + 2 < $6.end &&
+            $6.data.codeUnitAt(state.pos - $6.start) == 48 &&
+            $6.data.codeUnitAt(state.pos - $6.start + 1) == 49 &&
+            $6.data.codeUnitAt(state.pos - $6.start + 2) == 50;
+        if (state.ok) {
+          $2 = $7;
+          state.pos += 3;
+        } else {
+          state.fail(const ErrorExpectedTags([$7]));
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -6503,14 +6588,22 @@ class Test2Parser {
       if ($3 == 2) {
         // '01'
         // '01'
-        final $6 = state.input;
-        if (state.pos + 1 >= $6.end && !$6.isClosed) {
-          $6.sleep = true;
-          $6.handle = $1;
+        final $8 = state.input;
+        if (state.pos + 1 >= $8.end && !$8.isClosed) {
+          $8.sleep = true;
+          $8.handle = $1;
           return;
         }
-        const $7 = '01';
-        $2 = matchLiteral2Async(state, $7, const ErrorExpectedTags([$7]));
+        const $9 = '01';
+        state.ok = state.pos + 1 < $8.end &&
+            $8.data.codeUnitAt(state.pos - $8.start) == 48 &&
+            $8.data.codeUnitAt(state.pos - $8.start + 1) == 49;
+        if (state.ok) {
+          $2 = $9;
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorExpectedTags([$9]));
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -6520,14 +6613,22 @@ class Test2Parser {
       if ($3 == 3) {
         // 'ab'
         // 'ab'
-        final $8 = state.input;
-        if (state.pos + 1 >= $8.end && !$8.isClosed) {
-          $8.sleep = true;
-          $8.handle = $1;
+        final $10 = state.input;
+        if (state.pos + 1 >= $10.end && !$10.isClosed) {
+          $10.sleep = true;
+          $10.handle = $1;
           return;
         }
-        const $9 = 'ab';
-        $2 = matchLiteral2Async(state, $9, const ErrorExpectedTags([$9]));
+        const $11 = 'ab';
+        state.ok = state.pos + 1 < $10.end &&
+            $10.data.codeUnitAt(state.pos - $10.start) == 97 &&
+            $10.data.codeUnitAt(state.pos - $10.start + 1) == 98;
+        if (state.ok) {
+          $2 = $11;
+          state.pos += 2;
+        } else {
+          state.fail(const ErrorExpectedTags([$11]));
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -6537,14 +6638,21 @@ class Test2Parser {
       if ($3 == 4) {
         // 'a'
         // 'a'
-        final $10 = state.input;
-        if (state.pos >= $10.end && !$10.isClosed) {
-          $10.sleep = true;
-          $10.handle = $1;
+        final $12 = state.input;
+        if (state.pos >= $12.end && !$12.isClosed) {
+          $12.sleep = true;
+          $12.handle = $1;
           return;
         }
-        const $11 = 'a';
-        $2 = matchLiteral1Async(state, $11, const ErrorExpectedTags([$11]));
+        const $13 = 'a';
+        state.ok = state.pos < $12.end &&
+            $12.data.codeUnitAt(state.pos - $12.start) == 97;
+        if (state.ok) {
+          $2 = $13;
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$13]));
+        }
         $3 = state.ok
             ? -1
             : state.isRecoverable
@@ -6554,17 +6662,24 @@ class Test2Parser {
       if ($3 == 5) {
         // 'A'
         // 'A'
-        final $12 = state.input;
-        if (state.pos >= $12.end && !$12.isClosed) {
-          $12.sleep = true;
-          $12.handle = $1;
+        final $14 = state.input;
+        if (state.pos >= $14.end && !$14.isClosed) {
+          $14.sleep = true;
+          $14.handle = $1;
           return;
         }
-        const $13 = 'A';
-        $2 = matchLiteral1Async(state, $13, const ErrorExpectedTags([$13]));
+        const $15 = 'A';
+        state.ok = state.pos < $14.end &&
+            $14.data.codeUnitAt(state.pos - $14.start) == 65;
+        if (state.ok) {
+          $2 = $15;
+          state.pos++;
+        } else {
+          state.fail(const ErrorExpectedTags([$15]));
+        }
         $3 = -1;
       }
-      $14 &= ~0x1 & 0xffff;
+      $16 &= ~0x1 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;
@@ -8785,6 +8900,7 @@ class Test2Parser {
   ///   / (v:Literal0 Literal0)
   ///   / (v:Literal1 Literal1)
   ///   / (v:Literal2 Literal2)
+  ///   / (v:Literal10 Literal10)
   ///   / (v:Literals Literals)
   ///   / (v:List List)
   ///   / (v:List1 List1)
@@ -9088,15 +9204,15 @@ class Test2Parser {
                                     state.backtrack($48);
                                   }
                                   if (!state.ok && state.isRecoverable) {
-                                    // (v:Literals Literals)
-                                    // v:Literals Literals
+                                    // (v:Literal10 Literal10)
+                                    // v:Literal10 Literal10
                                     final $51 = state.pos;
                                     String? $50;
-                                    // Literals
-                                    $50 = parseLiterals(state);
+                                    // Literal10
+                                    $50 = parseLiteral10(state);
                                     if (state.ok) {
-                                      // Literals
-                                      fastParseLiterals(state);
+                                      // Literal10
+                                      fastParseLiteral10(state);
                                       if (state.ok) {
                                         $0 = $50;
                                       }
@@ -9105,15 +9221,15 @@ class Test2Parser {
                                       state.backtrack($51);
                                     }
                                     if (!state.ok && state.isRecoverable) {
-                                      // (v:List List)
-                                      // v:List List
+                                      // (v:Literals Literals)
+                                      // v:Literals Literals
                                       final $54 = state.pos;
-                                      List<int>? $53;
-                                      // List
-                                      $53 = parseList(state);
+                                      String? $53;
+                                      // Literals
+                                      $53 = parseLiterals(state);
                                       if (state.ok) {
-                                        // List
-                                        fastParseList(state);
+                                        // Literals
+                                        fastParseLiterals(state);
                                         if (state.ok) {
                                           $0 = $53;
                                         }
@@ -9122,15 +9238,15 @@ class Test2Parser {
                                         state.backtrack($54);
                                       }
                                       if (!state.ok && state.isRecoverable) {
-                                        // (v:List1 List1)
-                                        // v:List1 List1
+                                        // (v:List List)
+                                        // v:List List
                                         final $57 = state.pos;
                                         List<int>? $56;
-                                        // List1
-                                        $56 = parseList1(state);
+                                        // List
+                                        $56 = parseList(state);
                                         if (state.ok) {
-                                          // List1
-                                          fastParseList1(state);
+                                          // List
+                                          fastParseList(state);
                                           if (state.ok) {
                                             $0 = $56;
                                           }
@@ -9139,15 +9255,15 @@ class Test2Parser {
                                           state.backtrack($57);
                                         }
                                         if (!state.ok && state.isRecoverable) {
-                                          // (v:MatchString MatchString)
-                                          // v:MatchString MatchString
+                                          // (v:List1 List1)
+                                          // v:List1 List1
                                           final $60 = state.pos;
-                                          String? $59;
-                                          // MatchString
-                                          $59 = parseMatchString(state);
+                                          List<int>? $59;
+                                          // List1
+                                          $59 = parseList1(state);
                                           if (state.ok) {
-                                            // MatchString
-                                            fastParseMatchString(state);
+                                            // List1
+                                            fastParseList1(state);
                                             if (state.ok) {
                                               $0 = $59;
                                             }
@@ -9157,15 +9273,15 @@ class Test2Parser {
                                           }
                                           if (!state.ok &&
                                               state.isRecoverable) {
-                                            // (v:NotPredicate NotPredicate)
-                                            // v:NotPredicate NotPredicate
+                                            // (v:MatchString MatchString)
+                                            // v:MatchString MatchString
                                             final $63 = state.pos;
-                                            List<Object?>? $62;
-                                            // NotPredicate
-                                            $62 = parseNotPredicate(state);
+                                            String? $62;
+                                            // MatchString
+                                            $62 = parseMatchString(state);
                                             if (state.ok) {
-                                              // NotPredicate
-                                              fastParseNotPredicate(state);
+                                              // MatchString
+                                              fastParseMatchString(state);
                                               if (state.ok) {
                                                 $0 = $62;
                                               }
@@ -9175,15 +9291,15 @@ class Test2Parser {
                                             }
                                             if (!state.ok &&
                                                 state.isRecoverable) {
-                                              // (v:OneOrMore OneOrMore)
-                                              // v:OneOrMore OneOrMore
+                                              // (v:NotPredicate NotPredicate)
+                                              // v:NotPredicate NotPredicate
                                               final $66 = state.pos;
-                                              List<int>? $65;
-                                              // OneOrMore
-                                              $65 = parseOneOrMore(state);
+                                              List<Object?>? $65;
+                                              // NotPredicate
+                                              $65 = parseNotPredicate(state);
                                               if (state.ok) {
-                                                // OneOrMore
-                                                fastParseOneOrMore(state);
+                                                // NotPredicate
+                                                fastParseNotPredicate(state);
                                                 if (state.ok) {
                                                   $0 = $65;
                                                 }
@@ -9193,17 +9309,15 @@ class Test2Parser {
                                               }
                                               if (!state.ok &&
                                                   state.isRecoverable) {
-                                                // (v:OrderedChoice2 OrderedChoice2)
-                                                // v:OrderedChoice2 OrderedChoice2
+                                                // (v:OneOrMore OneOrMore)
+                                                // v:OneOrMore OneOrMore
                                                 final $69 = state.pos;
-                                                int? $68;
-                                                // OrderedChoice2
-                                                $68 =
-                                                    parseOrderedChoice2(state);
+                                                List<int>? $68;
+                                                // OneOrMore
+                                                $68 = parseOneOrMore(state);
                                                 if (state.ok) {
-                                                  // OrderedChoice2
-                                                  fastParseOrderedChoice2(
-                                                      state);
+                                                  // OneOrMore
+                                                  fastParseOneOrMore(state);
                                                   if (state.ok) {
                                                     $0 = $68;
                                                   }
@@ -9213,16 +9327,16 @@ class Test2Parser {
                                                 }
                                                 if (!state.ok &&
                                                     state.isRecoverable) {
-                                                  // (v:OrderedChoice3 OrderedChoice3)
-                                                  // v:OrderedChoice3 OrderedChoice3
+                                                  // (v:OrderedChoice2 OrderedChoice2)
+                                                  // v:OrderedChoice2 OrderedChoice2
                                                   final $72 = state.pos;
                                                   int? $71;
-                                                  // OrderedChoice3
-                                                  $71 = parseOrderedChoice3(
+                                                  // OrderedChoice2
+                                                  $71 = parseOrderedChoice2(
                                                       state);
                                                   if (state.ok) {
-                                                    // OrderedChoice3
-                                                    fastParseOrderedChoice3(
+                                                    // OrderedChoice2
+                                                    fastParseOrderedChoice2(
                                                         state);
                                                     if (state.ok) {
                                                       $0 = $71;
@@ -9233,15 +9347,17 @@ class Test2Parser {
                                                   }
                                                   if (!state.ok &&
                                                       state.isRecoverable) {
-                                                    // (v:Optional Optional)
-                                                    // v:Optional Optional
+                                                    // (v:OrderedChoice3 OrderedChoice3)
+                                                    // v:OrderedChoice3 OrderedChoice3
                                                     final $75 = state.pos;
-                                                    List<Object?>? $74;
-                                                    // Optional
-                                                    $74 = parseOptional(state);
+                                                    int? $74;
+                                                    // OrderedChoice3
+                                                    $74 = parseOrderedChoice3(
+                                                        state);
                                                     if (state.ok) {
-                                                      // Optional
-                                                      fastParseOptional(state);
+                                                      // OrderedChoice3
+                                                      fastParseOrderedChoice3(
+                                                          state);
                                                       if (state.ok) {
                                                         $0 = $74;
                                                       }
@@ -9251,16 +9367,16 @@ class Test2Parser {
                                                     }
                                                     if (!state.ok &&
                                                         state.isRecoverable) {
-                                                      // (v:RepetitionMax RepetitionMax)
-                                                      // v:RepetitionMax RepetitionMax
+                                                      // (v:Optional Optional)
+                                                      // v:Optional Optional
                                                       final $78 = state.pos;
-                                                      List<int>? $77;
-                                                      // RepetitionMax
-                                                      $77 = parseRepetitionMax(
-                                                          state);
+                                                      List<Object?>? $77;
+                                                      // Optional
+                                                      $77 =
+                                                          parseOptional(state);
                                                       if (state.ok) {
-                                                        // RepetitionMax
-                                                        fastParseRepetitionMax(
+                                                        // Optional
+                                                        fastParseOptional(
                                                             state);
                                                         if (state.ok) {
                                                           $0 = $77;
@@ -9271,17 +9387,17 @@ class Test2Parser {
                                                       }
                                                       if (!state.ok &&
                                                           state.isRecoverable) {
-                                                        // (v:RepetitionMin RepetitionMin)
-                                                        // v:RepetitionMin RepetitionMin
+                                                        // (v:RepetitionMax RepetitionMax)
+                                                        // v:RepetitionMax RepetitionMax
                                                         final $81 = state.pos;
                                                         List<int>? $80;
-                                                        // RepetitionMin
+                                                        // RepetitionMax
                                                         $80 =
-                                                            parseRepetitionMin(
+                                                            parseRepetitionMax(
                                                                 state);
                                                         if (state.ok) {
-                                                          // RepetitionMin
-                                                          fastParseRepetitionMin(
+                                                          // RepetitionMax
+                                                          fastParseRepetitionMax(
                                                               state);
                                                           if (state.ok) {
                                                             $0 = $80;
@@ -9293,17 +9409,17 @@ class Test2Parser {
                                                         if (!state.ok &&
                                                             state
                                                                 .isRecoverable) {
-                                                          // (v:RepetitionMinMax RepetitionMinMax)
-                                                          // v:RepetitionMinMax RepetitionMinMax
+                                                          // (v:RepetitionMin RepetitionMin)
+                                                          // v:RepetitionMin RepetitionMin
                                                           final $84 = state.pos;
                                                           List<int>? $83;
-                                                          // RepetitionMinMax
+                                                          // RepetitionMin
                                                           $83 =
-                                                              parseRepetitionMinMax(
+                                                              parseRepetitionMin(
                                                                   state);
                                                           if (state.ok) {
-                                                            // RepetitionMinMax
-                                                            fastParseRepetitionMinMax(
+                                                            // RepetitionMin
+                                                            fastParseRepetitionMin(
                                                                 state);
                                                             if (state.ok) {
                                                               $0 = $83;
@@ -9316,18 +9432,18 @@ class Test2Parser {
                                                           if (!state.ok &&
                                                               state
                                                                   .isRecoverable) {
-                                                            // (v:RepetitionN RepetitionN)
-                                                            // v:RepetitionN RepetitionN
+                                                            // (v:RepetitionMinMax RepetitionMinMax)
+                                                            // v:RepetitionMinMax RepetitionMinMax
                                                             final $87 =
                                                                 state.pos;
                                                             List<int>? $86;
-                                                            // RepetitionN
+                                                            // RepetitionMinMax
                                                             $86 =
-                                                                parseRepetitionN(
+                                                                parseRepetitionMinMax(
                                                                     state);
                                                             if (state.ok) {
-                                                              // RepetitionN
-                                                              fastParseRepetitionN(
+                                                              // RepetitionMinMax
+                                                              fastParseRepetitionMinMax(
                                                                   state);
                                                               if (state.ok) {
                                                                 $0 = $86;
@@ -9340,18 +9456,18 @@ class Test2Parser {
                                                             if (!state.ok &&
                                                                 state
                                                                     .isRecoverable) {
-                                                              // (v:Sequence1 Sequence1)
-                                                              // v:Sequence1 Sequence1
+                                                              // (v:RepetitionN RepetitionN)
+                                                              // v:RepetitionN RepetitionN
                                                               final $90 =
                                                                   state.pos;
-                                                              int? $89;
-                                                              // Sequence1
+                                                              List<int>? $89;
+                                                              // RepetitionN
                                                               $89 =
-                                                                  parseSequence1(
+                                                                  parseRepetitionN(
                                                                       state);
                                                               if (state.ok) {
-                                                                // Sequence1
-                                                                fastParseSequence1(
+                                                                // RepetitionN
+                                                                fastParseRepetitionN(
                                                                     state);
                                                                 if (state.ok) {
                                                                   $0 = $89;
@@ -9364,18 +9480,18 @@ class Test2Parser {
                                                               if (!state.ok &&
                                                                   state
                                                                       .isRecoverable) {
-                                                                // (v:Sequence1WithAction Sequence1WithAction)
-                                                                // v:Sequence1WithAction Sequence1WithAction
+                                                                // (v:Sequence1 Sequence1)
+                                                                // v:Sequence1 Sequence1
                                                                 final $93 =
                                                                     state.pos;
                                                                 int? $92;
-                                                                // Sequence1WithAction
+                                                                // Sequence1
                                                                 $92 =
-                                                                    parseSequence1WithAction(
+                                                                    parseSequence1(
                                                                         state);
                                                                 if (state.ok) {
-                                                                  // Sequence1WithAction
-                                                                  fastParseSequence1WithAction(
+                                                                  // Sequence1
+                                                                  fastParseSequence1(
                                                                       state);
                                                                   if (state
                                                                       .ok) {
@@ -9390,19 +9506,19 @@ class Test2Parser {
                                                                 if (!state.ok &&
                                                                     state
                                                                         .isRecoverable) {
-                                                                  // (v:Sequence1WithVariable Sequence1WithVariable)
-                                                                  // v:Sequence1WithVariable Sequence1WithVariable
+                                                                  // (v:Sequence1WithAction Sequence1WithAction)
+                                                                  // v:Sequence1WithAction Sequence1WithAction
                                                                   final $96 =
                                                                       state.pos;
                                                                   int? $95;
-                                                                  // Sequence1WithVariable
+                                                                  // Sequence1WithAction
                                                                   $95 =
-                                                                      parseSequence1WithVariable(
+                                                                      parseSequence1WithAction(
                                                                           state);
                                                                   if (state
                                                                       .ok) {
-                                                                    // Sequence1WithVariable
-                                                                    fastParseSequence1WithVariable(
+                                                                    // Sequence1WithAction
+                                                                    fastParseSequence1WithAction(
                                                                         state);
                                                                     if (state
                                                                         .ok) {
@@ -9447,19 +9563,19 @@ class Test2Parser {
                                                                             .ok &&
                                                                         state
                                                                             .isRecoverable) {
-                                                                      // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-                                                                      // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+                                                                      // (v:Sequence1WithVariable Sequence1WithVariable)
+                                                                      // v:Sequence1WithVariable Sequence1WithVariable
                                                                       final $102 =
                                                                           state
                                                                               .pos;
                                                                       int? $101;
-                                                                      // Sequence1WithVariableWithAction
-                                                                      $101 = parseSequence1WithVariableWithAction(
+                                                                      // Sequence1WithVariable
+                                                                      $101 = parseSequence1WithVariable(
                                                                           state);
                                                                       if (state
                                                                           .ok) {
-                                                                        // Sequence1WithVariableWithAction
-                                                                        fastParseSequence1WithVariableWithAction(
+                                                                        // Sequence1WithVariable
+                                                                        fastParseSequence1WithVariable(
                                                                             state);
                                                                         if (state
                                                                             .ok) {
@@ -9476,19 +9592,19 @@ class Test2Parser {
                                                                               .ok &&
                                                                           state
                                                                               .isRecoverable) {
-                                                                        // (v:Sequence2 Sequence2)
-                                                                        // v:Sequence2 Sequence2
+                                                                        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+                                                                        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
                                                                         final $105 =
                                                                             state.pos;
-                                                                        List<Object?>?
+                                                                        int?
                                                                             $104;
-                                                                        // Sequence2
-                                                                        $104 = parseSequence2(
+                                                                        // Sequence1WithVariableWithAction
+                                                                        $104 = parseSequence1WithVariableWithAction(
                                                                             state);
                                                                         if (state
                                                                             .ok) {
-                                                                          // Sequence2
-                                                                          fastParseSequence2(
+                                                                          // Sequence1WithVariableWithAction
+                                                                          fastParseSequence1WithVariableWithAction(
                                                                               state);
                                                                           if (state
                                                                               .ok) {
@@ -9503,19 +9619,19 @@ class Test2Parser {
                                                                         }
                                                                         if (!state.ok &&
                                                                             state.isRecoverable) {
-                                                                          // (v:Sequence2WithAction Sequence2WithAction)
-                                                                          // v:Sequence2WithAction Sequence2WithAction
+                                                                          // (v:Sequence2 Sequence2)
+                                                                          // v:Sequence2 Sequence2
                                                                           final $108 =
                                                                               state.pos;
-                                                                          int?
+                                                                          List<Object?>?
                                                                               $107;
-                                                                          // Sequence2WithAction
+                                                                          // Sequence2
                                                                           $107 =
-                                                                              parseSequence2WithAction(state);
+                                                                              parseSequence2(state);
                                                                           if (state
                                                                               .ok) {
-                                                                            // Sequence2WithAction
-                                                                            fastParseSequence2WithAction(state);
+                                                                            // Sequence2
+                                                                            fastParseSequence2(state);
                                                                             if (state.ok) {
                                                                               $0 = $107;
                                                                             }
@@ -9526,18 +9642,18 @@ class Test2Parser {
                                                                           }
                                                                           if (!state.ok &&
                                                                               state.isRecoverable) {
-                                                                            // (v:Sequence2WithVariable Sequence2WithVariable)
-                                                                            // v:Sequence2WithVariable Sequence2WithVariable
+                                                                            // (v:Sequence2WithAction Sequence2WithAction)
+                                                                            // v:Sequence2WithAction Sequence2WithAction
                                                                             final $111 =
                                                                                 state.pos;
                                                                             int?
                                                                                 $110;
-                                                                            // Sequence2WithVariable
+                                                                            // Sequence2WithAction
                                                                             $110 =
-                                                                                parseSequence2WithVariable(state);
+                                                                                parseSequence2WithAction(state);
                                                                             if (state.ok) {
-                                                                              // Sequence2WithVariable
-                                                                              fastParseSequence2WithVariable(state);
+                                                                              // Sequence2WithAction
+                                                                              fastParseSequence2WithAction(state);
                                                                               if (state.ok) {
                                                                                 $0 = $110;
                                                                               }
@@ -9547,18 +9663,15 @@ class Test2Parser {
                                                                             }
                                                                             if (!state.ok &&
                                                                                 state.isRecoverable) {
-                                                                              // (v:Sequence2WithVariables Sequence2WithVariables)
-                                                                              // v:Sequence2WithVariables Sequence2WithVariables
+                                                                              // (v:Sequence2WithVariable Sequence2WithVariable)
+                                                                              // v:Sequence2WithVariable Sequence2WithVariable
                                                                               final $114 = state.pos;
-                                                                              ({
-                                                                                int v1,
-                                                                                int v2
-                                                                              })? $113;
-                                                                              // Sequence2WithVariables
-                                                                              $113 = parseSequence2WithVariables(state);
+                                                                              int? $113;
+                                                                              // Sequence2WithVariable
+                                                                              $113 = parseSequence2WithVariable(state);
                                                                               if (state.ok) {
-                                                                                // Sequence2WithVariables
-                                                                                fastParseSequence2WithVariables(state);
+                                                                                // Sequence2WithVariable
+                                                                                fastParseSequence2WithVariable(state);
                                                                                 if (state.ok) {
                                                                                   $0 = $113;
                                                                                 }
@@ -9567,15 +9680,18 @@ class Test2Parser {
                                                                                 state.backtrack($114);
                                                                               }
                                                                               if (!state.ok && state.isRecoverable) {
-                                                                                // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-                                                                                // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+                                                                                // (v:Sequence2WithVariables Sequence2WithVariables)
+                                                                                // v:Sequence2WithVariables Sequence2WithVariables
                                                                                 final $117 = state.pos;
-                                                                                int? $116;
-                                                                                // Sequence2WithVariableWithAction
-                                                                                $116 = parseSequence2WithVariableWithAction(state);
+                                                                                ({
+                                                                                  int v1,
+                                                                                  int v2
+                                                                                })? $116;
+                                                                                // Sequence2WithVariables
+                                                                                $116 = parseSequence2WithVariables(state);
                                                                                 if (state.ok) {
-                                                                                  // Sequence2WithVariableWithAction
-                                                                                  fastParseSequence2WithVariableWithAction(state);
+                                                                                  // Sequence2WithVariables
+                                                                                  fastParseSequence2WithVariables(state);
                                                                                   if (state.ok) {
                                                                                     $0 = $116;
                                                                                   }
@@ -9584,15 +9700,15 @@ class Test2Parser {
                                                                                   state.backtrack($117);
                                                                                 }
                                                                                 if (!state.ok && state.isRecoverable) {
-                                                                                  // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-                                                                                  // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+                                                                                  // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+                                                                                  // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
                                                                                   final $120 = state.pos;
                                                                                   int? $119;
-                                                                                  // Sequence2WithVariablesWithAction
-                                                                                  $119 = parseSequence2WithVariablesWithAction(state);
+                                                                                  // Sequence2WithVariableWithAction
+                                                                                  $119 = parseSequence2WithVariableWithAction(state);
                                                                                   if (state.ok) {
-                                                                                    // Sequence2WithVariablesWithAction
-                                                                                    fastParseSequence2WithVariablesWithAction(state);
+                                                                                    // Sequence2WithVariableWithAction
+                                                                                    fastParseSequence2WithVariableWithAction(state);
                                                                                     if (state.ok) {
                                                                                       $0 = $119;
                                                                                     }
@@ -9601,15 +9717,15 @@ class Test2Parser {
                                                                                     state.backtrack($120);
                                                                                   }
                                                                                   if (!state.ok && state.isRecoverable) {
-                                                                                    // (v:Slice Slice)
-                                                                                    // v:Slice Slice
+                                                                                    // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+                                                                                    // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
                                                                                     final $123 = state.pos;
-                                                                                    String? $122;
-                                                                                    // Slice
-                                                                                    $122 = parseSlice(state);
+                                                                                    int? $122;
+                                                                                    // Sequence2WithVariablesWithAction
+                                                                                    $122 = parseSequence2WithVariablesWithAction(state);
                                                                                     if (state.ok) {
-                                                                                      // Slice
-                                                                                      fastParseSlice(state);
+                                                                                      // Sequence2WithVariablesWithAction
+                                                                                      fastParseSequence2WithVariablesWithAction(state);
                                                                                       if (state.ok) {
                                                                                         $0 = $122;
                                                                                       }
@@ -9618,15 +9734,15 @@ class Test2Parser {
                                                                                       state.backtrack($123);
                                                                                     }
                                                                                     if (!state.ok && state.isRecoverable) {
-                                                                                      // (v:StringChars StringChars)
-                                                                                      // v:StringChars StringChars
+                                                                                      // (v:Slice Slice)
+                                                                                      // v:Slice Slice
                                                                                       final $126 = state.pos;
                                                                                       String? $125;
-                                                                                      // StringChars
-                                                                                      $125 = parseStringChars(state);
+                                                                                      // Slice
+                                                                                      $125 = parseSlice(state);
                                                                                       if (state.ok) {
-                                                                                        // StringChars
-                                                                                        fastParseStringChars(state);
+                                                                                        // Slice
+                                                                                        fastParseSlice(state);
                                                                                         if (state.ok) {
                                                                                           $0 = $125;
                                                                                         }
@@ -9635,15 +9751,15 @@ class Test2Parser {
                                                                                         state.backtrack($126);
                                                                                       }
                                                                                       if (!state.ok && state.isRecoverable) {
-                                                                                        // (v:Verify Verify)
-                                                                                        // v:Verify Verify
+                                                                                        // (v:StringChars StringChars)
+                                                                                        // v:StringChars StringChars
                                                                                         final $129 = state.pos;
-                                                                                        int? $128;
-                                                                                        // Verify
-                                                                                        $128 = parseVerify(state);
+                                                                                        String? $128;
+                                                                                        // StringChars
+                                                                                        $128 = parseStringChars(state);
                                                                                         if (state.ok) {
-                                                                                          // Verify
-                                                                                          fastParseVerify(state);
+                                                                                          // StringChars
+                                                                                          fastParseStringChars(state);
                                                                                           if (state.ok) {
                                                                                             $0 = $128;
                                                                                           }
@@ -9652,21 +9768,39 @@ class Test2Parser {
                                                                                           state.backtrack($129);
                                                                                         }
                                                                                         if (!state.ok && state.isRecoverable) {
-                                                                                          // (v:ZeroOrMore ZeroOrMore)
-                                                                                          // v:ZeroOrMore ZeroOrMore
+                                                                                          // (v:Verify Verify)
+                                                                                          // v:Verify Verify
                                                                                           final $132 = state.pos;
-                                                                                          List<int>? $131;
-                                                                                          // ZeroOrMore
-                                                                                          $131 = parseZeroOrMore(state);
+                                                                                          int? $131;
+                                                                                          // Verify
+                                                                                          $131 = parseVerify(state);
                                                                                           if (state.ok) {
-                                                                                            // ZeroOrMore
-                                                                                            fastParseZeroOrMore(state);
+                                                                                            // Verify
+                                                                                            fastParseVerify(state);
                                                                                             if (state.ok) {
                                                                                               $0 = $131;
                                                                                             }
                                                                                           }
                                                                                           if (!state.ok) {
                                                                                             state.backtrack($132);
+                                                                                          }
+                                                                                          if (!state.ok && state.isRecoverable) {
+                                                                                            // (v:ZeroOrMore ZeroOrMore)
+                                                                                            // v:ZeroOrMore ZeroOrMore
+                                                                                            final $135 = state.pos;
+                                                                                            List<int>? $134;
+                                                                                            // ZeroOrMore
+                                                                                            $134 = parseZeroOrMore(state);
+                                                                                            if (state.ok) {
+                                                                                              // ZeroOrMore
+                                                                                              fastParseZeroOrMore(state);
+                                                                                              if (state.ok) {
+                                                                                                $0 = $134;
+                                                                                              }
+                                                                                            }
+                                                                                            if (!state.ok) {
+                                                                                              state.backtrack($135);
+                                                                                            }
                                                                                           }
                                                                                         }
                                                                                       }
@@ -9731,6 +9865,7 @@ class Test2Parser {
   ///   / (v:Literal0 Literal0)
   ///   / (v:Literal1 Literal1)
   ///   / (v:Literal2 Literal2)
+  ///   / (v:Literal10 Literal10)
   ///   / (v:Literals Literals)
   ///   / (v:List List)
   ///   / (v:List1 List1)
@@ -9855,8 +9990,8 @@ class Test2Parser {
     AsyncResult<Object?>? $125;
     int? $128;
     int? $129;
-    List<int>? $127;
-    AsyncResult<List<int>>? $130;
+    String? $127;
+    AsyncResult<String>? $130;
     AsyncResult<Object?>? $132;
     int? $135;
     int? $136;
@@ -9865,24 +10000,24 @@ class Test2Parser {
     AsyncResult<Object?>? $139;
     int? $142;
     int? $143;
-    String? $141;
-    AsyncResult<String>? $144;
+    List<int>? $141;
+    AsyncResult<List<int>>? $144;
     AsyncResult<Object?>? $146;
     int? $149;
     int? $150;
-    List<Object?>? $148;
-    AsyncResult<List<Object?>>? $151;
+    String? $148;
+    AsyncResult<String>? $151;
     AsyncResult<Object?>? $153;
     int? $156;
     int? $157;
-    List<int>? $155;
-    AsyncResult<List<int>>? $158;
+    List<Object?>? $155;
+    AsyncResult<List<Object?>>? $158;
     AsyncResult<Object?>? $160;
     int $162 = 0;
     int? $164;
     int? $165;
-    int? $163;
-    AsyncResult<int>? $166;
+    List<int>? $163;
+    AsyncResult<List<int>>? $166;
     AsyncResult<Object?>? $168;
     int? $171;
     int? $172;
@@ -9891,13 +10026,13 @@ class Test2Parser {
     AsyncResult<Object?>? $175;
     int? $178;
     int? $179;
-    List<Object?>? $177;
-    AsyncResult<List<Object?>>? $180;
+    int? $177;
+    AsyncResult<int>? $180;
     AsyncResult<Object?>? $182;
     int? $185;
     int? $186;
-    List<int>? $184;
-    AsyncResult<List<int>>? $187;
+    List<Object?>? $184;
+    AsyncResult<List<Object?>>? $187;
     AsyncResult<Object?>? $189;
     int? $192;
     int? $193;
@@ -9917,8 +10052,8 @@ class Test2Parser {
     AsyncResult<Object?>? $211;
     int? $214;
     int? $215;
-    int? $213;
-    AsyncResult<int>? $216;
+    List<int>? $213;
+    AsyncResult<List<int>>? $216;
     AsyncResult<Object?>? $218;
     int? $221;
     int? $222;
@@ -9943,13 +10078,13 @@ class Test2Parser {
     AsyncResult<Object?>? $247;
     int? $250;
     int? $251;
-    List<Object?>? $249;
-    AsyncResult<List<Object?>>? $252;
+    int? $249;
+    AsyncResult<int>? $252;
     AsyncResult<Object?>? $254;
     int? $257;
     int? $258;
-    int? $256;
-    AsyncResult<int>? $259;
+    List<Object?>? $256;
+    AsyncResult<List<Object?>>? $259;
     AsyncResult<Object?>? $261;
     int? $264;
     int? $265;
@@ -9958,14 +10093,14 @@ class Test2Parser {
     AsyncResult<Object?>? $268;
     int? $271;
     int? $272;
-    ({int v1, int v2})? $270;
-    AsyncResult<({int v1, int v2})>? $273;
+    int? $270;
+    AsyncResult<int>? $273;
     AsyncResult<Object?>? $275;
     int $277 = 0;
     int? $279;
     int? $280;
-    int? $278;
-    AsyncResult<int>? $281;
+    ({int v1, int v2})? $278;
+    AsyncResult<({int v1, int v2})>? $281;
     AsyncResult<Object?>? $283;
     int? $286;
     int? $287;
@@ -9974,8 +10109,8 @@ class Test2Parser {
     AsyncResult<Object?>? $290;
     int? $293;
     int? $294;
-    String? $292;
-    AsyncResult<String>? $295;
+    int? $292;
+    AsyncResult<int>? $295;
     AsyncResult<Object?>? $297;
     int? $300;
     int? $301;
@@ -9984,18 +10119,23 @@ class Test2Parser {
     AsyncResult<Object?>? $304;
     int? $307;
     int? $308;
-    int? $306;
-    AsyncResult<int>? $309;
+    String? $306;
+    AsyncResult<String>? $309;
     AsyncResult<Object?>? $311;
     int $313 = 0;
     int? $315;
     int? $316;
-    List<int>? $314;
-    AsyncResult<List<int>>? $317;
+    int? $314;
+    AsyncResult<int>? $317;
     AsyncResult<Object?>? $319;
+    int? $322;
+    int? $323;
+    List<int>? $321;
+    AsyncResult<List<int>>? $324;
+    AsyncResult<Object?>? $326;
     void $1() {
-      if ($313 & 0x10 == 0) {
-        $313 |= 0x10;
+      if ($313 & 0x80 == 0) {
+        $313 |= 0x80;
         $3 = 0;
       }
       if ($3 == 0) {
@@ -10815,20 +10955,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 16) {
-        // (v:Literals Literals)
-        // (v:Literals Literals)
-        // v:Literals Literals
-        // v:Literals Literals
+        // (v:Literal10 Literal10)
+        // (v:Literal10 Literal10)
+        // v:Literal10 Literal10
+        // v:Literal10 Literal10
         if ($124 & 0x4 == 0) {
           $124 |= 0x4;
           $120 = 0;
           $121 = state.pos;
         }
         if ($120 == 0) {
-          // Literals
+          // Literal10
           if ($124 & 0x1 == 0) {
             $124 |= 0x1;
-            $122 = parseLiterals$Async(state);
+            $122 = parseLiteral10$Async(state);
             final $123 = $122!;
             if (!$123.isComplete) {
               $123.onComplete = $1;
@@ -10840,10 +10980,10 @@ class Test2Parser {
           $120 = state.ok ? 1 : -1;
         }
         if ($120 == 1) {
-          // Literals
+          // Literal10
           if ($124 & 0x2 == 0) {
             $124 |= 0x2;
-            $125 = fastParseLiterals$Async(state);
+            $125 = fastParseLiteral10$Async(state);
             final $126 = $125!;
             if (!$126.isComplete) {
               $126.onComplete = $1;
@@ -10866,20 +11006,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 17) {
-        // (v:List List)
-        // (v:List List)
-        // v:List List
-        // v:List List
+        // (v:Literals Literals)
+        // (v:Literals Literals)
+        // v:Literals Literals
+        // v:Literals Literals
         if ($124 & 0x20 == 0) {
           $124 |= 0x20;
           $128 = 0;
           $129 = state.pos;
         }
         if ($128 == 0) {
-          // List
+          // Literals
           if ($124 & 0x8 == 0) {
             $124 |= 0x8;
-            $130 = parseList$Async(state);
+            $130 = parseLiterals$Async(state);
             final $131 = $130!;
             if (!$131.isComplete) {
               $131.onComplete = $1;
@@ -10891,10 +11031,10 @@ class Test2Parser {
           $128 = state.ok ? 1 : -1;
         }
         if ($128 == 1) {
-          // List
+          // Literals
           if ($124 & 0x10 == 0) {
             $124 |= 0x10;
-            $132 = fastParseList$Async(state);
+            $132 = fastParseLiterals$Async(state);
             final $133 = $132!;
             if (!$133.isComplete) {
               $133.onComplete = $1;
@@ -10917,20 +11057,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 18) {
-        // (v:List1 List1)
-        // (v:List1 List1)
-        // v:List1 List1
-        // v:List1 List1
+        // (v:List List)
+        // (v:List List)
+        // v:List List
+        // v:List List
         if ($124 & 0x100 == 0) {
           $124 |= 0x100;
           $135 = 0;
           $136 = state.pos;
         }
         if ($135 == 0) {
-          // List1
+          // List
           if ($124 & 0x40 == 0) {
             $124 |= 0x40;
-            $137 = parseList1$Async(state);
+            $137 = parseList$Async(state);
             final $138 = $137!;
             if (!$138.isComplete) {
               $138.onComplete = $1;
@@ -10942,10 +11082,10 @@ class Test2Parser {
           $135 = state.ok ? 1 : -1;
         }
         if ($135 == 1) {
-          // List1
+          // List
           if ($124 & 0x80 == 0) {
             $124 |= 0x80;
-            $139 = fastParseList1$Async(state);
+            $139 = fastParseList$Async(state);
             final $140 = $139!;
             if (!$140.isComplete) {
               $140.onComplete = $1;
@@ -10968,20 +11108,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 19) {
-        // (v:MatchString MatchString)
-        // (v:MatchString MatchString)
-        // v:MatchString MatchString
-        // v:MatchString MatchString
+        // (v:List1 List1)
+        // (v:List1 List1)
+        // v:List1 List1
+        // v:List1 List1
         if ($124 & 0x800 == 0) {
           $124 |= 0x800;
           $142 = 0;
           $143 = state.pos;
         }
         if ($142 == 0) {
-          // MatchString
+          // List1
           if ($124 & 0x200 == 0) {
             $124 |= 0x200;
-            $144 = parseMatchString$Async(state);
+            $144 = parseList1$Async(state);
             final $145 = $144!;
             if (!$145.isComplete) {
               $145.onComplete = $1;
@@ -10993,10 +11133,10 @@ class Test2Parser {
           $142 = state.ok ? 1 : -1;
         }
         if ($142 == 1) {
-          // MatchString
+          // List1
           if ($124 & 0x400 == 0) {
             $124 |= 0x400;
-            $146 = fastParseMatchString$Async(state);
+            $146 = fastParseList1$Async(state);
             final $147 = $146!;
             if (!$147.isComplete) {
               $147.onComplete = $1;
@@ -11019,20 +11159,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 20) {
-        // (v:NotPredicate NotPredicate)
-        // (v:NotPredicate NotPredicate)
-        // v:NotPredicate NotPredicate
-        // v:NotPredicate NotPredicate
+        // (v:MatchString MatchString)
+        // (v:MatchString MatchString)
+        // v:MatchString MatchString
+        // v:MatchString MatchString
         if ($124 & 0x4000 == 0) {
           $124 |= 0x4000;
           $149 = 0;
           $150 = state.pos;
         }
         if ($149 == 0) {
-          // NotPredicate
+          // MatchString
           if ($124 & 0x1000 == 0) {
             $124 |= 0x1000;
-            $151 = parseNotPredicate$Async(state);
+            $151 = parseMatchString$Async(state);
             final $152 = $151!;
             if (!$152.isComplete) {
               $152.onComplete = $1;
@@ -11044,10 +11184,10 @@ class Test2Parser {
           $149 = state.ok ? 1 : -1;
         }
         if ($149 == 1) {
-          // NotPredicate
+          // MatchString
           if ($124 & 0x2000 == 0) {
             $124 |= 0x2000;
-            $153 = fastParseNotPredicate$Async(state);
+            $153 = fastParseMatchString$Async(state);
             final $154 = $153!;
             if (!$154.isComplete) {
               $154.onComplete = $1;
@@ -11070,20 +11210,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 21) {
-        // (v:OneOrMore OneOrMore)
-        // (v:OneOrMore OneOrMore)
-        // v:OneOrMore OneOrMore
-        // v:OneOrMore OneOrMore
+        // (v:NotPredicate NotPredicate)
+        // (v:NotPredicate NotPredicate)
+        // v:NotPredicate NotPredicate
+        // v:NotPredicate NotPredicate
         if ($162 & 0x2 == 0) {
           $162 |= 0x2;
           $156 = 0;
           $157 = state.pos;
         }
         if ($156 == 0) {
-          // OneOrMore
+          // NotPredicate
           if ($124 & 0x8000 == 0) {
             $124 |= 0x8000;
-            $158 = parseOneOrMore$Async(state);
+            $158 = parseNotPredicate$Async(state);
             final $159 = $158!;
             if (!$159.isComplete) {
               $159.onComplete = $1;
@@ -11095,10 +11235,10 @@ class Test2Parser {
           $156 = state.ok ? 1 : -1;
         }
         if ($156 == 1) {
-          // OneOrMore
+          // NotPredicate
           if ($162 & 0x1 == 0) {
             $162 |= 0x1;
-            $160 = fastParseOneOrMore$Async(state);
+            $160 = fastParseNotPredicate$Async(state);
             final $161 = $160!;
             if (!$161.isComplete) {
               $161.onComplete = $1;
@@ -11121,20 +11261,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 22) {
-        // (v:OrderedChoice2 OrderedChoice2)
-        // (v:OrderedChoice2 OrderedChoice2)
-        // v:OrderedChoice2 OrderedChoice2
-        // v:OrderedChoice2 OrderedChoice2
+        // (v:OneOrMore OneOrMore)
+        // (v:OneOrMore OneOrMore)
+        // v:OneOrMore OneOrMore
+        // v:OneOrMore OneOrMore
         if ($162 & 0x10 == 0) {
           $162 |= 0x10;
           $164 = 0;
           $165 = state.pos;
         }
         if ($164 == 0) {
-          // OrderedChoice2
+          // OneOrMore
           if ($162 & 0x4 == 0) {
             $162 |= 0x4;
-            $166 = parseOrderedChoice2$Async(state);
+            $166 = parseOneOrMore$Async(state);
             final $167 = $166!;
             if (!$167.isComplete) {
               $167.onComplete = $1;
@@ -11146,10 +11286,10 @@ class Test2Parser {
           $164 = state.ok ? 1 : -1;
         }
         if ($164 == 1) {
-          // OrderedChoice2
+          // OneOrMore
           if ($162 & 0x8 == 0) {
             $162 |= 0x8;
-            $168 = fastParseOrderedChoice2$Async(state);
+            $168 = fastParseOneOrMore$Async(state);
             final $169 = $168!;
             if (!$169.isComplete) {
               $169.onComplete = $1;
@@ -11172,20 +11312,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 23) {
-        // (v:OrderedChoice3 OrderedChoice3)
-        // (v:OrderedChoice3 OrderedChoice3)
-        // v:OrderedChoice3 OrderedChoice3
-        // v:OrderedChoice3 OrderedChoice3
+        // (v:OrderedChoice2 OrderedChoice2)
+        // (v:OrderedChoice2 OrderedChoice2)
+        // v:OrderedChoice2 OrderedChoice2
+        // v:OrderedChoice2 OrderedChoice2
         if ($162 & 0x80 == 0) {
           $162 |= 0x80;
           $171 = 0;
           $172 = state.pos;
         }
         if ($171 == 0) {
-          // OrderedChoice3
+          // OrderedChoice2
           if ($162 & 0x20 == 0) {
             $162 |= 0x20;
-            $173 = parseOrderedChoice3$Async(state);
+            $173 = parseOrderedChoice2$Async(state);
             final $174 = $173!;
             if (!$174.isComplete) {
               $174.onComplete = $1;
@@ -11197,10 +11337,10 @@ class Test2Parser {
           $171 = state.ok ? 1 : -1;
         }
         if ($171 == 1) {
-          // OrderedChoice3
+          // OrderedChoice2
           if ($162 & 0x40 == 0) {
             $162 |= 0x40;
-            $175 = fastParseOrderedChoice3$Async(state);
+            $175 = fastParseOrderedChoice2$Async(state);
             final $176 = $175!;
             if (!$176.isComplete) {
               $176.onComplete = $1;
@@ -11223,20 +11363,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 24) {
-        // (v:Optional Optional)
-        // (v:Optional Optional)
-        // v:Optional Optional
-        // v:Optional Optional
+        // (v:OrderedChoice3 OrderedChoice3)
+        // (v:OrderedChoice3 OrderedChoice3)
+        // v:OrderedChoice3 OrderedChoice3
+        // v:OrderedChoice3 OrderedChoice3
         if ($162 & 0x400 == 0) {
           $162 |= 0x400;
           $178 = 0;
           $179 = state.pos;
         }
         if ($178 == 0) {
-          // Optional
+          // OrderedChoice3
           if ($162 & 0x100 == 0) {
             $162 |= 0x100;
-            $180 = parseOptional$Async(state);
+            $180 = parseOrderedChoice3$Async(state);
             final $181 = $180!;
             if (!$181.isComplete) {
               $181.onComplete = $1;
@@ -11248,10 +11388,10 @@ class Test2Parser {
           $178 = state.ok ? 1 : -1;
         }
         if ($178 == 1) {
-          // Optional
+          // OrderedChoice3
           if ($162 & 0x200 == 0) {
             $162 |= 0x200;
-            $182 = fastParseOptional$Async(state);
+            $182 = fastParseOrderedChoice3$Async(state);
             final $183 = $182!;
             if (!$183.isComplete) {
               $183.onComplete = $1;
@@ -11274,20 +11414,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 25) {
-        // (v:RepetitionMax RepetitionMax)
-        // (v:RepetitionMax RepetitionMax)
-        // v:RepetitionMax RepetitionMax
-        // v:RepetitionMax RepetitionMax
+        // (v:Optional Optional)
+        // (v:Optional Optional)
+        // v:Optional Optional
+        // v:Optional Optional
         if ($162 & 0x2000 == 0) {
           $162 |= 0x2000;
           $185 = 0;
           $186 = state.pos;
         }
         if ($185 == 0) {
-          // RepetitionMax
+          // Optional
           if ($162 & 0x800 == 0) {
             $162 |= 0x800;
-            $187 = parseRepetitionMax$Async(state);
+            $187 = parseOptional$Async(state);
             final $188 = $187!;
             if (!$188.isComplete) {
               $188.onComplete = $1;
@@ -11299,10 +11439,10 @@ class Test2Parser {
           $185 = state.ok ? 1 : -1;
         }
         if ($185 == 1) {
-          // RepetitionMax
+          // Optional
           if ($162 & 0x1000 == 0) {
             $162 |= 0x1000;
-            $189 = fastParseRepetitionMax$Async(state);
+            $189 = fastParseOptional$Async(state);
             final $190 = $189!;
             if (!$190.isComplete) {
               $190.onComplete = $1;
@@ -11325,20 +11465,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 26) {
-        // (v:RepetitionMin RepetitionMin)
-        // (v:RepetitionMin RepetitionMin)
-        // v:RepetitionMin RepetitionMin
-        // v:RepetitionMin RepetitionMin
+        // (v:RepetitionMax RepetitionMax)
+        // (v:RepetitionMax RepetitionMax)
+        // v:RepetitionMax RepetitionMax
+        // v:RepetitionMax RepetitionMax
         if ($198 & 0x1 == 0) {
           $198 |= 0x1;
           $192 = 0;
           $193 = state.pos;
         }
         if ($192 == 0) {
-          // RepetitionMin
+          // RepetitionMax
           if ($162 & 0x4000 == 0) {
             $162 |= 0x4000;
-            $194 = parseRepetitionMin$Async(state);
+            $194 = parseRepetitionMax$Async(state);
             final $195 = $194!;
             if (!$195.isComplete) {
               $195.onComplete = $1;
@@ -11350,10 +11490,10 @@ class Test2Parser {
           $192 = state.ok ? 1 : -1;
         }
         if ($192 == 1) {
-          // RepetitionMin
+          // RepetitionMax
           if ($162 & 0x8000 == 0) {
             $162 |= 0x8000;
-            $196 = fastParseRepetitionMin$Async(state);
+            $196 = fastParseRepetitionMax$Async(state);
             final $197 = $196!;
             if (!$197.isComplete) {
               $197.onComplete = $1;
@@ -11376,20 +11516,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 27) {
-        // (v:RepetitionMinMax RepetitionMinMax)
-        // (v:RepetitionMinMax RepetitionMinMax)
-        // v:RepetitionMinMax RepetitionMinMax
-        // v:RepetitionMinMax RepetitionMinMax
+        // (v:RepetitionMin RepetitionMin)
+        // (v:RepetitionMin RepetitionMin)
+        // v:RepetitionMin RepetitionMin
+        // v:RepetitionMin RepetitionMin
         if ($198 & 0x8 == 0) {
           $198 |= 0x8;
           $200 = 0;
           $201 = state.pos;
         }
         if ($200 == 0) {
-          // RepetitionMinMax
+          // RepetitionMin
           if ($198 & 0x2 == 0) {
             $198 |= 0x2;
-            $202 = parseRepetitionMinMax$Async(state);
+            $202 = parseRepetitionMin$Async(state);
             final $203 = $202!;
             if (!$203.isComplete) {
               $203.onComplete = $1;
@@ -11401,10 +11541,10 @@ class Test2Parser {
           $200 = state.ok ? 1 : -1;
         }
         if ($200 == 1) {
-          // RepetitionMinMax
+          // RepetitionMin
           if ($198 & 0x4 == 0) {
             $198 |= 0x4;
-            $204 = fastParseRepetitionMinMax$Async(state);
+            $204 = fastParseRepetitionMin$Async(state);
             final $205 = $204!;
             if (!$205.isComplete) {
               $205.onComplete = $1;
@@ -11427,20 +11567,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 28) {
-        // (v:RepetitionN RepetitionN)
-        // (v:RepetitionN RepetitionN)
-        // v:RepetitionN RepetitionN
-        // v:RepetitionN RepetitionN
+        // (v:RepetitionMinMax RepetitionMinMax)
+        // (v:RepetitionMinMax RepetitionMinMax)
+        // v:RepetitionMinMax RepetitionMinMax
+        // v:RepetitionMinMax RepetitionMinMax
         if ($198 & 0x40 == 0) {
           $198 |= 0x40;
           $207 = 0;
           $208 = state.pos;
         }
         if ($207 == 0) {
-          // RepetitionN
+          // RepetitionMinMax
           if ($198 & 0x10 == 0) {
             $198 |= 0x10;
-            $209 = parseRepetitionN$Async(state);
+            $209 = parseRepetitionMinMax$Async(state);
             final $210 = $209!;
             if (!$210.isComplete) {
               $210.onComplete = $1;
@@ -11452,10 +11592,10 @@ class Test2Parser {
           $207 = state.ok ? 1 : -1;
         }
         if ($207 == 1) {
-          // RepetitionN
+          // RepetitionMinMax
           if ($198 & 0x20 == 0) {
             $198 |= 0x20;
-            $211 = fastParseRepetitionN$Async(state);
+            $211 = fastParseRepetitionMinMax$Async(state);
             final $212 = $211!;
             if (!$212.isComplete) {
               $212.onComplete = $1;
@@ -11478,20 +11618,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 29) {
-        // (v:Sequence1 Sequence1)
-        // (v:Sequence1 Sequence1)
-        // v:Sequence1 Sequence1
-        // v:Sequence1 Sequence1
+        // (v:RepetitionN RepetitionN)
+        // (v:RepetitionN RepetitionN)
+        // v:RepetitionN RepetitionN
+        // v:RepetitionN RepetitionN
         if ($198 & 0x200 == 0) {
           $198 |= 0x200;
           $214 = 0;
           $215 = state.pos;
         }
         if ($214 == 0) {
-          // Sequence1
+          // RepetitionN
           if ($198 & 0x80 == 0) {
             $198 |= 0x80;
-            $216 = parseSequence1$Async(state);
+            $216 = parseRepetitionN$Async(state);
             final $217 = $216!;
             if (!$217.isComplete) {
               $217.onComplete = $1;
@@ -11503,10 +11643,10 @@ class Test2Parser {
           $214 = state.ok ? 1 : -1;
         }
         if ($214 == 1) {
-          // Sequence1
+          // RepetitionN
           if ($198 & 0x100 == 0) {
             $198 |= 0x100;
-            $218 = fastParseSequence1$Async(state);
+            $218 = fastParseRepetitionN$Async(state);
             final $219 = $218!;
             if (!$219.isComplete) {
               $219.onComplete = $1;
@@ -11529,20 +11669,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 30) {
-        // (v:Sequence1WithAction Sequence1WithAction)
-        // (v:Sequence1WithAction Sequence1WithAction)
-        // v:Sequence1WithAction Sequence1WithAction
-        // v:Sequence1WithAction Sequence1WithAction
+        // (v:Sequence1 Sequence1)
+        // (v:Sequence1 Sequence1)
+        // v:Sequence1 Sequence1
+        // v:Sequence1 Sequence1
         if ($198 & 0x1000 == 0) {
           $198 |= 0x1000;
           $221 = 0;
           $222 = state.pos;
         }
         if ($221 == 0) {
-          // Sequence1WithAction
+          // Sequence1
           if ($198 & 0x400 == 0) {
             $198 |= 0x400;
-            $223 = parseSequence1WithAction$Async(state);
+            $223 = parseSequence1$Async(state);
             final $224 = $223!;
             if (!$224.isComplete) {
               $224.onComplete = $1;
@@ -11554,10 +11694,10 @@ class Test2Parser {
           $221 = state.ok ? 1 : -1;
         }
         if ($221 == 1) {
-          // Sequence1WithAction
+          // Sequence1
           if ($198 & 0x800 == 0) {
             $198 |= 0x800;
-            $225 = fastParseSequence1WithAction$Async(state);
+            $225 = fastParseSequence1$Async(state);
             final $226 = $225!;
             if (!$226.isComplete) {
               $226.onComplete = $1;
@@ -11580,20 +11720,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 31) {
-        // (v:Sequence1WithVariable Sequence1WithVariable)
-        // (v:Sequence1WithVariable Sequence1WithVariable)
-        // v:Sequence1WithVariable Sequence1WithVariable
-        // v:Sequence1WithVariable Sequence1WithVariable
+        // (v:Sequence1WithAction Sequence1WithAction)
+        // (v:Sequence1WithAction Sequence1WithAction)
+        // v:Sequence1WithAction Sequence1WithAction
+        // v:Sequence1WithAction Sequence1WithAction
         if ($198 & 0x8000 == 0) {
           $198 |= 0x8000;
           $228 = 0;
           $229 = state.pos;
         }
         if ($228 == 0) {
-          // Sequence1WithVariable
+          // Sequence1WithAction
           if ($198 & 0x2000 == 0) {
             $198 |= 0x2000;
-            $230 = parseSequence1WithVariable$Async(state);
+            $230 = parseSequence1WithAction$Async(state);
             final $231 = $230!;
             if (!$231.isComplete) {
               $231.onComplete = $1;
@@ -11605,10 +11745,10 @@ class Test2Parser {
           $228 = state.ok ? 1 : -1;
         }
         if ($228 == 1) {
-          // Sequence1WithVariable
+          // Sequence1WithAction
           if ($198 & 0x4000 == 0) {
             $198 |= 0x4000;
-            $232 = fastParseSequence1WithVariable$Async(state);
+            $232 = fastParseSequence1WithAction$Async(state);
             final $233 = $232!;
             if (!$233.isComplete) {
               $233.onComplete = $1;
@@ -11682,20 +11822,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 33) {
-        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
-        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
-        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+        // (v:Sequence1WithVariable Sequence1WithVariable)
+        // (v:Sequence1WithVariable Sequence1WithVariable)
+        // v:Sequence1WithVariable Sequence1WithVariable
+        // v:Sequence1WithVariable Sequence1WithVariable
         if ($239 & 0x20 == 0) {
           $239 |= 0x20;
           $243 = 0;
           $244 = state.pos;
         }
         if ($243 == 0) {
-          // Sequence1WithVariableWithAction
+          // Sequence1WithVariable
           if ($239 & 0x8 == 0) {
             $239 |= 0x8;
-            $245 = parseSequence1WithVariableWithAction$Async(state);
+            $245 = parseSequence1WithVariable$Async(state);
             final $246 = $245!;
             if (!$246.isComplete) {
               $246.onComplete = $1;
@@ -11707,10 +11847,10 @@ class Test2Parser {
           $243 = state.ok ? 1 : -1;
         }
         if ($243 == 1) {
-          // Sequence1WithVariableWithAction
+          // Sequence1WithVariable
           if ($239 & 0x10 == 0) {
             $239 |= 0x10;
-            $247 = fastParseSequence1WithVariableWithAction$Async(state);
+            $247 = fastParseSequence1WithVariable$Async(state);
             final $248 = $247!;
             if (!$248.isComplete) {
               $248.onComplete = $1;
@@ -11733,20 +11873,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 34) {
-        // (v:Sequence2 Sequence2)
-        // (v:Sequence2 Sequence2)
-        // v:Sequence2 Sequence2
-        // v:Sequence2 Sequence2
+        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+        // (v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction)
+        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
+        // v:Sequence1WithVariableWithAction Sequence1WithVariableWithAction
         if ($239 & 0x100 == 0) {
           $239 |= 0x100;
           $250 = 0;
           $251 = state.pos;
         }
         if ($250 == 0) {
-          // Sequence2
+          // Sequence1WithVariableWithAction
           if ($239 & 0x40 == 0) {
             $239 |= 0x40;
-            $252 = parseSequence2$Async(state);
+            $252 = parseSequence1WithVariableWithAction$Async(state);
             final $253 = $252!;
             if (!$253.isComplete) {
               $253.onComplete = $1;
@@ -11758,10 +11898,10 @@ class Test2Parser {
           $250 = state.ok ? 1 : -1;
         }
         if ($250 == 1) {
-          // Sequence2
+          // Sequence1WithVariableWithAction
           if ($239 & 0x80 == 0) {
             $239 |= 0x80;
-            $254 = fastParseSequence2$Async(state);
+            $254 = fastParseSequence1WithVariableWithAction$Async(state);
             final $255 = $254!;
             if (!$255.isComplete) {
               $255.onComplete = $1;
@@ -11784,20 +11924,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 35) {
-        // (v:Sequence2WithAction Sequence2WithAction)
-        // (v:Sequence2WithAction Sequence2WithAction)
-        // v:Sequence2WithAction Sequence2WithAction
-        // v:Sequence2WithAction Sequence2WithAction
+        // (v:Sequence2 Sequence2)
+        // (v:Sequence2 Sequence2)
+        // v:Sequence2 Sequence2
+        // v:Sequence2 Sequence2
         if ($239 & 0x800 == 0) {
           $239 |= 0x800;
           $257 = 0;
           $258 = state.pos;
         }
         if ($257 == 0) {
-          // Sequence2WithAction
+          // Sequence2
           if ($239 & 0x200 == 0) {
             $239 |= 0x200;
-            $259 = parseSequence2WithAction$Async(state);
+            $259 = parseSequence2$Async(state);
             final $260 = $259!;
             if (!$260.isComplete) {
               $260.onComplete = $1;
@@ -11809,10 +11949,10 @@ class Test2Parser {
           $257 = state.ok ? 1 : -1;
         }
         if ($257 == 1) {
-          // Sequence2WithAction
+          // Sequence2
           if ($239 & 0x400 == 0) {
             $239 |= 0x400;
-            $261 = fastParseSequence2WithAction$Async(state);
+            $261 = fastParseSequence2$Async(state);
             final $262 = $261!;
             if (!$262.isComplete) {
               $262.onComplete = $1;
@@ -11835,20 +11975,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 36) {
-        // (v:Sequence2WithVariable Sequence2WithVariable)
-        // (v:Sequence2WithVariable Sequence2WithVariable)
-        // v:Sequence2WithVariable Sequence2WithVariable
-        // v:Sequence2WithVariable Sequence2WithVariable
+        // (v:Sequence2WithAction Sequence2WithAction)
+        // (v:Sequence2WithAction Sequence2WithAction)
+        // v:Sequence2WithAction Sequence2WithAction
+        // v:Sequence2WithAction Sequence2WithAction
         if ($239 & 0x4000 == 0) {
           $239 |= 0x4000;
           $264 = 0;
           $265 = state.pos;
         }
         if ($264 == 0) {
-          // Sequence2WithVariable
+          // Sequence2WithAction
           if ($239 & 0x1000 == 0) {
             $239 |= 0x1000;
-            $266 = parseSequence2WithVariable$Async(state);
+            $266 = parseSequence2WithAction$Async(state);
             final $267 = $266!;
             if (!$267.isComplete) {
               $267.onComplete = $1;
@@ -11860,10 +12000,10 @@ class Test2Parser {
           $264 = state.ok ? 1 : -1;
         }
         if ($264 == 1) {
-          // Sequence2WithVariable
+          // Sequence2WithAction
           if ($239 & 0x2000 == 0) {
             $239 |= 0x2000;
-            $268 = fastParseSequence2WithVariable$Async(state);
+            $268 = fastParseSequence2WithAction$Async(state);
             final $269 = $268!;
             if (!$269.isComplete) {
               $269.onComplete = $1;
@@ -11886,20 +12026,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 37) {
-        // (v:Sequence2WithVariables Sequence2WithVariables)
-        // (v:Sequence2WithVariables Sequence2WithVariables)
-        // v:Sequence2WithVariables Sequence2WithVariables
-        // v:Sequence2WithVariables Sequence2WithVariables
+        // (v:Sequence2WithVariable Sequence2WithVariable)
+        // (v:Sequence2WithVariable Sequence2WithVariable)
+        // v:Sequence2WithVariable Sequence2WithVariable
+        // v:Sequence2WithVariable Sequence2WithVariable
         if ($277 & 0x2 == 0) {
           $277 |= 0x2;
           $271 = 0;
           $272 = state.pos;
         }
         if ($271 == 0) {
-          // Sequence2WithVariables
+          // Sequence2WithVariable
           if ($239 & 0x8000 == 0) {
             $239 |= 0x8000;
-            $273 = parseSequence2WithVariables$Async(state);
+            $273 = parseSequence2WithVariable$Async(state);
             final $274 = $273!;
             if (!$274.isComplete) {
               $274.onComplete = $1;
@@ -11911,10 +12051,10 @@ class Test2Parser {
           $271 = state.ok ? 1 : -1;
         }
         if ($271 == 1) {
-          // Sequence2WithVariables
+          // Sequence2WithVariable
           if ($277 & 0x1 == 0) {
             $277 |= 0x1;
-            $275 = fastParseSequence2WithVariables$Async(state);
+            $275 = fastParseSequence2WithVariable$Async(state);
             final $276 = $275!;
             if (!$276.isComplete) {
               $276.onComplete = $1;
@@ -11937,20 +12077,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 38) {
-        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
-        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
-        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+        // (v:Sequence2WithVariables Sequence2WithVariables)
+        // (v:Sequence2WithVariables Sequence2WithVariables)
+        // v:Sequence2WithVariables Sequence2WithVariables
+        // v:Sequence2WithVariables Sequence2WithVariables
         if ($277 & 0x10 == 0) {
           $277 |= 0x10;
           $279 = 0;
           $280 = state.pos;
         }
         if ($279 == 0) {
-          // Sequence2WithVariableWithAction
+          // Sequence2WithVariables
           if ($277 & 0x4 == 0) {
             $277 |= 0x4;
-            $281 = parseSequence2WithVariableWithAction$Async(state);
+            $281 = parseSequence2WithVariables$Async(state);
             final $282 = $281!;
             if (!$282.isComplete) {
               $282.onComplete = $1;
@@ -11962,10 +12102,10 @@ class Test2Parser {
           $279 = state.ok ? 1 : -1;
         }
         if ($279 == 1) {
-          // Sequence2WithVariableWithAction
+          // Sequence2WithVariables
           if ($277 & 0x8 == 0) {
             $277 |= 0x8;
-            $283 = fastParseSequence2WithVariableWithAction$Async(state);
+            $283 = fastParseSequence2WithVariables$Async(state);
             final $284 = $283!;
             if (!$284.isComplete) {
               $284.onComplete = $1;
@@ -11988,20 +12128,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 39) {
-        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
-        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
-        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+        // (v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction)
+        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
+        // v:Sequence2WithVariableWithAction Sequence2WithVariableWithAction
         if ($277 & 0x80 == 0) {
           $277 |= 0x80;
           $286 = 0;
           $287 = state.pos;
         }
         if ($286 == 0) {
-          // Sequence2WithVariablesWithAction
+          // Sequence2WithVariableWithAction
           if ($277 & 0x20 == 0) {
             $277 |= 0x20;
-            $288 = parseSequence2WithVariablesWithAction$Async(state);
+            $288 = parseSequence2WithVariableWithAction$Async(state);
             final $289 = $288!;
             if (!$289.isComplete) {
               $289.onComplete = $1;
@@ -12013,10 +12153,10 @@ class Test2Parser {
           $286 = state.ok ? 1 : -1;
         }
         if ($286 == 1) {
-          // Sequence2WithVariablesWithAction
+          // Sequence2WithVariableWithAction
           if ($277 & 0x40 == 0) {
             $277 |= 0x40;
-            $290 = fastParseSequence2WithVariablesWithAction$Async(state);
+            $290 = fastParseSequence2WithVariableWithAction$Async(state);
             final $291 = $290!;
             if (!$291.isComplete) {
               $291.onComplete = $1;
@@ -12039,20 +12179,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 40) {
-        // (v:Slice Slice)
-        // (v:Slice Slice)
-        // v:Slice Slice
-        // v:Slice Slice
+        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+        // (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
+        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
+        // v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction
         if ($277 & 0x400 == 0) {
           $277 |= 0x400;
           $293 = 0;
           $294 = state.pos;
         }
         if ($293 == 0) {
-          // Slice
+          // Sequence2WithVariablesWithAction
           if ($277 & 0x100 == 0) {
             $277 |= 0x100;
-            $295 = parseSlice$Async(state);
+            $295 = parseSequence2WithVariablesWithAction$Async(state);
             final $296 = $295!;
             if (!$296.isComplete) {
               $296.onComplete = $1;
@@ -12064,10 +12204,10 @@ class Test2Parser {
           $293 = state.ok ? 1 : -1;
         }
         if ($293 == 1) {
-          // Slice
+          // Sequence2WithVariablesWithAction
           if ($277 & 0x200 == 0) {
             $277 |= 0x200;
-            $297 = fastParseSlice$Async(state);
+            $297 = fastParseSequence2WithVariablesWithAction$Async(state);
             final $298 = $297!;
             if (!$298.isComplete) {
               $298.onComplete = $1;
@@ -12090,20 +12230,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 41) {
-        // (v:StringChars StringChars)
-        // (v:StringChars StringChars)
-        // v:StringChars StringChars
-        // v:StringChars StringChars
+        // (v:Slice Slice)
+        // (v:Slice Slice)
+        // v:Slice Slice
+        // v:Slice Slice
         if ($277 & 0x2000 == 0) {
           $277 |= 0x2000;
           $300 = 0;
           $301 = state.pos;
         }
         if ($300 == 0) {
-          // StringChars
+          // Slice
           if ($277 & 0x800 == 0) {
             $277 |= 0x800;
-            $302 = parseStringChars$Async(state);
+            $302 = parseSlice$Async(state);
             final $303 = $302!;
             if (!$303.isComplete) {
               $303.onComplete = $1;
@@ -12115,10 +12255,10 @@ class Test2Parser {
           $300 = state.ok ? 1 : -1;
         }
         if ($300 == 1) {
-          // StringChars
+          // Slice
           if ($277 & 0x1000 == 0) {
             $277 |= 0x1000;
-            $304 = fastParseStringChars$Async(state);
+            $304 = fastParseSlice$Async(state);
             final $305 = $304!;
             if (!$305.isComplete) {
               $305.onComplete = $1;
@@ -12141,20 +12281,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 42) {
-        // (v:Verify Verify)
-        // (v:Verify Verify)
-        // v:Verify Verify
-        // v:Verify Verify
+        // (v:StringChars StringChars)
+        // (v:StringChars StringChars)
+        // v:StringChars StringChars
+        // v:StringChars StringChars
         if ($313 & 0x1 == 0) {
           $313 |= 0x1;
           $307 = 0;
           $308 = state.pos;
         }
         if ($307 == 0) {
-          // Verify
+          // StringChars
           if ($277 & 0x4000 == 0) {
             $277 |= 0x4000;
-            $309 = parseVerify$Async(state);
+            $309 = parseStringChars$Async(state);
             final $310 = $309!;
             if (!$310.isComplete) {
               $310.onComplete = $1;
@@ -12166,10 +12306,10 @@ class Test2Parser {
           $307 = state.ok ? 1 : -1;
         }
         if ($307 == 1) {
-          // Verify
+          // StringChars
           if ($277 & 0x8000 == 0) {
             $277 |= 0x8000;
-            $311 = fastParseVerify$Async(state);
+            $311 = fastParseStringChars$Async(state);
             final $312 = $311!;
             if (!$312.isComplete) {
               $312.onComplete = $1;
@@ -12192,20 +12332,20 @@ class Test2Parser {
                 : -1;
       }
       if ($3 == 43) {
-        // (v:ZeroOrMore ZeroOrMore)
-        // (v:ZeroOrMore ZeroOrMore)
-        // v:ZeroOrMore ZeroOrMore
-        // v:ZeroOrMore ZeroOrMore
+        // (v:Verify Verify)
+        // (v:Verify Verify)
+        // v:Verify Verify
+        // v:Verify Verify
         if ($313 & 0x8 == 0) {
           $313 |= 0x8;
           $315 = 0;
           $316 = state.pos;
         }
         if ($315 == 0) {
-          // ZeroOrMore
+          // Verify
           if ($313 & 0x2 == 0) {
             $313 |= 0x2;
-            $317 = parseZeroOrMore$Async(state);
+            $317 = parseVerify$Async(state);
             final $318 = $317!;
             if (!$318.isComplete) {
               $318.onComplete = $1;
@@ -12217,10 +12357,10 @@ class Test2Parser {
           $315 = state.ok ? 1 : -1;
         }
         if ($315 == 1) {
-          // ZeroOrMore
+          // Verify
           if ($313 & 0x4 == 0) {
             $313 |= 0x4;
-            $319 = fastParseZeroOrMore$Async(state);
+            $319 = fastParseVerify$Async(state);
             final $320 = $319!;
             if (!$320.isComplete) {
               $320.onComplete = $1;
@@ -12236,9 +12376,60 @@ class Test2Parser {
           state.backtrack($316!);
         }
         $313 &= ~0x8 & 0xffff;
+        $3 = state.ok
+            ? -1
+            : state.isRecoverable
+                ? 44
+                : -1;
+      }
+      if ($3 == 44) {
+        // (v:ZeroOrMore ZeroOrMore)
+        // (v:ZeroOrMore ZeroOrMore)
+        // v:ZeroOrMore ZeroOrMore
+        // v:ZeroOrMore ZeroOrMore
+        if ($313 & 0x40 == 0) {
+          $313 |= 0x40;
+          $322 = 0;
+          $323 = state.pos;
+        }
+        if ($322 == 0) {
+          // ZeroOrMore
+          if ($313 & 0x10 == 0) {
+            $313 |= 0x10;
+            $324 = parseZeroOrMore$Async(state);
+            final $325 = $324!;
+            if (!$325.isComplete) {
+              $325.onComplete = $1;
+              return;
+            }
+          }
+          $321 = $324!.value;
+          $313 &= ~0x10 & 0xffff;
+          $322 = state.ok ? 1 : -1;
+        }
+        if ($322 == 1) {
+          // ZeroOrMore
+          if ($313 & 0x20 == 0) {
+            $313 |= 0x20;
+            $326 = fastParseZeroOrMore$Async(state);
+            final $327 = $326!;
+            if (!$327.isComplete) {
+              $327.onComplete = $1;
+              return;
+            }
+          }
+          $313 &= ~0x20 & 0xffff;
+          $322 = -1;
+        }
+        if (state.ok) {
+          $2 = $321;
+        } else {
+          state.backtrack($323!);
+        }
+        $313 &= ~0x40 & 0xffff;
         $3 = -1;
       }
-      $313 &= ~0x10 & 0xffff;
+      $313 &= ~0x80 & 0xffff;
       $0.value = $2;
       $0.isComplete = true;
       state.input.handle = $0.onComplete;

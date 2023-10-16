@@ -894,6 +894,52 @@ void _testLiteral() {
     }
 
     {
+      const source = '0123456789';
+      await __testSuccess(
+        fastParse: _parser.fastParseLiteral10,
+        fastParseAsync: _parser.fastParseLiteral10$Async,
+        parse: _parser.parseLiteral10,
+        parseAsync: _parser.parseLiteral10$Async,
+        pos: 10,
+        result: '0123456789',
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['0123456789']).getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseLiteral10,
+        fastParseAsync: _parser.fastParseLiteral10$Async,
+        parse: _parser.parseLiteral10,
+        parseAsync: _parser.parseLiteral10$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorExpectedTags(['0123456789']).getErrorMessage(source, 0),
+        },
+        failPos: 0,
+        fastParse: _parser.fastParseLiteral10,
+        fastParseAsync: _parser.fastParseLiteral10$Async,
+        parse: _parser.parseLiteral10,
+        parseAsync: _parser.parseLiteral10$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
       const source = '0123';
       await __testSuccess(
         fastParse: _parser.fastParseLiterals,

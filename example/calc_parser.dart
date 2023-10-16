@@ -49,7 +49,9 @@ class CalcParser {
     // ')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 41;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -66,7 +68,9 @@ class CalcParser {
     // '(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 40;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -88,42 +92,6 @@ class CalcParser {
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
     state.ok = true;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
   }
 
   /// num
@@ -588,7 +556,14 @@ class CalcParser {
     final $8 = state.pos;
     String? $6;
     const $9 = '-';
-    $6 = matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 45;
+    if (state.ok) {
+      $6 = $9;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$9]));
+    }
     if (!state.ok) {
       state.setOk(true);
     }
