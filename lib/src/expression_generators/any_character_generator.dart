@@ -65,7 +65,7 @@ if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
 final {{c}} = {{read_char_async}}(state);
 state.ok = {{c}} >= 0;
 if (state.ok) {
-  {{assign_state_pos}}
+  {{assign_state_pos}};
   {{assign_result}}
 }''';
     final source = render(template, values);

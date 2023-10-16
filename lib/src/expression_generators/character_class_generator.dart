@@ -62,7 +62,7 @@ if (state.ok) {
   final {{c}} = state.input.{{char_at}}(state.pos);
   state.ok = {{predicate}};
   if (state.ok) {
-    {{assign_state_pos}}
+    {{assign_state_pos}};
     {{assign_result}}
   } else {
     state.fail(const ErrorUnexpectedCharacter());
@@ -105,7 +105,7 @@ final {{c}} = {{read_char_async}}(state);
 if ({{c}} >= 0) {
   state.ok = {{predicate}};
   if (state.ok) {
-    {{assign_state_pos}}
+    {{assign_state_pos}};
     {{assign_result}}
   } else {
     state.fail(const ErrorUnexpectedCharacter());

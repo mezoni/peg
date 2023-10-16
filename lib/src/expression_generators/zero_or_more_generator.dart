@@ -13,10 +13,15 @@ class ZeroOrMoreGenerator extends ExpressionGenerator<ZeroOrMoreExpression> {
     final values = <String, String>{};
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
+    var optimized = _TakeWhileGenerator.optimize(this);
+    if (optimized != null) {
+      return optimized;
+    }
+
     if (variable == null) {
-      final optimized1 = _ZeroOrMoreGenerator2.optimize(this);
-      if (optimized1 != null) {
-        return optimized1;
+      optimized = _ZeroOrMoreGenerator3.optimize(this);
+      if (optimized != null) {
+        return optimized;
       }
     }
 
@@ -108,8 +113,78 @@ state.setOk(true);''';
   }
 }
 
-class _ZeroOrMoreGenerator2 extends ExpressionGenerator<ZeroOrMoreExpression> {
-  _ZeroOrMoreGenerator2({
+class _TakeWhileGenerator extends ExpressionGenerator<ZeroOrMoreExpression> {
+  _TakeWhileGenerator({
+    required super.expression,
+    required super.ruleGenerator,
+  });
+
+  @override
+  String generate() {
+    final values = <String, String>{};
+    final child = expression.expression as CharacterClassExpression;
+    final ranges = child.ranges;
+    final negate = child.negate;
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    if (variable != null) {
+      values['list'] = allocateName();
+    }
+
+    values['char_at'] = helper.charAt(ranges, negate);
+    values['assign_state_pos'] = helper.assignStatePos('c', ranges, negate);
+    values['predicate'] = helper.rangesToPredicate('c', ranges, negate);
+    var template = '';
+    if (variable != null) {
+      values['r'] = variable;
+      template = '''
+final {{list}} = <int>[];
+for (var c = 0;
+    state.pos < state.input.length &&
+    (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
+    {{assign_state_pos}},
+    // ignore: curly_braces_in_flow_control_structures, empty_statements
+    {{list}}.add(c));
+state.pos < state.input.length
+    ? state.fail(const ErrorUnexpectedCharacter())
+    : state.fail(const ErrorUnexpectedEndOfInput());
+state.ok = true;
+if (state.ok) {
+  {{r}} = {{list}};
+}''';
+    } else {
+      template = '''
+for (var c = 0;
+    state.pos < state.input.length &&
+    (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
+    // ignore: curly_braces_in_flow_control_structures, empty_statements
+    {{assign_state_pos}});
+state.pos < state.input.length
+    ? state.fail(const ErrorUnexpectedCharacter())
+    : state.fail(const ErrorUnexpectedEndOfInput());
+state.ok = true;''';
+    }
+
+    return render(template, values);
+  }
+
+  static String? optimize(ZeroOrMoreGenerator generator) {
+    final expression = generator.expression;
+    final child = expression.expression;
+    if (child is! CharacterClassExpression) {
+      return null;
+    }
+
+    final generator2 = _TakeWhileGenerator(
+      expression: expression,
+      ruleGenerator: generator.ruleGenerator,
+    );
+
+    return generator2.generate();
+  }
+}
+
+class _ZeroOrMoreGenerator3 extends ExpressionGenerator<ZeroOrMoreExpression> {
+  _ZeroOrMoreGenerator3({
     required super.expression,
     required super.ruleGenerator,
   });
@@ -200,7 +275,7 @@ if (state.ok) {
     final terminal = not.expression;
     if (child2 is AnyCharacterExpression) {
       if (terminal is LiteralExpression) {
-        final generator2 = _ZeroOrMoreGenerator2(
+        final generator2 = _ZeroOrMoreGenerator3(
           expression: expression,
           ruleGenerator: generator.ruleGenerator,
         );
@@ -213,7 +288,7 @@ if (state.ok) {
           final start = range.$1;
           final end = range.$2;
           if (start == end) {
-            final generator2 = _ZeroOrMoreGenerator2(
+            final generator2 = _ZeroOrMoreGenerator3(
               expression: expression,
               ruleGenerator: generator.ruleGenerator,
             );

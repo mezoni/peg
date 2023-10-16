@@ -4,6 +4,10 @@ void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final state = State(source);
   fastParse(state);
+  if (state.ok) {
+    return;
+  }
+
   final parseResult = _createParseResult<String, Object?>(state, null);
   parseResult.getResult();
 }
@@ -32,6 +36,10 @@ Sink<String> parseAsync<O>(
 O parseString<O>(O? Function(State<String> state) parse, String source) {
   final state = State(source);
   final result = parse(state);
+  if (state.ok) {
+    return result as O;
+  }
+
   final parseResult = _createParseResult<String, O>(state, result);
   return parseResult.getResult();
 }

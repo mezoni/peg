@@ -191,7 +191,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
         pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
       state.pos++;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -209,7 +208,6 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
         input.codeUnitAt(pos2) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
-      state.ok = true;
       return string;
     }
     state.fail(error);

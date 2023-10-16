@@ -158,7 +158,7 @@ abstract class ExpressionGenerator<T extends Expression> {
     text.add('Production rule: $rule');
     text.add('Ordered choice: $parent');
     text.add('Buffered alternative: $expression');
-    text.add('Overlapping alternative(s):');
+    text.add('Overlapping alternatives:');
     text.add(alternatives.join('\n'));
     print(text.join('\n'));
     return true;

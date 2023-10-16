@@ -527,7 +527,6 @@ class PegParser {
         pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
       state.pos++;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -545,7 +544,6 @@ class PegParser {
         input.codeUnitAt(pos2) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -1287,33 +1285,23 @@ class PegParser {
       String? $1;
       final $4 = state.pos;
       var $5 = false;
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $6 = state.input.codeUnitAt(state.pos);
-          state.ok = $6 <= 90
-              ? $6 >= 48 && $6 <= 57 || $6 >= 65
-              : $6 >= 97 && $6 <= 122;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (!state.ok) {
-          break;
-        }
-        $5 = true;
-      }
-      state.setOk($5);
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c <= 90 ? c >= 48 && c <= 57 || c >= 65 : c >= 97 && c <= 122);
+          state.pos++,
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          $5 = true);
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
+      state.ok = $5;
       if (state.ok) {
         $1 = state.input.substring($4, state.pos);
       }
       if (state.ok) {
-        const $7 = '}';
-        matchLiteral1(state, $7, const ErrorExpectedTags([$7]));
+        const $6 = '}';
+        matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
         if (state.ok) {
           int? $$;
           final v = $1!;
@@ -1353,26 +1341,18 @@ class PegParser {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $6 = state.input.codeUnitAt(state.pos);
-          state.ok = $6 <= 90
-              ? $6 >= 48 && $6 <= 57 || $6 >= 65
-              : $6 == 95 || $6 >= 97 && $6 <= 122;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (!state.ok) {
-          break;
-        }
-      }
-      state.setOk(true);
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c <= 90
+                  ? c >= 48 && c <= 57 || c >= 65
+                  : c == 95 || c >= 97 && c <= 122);
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          state.pos++);
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
+      state.ok = true;
     }
     if (!state.ok) {
       state.backtrack($4);
@@ -1403,25 +1383,17 @@ class PegParser {
     String? $1;
     final $3 = state.pos;
     var $4 = false;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 >= 48 && $5 <= 57;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-      $4 = true;
-    }
-    state.setOk($4);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c >= 48 && c <= 57);
+        state.pos++,
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        $4 = true);
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = $4;
     if (state.ok) {
       $1 = state.input.substring($3, state.pos);
     }
@@ -2064,28 +2036,20 @@ class PegParser {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $6 = state.input.codeUnitAt(state.pos);
-          state.ok = $6 <= 90
-              ? $6 <= 57
-                  ? $6 == 36 || $6 >= 48
-                  : $6 >= 65
-              : $6 == 95 || $6 >= 97 && $6 <= 122;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (!state.ok) {
-          break;
-        }
-      }
-      state.setOk(true);
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c <= 90
+                  ? c <= 57
+                      ? c == 36 || c >= 48
+                      : c >= 65
+                  : c == 95 || c >= 97 && c <= 122);
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          state.pos++);
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
+      state.ok = true;
     }
     if (!state.ok) {
       state.backtrack($4);
@@ -3249,6 +3213,10 @@ void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final state = State(source);
   fastParse(state);
+  if (state.ok) {
+    return;
+  }
+
   final parseResult = _createParseResult<String, Object?>(state, null);
   parseResult.getResult();
 }
@@ -3277,6 +3245,10 @@ Sink<String> parseAsync<O>(
 O parseString<O>(O? Function(State<String> state) parse, String source) {
   final state = State(source);
   final result = parse(state);
+  if (state.ok) {
+    return result as O;
+  }
+
   final parseResult = _createParseResult<String, O>(state, result);
   return parseResult.getResult();
 }

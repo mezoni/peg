@@ -1,6 +1,7 @@
 # 4.0.5
 
 - The source code for supporting the parser runtime has been reworked.
+- The generated code has been optimized for some cases of using the expressions `OneOrMoreGenerator` and `ZeroOrMoreGenerator`.
 
 # 4.0.4
 

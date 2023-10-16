@@ -117,24 +117,16 @@ class CsvParser {
   ///   ;
   void fastParseSpaces(State<String> state) {
     // [ \t]*
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $1 = state.input.codeUnitAt(state.pos);
-        state.ok = $1 == 9 || $1 == 32;
-        if (state.ok) {
-          state.pos++;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c == 9 || c == 32);
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        state.pos++);
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = true;
   }
 
   /// Spaces =
@@ -206,7 +198,6 @@ class CsvParser {
         pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
       state.pos++;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -241,7 +232,6 @@ class CsvParser {
         input.codeUnitAt(pos2) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -952,32 +942,24 @@ class CsvParser {
           // $[^"]+
           final $10 = state.pos;
           var $11 = false;
-          while (true) {
-            state.ok = state.pos < state.input.length;
-            if (state.ok) {
-              final $12 = state.input.runeAt(state.pos);
-              state.ok = $12 != 34;
-              if (state.ok) {
-                state.pos += $12 > 0xffff ? 2 : 1;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              break;
-            }
-            $11 = true;
-          }
-          state.setOk($11);
+          for (var c = 0;
+              state.pos < state.input.length &&
+                  (c = state.input.runeAt(state.pos)) == c &&
+                  (c != 34);
+              state.pos += c > 0xffff ? 2 : 1,
+              // ignore: curly_braces_in_flow_control_structures, empty_statements
+              $11 = true);
+          state.pos < state.input.length
+              ? state.fail(const ErrorUnexpectedCharacter())
+              : state.fail(const ErrorUnexpectedEndOfInput());
+          state.ok = $11;
           if (state.ok) {
             $8 = state.input.substring($10, state.pos);
           }
           if (!state.ok && state.isRecoverable) {
             // '""' <String>{}
-            const $14 = '""';
-            matchLiteral2(state, $14, const ErrorExpectedTags([$14]));
+            const $13 = '""';
+            matchLiteral2(state, $13, const ErrorExpectedTags([$13]));
             if (state.ok) {
               String? $$;
               $$ = '"';
@@ -996,15 +978,15 @@ class CsvParser {
         if (state.ok) {
           // @inline CloseQuote = '"' Spaces ;
           // '"' Spaces
-          final $15 = state.pos;
-          const $16 = '"';
-          matchLiteral1(state, $16, const ErrorExpectedTags([$16]));
+          final $14 = state.pos;
+          const $15 = '"';
+          matchLiteral1(state, $15, const ErrorExpectedTags([$15]));
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($15);
+            state.backtrack($14);
           }
           if (state.ok) {
             String? $$;
@@ -1268,24 +1250,16 @@ class CsvParser {
     String? $0;
     // $[^,"\n\r]*
     final $2 = state.pos;
-    while (true) {
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $3 = state.input.runeAt(state.pos);
-        state.ok = !($3 == 13 || $3 == 10 || $3 == 34 || $3 == 44);
-        if (state.ok) {
-          state.pos += $3 > 0xffff ? 2 : 1;
-        } else {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-      } else {
-        state.fail(const ErrorUnexpectedEndOfInput());
-      }
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.runeAt(state.pos)) == c &&
+            (!(c == 13 || c == 10 || c == 34 || c == 44));
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        state.pos += c > 0xffff ? 2 : 1);
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = true;
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
     }
@@ -1384,6 +1358,10 @@ void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final state = State(source);
   fastParse(state);
+  if (state.ok) {
+    return;
+  }
+
   final parseResult = _createParseResult<String, Object?>(state, null);
   parseResult.getResult();
 }
@@ -1412,6 +1390,10 @@ Sink<String> parseAsync<O>(
 O parseString<O>(O? Function(State<String> state) parse, String source) {
   final state = State(source);
   final result = parse(state);
+  if (state.ok) {
+    return result as O;
+  }
+
   final parseResult = _createParseResult<String, O>(state, result);
   return parseResult.getResult();
 }

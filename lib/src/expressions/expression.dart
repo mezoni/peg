@@ -54,8 +54,8 @@ abstract class MultipleExpression extends Expression {
   }
 }
 
-abstract class SingleExpression extends Expression {
-  final Expression expression;
+abstract class SingleExpression<E extends Expression> extends Expression {
+  final E expression;
 
   SingleExpression({
     required this.expression,

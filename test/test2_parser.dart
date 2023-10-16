@@ -1850,14 +1850,17 @@ class Test2Parser {
   void fastParseOneOrMore(State<String> state) {
     // [0]+
     var $1 = false;
-    while (true) {
-      matchChar16(state, 48);
-      if (!state.ok) {
-        break;
-      }
-      $1 = true;
-    }
-    state.setOk($1);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c == 48);
+        state.pos++,
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        $1 = true);
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = $1;
   }
 
   /// OneOrMore =
@@ -3131,29 +3134,21 @@ class Test2Parser {
   ///   ;
   void fastParseStringChars(State<String> state) {
     // @stringChars($[0-9]+, [\\], [t] <String>{})
-    final $7 = state.input;
-    while (state.pos < $7.length) {
+    final $6 = state.input;
+    while (state.pos < $6.length) {
       // $[0-9]+
       var $3 = false;
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $4 = state.input.codeUnitAt(state.pos);
-          state.ok = $4 >= 48 && $4 <= 57;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (!state.ok) {
-          break;
-        }
-        $3 = true;
-      }
-      state.setOk($3);
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c >= 48 && c <= 57);
+          state.pos++,
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          $3 = true);
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
+      state.ok = $3;
       final pos = state.pos;
       // [\\]
       matchChar16(state, 92);
@@ -3390,13 +3385,16 @@ class Test2Parser {
   ///   ;
   void fastParseZeroOrMore(State<String> state) {
     // [0]*
-    while (true) {
-      matchChar16(state, 48);
-      if (!state.ok) {
-        break;
-      }
-    }
-    state.setOk(true);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c == 48);
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        state.pos++);
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = true;
   }
 
   /// ZeroOrMore =
@@ -3535,7 +3533,6 @@ class Test2Parser {
         pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
     if (state.ok) {
       state.pos++;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -3570,7 +3567,6 @@ class Test2Parser {
         input.codeUnitAt(pos2) == string.codeUnitAt(1);
     if (state.ok) {
       state.pos += 2;
-      state.ok = true;
       return string;
     }
     state.fail(error);
@@ -5706,15 +5702,17 @@ class Test2Parser {
     List<int>? $0;
     // [0]+
     final $2 = <int>[];
-    while (true) {
-      int? $3;
-      $3 = matchChar16(state, 48);
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk($2.isNotEmpty);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c == 48);
+        state.pos++,
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        $2.add(c));
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = $2.isNotEmpty;
     if (state.ok) {
       $0 = $2;
     }
@@ -10646,44 +10644,36 @@ class Test2Parser {
   String? parseStringChars(State<String> state) {
     String? $0;
     // @stringChars($[0-9]+, [\\], [t] <String>{})
-    final $10 = state.input;
-    List<String>? $11;
-    String? $12;
-    while (state.pos < $10.length) {
+    final $9 = state.input;
+    List<String>? $10;
+    String? $11;
+    while (state.pos < $9.length) {
       String? $2;
       // $[0-9]+
       final $5 = state.pos;
       var $6 = false;
-      while (true) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $7 = state.input.codeUnitAt(state.pos);
-          state.ok = $7 >= 48 && $7 <= 57;
-          if (state.ok) {
-            state.pos++;
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
-          }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
-        }
-        if (!state.ok) {
-          break;
-        }
-        $6 = true;
-      }
-      state.setOk($6);
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c >= 48 && c <= 57);
+          state.pos++,
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          $6 = true);
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
+      state.ok = $6;
       if (state.ok) {
         $2 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
         final v = $2!;
-        if ($12 == null) {
-          $12 = v;
-        } else if ($11 == null) {
-          $11 = [$12, v];
+        if ($11 == null) {
+          $11 = v;
+        } else if ($10 == null) {
+          $10 = [$11, v];
         } else {
-          $11.add(v);
+          $10.add(v);
         }
       }
       final pos = state.pos;
@@ -10704,23 +10694,23 @@ class Test2Parser {
         state.backtrack(pos);
         break;
       }
-      if ($12 == null) {
-        $12 = $3!;
+      if ($11 == null) {
+        $11 = $3!;
       } else {
-        if ($11 == null) {
-          $11 = [$12, $3!];
+        if ($10 == null) {
+          $10 = [$11, $3!];
         } else {
-          $11.add($3!);
+          $10.add($3!);
         }
       }
     }
     state.ok = true;
-    if ($12 == null) {
+    if ($11 == null) {
       $0 = '';
-    } else if ($11 == null) {
-      $0 = $12;
+    } else if ($10 == null) {
+      $0 = $11;
     } else {
-      $0 = $11.join();
+      $0 = $10.join();
     }
     return $0;
   }
@@ -10988,15 +10978,17 @@ class Test2Parser {
     List<int>? $0;
     // [0]*
     final $2 = <int>[];
-    while (true) {
-      int? $3;
-      $3 = matchChar16(state, 48);
-      if (!state.ok) {
-        break;
-      }
-      $2.add($3!);
-    }
-    state.setOk(true);
+    for (var c = 0;
+        state.pos < state.input.length &&
+            (c = state.input.codeUnitAt(state.pos)) == c &&
+            (c == 48);
+        state.pos++,
+        // ignore: curly_braces_in_flow_control_structures, empty_statements
+        $2.add(c));
+    state.pos < state.input.length
+        ? state.fail(const ErrorUnexpectedCharacter())
+        : state.fail(const ErrorUnexpectedEndOfInput());
+    state.ok = true;
     if (state.ok) {
       $0 = $2;
     }
@@ -11081,6 +11073,10 @@ void fastParseString(
     void Function(State<String> state) fastParse, String source) {
   final state = State(source);
   fastParse(state);
+  if (state.ok) {
+    return;
+  }
+
   final parseResult = _createParseResult<String, Object?>(state, null);
   parseResult.getResult();
 }
@@ -11109,6 +11105,10 @@ Sink<String> parseAsync<O>(
 O parseString<O>(O? Function(State<String> state) parse, String source) {
   final state = State(source);
   final result = parse(state);
+  if (state.ok) {
+    return result as O;
+  }
+
   final parseResult = _createParseResult<String, O>(state, result);
   return parseResult.getResult();
 }

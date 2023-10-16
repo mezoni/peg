@@ -1,4 +1,5 @@
 import '../expressions/expressions.dart';
+import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
 class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
@@ -12,6 +13,11 @@ class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
     final values = <String, String>{};
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
+    final optimized = _TakeWhile1Generator.optimize(this);
+    if (optimized != null) {
+      return optimized;
+    }
+
     var template = '';
     if (variable != null) {
       values['O'] = child.resultType.toString();
@@ -104,5 +110,79 @@ state.setOk({{ok}}!);''';
       buffering: false,
       key: key,
     );
+  }
+}
+
+class _TakeWhile1Generator extends ExpressionGenerator<OneOrMoreExpression> {
+  _TakeWhile1Generator({
+    required super.expression,
+    required super.ruleGenerator,
+  });
+
+  @override
+  String generate() {
+    final values = <String, String>{};
+    final child = expression.expression as CharacterClassExpression;
+    final ranges = child.ranges;
+    final negate = child.negate;
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    if (variable != null) {
+      values['list'] = allocateName();
+    } else {
+      values['ok'] = allocateName();
+    }
+
+    values['char_at'] = helper.charAt(ranges, negate);
+    values['assign_state_pos'] = helper.assignStatePos('c', ranges, negate);
+    values['predicate'] = helper.rangesToPredicate('c', ranges, negate);
+    var template = '';
+    if (variable != null) {
+      values['r'] = variable;
+      template = '''
+final {{list}} = <int>[];
+for (var c = 0;
+    state.pos < state.input.length &&
+    (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
+    {{assign_state_pos}},
+    // ignore: curly_braces_in_flow_control_structures, empty_statements
+    {{list}}.add(c));
+state.pos < state.input.length
+    ? state.fail(const ErrorUnexpectedCharacter())
+    : state.fail(const ErrorUnexpectedEndOfInput());
+state.ok = {{list}}.isNotEmpty;
+if (state.ok) {
+  {{r}} = {{list}};
+}''';
+    } else {
+      template = '''
+var {{ok}} = false;
+for (var c = 0;
+    state.pos < state.input.length &&
+    (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
+    {{assign_state_pos}},
+    // ignore: curly_braces_in_flow_control_structures, empty_statements
+    {{ok}} = true);
+state.pos < state.input.length
+    ? state.fail(const ErrorUnexpectedCharacter())
+    : state.fail(const ErrorUnexpectedEndOfInput());
+state.ok = {{ok}};''';
+    }
+
+    return render(template, values);
+  }
+
+  static String? optimize(OneOrMoreGenerator generator) {
+    final expression = generator.expression;
+    final child = expression.expression;
+    if (child is! CharacterClassExpression) {
+      return null;
+    }
+
+    final generator2 = _TakeWhile1Generator(
+      expression: expression,
+      ruleGenerator: generator.ruleGenerator,
+    );
+
+    return generator2.generate();
   }
 }
