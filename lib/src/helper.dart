@@ -149,33 +149,3 @@ String testLiteral({
 
   return buffer.toString();
 }
-
-class _Code extends _Expression {
-  final String code;
-
-  const _Code(this.code);
-
-  @override
-  String toString() {
-    return code;
-  }
-}
-
-abstract class _Expression {
-  const _Expression();
-}
-
-class _Group extends _Expression {
-  final _Expression expression;
-
-  _Group(this.expression);
-
-  @override
-  String toString() {
-    return '($expression)';
-  }
-}
-
-class _Triple extends _Code {
-  _Triple(super.code);
-}

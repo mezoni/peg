@@ -1,3 +1,7 @@
+# 4.0.7
+
+- Removed unnecessary code from file `helper.dart`.
+
 # 4.0.6
 
 - The code generator for generating binary search expressions (for predicates and transitions) has been implemented in a new way. It generates reliable but not optimized code. The source code is then optimized to produce an optimal source code.
