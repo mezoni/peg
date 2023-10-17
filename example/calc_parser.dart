@@ -88,7 +88,7 @@ class CalcParser {
     for (var c = 0;
         state.pos < state.input.length &&
             (c = state.input.codeUnitAt(state.pos)) == c &&
-            (c == 13 || c >= 9 && c <= 10 || c == 32);
+            (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
     state.ok = true;

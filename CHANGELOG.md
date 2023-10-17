@@ -1,3 +1,7 @@
+# 4.0.6
+
+- The code generator for generating binary search expressions (for predicates and transitions) has been implemented in a new way. It generates reliable but not optimized code. The source code is then optimized to produce an optimal source code.
+
 # 4.0.5
 
 - The source code for supporting the parser runtime has been reworked.

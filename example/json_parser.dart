@@ -1,10 +1,3 @@
-void main(List<String> args) {
-  const source = '""';
-  final parser = JsonParser();
-  final result = parseString(parser.parseStart, source);
-  print(result);
-}
-
 class JsonParser {
   String _escape(int charCode) {
     switch (charCode) {
@@ -45,7 +38,7 @@ class JsonParser {
     for (var c = 0;
         state.pos < state.input.length &&
             (c = state.input.codeUnitAt(state.pos)) == c &&
-            (c == 13 || c >= 9 && c <= 10 || c == 32);
+            (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos++);
     state.ok = true;
@@ -70,7 +63,7 @@ class JsonParser {
         state.ok = state.pos < $3.end;
         if (state.ok) {
           final $2 = $3.data.codeUnitAt(state.pos - $3.start);
-          state.ok = $2 == 13 || $2 >= 9 && $2 <= 10 || $2 == 32;
+          state.ok = $2 < 13 ? $2 >= 9 && $2 <= 10 : $2 <= 13 || $2 == 32;
           if (state.ok) {
             state.pos++;
           }
@@ -321,10 +314,12 @@ class JsonParser {
     state.ok = state.pos < state.input.length;
     if (state.ok) {
       final $3 = state.input.codeUnitAt(state.pos);
-      state.ok = $3 == 98 ||
-          ($3 < 98
-              ? $3 == 47 || $3 == 34 || $3 == 92
-              : $3 == 110 || ($3 < 110 ? $3 == 102 : $3 == 114 || $3 == 116));
+      state.ok = $3 < 98
+          ? $3 < 47
+              ? $3 == 34
+              : $3 <= 47 || $3 == 92
+          : $3 <= 98 ||
+              ($3 < 110 ? $3 == 102 : $3 <= 110 || $3 == 114 || $3 == 116);
       if (state.ok) {
         state.pos++;
         $1 = $3;
@@ -363,10 +358,12 @@ class JsonParser {
       state.ok = state.pos < $5.end;
       if (state.ok) {
         final $4 = $5.data.codeUnitAt(state.pos - $5.start);
-        state.ok = $4 == 98 ||
-            ($4 < 98
-                ? $4 == 47 || $4 == 34 || $4 == 92
-                : $4 == 110 || ($4 < 110 ? $4 == 102 : $4 == 114 || $4 == 116));
+        state.ok = $4 < 98
+            ? $4 < 47
+                ? $4 == 34
+                : $4 <= 47 || $4 == 92
+            : $4 <= 98 ||
+                ($4 < 110 ? $4 == 102 : $4 <= 110 || $4 == 114 || $4 == 116);
         if (state.ok) {
           state.pos++;
           $3 = $4;
@@ -509,9 +506,9 @@ class JsonParser {
       state.ok = state.pos < state.input.length;
       if (state.ok) {
         final $12 = state.input.codeUnitAt(state.pos);
-        state.ok = $12 <= 70
-            ? $12 >= 48 && $12 <= 57 || $12 >= 65
-            : $12 >= 97 && $12 <= 102;
+        state.ok = $12 < 65
+            ? $12 >= 48 && $12 <= 57
+            : $12 <= 70 || $12 >= 97 && $12 <= 102;
         if (state.ok) {
           state.pos++;
         }
@@ -616,9 +613,9 @@ class JsonParser {
         state.ok = state.pos < $13.end;
         if (state.ok) {
           final $12 = $13.data.codeUnitAt(state.pos - $13.start);
-          state.ok = $12 <= 70
-              ? $12 >= 48 && $12 <= 57 || $12 >= 65
-              : $12 >= 97 && $12 <= 102;
+          state.ok = $12 < 65
+              ? $12 >= 48 && $12 <= 57
+              : $12 <= 70 || $12 >= 97 && $12 <= 102;
           if (state.ok) {
             state.pos++;
           }
@@ -2112,9 +2109,9 @@ class JsonParser {
           for (var c = 0;
               state.pos < state.input.length &&
                   (c = state.input.runeAt(state.pos)) == c &&
-                  (c <= 91
-                      ? c >= 32 && c <= 33 || c >= 35
-                      : c >= 93 && c <= 1114111);
+                  (c < 35
+                      ? c >= 32 && c <= 33
+                      : c <= 91 || c >= 93 && c <= 1114111);
               state.pos += c > 0xffff ? 2 : 1,
               // ignore: curly_braces_in_flow_control_structures, empty_statements
               $10 = true);
@@ -2298,9 +2295,9 @@ class JsonParser {
               state.ok = state.pos < $18.end;
               if (state.ok) {
                 final $17 = $18.data.runeAt(state.pos - $18.start);
-                state.ok = $17 <= 91
-                    ? $17 >= 32 && $17 <= 33 || $17 >= 35
-                    : $17 >= 93 && $17 <= 1114111;
+                state.ok = $17 < 35
+                    ? $17 >= 32 && $17 <= 33
+                    : $17 <= 91 || $17 >= 93 && $17 <= 1114111;
                 if (state.ok) {
                   state.pos += $17 > 0xffff ? 2 : 1;
                 }

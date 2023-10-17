@@ -1198,7 +1198,7 @@ class CsvParser {
     for (var c = 0;
         state.pos < state.input.length &&
             (c = state.input.runeAt(state.pos)) == c &&
-            (!(c == 13 || c == 10 || c == 34 || c == 44));
+            (!(c < 13 ? c == 10 : c <= 13 || c == 34 || c == 44));
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         state.pos += c > 0xffff ? 2 : 1);
     state.ok = true;
@@ -1236,7 +1236,7 @@ class CsvParser {
         state.ok = state.pos < $5.end;
         if (state.ok) {
           final $4 = $5.data.runeAt(state.pos - $5.start);
-          state.ok = !($4 == 13 || $4 == 10 || $4 == 34 || $4 == 44);
+          state.ok = !($4 < 13 ? $4 == 10 : $4 <= 13 || $4 == 34 || $4 == 44);
           if (state.ok) {
             state.pos += $4 > 0xffff ? 2 : 1;
           }

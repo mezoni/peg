@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'binary_search/binary_search.dart';
+
 String assignStatePos(String variable, List<(int, int)> ranges, bool negate) {
   if (ranges.isEmpty) {
     throw ArgumentError('Must not be empty', 'ranges');
@@ -25,12 +27,6 @@ String charAt(List<(int, int)> ranges, bool negate) {
   }
 
   return 'codeUnitAt';
-}
-
-void checkRange((int, int) range) {
-  if (range.$1 > range.$2) {
-    throw RangeError.range(range.$2, range.$1, null);
-  }
 }
 
 String escapeString(String text, [bool quote = true]) {
@@ -84,176 +80,15 @@ bool isTypeNullable(String? type) {
 }
 
 List<(int, int)> normalizeRanges(List<(int, int)> ranges) {
-  final result = <(int, int)>[];
-  final temp = ranges.toList();
-  temp.sort(
-    (a, b) {
-      if (a.$1 > b.$1) {
-        return 1;
-      } else if (a.$1 < b.$1) {
-        return -1;
-      } else {
-        return a.$2 - b.$2;
-      }
-    },
-  );
-  for (var i = 0; i < temp.length; i++) {
-    var range = temp[i];
-    result.add(range);
-    checkRange(range);
-    var k = i + 1;
-    for (; k < temp.length; k++) {
-      final next = temp[k];
-      checkRange(next);
-      if (next.$1 <= range.$2 + 1) {
-        range = (range.$1, range.$2 > next.$2 ? range.$2 : next.$2);
-        result.last = range;
-      } else {
-        k--;
-        break;
-      }
-    }
-
-    i = k;
-  }
-
+  final binarySearch = BinarySearch();
+  final result = binarySearch.normalizeRanges(ranges);
   return result;
 }
 
 String rangesToPredicate(String name, List<(int, int)> ranges, bool negate) {
-  if (ranges.isEmpty) {
-    throw ArgumentError.value(ranges, 'ranges', 'Must not be empty');
-  }
-
-  // TODO:
-  // ignore: unused_element
-  _Expression and(_Expression left, _Expression right) {
-    return _Code('$left && $right');
-  }
-
-  _Expression or(_Expression left, _Expression right) {
-    if ('$left' == 'false' && '$right' == ' false') {
-      return const _Code('false');
-    }
-
-    if ('$left' == 'false') {
-      return right;
-    }
-
-    if ('$right' == 'false') {
-      return left;
-    }
-
-    _Expression group(_Expression expression) {
-      if (expression is! _Triple) {
-        return expression;
-      }
-
-      return _Group(expression);
-    }
-
-    left = group(left);
-    right = group(right);
-    return _Code('$left || $right');
-  }
-
-  _Expression triple(
-      _Expression condition, _Expression left, _Expression right) {
-    if ('$right' == 'false') {
-      //return and(condition, left);
-    }
-
-    return _Triple('$condition ? $left : $right');
-  }
-
-  _Expression process(String name, List<(int, int)> ranges, int lo, int hi,
-      Set<int> processed) {
-    if (lo == hi) {
-      final range = ranges[lo];
-      final start = range.$1;
-      final end = range.$2;
-      final isStartProcessed = processed.contains(start);
-      final isEndProcessed = processed.contains(end);
-      if (isStartProcessed && isEndProcessed) {
-        return const _Code('false');
-      }
-
-      if (!isStartProcessed && !isEndProcessed) {
-        processed.add(start);
-        processed.add(end);
-        if (start == end) {
-          return _Code('$name == $start');
-        }
-
-        return _Code('$name >= $start && $name <= $end');
-      }
-
-      if (isStartProcessed) {
-        processed.add(end);
-        return _Code('$name <= $end');
-      }
-
-      processed.add(start);
-      return _Code('$name >= $start');
-    }
-
-    final mid = (lo + hi) >> 1;
-    if (mid == 0 || mid == ranges.length - 1) {
-      final left = process(name, ranges, lo, mid, processed);
-      final right = process(name, ranges, mid + 1, hi, processed);
-      return or(left, right);
-    }
-
-    final range = ranges[mid];
-    final start = range.$1;
-    final end = range.$2;
-    if (start != end) {
-      processed.add(end);
-      final left = process(name, ranges, lo, mid, processed);
-      final right = process(name, ranges, mid + 1, hi, processed);
-      return triple(_Code('$name <= $end'), left, right);
-    }
-
-    processed.add(end);
-    final left = process(name, ranges, lo, mid, processed);
-    final right = process(name, ranges, mid + 1, hi, processed);
-    if ('$left' == 'false') {
-      return or(_Code('$name == $end'), right);
-    }
-
-    if ('$right' == 'false') {
-      return or(_Code('$name == $end'), left);
-    }
-
-    if (mid == 1) {
-      return or(_Code('$name == $end'), or(left, right));
-    }
-
-    return or(
-        _Code('$name == $end'), triple(_Code('$name < $end'), left, right));
-  }
-
-  if (ranges.length < 4) {
-    final allEqual = !ranges.any((e) => e.$1 != e.$2);
-    if (allEqual) {
-      if (!negate) {
-        return ranges.map((e) => '$name == ${e.$1}').join(' || ');
-      } else {
-        return ranges.map((e) => '$name != ${e.$1}').join(' && ');
-      }
-    }
-  }
-
-  final result = process(name, ranges, 0, ranges.length - 1, {});
-  if (!negate) {
-    return '$result';
-  }
-
-  if (result is _Group) {
-    return '!$result';
-  }
-
-  return '!($result)';
+  final binarySearch = BinarySearch();
+  final result = binarySearch.generatePredicate(name, ranges, negate);
+  return result;
 }
 
 String render(String template, Map<String, String> values,

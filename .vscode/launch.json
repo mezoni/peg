@@ -67,6 +67,15 @@
                 "--async",
                 "test/test2.peg"
             ]
+        },
+        {
+            "name": "peg binary",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "lib/src/binary_search/binary.peg"
+            ]
         }
     ]
 }

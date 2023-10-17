@@ -73,7 +73,9 @@ class PegParser {
     // v:'\'' Spaces
     final $0 = state.pos;
     const $1 = '\'';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 39;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -91,7 +93,9 @@ class PegParser {
     // '{' v:BlockBody* '}'
     final $0 = state.pos;
     const $1 = '{';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 123;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       while (true) {
         // BlockBody
@@ -103,7 +107,9 @@ class PegParser {
       state.setOk(true);
       if (state.ok) {
         const $2 = '}';
-        matchLiteral1(state, $2, const ErrorExpectedTags([$2]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 125;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$2]));
       }
     }
     if (!state.ok) {
@@ -114,7 +120,9 @@ class PegParser {
       final $3 = state.pos;
       final $4 = state.pos;
       const $5 = '}';
-      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 125;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$5]));
       state.setOk(!state.ok);
       if (!state.ok) {
         final length = state.pos - $4;
@@ -150,7 +158,9 @@ class PegParser {
     // v:':' Spaces
     final $0 = state.pos;
     const $1 = ':';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 58;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -167,7 +177,9 @@ class PegParser {
     // v:',' Spaces
     final $0 = state.pos;
     const $1 = ',';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 44;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -184,7 +196,9 @@ class PegParser {
     // '#' (![\n\r] .)*
     final $0 = state.pos;
     const $1 = '#';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 35;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       while (true) {
         // ![\n\r] .
@@ -244,7 +258,9 @@ class PegParser {
     // v:'@' Spaces
     final $0 = state.pos;
     const $1 = '@';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -261,7 +277,9 @@ class PegParser {
     // v:'=' Spaces
     final $0 = state.pos;
     const $1 = '=';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 61;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -278,7 +296,9 @@ class PegParser {
     // v:'.' Spaces
     final $0 = state.pos;
     const $1 = '.';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 46;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -295,7 +315,9 @@ class PegParser {
     // v:'>' Spaces
     final $0 = state.pos;
     const $1 = '>';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 62;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -312,7 +334,9 @@ class PegParser {
     // v:'{' Spaces
     final $0 = state.pos;
     const $1 = '{';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 123;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -329,7 +353,9 @@ class PegParser {
     // v:'(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 40;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -346,7 +372,9 @@ class PegParser {
     // v:'<' Spaces
     final $0 = state.pos;
     const $1 = '<';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 60;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -363,7 +391,9 @@ class PegParser {
     // v:'}' Spaces
     final $0 = state.pos;
     const $1 = '}';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 125;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -380,7 +410,9 @@ class PegParser {
     // v:')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 41;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -397,7 +429,9 @@ class PegParser {
     // v:']' Spaces
     final $0 = state.pos;
     const $1 = ']';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 93;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -414,7 +448,9 @@ class PegParser {
     // v:';' Spaces
     final $0 = state.pos;
     const $1 = ';';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 59;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -431,7 +467,9 @@ class PegParser {
     // v:'/' Spaces
     final $0 = state.pos;
     const $1 = '/';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 47;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -469,7 +507,9 @@ class PegParser {
     // v:'↑' Spaces
     final $0 = state.pos;
     const $1 = '↑';
-    matchLiteral1(state, $1, const ErrorExpectedTags([$1]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 8593;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -487,7 +527,7 @@ class PegParser {
     state.ok = state.pos < state.input.length;
     if (state.ok) {
       final $1 = state.input.codeUnitAt(state.pos);
-      state.ok = $1 == 13 || $1 >= 9 && $1 <= 10 || $1 == 32;
+      state.ok = $1 < 13 ? $1 >= 9 && $1 <= 10 : $1 <= 13 || $1 == 32;
       if (state.ok) {
         state.pos++;
       }
@@ -495,59 +535,6 @@ class PegParser {
     if (!state.ok) {
       state.fail(const ErrorUnexpectedCharacter());
     }
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral(State<String> state, String string, ParseError error) {
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final input = state.input;
-    final pos = state.pos;
-    state.ok = pos < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.startsWith(string, pos);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    } else {
-      state.fail(error);
-    }
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral1(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    state.ok =
-        pos < input.length && input.codeUnitAt(pos) == string.codeUnitAt(0);
-    if (state.ok) {
-      state.pos++;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteral2(State<String> state, String string, ParseError error) {
-    final input = state.input;
-    final pos = state.pos;
-    final pos2 = pos + 1;
-    state.ok = pos2 < input.length &&
-        input.codeUnitAt(pos) == string.codeUnitAt(0) &&
-        input.codeUnitAt(pos2) == string.codeUnitAt(1);
-    if (state.ok) {
-      state.pos += 2;
-      return string;
-    }
-    state.fail(error);
-    return null;
   }
 
   /// SemanticAction
@@ -608,7 +595,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '&';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 38;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -648,7 +642,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '*';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 42;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -670,7 +671,9 @@ class PegParser {
     // '{' v:$BlockBody* RightCurlyBracket
     final $2 = state.pos;
     const $3 = '{';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 123;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       String? $1;
       final $4 = state.pos;
@@ -709,7 +712,10 @@ class PegParser {
     // '[^' r:(!']' v:Range)+ RightSquareBracket {}
     final $2 = state.pos;
     const $3 = '[^';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 91 &&
+        state.input.codeUnitAt(state.pos + 1) == 94;
+    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       List<(int, int)>? $1;
       final $4 = <(int, int)>[];
@@ -719,7 +725,9 @@ class PegParser {
         final $7 = state.pos;
         final $8 = state.pos;
         const $9 = ']';
-        matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 93;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$9]));
         state.setOk(!state.ok);
         if (!state.ok) {
           final length = state.pos - $8;
@@ -771,7 +779,9 @@ class PegParser {
       // '[' r:(!']' v:Range)+ RightSquareBracket {}
       final $11 = state.pos;
       const $12 = '[';
-      matchLiteral1(state, $12, const ErrorExpectedTags([$12]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 91;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$12]));
       if (state.ok) {
         List<(int, int)>? $10;
         final $13 = <(int, int)>[];
@@ -781,7 +791,9 @@ class PegParser {
           final $16 = state.pos;
           final $17 = state.pos;
           const $18 = ']';
-          matchLiteral1(state, $18, const ErrorExpectedTags([$18]));
+          state.ok = state.pos < state.input.length &&
+              state.input.codeUnitAt(state.pos) == 93;
+          state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$18]));
           state.setOk(!state.ok);
           if (!state.ok) {
             final length = state.pos - $17;
@@ -961,7 +973,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '\$';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 36;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -984,14 +1003,12 @@ class PegParser {
     // '@eof' LeftParenthesis RightParenthesis Spaces {}
     final $1 = state.pos;
     const $2 = '@eof';
-    state.ok = state.pos < state.input.length &&
+    state.ok = state.pos + 3 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($2, state.pos);
-    if (state.ok) {
-      state.pos += 4;
-    } else {
-      state.fail(const ErrorExpectedTags([$2]));
-    }
+        state.input.codeUnitAt(state.pos + 1) == 101 &&
+        state.input.codeUnitAt(state.pos + 2) == 111 &&
+        state.input.codeUnitAt(state.pos + 3) == 102;
+    state.ok ? state.pos += 4 : state.fail(const ErrorExpectedTags([$2]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1027,11 +1044,7 @@ class PegParser {
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
         state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 13;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+    state.ok ? state.pos += 13 : state.fail(const ErrorExpectedTags([$4]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1076,7 +1089,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '!';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 33;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -1102,11 +1122,7 @@ class PegParser {
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
         state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 9;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+    state.ok ? state.pos += 9 : state.fail(const ErrorExpectedTags([$4]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1211,7 +1227,10 @@ class PegParser {
     // '%{' v:$(!'}%' v:.)* '}%' Spaces
     final $2 = state.pos;
     const $3 = '%{';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 37 &&
+        state.input.codeUnitAt(state.pos + 1) == 123;
+    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       String? $1;
       final $4 = state.pos;
@@ -1228,7 +1247,10 @@ class PegParser {
       }
       if (state.ok) {
         const $7 = '}%';
-        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
+        state.ok = state.pos + 1 < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 125 &&
+            state.input.codeUnitAt(state.pos + 1) == 37;
+        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$7]));
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -1284,7 +1306,10 @@ class PegParser {
     // 'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
     final $2 = state.pos;
     const $3 = 'u{';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 117 &&
+        state.input.codeUnitAt(state.pos + 1) == 123;
+    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       String? $1;
       final $4 = state.pos;
@@ -1292,7 +1317,7 @@ class PegParser {
       for (var c = 0;
           state.pos < state.input.length &&
               (c = state.input.codeUnitAt(state.pos)) == c &&
-              (c <= 90 ? c >= 48 && c <= 57 || c >= 65 : c >= 97 && c <= 122);
+              (c < 65 ? c >= 48 && c <= 57 : c <= 90 || c >= 97 && c <= 122);
           state.pos++,
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           $5 = true);
@@ -1305,7 +1330,9 @@ class PegParser {
       }
       if (state.ok) {
         const $6 = '}';
-        matchLiteral1(state, $6, const ErrorExpectedTags([$6]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 125;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$6]));
         if (state.ok) {
           int? $$;
           final v = $1!;
@@ -1335,7 +1362,7 @@ class PegParser {
     state.ok = state.pos < state.input.length;
     if (state.ok) {
       final $5 = state.input.codeUnitAt(state.pos);
-      state.ok = $5 >= 65 && $5 <= 90 || $5 >= 97 && $5 <= 122;
+      state.ok = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
       if (state.ok) {
         state.pos++;
       }
@@ -1347,9 +1374,9 @@ class PegParser {
       for (var c = 0;
           state.pos < state.input.length &&
               (c = state.input.codeUnitAt(state.pos)) == c &&
-              (c <= 90
-                  ? c >= 48 && c <= 57 || c >= 65
-                  : c == 95 || c >= 97 && c <= 122);
+              (c < 65
+                  ? c >= 48 && c <= 57
+                  : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           state.pos++);
       state.ok = true;
@@ -1415,14 +1442,13 @@ class PegParser {
     // '@list' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
     final $3 = state.pos;
     const $4 = '@list';
-    state.ok = state.pos < state.input.length &&
+    state.ok = state.pos + 4 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 5;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+        state.input.codeUnitAt(state.pos + 1) == 108 &&
+        state.input.codeUnitAt(state.pos + 2) == 105 &&
+        state.input.codeUnitAt(state.pos + 3) == 115 &&
+        state.input.codeUnitAt(state.pos + 4) == 116;
+    state.ok ? state.pos += 5 : state.fail(const ErrorExpectedTags([$4]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1467,14 +1493,14 @@ class PegParser {
     // '@list1' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
     final $3 = state.pos;
     const $4 = '@list1';
-    state.ok = state.pos < state.input.length &&
+    state.ok = state.pos + 5 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 6;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+        state.input.codeUnitAt(state.pos + 1) == 108 &&
+        state.input.codeUnitAt(state.pos + 2) == 105 &&
+        state.input.codeUnitAt(state.pos + 3) == 115 &&
+        state.input.codeUnitAt(state.pos + 4) == 116 &&
+        state.input.codeUnitAt(state.pos + 5) == 49;
+    state.ok ? state.pos += 6 : state.fail(const ErrorExpectedTags([$4]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1541,11 +1567,7 @@ class PegParser {
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
         state.input.startsWith($3, state.pos);
-    if (state.ok) {
-      state.pos += 12;
-    } else {
-      state.fail(const ErrorExpectedTags([$3]));
-    }
+    state.ok ? state.pos += 12 : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -1579,7 +1601,10 @@ class PegParser {
     // '%%' v:$(!'%%' v:.)* '%%' Spaces
     final $2 = state.pos;
     const $3 = '%%';
-    matchLiteral2(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos + 1 < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 37 &&
+        state.input.codeUnitAt(state.pos + 1) == 37;
+    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       String? $1;
       final $4 = state.pos;
@@ -1596,7 +1621,10 @@ class PegParser {
       }
       if (state.ok) {
         const $7 = '%%';
-        matchLiteral2(state, $7, const ErrorExpectedTags([$7]));
+        state.ok = state.pos + 1 < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 37 &&
+            state.input.codeUnitAt(state.pos + 1) == 37;
+        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$7]));
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -1675,7 +1703,9 @@ class PegParser {
     // '\'' v:StringChar* Apostrophe {}
     final $2 = state.pos;
     const $3 = '\'';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 39;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       List<int>? $1;
       final $4 = <int>[];
@@ -2026,7 +2056,7 @@ class PegParser {
     if (state.ok) {
       final $5 = state.input.codeUnitAt(state.pos);
       state.ok =
-          $5 <= 90 ? $5 == 36 || $5 >= 65 : $5 == 95 || $5 >= 97 && $5 <= 122;
+          $5 < 65 ? $5 == 36 : $5 <= 90 || $5 == 95 || $5 >= 97 && $5 <= 122;
       if (state.ok) {
         state.pos++;
       }
@@ -2038,11 +2068,9 @@ class PegParser {
       for (var c = 0;
           state.pos < state.input.length &&
               (c = state.input.codeUnitAt(state.pos)) == c &&
-              (c <= 90
-                  ? c <= 57
-                      ? c == 36 || c >= 48
-                      : c >= 65
-                  : c == 95 || c >= 97 && c <= 122);
+              (c < 65
+                  ? c == 36 || c >= 48 && c <= 57
+                  : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
           state.pos++);
       state.ok = true;
@@ -2129,7 +2157,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '+';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 43;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -2373,7 +2408,14 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '?';
-    $1 = matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 63;
+    if (state.ok) {
+      $1 = $3;
+      state.pos++;
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -2401,7 +2443,9 @@ class PegParser {
     $1 = parseRangeChar(state);
     if (state.ok) {
       const $4 = '-';
-      matchLiteral1(state, $4, const ErrorExpectedTags([$4]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 45;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$4]));
       if (state.ok) {
         int? $2;
         // RangeChar
@@ -2443,19 +2487,18 @@ class PegParser {
     // '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
     final $2 = state.pos;
     const $3 = '\\';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 92;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       int? $1;
       // c:[-nrt\]\\^] <int>{}
       state.ok = state.pos < state.input.length;
       if (state.ok) {
         final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 == 110 ||
-            ($5 < 110
-                ? $5 <= 94
-                    ? $5 == 45 || $5 >= 92
-                    : false
-                : $5 == 114 || $5 == 116);
+        state.ok = $5 < 110
+            ? $5 == 45 || $5 >= 92 && $5 <= 94
+            : $5 <= 110 || $5 == 114 || $5 == 116;
         if (state.ok) {
           state.pos++;
           $1 = $5;
@@ -2487,7 +2530,9 @@ class PegParser {
       final $8 = state.pos;
       final $9 = state.pos;
       const $10 = '\\';
-      matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$10]));
       state.setOk(!state.ok);
       if (!state.ok) {
         final length = state.pos - $9;
@@ -2784,7 +2829,9 @@ class PegParser {
     // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
     final $2 = state.pos;
     const $3 = '\'';
-    matchLiteral1(state, $3, const ErrorExpectedTags([$3]));
+    state.ok = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 39;
+    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
     if (state.ok) {
       List<int>? $1;
       final $4 = <int>[];
@@ -2794,7 +2841,9 @@ class PegParser {
         final $7 = state.pos;
         final $8 = state.pos;
         const $9 = '\'';
-        matchLiteral1(state, $9, const ErrorExpectedTags([$9]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 39;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$9]));
         state.setOk(!state.ok);
         if (!state.ok) {
           final length = state.pos - $8;
@@ -2830,7 +2879,9 @@ class PegParser {
       }
       if (state.ok) {
         const $10 = '\'';
-        matchLiteral1(state, $10, const ErrorExpectedTags([$10]));
+        state.ok = state.pos < state.input.length &&
+            state.input.codeUnitAt(state.pos) == 39;
+        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$10]));
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -2860,7 +2911,7 @@ class PegParser {
     state.ok = state.pos < state.input.length;
     if (state.ok) {
       final $2 = state.input.runeAt(state.pos);
-      state.ok = $2 >= 32 && $2 <= 91 || $2 >= 93 && $2 <= 1114111;
+      state.ok = $2 <= 91 ? $2 >= 32 : $2 >= 93 && $2 <= 1114111;
       if (state.ok) {
         state.pos += $2 > 0xffff ? 2 : 1;
         $0 = $2;
@@ -2873,17 +2924,18 @@ class PegParser {
       // '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
       final $4 = state.pos;
       const $5 = '\\';
-      matchLiteral1(state, $5, const ErrorExpectedTags([$5]));
+      state.ok = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 92;
+      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$5]));
       if (state.ok) {
         int? $3;
         // c:[rnt'"\\] <int>{}
         state.ok = state.pos < state.input.length;
         if (state.ok) {
           final $7 = state.input.codeUnitAt(state.pos);
-          state.ok = $7 == 92 ||
-              ($7 < 92
-                  ? $7 == 39 || $7 == 34
-                  : $7 == 114 || ($7 < 114 ? $7 == 110 : $7 == 116));
+          state.ok = $7 < 92
+              ? $7 == 34 || $7 == 39
+              : $7 <= 92 || ($7 < 114 ? $7 == 110 : $7 <= 114 || $7 == 116);
           if (state.ok) {
             state.pos++;
             $3 = $7;
@@ -2926,11 +2978,7 @@ class PegParser {
     state.ok = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
         state.input.startsWith($5, state.pos);
-    if (state.ok) {
-      state.pos += 12;
-    } else {
-      state.fail(const ErrorExpectedTags([$5]));
-    }
+    state.ok ? state.pos += 12 : state.fail(const ErrorExpectedTags([$5]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);
@@ -3161,14 +3209,15 @@ class PegParser {
     // '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
     final $3 = state.pos;
     const $4 = '@verify';
-    state.ok = state.pos < state.input.length &&
+    state.ok = state.pos + 6 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    if (state.ok) {
-      state.pos += 7;
-    } else {
-      state.fail(const ErrorExpectedTags([$4]));
-    }
+        state.input.codeUnitAt(state.pos + 1) == 118 &&
+        state.input.codeUnitAt(state.pos + 2) == 101 &&
+        state.input.codeUnitAt(state.pos + 3) == 114 &&
+        state.input.codeUnitAt(state.pos + 4) == 105 &&
+        state.input.codeUnitAt(state.pos + 5) == 102 &&
+        state.input.codeUnitAt(state.pos + 6) == 121;
+    state.ok ? state.pos += 7 : state.fail(const ErrorExpectedTags([$4]));
     if (state.ok) {
       // LeftParenthesis
       fastParseLeftParenthesis(state);

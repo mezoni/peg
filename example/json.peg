@@ -1,14 +1,3 @@
-%{
-
-void main(List<String> args) {
-  const source = '""';
-  final parser = JsonParser();
-  final result = parseString(parser.parseStart, source);
-  print(result);
-}
-
-}%
-
 %%
 
   String _escape(int charCode) {

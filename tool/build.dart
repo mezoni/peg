@@ -8,6 +8,7 @@ Future<void> main(List<String> args) async {
     'example/calc.peg': ['--no-runtime'],
     'example/csv.peg': ['--async'],
     'example/json.peg': ['--async'],
+    'lib/src/binary_search/binary.peg': [],
   };
   for (final file in files.entries) {
     final process = await Process.start(Platform.executable, [
