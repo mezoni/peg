@@ -1,6 +1,7 @@
 # 4.0.7
 
 - Removed unnecessary code from file `helper.dart`.
+- Minor changes to the binary search source code.
 
 # 4.0.6
 

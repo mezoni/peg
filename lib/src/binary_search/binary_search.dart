@@ -151,7 +151,7 @@ class BinarySearch {
   }
 }
 
-mixin _AstChecker {
+mixin _AstNodeChecker {
   ({String name, num value})? checkComparison(AstNode node, String operator) {
     if (node is! BinaryNode) {
       return null;
@@ -172,6 +172,24 @@ mixin _AstChecker {
     }
 
     return (name: identifier.name, value: value.value);
+  }
+
+  bool isComparison(AstNode node) {
+    if (node is! BinaryNode) {
+      return false;
+    }
+
+    switch (node.operator) {
+      case '<':
+      case '<=':
+      case '>':
+      case '>=':
+      case '==':
+      case '!=':
+        return true;
+    }
+
+    return false;
   }
 }
 
@@ -219,7 +237,7 @@ class _AstNodeCloner extends AstNodeVisitor<AstNode> {
   }
 }
 
-class _PredicateOptimizer extends _AstNodeCloner with _AstChecker {
+class _PredicateOptimizer extends _AstNodeCloner with _AstNodeChecker {
   bool _hasModifications = false;
 
   AstNode optimize(AstNode node) {
@@ -230,6 +248,44 @@ class _PredicateOptimizer extends _AstNodeCloner with _AstChecker {
     }
 
     return node;
+  }
+
+  @override
+  AstNode visitBinary(BinaryNode node) {
+    final left = node.left.accept(this);
+    final right = node.right.accept(this);
+    final value1 = left is BooleanNode ? left.value : left;
+    final value2 = right is BooleanNode ? right.value : right;
+    AstNode? optimize() {
+      if (node.operator != '||') {
+        return null;
+      }
+
+      final result = switch ((value1, value2)) {
+        (false, false) => BooleanNode(false),
+        (false, true) => BooleanNode(true),
+        (true, false) => BooleanNode(true),
+        (true, true) => BooleanNode(true),
+        (true, _) => right,
+        (_, true) => left,
+        (false, _) => right,
+        (_, false) => left,
+        (_, _) => null,
+      };
+
+      if (result != null) {
+        _hasModifications = true;
+      }
+
+      return result;
+    }
+
+    final node2 = optimize();
+    if (node2 != null) {
+      return node2;
+    }
+
+    return BinaryNode(left, node.operator, right);
   }
 
   @override
@@ -293,7 +349,7 @@ class _PredicateOptimizer extends _AstNodeCloner with _AstChecker {
   }
 }
 
-class _TransitionOptimizer extends _AstNodeCloner with _AstChecker {
+class _TransitionOptimizer extends _AstNodeCloner with _AstNodeChecker {
   bool _hasModifications = false;
 
   AstNode optimize(AstNode node) {
@@ -329,6 +385,7 @@ class _TransitionOptimizer extends _AstNodeCloner with _AstChecker {
         return null;
       }
 
+      _hasModifications = true;
       final result = _parse('$name == $value');
       return result.accept(this);
     }
@@ -344,10 +401,11 @@ class _TransitionOptimizer extends _AstNodeCloner with _AstChecker {
   }
 }
 
-class _TransitionToPredicateConverter extends _AstNodeCloner {
+class _TransitionToPredicateConverter extends _AstNodeCloner
+    with _AstNodeChecker {
   @override
   AstNode visitNumeric(NumericNode node) {
-    if (node.parent is BinaryNode) {
+    if (isComparison(node.parent!)) {
       return super.visitNumeric(node);
     }
 
