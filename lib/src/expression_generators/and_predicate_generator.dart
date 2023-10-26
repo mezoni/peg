@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -23,14 +24,13 @@ class AndPredicateGenerator
 final {{pos}} = state.pos;
 {{p}}
 if (state.ok) {
-  state.pos = {{pos}};
+  state.backtrack({{pos}});
 }''';
     return render(template, values);
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
@@ -38,22 +38,15 @@ if (state.ok) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    final key = (name: pos, value: 'state.pos');
-    values['pos'] = pos;
-    asyncGenerator.buffering++;
-    values['p'] = generateAsyncExpression(child, false);
-    asyncGenerator.buffering--;
-    const template = '''
-{{p}}
-if (state.ok) {
-  state.pos = {{pos}}!;
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: asyncGenerator.buffering == 0,
-      key: key,
-    );
+    final pos = asyncGenerator
+        .allocateVariable(isLate: true, type: GenericType(name: 'int'))
+        .name;
+    block << '$pos = state.pos;';
+    asyncGenerator.beginBuffering(block);
+    generateAsyncExpression(block, child, false);
+    asyncGenerator.endBuffering(block);
+    block.if_('state.ok', (block) {
+      block << 'state.backtrack($pos);';
+    });
   }
 }

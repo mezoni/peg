@@ -85,32 +85,7 @@ R? endEvent<R>({{event_type}} event, R? result, bool ok) {
   }
 
   void _addInternalMethods(Map<String, String> methods) {
-    const methodMap = {
-      'matchLiteralAsync': '''
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  String? matchLiteralAsync(
-      State<ChunkedParsingSink> state, String string, ParseError error) {
-    if (string.isEmpty) {
-      state.ok = true;
-      return '';
-    }
-    final input = state.input;
-    final start = input.start;
-    final data = input.data;
-    final pos = state.pos;
-    final index = pos - start;
-    state.ok = pos < input.end &&
-        data.codeUnitAt(index) == string.codeUnitAt(0) &&
-        data.startsWith(string, index);
-    if (state.ok) {
-      state.pos += string.length;
-      return string;
-    }
-    state.fail(error);
-    return null;
-  }'''
-    };
+    const methodMap = <String, String>{};
     final source = methods.values.join('\n\n');
     for (final entry in methodMap.entries) {
       final key = entry.key;

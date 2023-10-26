@@ -1,4 +1,5 @@
 import '../allocator.dart';
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../grammar/production_rule.dart';
 import '../grammar_generators/events_generator.dart';
@@ -23,13 +24,13 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
   }
 
   @override
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     final reference = expression.reference!;
     final isInline = reference.isInline();
     if (isInline) {
-      return _generateAsyncInline(reference);
+      _generateAsyncInline(block, reference);
     } else {
-      return _generateAsync(reference);
+      _generateAsync(block, reference);
     }
   }
 
@@ -62,8 +63,7 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
     return buffer.toString();
   }
 
-  String _generateAsync(ProductionRule reference) {
-    final values = <String, String>{};
+  void _generateAsync(BlockNode block, ProductionRule reference) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final isFast = variable == null;
@@ -76,88 +76,63 @@ class SymbolGenerator extends ExpressionGenerator<SymbolExpression> {
             parserName: ruleGenerator.parserName,
             rule: reference)
         .generate();
-    final ar = asyncGenerator.allocateVariable(isFast
-        ? GenericType(
-            name: 'AsyncResult',
-            arguments: [GenericType(name: 'Object').getNullableType()])
-        : GenericType(name: 'AsyncResult', arguments: [resultType]));
-    values['ar'] = ar;
-    values['ar_'] = allocateName();
-    values['handle'] = asyncGenerator.functionName;
-    values['name'] = ruleGenerator.getAsyncMethodName(reference, isFast);
-    var assignResult = '';
+    final asyncResult = asyncGenerator
+        .allocateVariable(
+            isLate: true,
+            type: isFast
+                ? GenericType(
+                    name: 'AsyncResult',
+                    arguments: [GenericType(name: 'Object').getNullableType()])
+                : GenericType(name: 'AsyncResult', arguments: [resultType]))
+        .name;
+    final handle = asyncGenerator.functionName;
+    final name = ruleGenerator.getAsyncMethodName(reference, isFast);
+    block << '$asyncResult = $name(state);';
+    final label = allocateName();
+    block.if_('!$asyncResult.isComplete', (block) {
+      block << '$asyncResult.onComplete = $handle;';
+      block.return_(label);
+    });
+    block.goto_(label);
+    block.label(label);
     if (variable != null) {
-      assignResult = '$variable = $ar!.value;';
+      block << '$variable = $asyncResult.value;';
     }
-
-    const initTemplate = '''
-{{ar}} = {{name}}(state);
-final {{ar_}} = {{ar}}!;
-if (!{{ar_}}.isComplete) {
-  {{ar_}}.onComplete = {{handle}};
-  return;
-}''';
-    final init = render(initTemplate, values);
-    return asyncGenerator.renderAction(
-      assignResult,
-      buffering: false,
-      init: init,
-    );
   }
 
-  String _generateAsyncInline(ProductionRule reference) {
-    final values = <String, String>{};
+  void _generateAsyncInline(BlockNode block, ProductionRule reference) {
     final child = reference.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final asyncGenerator = ruleGenerator.asyncGenerator;
     final hasEvent = reference.hasEvent();
     final childVariable = ruleGenerator.getExpressionVariable(child);
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    String? init;
+    var event = '';
     if (hasEvent) {
       final parserName = ruleGenerator.parserName;
-      values['event'] =
-          EventsGenerator.getElementFullName(reference, parserName);
-      const initTemplate = '''
-beginEvent({{event}});''';
-      init = render(initTemplate, values);
+      event = EventsGenerator.getElementFullName(reference, parserName);
+      block << 'beginEvent($event);';
     }
 
-    values['p'] = generateAsyncExpression(child, false);
+    generateAsyncExpression(block, child, false);
     if (childVariable != null) {
       ruleGenerator.setExpressionVariable(child, childVariable);
     } else {
       ruleGenerator.removeExpressionVariable(child);
     }
 
-    var template = '';
     if (hasEvent) {
-      values['type'] =
-          (reference.resultType ?? expression.resultType).toString();
+      final type = (reference.resultType ?? expression.resultType).toString();
+      var assignResult = '';
       if (variable != null) {
-        values['r'] = variable;
-        template = '''
-{{p}}
-{{r}} = endEvent<{{type}}>({{event}}, {{r}}, state.ok);''';
-      } else {
-        template = '''
-{{p}}
-endEvent<{{type}}>({{event}}, null, state.ok);''';
+        assignResult = '$variable = ';
       }
-    } else {
-      template = '''
-{{p}}''';
-    }
 
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-      init: init,
-    );
+      block <<
+          '${assignResult}endEvent<$type>($event, $variable, state.ok);' '';
+    }
   }
 
   String _generateInline(ProductionRule reference) {

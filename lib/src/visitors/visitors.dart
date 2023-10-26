@@ -13,11 +13,11 @@ abstract class ExpressionVisitor<T> {
 
   T visitEof(EofExpression node);
 
-  T visitErrorHandler(ErrorHandlerExpression node);
-
   T visitExpected(ExpectedExpression node);
 
   T visitGroup(GroupExpression node);
+
+  T visitIndicate(IndicateExpression node);
 
   T visitList(ListExpression node);
 
@@ -26,6 +26,8 @@ abstract class ExpressionVisitor<T> {
   T visitLiteral(LiteralExpression node);
 
   T visitMatchString(MatchStringExpression node);
+
+  T visitMessage(MessageExpression node);
 
   T visitNotPredicate(NotPredicateExpression node);
 
@@ -77,17 +79,17 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
   }
 
   @override
-  T visitErrorHandler(ErrorHandlerExpression node) {
-    return visitNode(node);
-  }
-
-  @override
   T visitExpected(ExpectedExpression node) {
     return visitNode(node);
   }
 
   @override
   T visitGroup(GroupExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitIndicate(IndicateExpression node) {
     return visitNode(node);
   }
 
@@ -108,6 +110,11 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
 
   @override
   T visitMatchString(MatchStringExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitMessage(MessageExpression node) {
     return visitNode(node);
   }
 

@@ -3,8 +3,8 @@ import '../expressions/expressions.dart';
 import '../helper.dart' as helper;
 import 'expression_generator.dart';
 
-class ExpectedGenerator extends ExpressionGenerator<ExpectedExpression> {
-  ExpectedGenerator({
+class IndicateGenerator extends ExpressionGenerator<IndicateExpression> {
+  IndicateGenerator({
     required super.expression,
     required super.ruleGenerator,
   });
@@ -13,17 +13,16 @@ class ExpectedGenerator extends ExpressionGenerator<ExpectedExpression> {
   String generate() {
     final values = <String, String>{};
     final child = expression.expression;
-    final tag = expression.tag;
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['pos'] = allocateName();
     values['errorCount'] = allocateName();
     values['failPos'] = allocateName();
     values['lastFailPos'] = allocateName();
-    values['tag'] = helper.escapeString(tag);
+    values['pos'] = allocateName();
+    values['message'] = helper.escapeString(expression.message);
     values['p'] = generateExpression(child, false);
     const template = '''
 final {{pos}} = state.pos;
@@ -32,13 +31,14 @@ final {{failPos}} = state.failPos;
 final {{lastFailPos}} = state.lastFailPos;
 state.lastFailPos = -1;
 {{p}}
-if (!state.ok && state.lastFailPos == {{pos}}) {
+if (!state.ok) {
   if (state.lastFailPos == {{failPos}}) {
     state.errorCount = {{errorCount}};
   } else if (state.lastFailPos > {{failPos}}) {
     state.errorCount = 0;
   }
-  state.fail(const ErrorExpectedTags([{{tag}}]));
+  final length = {{pos}} - state.lastFailPos;
+  state.failAt(state.lastFailPos, ErrorMessage(length, {{message}}));
 }
 if (state.lastFailPos < {{lastFailPos}}) {
   state.lastFailPos = {{lastFailPos}};
@@ -50,15 +50,11 @@ if (state.lastFailPos < {{lastFailPos}}) {
   void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
-    final tag = expression.tag;
     final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    final pos = asyncGenerator
-        .allocateVariable(isLate: true, type: GenericType(name: 'int'))
-        .name;
     final errorCount = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'int'))
         .name;
@@ -68,14 +64,19 @@ if (state.lastFailPos < {{lastFailPos}}) {
     final lastFailPos = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'int'))
         .name;
-    final escapedTag = helper.escapeString(tag);
+    final pos = asyncGenerator
+        .allocateVariable(isLate: true, type: GenericType(name: 'int'))
+        .name;
+    final message = helper.escapeString(expression.message);
     block << '$pos = state.pos;';
     block << '$errorCount = state.errorCount;';
     block << '$failPos = state.failPos;';
     block << '$lastFailPos = state.lastFailPos;';
     block << 'state.lastFailPos = -1;';
+    asyncGenerator.beginBuffering(block);
     generateAsyncExpression(block, child, false);
-    block.if_('!state.ok && state.lastFailPos == $pos', (block) {
+    asyncGenerator.endBuffering(block);
+    block.if_('!state.ok', (block) {
       block.if_('state.lastFailPos == $failPos', (block) {
         block << 'state.errorCount = $errorCount;';
       }).else_((block) {
@@ -83,7 +84,9 @@ if (state.lastFailPos < {{lastFailPos}}) {
           block << 'state.errorCount = 0;';
         });
       });
-      block << 'state.fail(const ErrorExpectedTags([$escapedTag]));';
+      block << 'final length = $pos - state.lastFailPos;';
+      block <<
+          'state.failAt(state.lastFailPos, ErrorMessage(length, $message));';
     });
     block.if_('state.lastFailPos < $lastFailPos', (block) {
       block << 'state.lastFailPos = $lastFailPos;';

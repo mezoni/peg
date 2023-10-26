@@ -59,17 +59,17 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    _initializeNode(node);
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     _initializeNode(node);
   }
 
   @override
   void visitGroup(GroupExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitIndicate(IndicateExpression node) {
     _initializeNode(node);
   }
 
@@ -90,6 +90,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   @override
   void visitMatchString(MatchStringExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
     _initializeNode(node);
   }
 

@@ -1,25 +1,22 @@
 import '../helper.dart' as helper;
 import 'expression.dart';
 
-class VerifyExpression extends SingleExpression {
-  String message;
+class MessageExpression extends SingleExpression {
+  final String message;
 
-  String predicate;
-
-  VerifyExpression({
+  MessageExpression({
     required super.expression,
     required this.message,
-    required this.predicate,
   });
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
-    return visitor.visitVerify(this);
+    return visitor.visitMessage(this);
   }
 
   @override
   String toString() {
     final escapedMessage = helper.escapeString(message);
-    return '@verify($escapedMessage, $expression)';
+    return '@message($escapedMessage, $expression)';
   }
 }

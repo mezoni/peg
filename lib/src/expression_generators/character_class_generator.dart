@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../helper.dart' as helper;
 import 'expression_generator.dart';
@@ -24,7 +25,7 @@ class CharacterClassGenerator
   }
 
   @override
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     final ranges = expression.ranges;
     final negate = expression.negate;
     int? char;
@@ -36,9 +37,9 @@ class CharacterClassGenerator
     }
 
     if (char == null) {
-      return _generateAsync();
+      _generateAsync(block);
     } else {
-      return _generateAsyncChar(char);
+      _generateAsyncChar(block, char);
     }
   }
 
@@ -47,7 +48,8 @@ class CharacterClassGenerator
     final variable = ruleGenerator.getExpressionVariable(expression);
     final c = allocateName();
     values['c'] = c;
-    values['assign_state_pos'] = helper.assignStatePos(c, ranges, negate);
+    values['ok'] = allocateName();
+    values['adjust_state_pos'] = helper.adjustStatePos(c, ranges, negate);
     values['char_at'] = helper.charAt(ranges, negate);
     values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
     if (variable != null) {
@@ -57,106 +59,95 @@ class CharacterClassGenerator
     }
 
     const template = '''
-state.ok = state.pos < state.input.length;
-if (state.ok) {
+if (state.pos < state.input.length) {
   final {{c}} = state.input.{{char_at}}(state.pos);
-  state.ok = {{predicate}};
-  if (state.ok) {
-    {{assign_state_pos}};
+  final {{ok}} = {{predicate}};
+  if ({{ok}}) {
+    {{adjust_state_pos}};
+    state.setOk(true);
     {{assign_result}}
+  } else {
+    state.fail(const ErrorUnexpectedCharacter());
   }
-}
-if (!state.ok) {
-  state.fail(const ErrorUnexpectedCharacter());
+} else {
+  state.fail(const ErrorUnexpectedEndOfInput());
 }''';
     return render(template, values);
   }
 
-  String _generateAsync() {
-    final values = <String, String>{};
+  void _generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final ranges = expression.ranges;
     final negate = expression.negate;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final c = allocateName();
-    values['c'] = c;
-    values['handle'] = asyncGenerator.functionName;
-    values['input'] = allocateName();
-    values['assign_state_pos'] = helper.assignStatePos(c, ranges, negate);
-    values['char_at'] = helper.charAt(ranges, negate);
-    values['predicate'] = helper.rangesToPredicate(c, ranges, negate);
+    final handle = asyncGenerator.functionName;
+    final input = allocateName();
+    final ok = allocateName();
+    final adjustStatePos = helper.adjustStatePos('c', ranges, negate);
+    final charAt = helper.charAt(ranges, negate);
+    final predicate = helper.rangesToPredicate('c', ranges, negate);
+    var assignResult = '';
     if (variable != null) {
-      values['assign_result'] = '$variable = $c;';
-      values['clear_result'] = '$variable = null;';
-    } else {
-      values['assign_result'] = '';
-      values['clear_result'] = '';
+      assignResult = '$variable = c;';
     }
 
-    const template = '''
-final {{input}} = state.input;
-if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-{{clear_result}}
-state.ok = state.pos < {{input}}.end;
-if (state.ok) {
-  final {{c}} = {{input}}.data.{{char_at}}(state.pos - {{input}}.start);
-  state.ok = {{predicate}};
-  if (state.ok) {
-    {{assign_state_pos}};
-    {{assign_result}}
-  }
-}
-if (!state.ok) {
-  state.fail(const ErrorUnexpectedCharacter());
-}''';
-
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    final label = allocateName();
+    block.label(label);
+    block << 'final $input = state.input;';
+    block.if_('state.pos >= $input.end && !$input.isClosed', (block) {
+      block << '$input.sleep = true;';
+      block << '$input.handle = $handle;';
+      block.return_(label);
+    });
+    block.if_('state.pos < $input.end', (block) {
+      block << 'final c = $input.data.$charAt(state.pos - $input.start);';
+      block << 'final $ok = $predicate;';
+      block.if_(ok, (block) {
+        block << '$adjustStatePos;';
+        block << assignResult;
+        block << 'state.setOk(true);';
+      }).else_((block) {
+        block << 'state.fail(const ErrorUnexpectedCharacter());';
+      });
+    }).else_((block) {
+      block << 'state.fail(const ErrorUnexpectedEndOfInput());';
+    });
   }
 
-  String _generateAsyncChar(int char) {
-    final values = <String, String>{};
+  void _generateAsyncChar(BlockNode block, int char) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    values['char'] = '$char';
-    values['handle'] = asyncGenerator.functionName;
-    values['input'] = allocateName();
-    values['char_at'] = helper.charAt([(char, char)], false);
-    values['adjust_state_pos'] =
-        helper.assignStatePos('$char', [(char, char)], false);
+    final handle = asyncGenerator.functionName;
+    final input = allocateName();
+    final charAt = helper.charAt([(char, char)], false);
+    final adjustStatePos =
+        helper.adjustStatePos('$char', [(char, char)], false);
+    var assignResult = '';
     if (variable != null) {
-      values['assign_result'] = '$variable = $char;';
-    } else {
-      values['assign_result'] = '';
+      assignResult = '$variable = $char;';
     }
 
-    const template = '''
-final {{input}} = state.input;
-if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-state.ok = state.pos < {{input}}.end &&
-  {{input}}.data.{{char_at}}(state.pos - {{input}}.start) == {{char}};
-if (state.ok) {
-  {{adjust_state_pos}};
-  {{assign_result}}
-} else {
-  state.fail(const ErrorUnexpectedCharacter());
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    final label = allocateName();
+    block.label(label);
+    block << 'final $input = state.input;';
+    block.if_('state.pos >= $input.end && !$input.isClosed', (block) {
+      block << '$input.sleep = true;';
+      block << '$input.handle = $handle;';
+      block.return_(label);
+    });
+    block.if_('state.pos < $input.end', (block) {
+      block <<
+          'final ok = $input.data.$charAt(state.pos - $input.start) == $char;';
+      block.if_('ok', (block) {
+        block << '$adjustStatePos;';
+        block << 'state.setOk(true);';
+        block << assignResult;
+      }).else_((block) {
+        block << 'state.fail(const ErrorUnexpectedCharacter());';
+      });
+    }).else_((block) {
+      block << 'state.fail(const ErrorUnexpectedEndOfInput());';
+    });
   }
 
   String _generateChar(int char) {
@@ -165,7 +156,7 @@ if (state.ok) {
     values['char'] = '$char';
     values['char_at'] = helper.charAt([(char, char)], false);
     values['adjust_state_pos'] =
-        helper.assignStatePos('$char', [(char, char)], false);
+        helper.adjustStatePos('$char', [(char, char)], false);
     if (variable != null) {
       values['assign_result'] = '$variable = $char;';
     } else {
@@ -173,13 +164,17 @@ if (state.ok) {
     }
 
     const template = '''
-state.ok = state.pos < state.input.length &&
-    state.input.{{char_at}}(state.pos) == {{char}};
-if (state.ok) {
-  {{adjust_state_pos}};
-  {{assign_result}}
+if (state.pos < state.input.length) {
+  final ok = state.input.{{char_at}}(state.pos) == {{char}};
+  if (ok) {
+    {{adjust_state_pos}};
+    state.setOk(true);
+    {{assign_result}}
+  } else {
+    state.fail(const ErrorUnexpectedCharacter());
+  }
 } else {
-  state.fail(const ErrorUnexpectedCharacter());
+  state.fail(const ErrorUnexpectedEndOfInput());
 }''';
 
     return render(template, values);

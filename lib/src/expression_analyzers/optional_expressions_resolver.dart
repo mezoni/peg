@@ -50,14 +50,6 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _setIsOptional(node, child.isOptional);
-    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
@@ -67,6 +59,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
 
   @override
   void visitGroup(GroupExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setIsOptional(node, child.isOptional);
+    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
+  }
+
+  @override
+  void visitIndicate(IndicateExpression node) {
     node.visitChildren(this);
     final child = node.expression;
     _setIsOptional(node, child.isOptional);
@@ -102,6 +102,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     _setIsOptional(node, true);
     _setMayNotConsumeInput(node, true);
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setIsOptional(node, child.isOptional);
+    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override

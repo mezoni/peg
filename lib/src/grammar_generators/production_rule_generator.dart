@@ -1,5 +1,7 @@
 import '../allocator.dart';
 import '../async_generator.dart';
+import '../async_generators/action_node.dart';
+import '../async_generators/async_switch_case_generator.dart';
 import '../expression_generators/expression_generators.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
@@ -10,6 +12,8 @@ class ProductionRuleGenerator extends ExpressionVisitor<String> {
   final Allocator allocator;
 
   late final AsyncGenerator asyncGenerator;
+
+  BlockNode? block;
 
   final Map<String, String> generatedRules;
 
@@ -174,56 +178,39 @@ AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
       if (!isAsync) {
         values['expression'] = expression.accept(this);
       } else {
-        String generateLastAction() {
-          final values = <String, String>{};
-          values['ar'] = asyncResult!;
-          var template = '';
+        void generateLastAction(BlockNode block, String stateName) {
           if (isFast) {
             if (hasEvent) {
-              values['event'] = event;
-              values['type'] = '$resultType';
-              template = '''
-endEvent<{{type}}>({{event}}, null, state.ok);
-{{ar}}.isComplete = true;
-state.input.handle = {{ar}}.onComplete;
-return;''';
-            } else {
-              template = '''
-{{ar}}.isComplete = true;
-state.input.handle = {{ar}}.onComplete;
-return;''';
+              block << 'endEvent<$resultType>($event, null, state.ok);';
             }
           } else {
-            values['r'] = variable!;
             if (hasEvent) {
-              values['event'] = event;
-              values['type'] = '$resultType';
-              template = '''
-{{r}} = endEvent<{{type}}>({{event}}, {{r}}, state.ok);
-{{ar}}.value = {{r}};
-{{ar}}.isComplete = true;
-state.input.handle = {{ar}}.onComplete;
-return;''';
-            } else {
-              template = '''
-{{ar}}.value = {{r}};
-{{ar}}.isComplete = true;
-state.input.handle = {{ar}}.onComplete;
-return;''';
+              block << 'endEvent<$resultType>($event, $variable, state.ok);';
             }
+
+            block << '$asyncResult.value = $variable;';
           }
 
-          return helper.render(template, values);
+          block << '$asyncResult.isComplete = true;';
+          block << 'state.input.handle = $asyncResult.onComplete;';
+          block << '$stateName = -1;';
+          block << 'return;';
         }
 
         final buffer = StringBuffer();
-        final source = expression.accept(this);
-        final action = generateLastAction();
-        buffer.writeln(asyncGenerator.generate());
-        buffer.writeln('void ${asyncGenerator.functionName}() {');
-        buffer.writeln(source);
-        buffer.writeln(action);
-        buffer.writeln('}');
+        final stateName = allocator.allocate();
+        block = BlockNode();
+        expression.accept(this);
+        generateLastAction(block!, stateName);
+        final initializer = ActionNodeInitializer();
+        initializer.initialize(block!);
+        final generator = AsyncSwitchCaseGenerator(
+            allocator: allocator,
+            functionName: asyncGenerator.functionName,
+            root: block!,
+            stateName: stateName,
+            variables: asyncGenerator.variables);
+        buffer.writeln(generator.generate());
         values['expression'] = buffer.toString();
       }
 
@@ -275,12 +262,6 @@ return;''';
   }
 
   @override
-  String visitEof(EofExpression node) {
-    final generator = EofGenerator(expression: node, ruleGenerator: this);
-    return _generate(generator);
-  }
-
-  @override
   String visitCharacterClass(CharacterClassExpression node) {
     final generator =
         CharacterClassGenerator(expression: node, ruleGenerator: this);
@@ -294,9 +275,8 @@ return;''';
   }
 
   @override
-  String visitErrorHandler(ErrorHandlerExpression node) {
-    final generator =
-        ErrorHandlerGenerator(expression: node, ruleGenerator: this);
+  String visitEof(EofExpression node) {
+    final generator = EofGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -313,6 +293,24 @@ return;''';
   }
 
   @override
+  String visitIndicate(IndicateExpression node) {
+    final generator = IndicateGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitList(ListExpression node) {
+    final generator = ListGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitList1(List1Expression node) {
+    final generator = List1Generator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitLiteral(LiteralExpression node) {
     final generator = LiteralGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
@@ -322,6 +320,12 @@ return;''';
   String visitMatchString(MatchStringExpression node) {
     final generator =
         MatchStringGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
+  String visitMessage(MessageExpression node) {
+    final generator = MessageGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -355,18 +359,6 @@ return;''';
   String visitRepetition(RepetitionExpression node) {
     final generator =
         RepetitionGenerator(expression: node, ruleGenerator: this);
-    return _generate(generator);
-  }
-
-  @override
-  String visitList(ListExpression node) {
-    final generator = ListGenerator(expression: node, ruleGenerator: this);
-    return _generate(generator);
-  }
-
-  @override
-  String visitList1(List1Expression node) {
-    final generator = List1Generator(expression: node, ruleGenerator: this);
     return _generate(generator);
   }
 
@@ -417,7 +409,8 @@ return;''';
       return generator.generate();
     }
 
-    return generator.generateAsync();
+    generator.generateAsync(block!);
+    return '';
   }
 
   List<String> _productionRuleToPrintableList() {

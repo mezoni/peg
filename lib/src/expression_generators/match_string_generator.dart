@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -25,14 +26,15 @@ class MatchStringGenerator extends ExpressionGenerator<MatchStringExpression> {
     const template = '''
 final {{string}} = {{value}};
 if ({{string}}.isEmpty) {
-  state.ok = true;
+  state.setOk(true);
   {{assign_empty_result}}
 } else {
-  state.ok = state.pos < state.input.length &&
+  final ok = state.pos < state.input.length &&
       state.input.codeUnitAt(state.pos) == {{string}}.codeUnitAt(0) &&
       state.input.startsWith({{string}}, state.pos);
-  if (state.ok) {
+  if (ok) {
     state.pos += {{string}}.length;
+    state.setOk(true);
     {{assign_result}}
   } else {
     state.fail(ErrorExpectedTags([{{string}}]));
@@ -42,37 +44,49 @@ if ({{string}}.isEmpty) {
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final value = expression.value;
+    final data = allocateName();
     final input = allocateName();
-    final string = allocateName();
-    values['handle'] = asyncGenerator.functionName;
-    values['input'] = input;
-    values['string'] = string;
-    values['value'] = value;
+    final ok = allocateName();
+    final pos = allocateName();
+    final string = asyncGenerator
+        .allocateVariable(isLate: true, type: GenericType(name: 'String'))
+        .name;
+    final handle = asyncGenerator.functionName;
+    var assignResult = '';
     if (variable != null) {
-      values['assign_result'] = '$variable = ';
-    } else {
-      values['assign_result'] = '';
+      assignResult = '$variable = $string;';
     }
 
-    const template = '''
-final {{input}} = state.input;
-final {{string}} = {{value}};
-if (state.pos + {{string}}.length - 1 < {{input}}.end || {{input}}.isClosed) {
-  {{assign_result}}matchLiteralAsync(state, {{string}}, ErrorExpectedTags([{{string}}]));
-} else {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    block << '$string = $value;';
+    block.if_('$string.isEmpty', (block) {
+      block << 'state.setOk(true);';
+      block << assignResult;
+    }).else_((block) {
+      final label = allocateName();
+      block.label(label);
+      block << 'final $input = state.input;';
+      block.if_(
+          'state.pos + $string.length - 1 >= $input.end && !$input.isClosed',
+          (block) {
+        block << '$input.sleep = true;';
+        block << '$input.handle = $handle;';
+        block.return_(label);
+      });
+      block << 'final $data = $input.data;';
+      block << 'final $pos = state.pos - $input.start;';
+      block <<
+          'final $ok = $data.codeUnitAt($pos) == $string.codeUnitAt(0) && $data.startsWith($string, $pos);';
+      block.if_(ok, (block) {
+        block << 'state.pos += $string.length;';
+        block << 'state.setOk(true);';
+        block << assignResult;
+      }).else_((block) {
+        block << 'state.fail(ErrorExpectedTags([$string]));';
+      });
+    });
   }
 }

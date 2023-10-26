@@ -58,13 +58,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _setResultType(node, _getResultType(child));
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
@@ -73,6 +66,13 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
 
   @override
   void visitGroup(GroupExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getResultType(child));
+  }
+
+  @override
+  void visitIndicate(IndicateExpression node) {
     node.visitChildren(this);
     final child = node.expression;
     _setResultType(node, _getResultType(child));
@@ -108,6 +108,13 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   void visitMatchString(MatchStringExpression node) {
     node.visitChildren(this);
     _setResultType(node, GenericType(name: 'String'));
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getResultType(child));
   }
 
   @override

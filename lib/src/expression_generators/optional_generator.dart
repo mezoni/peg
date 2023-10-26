@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -26,25 +27,16 @@ if (!state.ok) {
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
-    final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['p'] = generateAsyncExpression(child, false);
-    const template = '''
-{{p}}
-if (!state.ok) {
-  state.setOk(true);
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    generateAsyncExpression(block, child, false);
+    block.if_('!state.ok', (block) {
+      block << 'state.setOk(true);';
+    });
   }
 }

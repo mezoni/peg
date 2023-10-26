@@ -165,9 +165,14 @@ class BinaryParser {
     // v:')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 41;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -184,9 +189,14 @@ class BinaryParser {
     // v:':' Spaces
     final $0 = state.pos;
     const $1 = ':';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 58;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -203,9 +213,14 @@ class BinaryParser {
     // v:'(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 40;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -222,9 +237,14 @@ class BinaryParser {
     // v:'?' Spaces
     final $0 = state.pos;
     const $1 = '?';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 63;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -244,8 +264,8 @@ class BinaryParser {
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.pos++);
-    state.ok = true;
+        state.advance(1));
+    state.setOk(true);
   }
 
   /// AstNode
@@ -258,12 +278,17 @@ class BinaryParser {
     // 'true' Spaces {}
     final $1 = state.pos;
     const $2 = 'true';
-    state.ok = state.pos + 3 < state.input.length &&
+    final $3 = state.pos + 3 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 116 &&
         state.input.codeUnitAt(state.pos + 1) == 114 &&
         state.input.codeUnitAt(state.pos + 2) == 117 &&
         state.input.codeUnitAt(state.pos + 3) == 101;
-    state.ok ? state.pos += 4 : state.fail(const ErrorExpectedTags([$2]));
+    if ($3) {
+      state.advance(4);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$2]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -278,15 +303,20 @@ class BinaryParser {
     }
     if (!state.ok && state.isRecoverable) {
       // 'false' Spaces {}
-      final $3 = state.pos;
-      const $4 = 'false';
-      state.ok = state.pos + 4 < state.input.length &&
+      final $4 = state.pos;
+      const $5 = 'false';
+      final $6 = state.pos + 4 < state.input.length &&
           state.input.codeUnitAt(state.pos) == 102 &&
           state.input.codeUnitAt(state.pos + 1) == 97 &&
           state.input.codeUnitAt(state.pos + 2) == 108 &&
           state.input.codeUnitAt(state.pos + 3) == 115 &&
           state.input.codeUnitAt(state.pos + 4) == 101;
-      state.ok ? state.pos += 5 : state.fail(const ErrorExpectedTags([$4]));
+      if ($6) {
+        state.advance(5);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
       if (state.ok) {
         // Spaces
         fastParseSpaces(state);
@@ -297,7 +327,7 @@ class BinaryParser {
         }
       }
       if (!state.ok) {
-        state.backtrack($3);
+        state.backtrack($4);
       }
     }
     return $0;
@@ -408,52 +438,59 @@ class BinaryParser {
   }
 
   /// EqualityOp =
-  ///   v:@expected('operator' ,'==' / '!=') Spaces
+  ///   v:@expected('operator', '==' / '!=') Spaces
   ///   ;
   String? parseEqualityOp(State<String> state) {
     String? $0;
-    // v:@expected('operator' ,'==' / '!=') Spaces
+    // v:@expected('operator', '==' / '!=') Spaces
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $11 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
-    final $10 = state.pos;
-    state.ok = false;
-    final $7 = state.input;
-    if (state.pos < $7.length) {
-      final $6 = $7.codeUnitAt(state.pos);
-      state.pos++;
-      switch ($6) {
+    final $8 = state.pos;
+    var $7 = 0;
+    if (state.pos < state.input.length) {
+      final input = state.input;
+      final c = input.codeUnitAt(state.pos);
+      // ignore: unused_local_variable
+      final pos2 = state.pos + 1;
+      switch (c) {
         case 61:
-          state.ok = state.pos < $7.length && $7.codeUnitAt(state.pos) == 61;
-          if (state.ok) {
-            state.pos++;
+          final ok = pos2 < input.length && input.codeUnitAt(pos2) == 61;
+          if (ok) {
+            $7 = 2;
             $1 = '==';
           }
           break;
         case 33:
-          state.ok = state.pos < $7.length && $7.codeUnitAt(state.pos) == 61;
-          if (state.ok) {
-            state.pos++;
+          final ok = pos2 < input.length && input.codeUnitAt(pos2) == 61;
+          if (ok) {
+            $7 = 2;
             $1 = '!=';
           }
           break;
       }
     }
-    if (!state.ok) {
-      state.pos = $10;
+    if ($7 > 0) {
+      state.advance($7);
+      state.setOk(true);
+    } else {
+      state.pos = $8;
       state.fail(const ErrorExpectedTags(['==', '!=']));
     }
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['operator']));
     }
-    if (state.lastFailPos < $11) {
-      state.lastFailPos = $11;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -512,28 +549,31 @@ class BinaryParser {
 
   /// AstNode
   /// Identifier =
-  ///   v:@expected('identifier' ,Identifier_) Spaces {}
+  ///   v:@expected('identifier', Identifier_) Spaces {}
   ///   ;
   AstNode? parseIdentifier(State<String> state) {
     AstNode? $0;
-    // v:@expected('identifier' ,Identifier_) Spaces {}
+    // v:@expected('identifier', Identifier_) Spaces {}
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $7 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
     // Identifier_
     // Identifier_
     $1 = parseIdentifier_(state);
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['identifier']));
     }
-    if (state.lastFailPos < $7) {
-      state.lastFailPos = $7;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -560,17 +600,18 @@ class BinaryParser {
     final $2 = state.pos;
     // [_a-zA-Z$] [_a-zA-Z$0-9]*
     final $3 = state.pos;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
+    if (state.pos < state.input.length) {
       final $4 = state.input.codeUnitAt(state.pos);
-      state.ok =
+      final $5 =
           $4 < 65 ? $4 == 36 : $4 <= 90 || $4 == 95 || $4 >= 97 && $4 <= 122;
-      if (state.ok) {
-        state.pos++;
+      if ($5) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
       for (var c = 0;
@@ -580,8 +621,8 @@ class BinaryParser {
                   ? c == 36 || c >= 48 && c <= 57
                   : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
-          state.pos++);
-      state.ok = true;
+          state.advance(1));
+      state.setOk(true);
     }
     if (!state.ok) {
       state.backtrack($3);
@@ -648,36 +689,40 @@ class BinaryParser {
   }
 
   /// LogicalAndOp =
-  ///   v:@expected('operator' ,'&&') Spaces
+  ///   v:@expected('operator', '&&') Spaces
   ///   ;
   String? parseLogicalAndOp(State<String> state) {
     String? $0;
-    // v:@expected('operator' ,'&&') Spaces
+    // v:@expected('operator', '&&') Spaces
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $8 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
     // '&&'
-    const $7 = '&&';
-    state.ok = state.pos + 1 < state.input.length &&
+    const $8 = '&&';
+    final $9 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 38 &&
         state.input.codeUnitAt(state.pos + 1) == 38;
-    if (state.ok) {
-      $1 = $7;
-      state.pos += 2;
+    if ($9) {
+      state.advance(2);
+      state.setOk(true);
+      $1 = $8;
     } else {
-      state.fail(const ErrorExpectedTags([$7]));
+      state.fail(const ErrorExpectedTags([$8]));
     }
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['operator']));
     }
-    if (state.lastFailPos < $8) {
-      state.lastFailPos = $8;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -748,36 +793,40 @@ class BinaryParser {
   }
 
   /// LogicalOrOp =
-  ///   v:@expected('operator' ,'||') Spaces
+  ///   v:@expected('operator', '||') Spaces
   ///   ;
   String? parseLogicalOrOp(State<String> state) {
     String? $0;
-    // v:@expected('operator' ,'||') Spaces
+    // v:@expected('operator', '||') Spaces
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $8 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
     // '||'
-    const $7 = '||';
-    state.ok = state.pos + 1 < state.input.length &&
+    const $8 = '||';
+    final $9 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 124 &&
         state.input.codeUnitAt(state.pos + 1) == 124;
-    if (state.ok) {
-      $1 = $7;
-      state.pos += 2;
+    if ($9) {
+      state.advance(2);
+      state.setOk(true);
+      $1 = $8;
     } else {
-      state.fail(const ErrorExpectedTags([$7]));
+      state.fail(const ErrorExpectedTags([$8]));
     }
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['operator']));
     }
-    if (state.lastFailPos < $8) {
-      state.lastFailPos = $8;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -794,28 +843,31 @@ class BinaryParser {
 
   /// AstNode
   /// Number =
-  ///   v:@expected('number' ,Number_) Spaces {}
+  ///   v:@expected('number', Number_) Spaces {}
   ///   ;
   AstNode? parseNumber(State<String> state) {
     AstNode? $0;
-    // v:@expected('number' ,Number_) Spaces {}
+    // v:@expected('number', Number_) Spaces {}
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $7 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
     // Number_
     // Number_
     $1 = parseNumber_(state);
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['number']));
     }
-    if (state.lastFailPos < $7) {
-      state.lastFailPos = $7;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -841,38 +893,47 @@ class BinaryParser {
     // $([0] / ([-])? [1-9] [0-9]*)
     final $2 = state.pos;
     // [0]
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 48;
-    if (state.ok) {
-      state.pos++;
+    if (state.pos < state.input.length) {
+      final ok = state.input.codeUnitAt(state.pos) == 48;
+      if (ok) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
     } else {
-      state.fail(const ErrorUnexpectedCharacter());
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (!state.ok && state.isRecoverable) {
       // ([-])? [1-9] [0-9]*
       final $4 = state.pos;
       // [-]
-      state.ok = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 45;
-      if (state.ok) {
-        state.pos++;
+      if (state.pos < state.input.length) {
+        final ok = state.input.codeUnitAt(state.pos) == 45;
+        if (ok) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
       } else {
-        state.fail(const ErrorUnexpectedCharacter());
+        state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (!state.ok) {
         state.setOk(true);
       }
       if (state.ok) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
+        if (state.pos < state.input.length) {
           final $6 = state.input.codeUnitAt(state.pos);
-          state.ok = $6 >= 49 && $6 <= 57;
-          if (state.ok) {
-            state.pos++;
+          final $7 = $6 >= 49 && $6 <= 57;
+          if ($7) {
+            state.advance(1);
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
           }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorUnexpectedCharacter());
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
           for (var c = 0;
@@ -880,8 +941,8 @@ class BinaryParser {
                   (c = state.input.codeUnitAt(state.pos)) == c &&
                   (c >= 48 && c <= 57);
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              state.pos++);
-          state.ok = true;
+              state.advance(1));
+          state.setOk(true);
         }
       }
       if (!state.ok) {
@@ -979,58 +1040,65 @@ class BinaryParser {
   }
 
   /// RelationalOp =
-  ///   v:@expected('operator' ,'>=' / '>' / '<=' / '<') Spaces
+  ///   v:@expected('operator', '>=' / '>' / '<=' / '<') Spaces
   ///   ;
   String? parseRelationalOp(State<String> state) {
     String? $0;
-    // v:@expected('operator' ,'>=' / '>' / '<=' / '<') Spaces
+    // v:@expected('operator', '>=' / '>' / '<=' / '<') Spaces
     final $2 = state.pos;
     String? $1;
     final $3 = state.pos;
-    final $13 = state.lastFailPos;
-    final $5 = state.errorCount;
+    final $4 = state.errorCount;
+    final $5 = state.failPos;
+    final $6 = state.lastFailPos;
     state.lastFailPos = -1;
-    final $12 = state.pos;
-    state.ok = false;
-    final $7 = state.input;
-    if (state.pos < $7.length) {
-      final $6 = $7.codeUnitAt(state.pos);
-      state.pos++;
-      switch ($6) {
+    final $8 = state.pos;
+    var $7 = 0;
+    if (state.pos < state.input.length) {
+      final input = state.input;
+      final c = input.codeUnitAt(state.pos);
+      // ignore: unused_local_variable
+      final pos2 = state.pos + 1;
+      switch (c) {
         case 62:
-          state.ok = state.pos < $7.length && $7.codeUnitAt(state.pos) == 61;
-          if (state.ok) {
-            state.pos++;
+          final ok = pos2 < input.length && input.codeUnitAt(pos2) == 61;
+          if (ok) {
+            $7 = 2;
             $1 = '>=';
           } else {
-            state.ok = true;
+            $7 = 1;
             $1 = '>';
           }
           break;
         case 60:
-          state.ok = state.pos < $7.length && $7.codeUnitAt(state.pos) == 61;
-          if (state.ok) {
-            state.pos++;
+          final ok = pos2 < input.length && input.codeUnitAt(pos2) == 61;
+          if (ok) {
+            $7 = 2;
             $1 = '<=';
           } else {
-            state.ok = true;
+            $7 = 1;
             $1 = '<';
           }
           break;
       }
     }
-    if (!state.ok) {
-      state.pos = $12;
+    if ($7 > 0) {
+      state.advance($7);
+      state.setOk(true);
+    } else {
+      state.pos = $8;
       state.fail(const ErrorExpectedTags(['>=', '>', '<=', '<']));
     }
-    if (!state.ok &&
-        state.lastFailPos >= state.failPos &&
-        state.lastFailPos == $3) {
-      state.errorCount = $5;
+    if (!state.ok && state.lastFailPos == $3) {
+      if (state.lastFailPos == $5) {
+        state.errorCount = $4;
+      } else if (state.lastFailPos > $5) {
+        state.errorCount = 0;
+      }
       state.fail(const ErrorExpectedTags(['operator']));
     }
-    if (state.lastFailPos < $13) {
-      state.lastFailPos = $13;
+    if (state.lastFailPos < $6) {
+      state.lastFailPos = $6;
     }
     if (state.ok) {
       // Spaces
@@ -1059,8 +1127,9 @@ class BinaryParser {
       // Expression
       $1 = parseExpression(state);
       if (state.ok) {
-        state.ok = state.pos >= state.input.length;
-        if (!state.ok) {
+        if (state.pos >= state.input.length) {
+          state.setOk(true);
+        } else {
           state.fail(const ErrorExpectedEndOfInput());
         }
         if (state.ok) {
@@ -1170,7 +1239,7 @@ String _errorMessage(
       .toSet()
       .toList();
   final offsets =
-      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+      errors.map((e) => e.length < 0 ? offset + e.length : offset).toSet();
   final offsetMap = <int, ({int line, int column})>{};
   if (inputStart == 0) {
     var line = 1;
@@ -1263,22 +1332,8 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
-  var isEof = false;
-  if (input is String) {
-    if (offset >= input.length) {
-      isEof = true;
-    }
-  } else if (input is ChunkedParsingSink) {
-    if (input.isClosed && offset >= input.end) {
-      isEof = true;
-    }
-  }
-
-  if (isEof) {
-    errorList.add(const ErrorUnexpectedEndOfInput());
-    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
-  } else if (errorList.isEmpty) {
-    errorList.add(const ErrorUnexpectedCharacter());
+  if (errorList.isEmpty) {
+    errorList.add(const ErrorUnknownError());
   }
 
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -1347,12 +1402,7 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (this.data.isEmpty) {
-      this.data = data;
-    } else {
-      this.data = '${this.data}$data';
-    }
-
+    this.data = this.data.isNotEmpty ? '${this.data}$data' : data;
     final length = this.data.length;
     end = start + length;
     if (bufferLoad < length) {
@@ -1371,12 +1421,9 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     if (_cuttingPosition > start) {
-      if (_cuttingPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_cuttingPosition - start);
-      }
-
+      this.data = _cuttingPosition != end
+          ? this.data.substring(_cuttingPosition - start)
+          : '';
       start = _cuttingPosition;
     }
   }
@@ -1598,9 +1645,11 @@ abstract class ParseError {
     for (final key in map.keys) {
       result = result.replaceAll(key, map[key]!);
     }
+
     if (quote) {
       result = "'$result'";
     }
+
     return result;
   }
 }
@@ -1640,8 +1689,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  final List<ParseError?> errors = List.filled(64, null, growable: false);
-
   int errorCount = 0;
 
   int failPos = 0;
@@ -1652,11 +1699,28 @@ class State<T> {
 
   int lastFailPos = -1;
 
+  int mute = 0;
+
   bool ok = false;
 
   int pos = 0;
 
+  final List<ParseError?> _errors = List.filled(256, null, growable: false);
+
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void advance(int offset) {
+    if (mute == 0 && isRecoverable) {
+      if (failPos <= pos) {
+        failPos = 0;
+        errorCount = 0;
+      }
+    }
+
+    pos += offset;
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -1669,64 +1733,38 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
-    return false;
+    return failAt(pos, error);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
-        }
-      }
-    }
-    return false;
+    return failAllAt(pos, errors);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
+        for (var i = 0; i < errors.length; i++) {
+          if (errorCount < errors.length) {
+            _errors[errorCount++] = errors[i];
+          }
+        }
+
+        if (lastFailPos < offset) {
+          lastFailPos = offset;
         }
       }
     }
+
     return false;
   }
 
@@ -1734,24 +1772,30 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
+
+        if (errorCount < _errors.length) {
+          _errors[errorCount++] = error;
+        }
+      }
+
+      if (lastFailPos < offset) {
+        lastFailPos = offset;
+      }
     }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
     return false;
   }
 
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   List<ParseError> getErrors() {
-    return List.generate(errorCount, (i) => errors[i]!);
+    return List.generate(errorCount, (i) => _errors[i]!);
   }
 
   @pragma('vm:prefer-inline')
@@ -1764,22 +1808,24 @@ class State<T> {
   String toString() {
     if (input case final String input) {
       if (pos >= input.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = input.length - pos;
       length = length > 40 ? 40 : length;
       final string = input.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
       if (pos < 0 || pos >= source.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = source.length - pos;
       length = length > 40 ? 40 : length;
       final string = source.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     }
 
     return super.toString();
@@ -1799,8 +1845,10 @@ extension ParseStringExt on String {
           return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
         }
       }
+
       throw FormatException('Invalid UTF-16 character', this, index - 1);
     }
+
     return w1;
   }
 }

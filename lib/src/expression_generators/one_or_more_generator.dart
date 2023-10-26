@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../helper.dart' as helper;
 import 'expression_generator.dart';
@@ -18,6 +19,8 @@ class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
       return optimized;
     }
 
+    values['errorCount'] = allocateName();
+    values['minErrorCount'] = allocateName();
     var template = '';
     if (variable != null) {
       values['O'] = child.resultType.toString();
@@ -34,8 +37,8 @@ while (true) {
   }
   {{list}}.add({{rv}});
 }
-state.setOk({{list}}.isNotEmpty);
-if (state.ok) {
+if ({{list}}.isNotEmpty) {
+  state.setOk(true);
   {{r}} = {{list}};
 }''';
     } else {
@@ -57,59 +60,48 @@ state.setOk({{ok}});''';
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
+    final elementType = child.resultType!;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    ({String name, String value})? key;
     if (variable != null) {
-      values['list'] = asyncGenerator.allocateVariable(expression.resultType!);
-      values['r'] = variable;
-      values['r1'] = ruleGenerator.allocateExpressionVariable(child);
-      values['rv'] = getExpressionVariableWithNullCheck(child);
-      key = (name: values['list']!, value: '[]');
-    } else {
-      values['ok'] = asyncGenerator.allocateVariable(GenericType(name: 'bool'));
-      key = (name: values['ok']!, value: 'false');
+      ruleGenerator.allocateExpressionVariable(child);
     }
 
-    values['p'] = generateAsyncExpression(child, true);
-    var template = '';
     if (variable != null) {
-      template = '''
-while (true) {
-  {{p}}
-  if (!state.ok) {
-    {{r1}} = null;
-    break;
-  }
-  {{list}}!.add({{rv}});
-  {{r1}} = null;
-}
-state.setOk({{list}}!.isNotEmpty);
-if (state.ok) {
-  {{r}} = {{list}};
-}
-{{list}} = null;''';
+      final list = asyncGenerator
+          .allocateVariable(
+              isLate: true,
+              type: GenericType(name: 'List', arguments: [elementType]))
+          .name;
+      final rv1 = getExpressionVariableWithNullCheck(child);
+      block << '$list = <$elementType>[];';
+      block.while_('true', (block) {
+        generateAsyncExpression(block, child, true);
+        block.if_('!state.ok', (block) {
+          block.break_();
+        });
+        block << '$list.add($rv1);';
+      });
+      block.if_('$list.isNotEmpty', (block) {
+        block << 'state.setOk(true);';
+        block << '$variable = $list;';
+      });
     } else {
-      template = '''
-while (true) {
-  {{p}}
-  if (!state.ok) {
-    break;
-  }
-  {{ok}} = true;
-}
-state.setOk({{ok}}!);''';
+      final ok = asyncGenerator
+          .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
+          .name;
+      block << '$ok = false;';
+      block.while_('true', (block) {
+        generateAsyncExpression(block, child, true);
+        block.if_('!state.ok', (block) {
+          block.break_();
+        });
+        block << '$ok = true;';
+      });
+      block << 'state.setOk($ok);';
     }
-
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-      key: key,
-    );
   }
 }
 
@@ -133,7 +125,7 @@ class _TakeWhile1Generator extends ExpressionGenerator<OneOrMoreExpression> {
     }
 
     values['char_at'] = helper.charAt(ranges, negate);
-    values['assign_state_pos'] = helper.assignStatePos('c', ranges, negate);
+    values['adjust_state_pos'] = helper.adjustStatePos('c', ranges, negate);
     values['predicate'] = helper.rangesToPredicate('c', ranges, negate);
     var template = '';
     if (variable != null) {
@@ -143,14 +135,16 @@ final {{list}} = <int>[];
 for (var c = 0;
     state.pos < state.input.length &&
     (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
-    {{assign_state_pos}},
+    {{adjust_state_pos}},
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{list}}.add(c));
-state.ok = {{list}}.isNotEmpty;
-if (state.ok) {
+if ({{list}}.isNotEmpty) {
+  state.setOk(true);
   {{r}} = {{list}};
 } else {
-  state.fail(const ErrorUnexpectedCharacter());
+  state.pos < state.input.length
+      ? state.fail(const ErrorUnexpectedCharacter())
+      : state.fail(const ErrorUnexpectedEndOfInput());
 }''';
     } else {
       template = '''
@@ -158,12 +152,15 @@ var {{ok}} = false;
 for (var c = 0;
     state.pos < state.input.length &&
     (c = state.input.{{char_at}}(state.pos)) == c && ({{predicate}});
-    {{assign_state_pos}},
+    {{adjust_state_pos}},
     // ignore: curly_braces_in_flow_control_structures, empty_statements
     {{ok}} = true);
-state.ok = {{ok}};
-if (!state.ok) {
-  state.fail(const ErrorUnexpectedCharacter());
+if ({{ok}}) {
+  state.setOk({{ok}});
+} else {
+  state.pos < state.input.length
+      ? state.fail(const ErrorUnexpectedCharacter())
+      : state.fail(const ErrorUnexpectedEndOfInput());
 }''';
     }
 

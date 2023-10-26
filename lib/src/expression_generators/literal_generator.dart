@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../helper.dart' as helper;
 import 'expression_generator.dart';
@@ -26,26 +27,27 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
   }
 
   @override
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     final string = expression.string;
     if (string.isEmpty) {
-      return _generateAsyncEmptyString();
+      _generateAsyncEmptyString(block);
     } else if (string.length < 9) {
-      return _generateAsyncShortString();
+      _generateAsyncShortString(block);
     } else {
-      return _generateAsync();
+      _generateAsync(block);
     }
   }
 
   String _generate(String string, String? variable) {
     final values = <String, String>{};
     values['literal'] = allocateName();
+    values['ok'] = allocateName();
     values['char'] = string.codeUnitAt(0).toString();
     values['string'] = helper.escapeString(string);
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.pos++';
+      values['adjust_state_pos'] = 'state.advance(1)';
     } else {
-      values['adjust_state_pos'] = 'state.pos += ${string.length}';
+      values['adjust_state_pos'] = 'state.advance(${string.length})';
     }
 
     var template = '';
@@ -53,11 +55,12 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
       values['r'] = variable;
       template = '''
 const {{literal}} = {{string}};
-state.ok = state.pos < state.input.length &&
+final {{ok}} = state.pos < state.input.length &&
     state.input.codeUnitAt(state.pos) == {{char}} &&
     state.input.startsWith({{literal}}, state.pos);
-if (state.ok) {
+if ({{ok}}) {
   {{adjust_state_pos}};
+  state.setOk(true);
   {{r}} = {{literal}};
 } else {
   state.fail(const ErrorExpectedTags([{{literal}}]));
@@ -65,156 +68,132 @@ if (state.ok) {
     } else {
       template = '''
 const {{literal}} = {{string}};
-state.ok = state.pos < state.input.length &&
+final {{ok}} = state.pos < state.input.length &&
     state.input.codeUnitAt(state.pos) == {{char}} &&
     state.input.startsWith({{literal}}, state.pos);
-state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+if ({{ok}}) {
+  {{adjust_state_pos}};
+  state.setOk(true);
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
     }
 
     return render(template, values);
   }
 
-  String _generateAsync() {
-    final values = <String, String>{};
+  void _generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
-    values['input'] = allocateName();
-    values['string'] = allocateName();
-    values['pos'] = allocateName();
-    values['handle'] = asyncGenerator.functionName;
-    values['char'] = string.codeUnitAt(0).toString();
-    values['literal'] = helper.escapeString(string);
-    values['offset'] = (string.length - 1).toString();
+    final input1 = allocateName();
+    final input2 = allocateName();
+    final literal = allocateName();
+    final ok = allocateName();
+    final pos = allocateName();
+    final handle = asyncGenerator.functionName;
+    final char = string.codeUnitAt(0).toString();
+    final escapeString = helper.escapeString(string);
+    final offset = (string.length - 1).toString();
+    var adjustStatePos = '';
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.pos++';
+      adjustStatePos = 'state.advance(1)';
     } else {
-      values['adjust_state_pos'] = 'state.pos += ${string.length}';
+      adjustStatePos = 'state.advance(${string.length})';
     }
 
-    var template = '';
+    var assignResult = '';
     if (variable != null) {
-      values['r'] = variable;
-      template = '''
-final {{input}} = state.input;
-if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-const {{string}} = {{literal}};
-final {{pos}} = state.pos - {{input}}.start;
-state.ok = state.pos < {{input}}.end &&
-  {{input}}.data.codeUnitAt({{pos}}) == {{char}} &&
-  {{input}}.data.startsWith({{string}}, {{pos}});
-if (state.ok) {
-  {{adjust_state_pos}};
-  {{r}} = {{string}};
-} else {
-  state.fail(const ErrorExpectedTags([{{string}}]));
-}''';
-    } else {
-      template = '''
-final {{input}} = state.input;
-if (state.pos + {{offset}} >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-const {{string}} = {{literal}};
-final {{pos}} = state.pos - {{input}}.start;
-state.ok = state.pos < {{input}}.end &&
-  {{input}}.data.codeUnitAt({{pos}}) == {{char}} &&
-  {{input}}.data.startsWith({{string}}, {{pos}});
-state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+      assignResult = '$variable = $literal;';
     }
 
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    final label = allocateName();
+    block.label(label);
+    block << 'final $input1 = state.input;';
+    block.if_('state.pos + $offset >= $input1.end && !$input1.isClosed',
+        (block) {
+      block << '$input1.sleep = true;';
+      block << '$input1.handle = $handle;';
+      block.return_(label);
+    });
+    block << 'final $input2 = state.input;';
+    block << 'const $literal = $escapeString;';
+    block << 'final $pos = state.pos - $input2.start;';
+    block <<
+        'final $ok = state.pos < $input2.end &&  $input2.data.codeUnitAt($pos) == $char &&  $input2.data.startsWith($literal, $pos);';
+    block.if_(ok, (block) {
+      block << '$adjustStatePos;';
+      block << 'state.setOk(true);';
+      block << assignResult;
+    }).else_((block) {
+      block << 'state.fail(const ErrorExpectedTags([$literal]));';
+    });
   }
 
-  String _generateAsyncEmptyString() {
-    final values = <String, String>{};
+  void _generateAsyncEmptyString(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
+    var assignResult = '';
     if (variable != null) {
-      values['assign_result'] = '$variable = \'\';';
-    } else {
-      values['assign_result'] = '';
+      assignResult = '$variable = \'\';';
     }
 
-    const template = '''
-state.ok = true;
-{{assign_result}}''';
-    return render(template, values);
+    block << 'state.advance(0);';
+    block << 'state.setOk(true);';
+    block << assignResult;
   }
 
-  String _generateAsyncShortString() {
-    final values = <String, String>{};
+  void _generateAsyncShortString(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final string = expression.string;
     final input = allocateName();
-    values['handle'] = asyncGenerator.functionName;
-    values['input'] = input;
-    values['string'] = helper.escapeString(string);
-    values['literal'] = allocateName();
-    values['test'] = helper.testLiteral(
+    final handle = asyncGenerator.functionName;
+    final escapedString = helper.escapeString(string);
+    final literal = allocateName();
+    final ok = allocateName();
+    final testLiteral = helper.testLiteral(
       codeUnits: string.codeUnits,
-      end: '$input.end',
+      current: 'state.pos',
+      index: 'state.pos - $input.start',
       input: '$input.data',
-      start: '$input.start',
+      length: '$input.end',
     );
+    var adjustStatePos = '';
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.pos++';
+      adjustStatePos = 'state.advance(1)';
     } else {
-      values['adjust_state_pos'] = 'state.pos += ${string.length}';
+      adjustStatePos = 'state.advance(${string.length})';
     }
 
-    if (string.length > 1) {
-      values['size'] = ' + ${string.length - 1}';
-    } else {
-      values['size'] = '';
-    }
-
-    var template = '';
+    var assignResult = '';
     if (variable != null) {
-      values['r'] = variable;
-      template = '''
-final {{input}} = state.input;
-if (state.pos{{size}} >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-const {{literal}} = {{string}};
-state.ok = {{test}};
-if (state.ok) {
-  {{r}} = {{literal}};
-  {{adjust_state_pos}};
-} else {
-  state.fail(const ErrorExpectedTags([{{literal}}]));
-}''';
-    } else {
-      template = '''
-final {{input}} = state.input;
-if (state.pos{{size}} >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-const {{literal}} = {{string}};
-state.ok = {{test}};
-state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+      assignResult = '$variable = $literal;';
     }
 
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    var size = '';
+    if (string.length > 1) {
+      size = ' + ${string.length - 1}';
+    } else {
+      size = '';
+    }
+
+    final label = allocateName();
+    block.label(label);
+    block << 'final $input = state.input;';
+    block.if_('state.pos$size >= $input.end && !$input.isClosed', (block) {
+      block << '$input.sleep = true;';
+      block << '$input.handle = $handle;';
+      block.return_(label);
+    });
+    block << 'const $literal = $escapedString;';
+    block << 'final $ok = $testLiteral;';
+    block.if_(ok, (block) {
+      block << '$adjustStatePos;';
+      block << 'state.setOk(true);';
+      block << assignResult;
+    }).else_((block) {
+      block << 'state.fail(const ErrorExpectedTags([$literal]));';
+    });
   }
 
   String _generateEmptyString(String? variable) {
@@ -223,13 +202,15 @@ state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}
     if (variable != null) {
       values['r'] = variable;
       template = '''
-state.ok = true;
+state.advance(0);
+state.setOk(true);
 if (state.ok) {
   {{r}} = '';
 }''';
     } else {
       template = '''
-state.ok = true;''';
+state.advance(0);
+state.setOk(true);''';
     }
     return render(template, values);
   }
@@ -238,16 +219,19 @@ state.ok = true;''';
     final values = <String, String>{};
     final literal = allocateName();
     values['literal'] = literal;
+    values['ok'] = allocateName();
     values['string'] = helper.escapeString(string);
     values['test'] = helper.testLiteral(
       codeUnits: string.codeUnits,
-      end: 'state.input.length',
+      current: 'state.pos',
+      index: 'state.pos',
       input: 'state.input',
+      length: 'state.input.length',
     );
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.pos++';
+      values['adjust_state_pos'] = 'state.advance(1)';
     } else {
-      values['adjust_state_pos'] = 'state.pos += ${string.length}';
+      values['adjust_state_pos'] = 'state.advance(${string.length})';
     }
 
     var template = '';
@@ -255,18 +239,24 @@ state.ok = true;''';
       values['r'] = variable;
       template = '''
 const {{literal}} = {{string}};
-state.ok = {{test}};
-if (state.ok) {
-  {{r}} = {{literal}};
+final {{ok}} = {{test}};
+if ({{ok}}) {
   {{adjust_state_pos}};
+  state.setOk(true);
+  {{r}} = {{literal}};
 } else {
   state.fail(const ErrorExpectedTags([{{literal}}]));
 }''';
     } else {
       template = '''
 const {{literal}} = {{string}};
-state.ok = {{test}};
-state.ok ? {{adjust_state_pos}} : state.fail(const ErrorExpectedTags([{{literal}}]));''';
+final {{ok}} = {{test}};
+if ({{ok}}) {
+  {{adjust_state_pos}};
+  state.setOk(true);
+} else {
+  state.fail(const ErrorExpectedTags([{{literal}}]));
+}''';
     }
 
     return render(template, values);

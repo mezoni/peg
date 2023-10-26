@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -20,120 +21,114 @@ class SequenceGenerator extends ExpressionGenerator<SequenceExpression> {
     final action = expression.action;
     final (declareVariable, result) = _generateResult(children);
     final hasCutExpression = children.any((e) => e is CutExpression);
-    final ok = hasCutExpression && children.length > 1 ? allocateName() : '';
-    var cutExpressionCount = 0;
+    final ok = hasCutExpression && children.length > 1
+        ? allocateName()
+        : '__undefined__';
+
     values['pos'] = allocateName();
     String plunge(int i) {
       final values = <String, String>{};
       final child = children[i];
-      var assignOk = '';
+      values['ok'] = ok;
+      final template = StringBuffer();
       if (child is CutExpression) {
-        if (cutExpressionCount++ == 0) {
-          if (ok.isNotEmpty) {
-            assignOk = '''
-$ok = false;
-''';
-          }
+        if (children.length > 1) {
+          template.writeln('{{ok}} = false;');
         }
       }
 
-      var template = '';
       values['p'] = generateExpression(child, declareVariable);
       if (i < children.length - 1) {
         values['next'] = plunge(i + 1);
-        const template = '''
+        template.writeln('''
 {{p}}
 if (state.ok) {
   {{next}}
-}''';
-
-        final template2 = '$assignOk$template';
-        return render(template2, values);
+}''');
+        return render(template.toString(), values);
       }
 
       if (action != null) {
-        values['action'] = _generateActionTemplate();
+        values['action'] = _generateActionSource();
       }
 
       if (variable != null) {
         values['r'] = variable;
         values['result'] = result;
         if (action != null) {
-          template = '''
+          template.writeln('''
 {{p}}
 if (state.ok) {
   {{action}}
   {{r}} = \$\$;
-}''';
+}''');
         } else {
           if (children.length == 1) {
-            template = '{{p}}';
+            template.writeln('{{p}}');
           } else {
-            template = '''
+            template.writeln('''
 {{p}}
 if (state.ok) {
   {{r}} = {{result}};
-}''';
+}''');
           }
         }
       } else {
         if (action != null) {
-          template = '''
+          template.writeln('''
 {{p}}
 if (state.ok) {
   {{action}}
-}''';
+}''');
         } else {
-          template = '{{p}}';
+          template.writeln('{{p}}');
         }
       }
 
-      final template2 = '$assignOk$template';
-      return render(template2, values);
+      return render(template.toString(), values);
     }
 
     values['inner'] = plunge(0);
-    var template = '';
+    final template = StringBuffer();
     values['ok'] = ok;
-    values['declare_vars'] = '';
-    values['set_is_recoverable'] = '';
+    values['declare'] = '';
+    values['failure_handler'] = '';
     if (children.length == 1) {
       if (hasCutExpression) {
-        template = '''
+        template.writeln('''
 {{inner}}
 if (!state.ok) {
   state.isRecoverable = false;
-}''';
+}''');
       } else {
-        template = '''
-{{inner}}''';
+        template.writeln('{{inner}}');
       }
     } else {
       if (hasCutExpression) {
-        if (ok.isNotEmpty) {
-          values['declare_vars'] = 'var $ok = true;';
-          values['set_is_recoverable'] = '''
+        if (children.length > 1) {
+          values['declare'] = 'var $ok = true;';
+          values['failure_handler'] = '''
 if (!$ok) {
   state.isRecoverable = false;
 }''';
         }
       }
 
-      template = '''
+      template.writeln('''
 final {{pos}} = state.pos;
-{{declare_vars}}
+{{declare}}
 {{inner}}
 if (!state.ok) {
-  {{set_is_recoverable}}
+  {{failure_handler}}
   state.backtrack({{pos}});
-}''';
+}''');
     }
 
-    return render(template, values);
+    return render(template.toString(), values);
   }
 
   @override
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     final children = expression.expressions;
     if (children.isEmpty) {
       throw StateError(
@@ -141,179 +136,84 @@ if (!state.ok) {
     }
 
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final action = expression.action;
     final asyncGenerator = ruleGenerator.asyncGenerator;
+    final action = expression.action;
     final (declareVariable, result) = _generateResult(children);
+    final hasCutExpression = children.any((e) => e is CutExpression);
     if (children.length == 1) {
-      final values = <String, String>{};
       final child = children[0];
-      values['p'] = generateAsyncExpression(child, declareVariable);
-      var template = '';
-      if (action != null) {
-        values['action'] = _generateActionTemplate();
-        if (variable != null) {
-          values['r'] = variable;
-          template = '''
-  {{p}}
-  if (state.ok) {
-    {{action}}
-    {{r}} = \$\$;
-  }''';
-        } else {
-          template = '''
-  {{p}}
-  if (state.ok) {
-    {{action}}
-  }''';
-        }
-      } else {
-        template = '''
-{{p}}''';
-      }
-
-      if (child is CutExpression) {
-        const template2 = '''
-if (!state.ok) {
-  state.isRecoverable = false;
-}''';
-        template = '$template$template2';
-      }
-
-      final source = render(template, values);
-      return asyncGenerator.renderAction(
-        source,
-        buffering: false,
-      );
-    } else {
-      final hasCutExpression = children.any((e) => e is CutExpression);
-      final state = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      final ok = !hasCutExpression
-          ? ''
-          : asyncGenerator.allocateVariable(GenericType(name: 'bool'));
-      var cutExpressionCount = 0;
-      final initList = <String>[
-        '{{state}} = 0;',
-        '{{pos}} = state.pos;',
-      ];
+      generateAsyncExpression(block, child, declareVariable);
       if (hasCutExpression) {
-        initList.add('{{ok}} = true;');
+        block.if_('!state.ok', (block) {
+          block << 'state.isRecoverable = false;';
+        });
       }
 
-      final init = render(initList.join('\n'), {
-        'pos': pos,
-        'state': state,
-        if (ok.isNotEmpty) 'ok': ok,
-      });
-      final buffer = StringBuffer();
-      for (var i = 0; i < children.length; i++) {
-        final values = <String, String>{};
+      if (action != null) {
+        block.if_('state.ok', (block) {
+          block << _generateActionSource();
+          if (variable != null) {
+            block << '$variable = \$\$;';
+          }
+        });
+      }
+    } else {
+      var ok = '';
+      if (hasCutExpression) {
+        ok = asyncGenerator
+            .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
+            .name;
+      }
+
+      final pos = asyncGenerator
+          .allocateVariable(isLate: true, type: GenericType(name: 'int'))
+          .name;
+      block << '$pos = state.pos;';
+      if (hasCutExpression) {
+        block << '$ok = true;';
+      }
+
+      void plunge(BlockNode block, int i) {
         final child = children[i];
-        values['index'] = '$i';
-        values['state'] = state;
-        values['p'] = generateAsyncExpression(child, declareVariable);
-        var assignOk = '';
         if (child is CutExpression) {
-          if (cutExpressionCount++ == 0) {
-            if (ok.isNotEmpty) {
-              assignOk = '''
-$ok = false;
-''';
-            }
-          }
+          block << '$ok = false;';
         }
 
-        var template = '';
-        values['assign_ok'] = assignOk;
+        generateAsyncExpression(block, child, declareVariable);
         if (i < children.length - 1) {
-          values['next_index'] = '${i + 1}';
-          template = '''
-if ({{state}} == {{index}}) {
-  {{assign_ok}}
-  {{p}}
-  {{state}} = state.ok ? {{next_index}} : -1;
-}''';
+          block.if_('state.ok', (block) {
+            plunge(block, i + 1);
+          });
         } else {
-          template = '''
-if ({{state}} == {{index}}) {
-  {{assign_ok}}
-  {{p}}
-  {{state}} = -1;
-}''';
+          if (action != null) {
+            block.if_('state.ok', (block) {
+              block << _generateActionSource();
+              if (variable != null) {
+                block << '$variable = \$\$;';
+              }
+            });
+          } else if (variable != null) {
+            block.if_('state.ok', (block) {
+              block << '$variable = $result;';
+            });
+          }
         }
-        final source = render(template, values);
-        buffer.writeln(source);
       }
 
-      {
-        final values = <String, String>{};
-        values['inner'] = buffer.toString();
-        values['pos'] = pos;
-        values['set_is_recoverable'] = '';
+      plunge(block, 0);
+      block.if_('!state.ok', (block) {
         if (hasCutExpression) {
-          values['set_is_recoverable'] = '''
-if (!$ok!) {
-  state.isRecoverable = false;
-}''';
+          block.if_('!$ok', (block) {
+            block << 'state.isRecoverable = false;';
+          });
         }
 
-        var template = '';
-        if (variable != null) {
-          values['r'] = variable;
-          if (action != null) {
-            values['action'] = _generateActionTemplate();
-            template = '''
-{{inner}}
-if (state.ok) {
-  {{action}}
-  {{r}} = \$\$;
-} else {
-  {{set_is_recoverable}}
-  state.backtrack({{pos}}!);
-}''';
-          } else {
-            values['result'] = result;
-            template = '''
-{{inner}}
-if (state.ok) {
-  {{r}} = {{result}};
-} else {
-  {{set_is_recoverable}}
-  state.backtrack({{pos}}!);
-}''';
-          }
-        } else {
-          if (action != null) {
-            values['action'] = _generateActionTemplate();
-            template = '''
-{{inner}}
-if (state.ok) {
-  {{action}}
-} else {
-  {{set_is_recoverable}}
-  state.backtrack({{pos}}!);
-}''';
-          } else {
-            template = '''
-{{inner}}
-if (!state.ok) {
-  {{set_is_recoverable}}
-  state.backtrack({{pos}}!);
-}''';
-          }
-        }
-
-        final source = render(template, values);
-        return asyncGenerator.renderAction(
-          source,
-          buffering: false,
-          init: init,
-        );
-      }
+        block << 'state.backtrack($pos);';
+      });
     }
   }
 
-  String _generateActionTemplate() {
+  String _generateActionSource() {
     final buffer = StringBuffer();
     final variable = ruleGenerator.getExpressionVariable(expression);
     final action = expression.action!;

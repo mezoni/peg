@@ -93,7 +93,7 @@ String _errorMessage(
       .toSet()
       .toList();
   final offsets =
-      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+      errors.map((e) => e.length < 0 ? offset + e.length : offset).toSet();
   final offsetMap = <int, ({int line, int column})>{};
   if (inputStart == 0) {
     var line = 1;
@@ -186,22 +186,8 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
-  var isEof = false;
-  if (input is String) {
-    if (offset >= input.length) {
-      isEof = true;
-    }
-  } else if (input is ChunkedParsingSink) {
-    if (input.isClosed && offset >= input.end) {
-      isEof = true;
-    }
-  }
-
-  if (isEof) {
-    errorList.add(const ErrorUnexpectedEndOfInput());
-    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
-  } else if (errorList.isEmpty) {
-    errorList.add(const ErrorUnexpectedCharacter());
+  if (errorList.isEmpty) {
+    errorList.add(const ErrorUnknownError());
   }
 
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -270,12 +256,7 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (this.data.isEmpty) {
-      this.data = data;
-    } else {
-      this.data = '${this.data}$data';
-    }
-
+    this.data = this.data.isNotEmpty ? '${this.data}$data' : data;
     final length = this.data.length;
     end = start + length;
     if (bufferLoad < length) {
@@ -294,12 +275,9 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     if (_cuttingPosition > start) {
-      if (_cuttingPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_cuttingPosition - start);
-      }
-
+      this.data = _cuttingPosition != end
+          ? this.data.substring(_cuttingPosition - start)
+          : '';
       start = _cuttingPosition;
     }
   }
@@ -521,9 +499,11 @@ abstract class ParseError {
     for (final key in map.keys) {
       result = result.replaceAll(key, map[key]!);
     }
+
     if (quote) {
       result = "'$result'";
     }
+
     return result;
   }
 }
@@ -563,8 +543,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  final List<ParseError?> errors = List.filled(64, null, growable: false);
-
   int errorCount = 0;
 
   int failPos = 0;
@@ -575,11 +553,28 @@ class State<T> {
 
   int lastFailPos = -1;
 
+  int mute = 0;
+
   bool ok = false;
 
   int pos = 0;
 
+  final List<ParseError?> _errors = List.filled(256, null, growable: false);
+
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void advance(int offset) {
+    if (mute == 0 && isRecoverable) {
+      if (failPos <= pos) {
+        failPos = 0;
+        errorCount = 0;
+      }
+    }
+
+    pos += offset;
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -592,64 +587,38 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
-    return false;
+    return failAt(pos, error);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
-        }
-      }
-    }
-    return false;
+    return failAllAt(pos, errors);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
+        for (var i = 0; i < errors.length; i++) {
+          if (errorCount < errors.length) {
+            _errors[errorCount++] = errors[i];
+          }
+        }
+
+        if (lastFailPos < offset) {
+          lastFailPos = offset;
         }
       }
     }
+
     return false;
   }
 
@@ -657,24 +626,30 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
+
+        if (errorCount < _errors.length) {
+          _errors[errorCount++] = error;
+        }
+      }
+
+      if (lastFailPos < offset) {
+        lastFailPos = offset;
+      }
     }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
     return false;
   }
 
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   List<ParseError> getErrors() {
-    return List.generate(errorCount, (i) => errors[i]!);
+    return List.generate(errorCount, (i) => _errors[i]!);
   }
 
   @pragma('vm:prefer-inline')
@@ -687,22 +662,24 @@ class State<T> {
   String toString() {
     if (input case final String input) {
       if (pos >= input.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = input.length - pos;
       length = length > 40 ? 40 : length;
       final string = input.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
       if (pos < 0 || pos >= source.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = source.length - pos;
       length = length > 40 ? 40 : length;
       final string = source.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     }
 
     return super.toString();
@@ -722,8 +699,10 @@ extension ParseStringExt on String {
           return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
         }
       }
+
       throw FormatException('Invalid UTF-16 character', this, index - 1);
     }
+
     return w1;
   }
 }

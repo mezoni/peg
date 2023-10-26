@@ -17,9 +17,9 @@ Start =
   / (v:Cut Cut)
   / (v:Cut1 Cut1)
   / (v:CutWithInner CutWithInner)
-  / (v:ErrorHandler ErrorHandler)
   / (v:Eof Eof)
   / (v:Expected Expected)
+  / (v:Indicate Indicate)
   / (v:Literal0 Literal0)
   / (v:Literal1 Literal1)
   / (v:Literal2 Literal2)
@@ -28,8 +28,11 @@ Start =
   / (v:List List)
   / (v:List1 List1)
   / (v:MatchString MatchString)
+  / (v:Message Message)
   / (v:NotPredicate NotPredicate)
+  / (v:NotPredicate2 NotPredicate2)
   / (v:OneOrMore OneOrMore)
+  / (v:OneOrMoreLiteral OneOrMoreLiteral)
   / (v:OrderedChoice2 OrderedChoice2)
   / (v:OrderedChoice3 OrderedChoice3)
   / (v:Optional Optional)
@@ -83,14 +86,15 @@ CutWithInner =
   / [0]
   ;
 
-ErrorHandler = @errorHandler([0], {
-    rollbackErrors = true;
-    error = const ErrorMessage(0, 'error');
-  }) ;
-
 Eof = [0] @eof() ;
 
 Expected = @expected('digits', [0-9]{2,}) ;
+
+Indicate = @indicate('error', [0][1][2]) ;
+
+List = @list([0], [,] v:[0]) ;
+
+List1 = @list1([0], [,] v:[0]) ;
 
 Literal0 = '' ;
 
@@ -104,9 +108,18 @@ Literals = '0123' / '012' / '01' / 'ab' / 'a' / 'A' ;
 
 MatchString = @matchString({ text }) ;
 
+Message = @message('error', [0][1][2]) ;
+
 NotPredicate = !([0] [1] [2]) [0] [1] ;
 
+NotPredicate2 =
+     !([0] [3] 'abc' 'foo') [0] [3] 'abc'
+   / [0] [3] [2]
+  ;
+
 OneOrMore = [0]+ ;
+
+OneOrMoreLiteral = 'abc'+ ;
 
 OrderedChoice2 = [0] / [1] ;
 
@@ -121,10 +134,6 @@ RepetitionMin = [🚀]{3,} ;
 RepetitionMinMax = [🚀]{2,3} ;
 
 RepetitionN = [🚀]{3} ;
-
-List = @list([0], [,] v:[0]) ;
-
-List1 = @list1([0], [,] v:[0]) ;
 
 Sequence1 = [0] ;
 
@@ -150,8 +159,13 @@ Slice = $([0] [1] [2]) / $([0] [1]) ;
 
 StringChars = @stringChars($[0-9]+, [\\], [t] <String>{ $$ = '\t'; }) ;
 
-Verify = @verify(., {
-    if ($$ != 0x30) { error = const ErrorMessage(0, 'error'); }
-  }) ;
+Verify =
+    'abc'
+  / [5] [6] [7]
+  / Verify_
+  ;
+
+@inline
+Verify_ = @verify('error', [0-1], { $$ == 0x30 }) ;
 
 ZeroOrMore = [0]* ;

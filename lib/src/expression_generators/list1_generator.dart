@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -67,94 +68,58 @@ state.setOk({{ok}});''';
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final first = expression.first;
     final next = expression.next;
     final elementType = first.resultType!;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    values['state'] = asyncGenerator.allocateVariable(GenericType(name: 'int'));
     if (variable != null) {
-      values['list'] = asyncGenerator.allocateVariable(
-          GenericType(name: 'List', arguments: [elementType]));
-      values['r'] = variable;
-      values['r1'] = ruleGenerator.allocateExpressionVariable(first);
-      values['r2'] = ruleGenerator.allocateExpressionVariable(next);
-      values['rv1'] = getExpressionVariableWithNullCheck(first);
-      values['rv2'] = getExpressionVariableWithNullCheck(next);
-    } else {
-      values['ok'] = asyncGenerator.allocateVariable(GenericType(name: 'bool'));
+      ruleGenerator.allocateExpressionVariable(first);
+      ruleGenerator.allocateExpressionVariable(next);
     }
 
-    values['pos'] = pos;
-    values['p1'] = generateExpression(first, true);
-    values['p2'] = generateExpression(next, true);
-    final key = (name: pos, value: 'state.pos');
-    final initList = [
-      '{{state}} = 0;',
-      if (variable != null) '{{list}} = [];',
-      if (variable == null) '{{ok}} = false;',
-    ];
-
-    final init = render(initList.join('\n'), values);
-    var template = '';
     if (variable != null) {
-      template = '''
-while (true) {
-  if ({{state}} == 0) {
-    {{p1}}
-    if (!state.ok) {
-      break;
-    }
-    {{list}}!.add({{rv1}});
-    {{r1}} = null;
-    {{state}} = 1;
-  }
-  if ({{state}} == 1) {
-    {{p2}}
-    if (!state.ok) {
-      {{state}} = -1;
-      break;
-    }
-    {{list}}!.add({{rv2}});
-    {{r2}} = null;
-  }
-}
-state.setOk({{list}}!.isNotEmpty);
-if (state.ok) {
-  {{r}} = {{list}};
-  {{list}} = null;
-}''';
+      final list = asyncGenerator
+          .allocateVariable(
+              isLate: true,
+              type: GenericType(name: 'List', arguments: [elementType]))
+          .name;
+      final r = variable;
+      final rv1 = getExpressionVariableWithNullCheck(first);
+      final rv2 = getExpressionVariableWithNullCheck(next);
+      block << '$list = [];';
+      generateAsyncExpression(block, first, true);
+      block.if_('state.ok', (block) {
+        block << '$list.add($rv1);';
+        block.while_('true', (block) {
+          generateAsyncExpression(block, next, true);
+          block.if_('!state.ok', (block) {
+            block.break_();
+          });
+          block << '$list.add($rv2);';
+        });
+      });
+      block << 'state.setOk($list.isNotEmpty);';
+      block.if_('state.ok', (block) {
+        block << '$r = $list;';
+      });
     } else {
-      template = '''
-while (true) {
-  if ({{state}} == 0) {
-    {{p1}}
-    if (!state.ok) {
-      break;
+      final ok = asyncGenerator
+          .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
+          .name;
+      block << '$ok = false;';
+      generateAsyncExpression(block, first, true);
+      block.if_('state.ok', (block) {
+        block << '$ok = true;';
+        block.while_('true', (block) {
+          generateAsyncExpression(block, next, true);
+          block.if_('!state.ok', (block) {
+            block.break_();
+          });
+        });
+      });
+      block << 'state.setOk($ok);';
     }
-    {{ok}} = true;
-    {{state}} = 1;
-  }
-  if ({{state}} == 1) {
-    {{p2}}
-    if (!state.ok) {
-      {{state}} = -1;
-      break;
-    }
-  }
-}
-state.setOk({{ok}}!);''';
-    }
-
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-      key: key,
-      init: init,
-    );
   }
 }

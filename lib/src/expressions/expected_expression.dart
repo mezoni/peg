@@ -17,6 +17,6 @@ class ExpectedExpression extends SingleExpression {
   @override
   String toString() {
     final text = helper.escapeString(tag);
-    return '@expected($text ,$expression)';
+    return '@expected($text, $expression)';
   }
 }

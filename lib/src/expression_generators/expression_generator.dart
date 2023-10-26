@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../grammar/production_rule.dart';
 import '../grammar_generators/production_rule_generator.dart';
@@ -21,34 +22,35 @@ abstract class ExpressionGenerator<T extends Expression> {
 
   String generate();
 
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     throw UnimplementedError('generateAsync()');
   }
 
-  String generateAsyncExpression(Expression expression, bool declareVariable) {
+  void generateAsyncExpression(
+      BlockNode block, Expression expression, bool declareVariable) {
     final buffer = StringBuffer();
     final asyncGenerator = ruleGenerator.asyncGenerator;
     buffer.writeln(' // $expression');
     final variable = ruleGenerator.getExpressionVariable(expression);
     if (variable != null) {
       if (declareVariable) {
-        asyncGenerator.addVariable(variable, expression.resultType!);
+        asyncGenerator.addVariable(
+            name: variable, type: expression.resultType!.getNullableType());
       }
     }
 
-    final forceBuffering =
-        asyncGenerator.buffering == 0 && _needForceBuffering(expression);
+    final forceBuffering = _needForceBuffering(expression);
     if (forceBuffering) {
-      asyncGenerator.buffering++;
+      asyncGenerator.beginBuffering(block);
     }
 
-    final source = expression.accept(ruleGenerator);
+    final previousBlock = ruleGenerator.block;
+    ruleGenerator.block = block;
+    expression.accept(ruleGenerator);
+    ruleGenerator.block = previousBlock;
     if (forceBuffering) {
-      asyncGenerator.buffering--;
+      asyncGenerator.endBuffering(block);
     }
-
-    buffer.writeln(source);
-    return buffer.toString();
   }
 
   String generateExpression(Expression expression, bool declareVariable) {

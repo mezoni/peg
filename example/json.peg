@@ -49,10 +49,7 @@ EscapeChar = c:["/bfnrt\\] { $$ = _escape(c); } ;
 String
 EscapeHex = 'u' v:HexNumber { $$ = String.fromCharCode(v); } ;
 
-HexNumber = @errorHandler(HexNumber_, {
-    rollbackErrors = true;
-    error = ErrorMessage(start - state.failPos, 'Expected 4 digit hex number');
-  }) ;
+HexNumber = @indicate('Expected 4 digit hex number', HexNumber_) ;
 
 @inline
 int

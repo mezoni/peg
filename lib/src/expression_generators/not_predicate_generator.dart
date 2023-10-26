@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -16,51 +17,50 @@ class NotPredicateGenerator
     values['p'] = generateExpression(child, false);
     const template = '''
 final {{pos}} = state.pos;
+state.mute++;
 {{p}}
-state.setOk(!state.ok);
-if (!state.ok) {
+state.mute--;
+if (state.ok) {
   final length = state.pos - {{pos}};
   state.failAt({{pos}}, switch (length) {
     0 => const ErrorUnexpectedInput(0),
-    1 => const ErrorUnexpectedInput(-1),
-    2 => const ErrorUnexpectedInput(-2),
+    1 => const ErrorUnexpectedInput(1),
+    2 => const ErrorUnexpectedInput(2),
     _ => ErrorUnexpectedInput(length)
   });
   state.backtrack({{pos}});
+} else {
+  state.advance(0);
+  state.setOk(true);
 }''';
     return render(template, values);
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final child = expression.expression;
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    final pos = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-    final key = (name: pos, value: 'state.pos');
-    values['pos'] = pos;
-    asyncGenerator.buffering++;
-    values['p'] = generateAsyncExpression(child, false);
-    asyncGenerator.buffering--;
-    const template = '''
-{{p}}
-state.setOk(!state.ok);
-if (!state.ok) {
-  final pos = {{pos}}!;
-  final length = state.pos - pos;
-  state.failAt(pos, switch (length) {
-    0 => const ErrorUnexpectedInput(0),
-    1 => const ErrorUnexpectedInput(-1),
-    2 => const ErrorUnexpectedInput(-2),
-    _ => ErrorUnexpectedInput(length)
-  });
-  state.backtrack(pos);
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: asyncGenerator.buffering == 0,
-      key: key,
-    );
+    final pos = asyncGenerator
+        .allocateVariable(isLate: true, type: GenericType(name: 'int'))
+        .name;
+    block << '$pos = state.pos;';
+    block << 'state.mute++;';
+    asyncGenerator.beginBuffering(block);
+    generateAsyncExpression(block, child, false);
+    asyncGenerator.endBuffering(block);
+    block << 'state.mute--;';
+    block.if_('state.ok', (block) {
+      block << 'final length = state.pos - $pos;';
+      block << 'state.failAt($pos, switch (length) {';
+      block << '0 => const ErrorUnexpectedInput(0),';
+      block << '1 => const ErrorUnexpectedInput(1),';
+      block << '2 => const ErrorUnexpectedInput(2),';
+      block << '_ => ErrorUnexpectedInput(length)';
+      block << '});';
+      block << 'state.backtrack($pos);';
+    }).else_((block) {
+      block << 'state.advance(0);';
+      block << 'state.setOk(true);';
+    });
   }
 }

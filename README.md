@@ -408,6 +408,37 @@ HexNumber = @errorHandler(HexNumberRaw, {
   }) ;
 ```
 
+### @errorMessage
+
+Name: `@errorMessage`  
+
+The meta expression `@errorMessage` replaces parsing error of the child expression with the `ErrorMessage` error.  
+It can be considered as a similarity to this function:
+
+```
+@errorMessage(mode, message, expression)
+```
+
+The `mode` parameter represents the value of the bit flag.
+- 0x01 : Indicates that the error message generation position is the starting position; otherwise it is a failure position.
+- 0x02 : Indicates that the specified error message will only be generated if there has been input consumption.
+
+If an error is generated at the starting position, it may be hidden by subsequent errors that are generated at further positions.  
+If an error is generated in the failure (farthest) position, it will hide subsequent errors that are generated in positions before this position.  
+These flags allow very flexibly control how error message are generated, depending on how its is required to present the error more objectively.
+
+Modes:
+- 0 : Data consumption is not required, error generation position is the failure position (start/failPos).
+- 1 : Data consumption is not required, error generation position is the starting position (start/pos).
+- 2 : Data consumption is required, error generation position is the failure position (next/failPos).
+- 3 : Data consumption is required, error generation position is the starting position (next/pos).
+
+Example:
+
+```
+@errorMessage(0, 'Expected 4 digit hex number', HexNumber_)
+```
+
 ### @eof
 
 Name: `@eof`  
@@ -543,7 +574,7 @@ Parameters:
 - Source code of the handler
 
 ⚠️ **Important information:**  
-To avoid situations where error registration in the `@verify` meta expression handler may be performed incorrectly, the local variable `ParseError? error` is intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered.
+To avoid situations where error registration in the `@verify` meta expression handler may be performed incorrectly, the local variable `ParseError? error` is intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered. The local variable `start` will also be available.
 
 The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
 Despite the fact that this meta expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  

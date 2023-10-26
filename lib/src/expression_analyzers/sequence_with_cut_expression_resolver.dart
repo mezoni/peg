@@ -43,13 +43,6 @@ class SequenceWithCutExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _addChild(node, child);
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
@@ -64,6 +57,31 @@ class SequenceWithCutExpressionResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitIndicate(IndicateExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
+  }
+
+  @override
+  void visitList(ListExpression node) {
+    node.visitChildren(this);
+    final expression = node.first;
+    final separator = node.next;
+    _addChild(node, expression);
+    _processSequence(node, [separator, expression]);
+  }
+
+  @override
+  void visitList1(List1Expression node) {
+    node.visitChildren(this);
+    final expression = node.first;
+    final separator = node.next;
+    _addChild(node, expression);
+    _processSequence(node, [separator, expression]);
+  }
+
+  @override
   void visitLiteral(LiteralExpression node) {
     node.visitChildren(this);
   }
@@ -71,6 +89,13 @@ class SequenceWithCutExpressionResolver extends ExpressionVisitor<void> {
   @override
   void visitMatchString(MatchStringExpression node) {
     node.visitChildren(this);
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
   }
 
   @override
@@ -109,24 +134,6 @@ class SequenceWithCutExpressionResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final child = node.expression;
     _addChild(node, child);
-  }
-
-  @override
-  void visitList(ListExpression node) {
-    node.visitChildren(this);
-    final expression = node.first;
-    final separator = node.next;
-    _addChild(node, expression);
-    _processSequence(node, [separator, expression]);
-  }
-
-  @override
-  void visitList1(List1Expression node) {
-    node.visitChildren(this);
-    final expression = node.first;
-    final separator = node.next;
-    _addChild(node, expression);
-    _processSequence(node, [separator, expression]);
   }
 
   @override

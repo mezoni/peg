@@ -1,3 +1,10 @@
+# 5.0.0
+
+- Error generation algorithms have been slightly reworked. This made it possible to reduce the impact of some errors on others. The fact is that PEG uses the so-called principle: the further away the position of the error, the more accurately it describes the real location of the failure. This was done by forcing `state.errorCount` and `state.failPos` to be reset whenever the position of a successful parse (`state.pos`) reaches or exceeds the position of an unsuccessful parse (`failPos`).
+- Breaking change: Removed meta expression `@errorHandler()`.
+- Added meta expression `@indicate()`.
+- Added meta expression `@message()`.
+
 # 4.0.7
 
 - Removed unnecessary code from file `helper.dart`.

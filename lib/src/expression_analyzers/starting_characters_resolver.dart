@@ -65,17 +65,17 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    _addNode(node);
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     _addNode(node);
   }
 
   @override
   void visitGroup(GroupExpression node) {
+    _addNode(node);
+  }
+
+  @override
+  void visitIndicate(IndicateExpression node) {
     _addNode(node);
   }
 
@@ -103,6 +103,11 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   @override
   void visitMatchString(MatchStringExpression node) {
     _addStartingCharacters(node, _unicodeCharacters);
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
+    _addNode(node);
   }
 
   @override

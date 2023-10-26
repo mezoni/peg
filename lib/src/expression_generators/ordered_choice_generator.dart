@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import '../helper.dart' as helper;
 import 'expression_generator.dart';
@@ -57,7 +58,7 @@ if (!state.ok && state.isRecoverable) {
   }
 
   @override
-  String generateAsync() {
+  void generateAsync(BlockNode block) {
     final children = expression.expressions;
     if (children.isEmpty) {
       throw StateError(
@@ -65,54 +66,21 @@ if (!state.ok && state.isRecoverable) {
     }
 
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final asyncGenerator = ruleGenerator.asyncGenerator;
-    if (children.length == 1) {
-      final child = children[0];
+    void plunge(BlockNode block, int i) {
+      final child = children[i];
       if (variable != null) {
         ruleGenerator.setExpressionVariable(child, variable);
       }
 
-      return generateAsyncExpression(child, false);
-    } else {
-      final state = asyncGenerator.allocateVariable(GenericType(name: 'int'));
-      final init = '$state = 0;';
-      final buffer = StringBuffer();
-      for (var i = 0; i < children.length; i++) {
-        final values = <String, String>{};
-        values['index'] = '$i';
-        values['next_index'] = '${i + 1}';
-        values['state'] = state;
-        final child = children[i];
-        if (variable != null) {
-          ruleGenerator.setExpressionVariable(child, variable);
-        }
-
-        values['p'] = generateAsyncExpression(child, false);
-        var template = '';
-        if (i < children.length - 1) {
-          template = '''
-if ({{state}} == {{index}}) {
-  {{p}}
-  {{state}} = state.ok ? -1 : state.isRecoverable ? {{next_index}} : -1;
-}''';
-        } else {
-          template = '''
-if ({{state}} == {{index}}) {
-  {{p}}
-  {{state}} = -1;
-}''';
-        }
-
-        final source = render(template, values);
-        buffer.writeln(source);
+      generateAsyncExpression(block, child, false);
+      if (i < children.length - 1) {
+        block.if_('!state.ok && state.isRecoverable', (block) {
+          plunge(block, i + 1);
+        });
       }
-
-      return asyncGenerator.renderAction(
-        buffer.toString(),
-        buffering: false,
-        init: init,
-      );
     }
+
+    plunge(block, 0);
   }
 }
 
@@ -137,8 +105,8 @@ class _OrderedChoiceOfLiterals
       (map[codeUnit] ??= []).add(string);
     }
 
-    final c = allocateName();
-    final input = allocateName();
+    final offset = allocateName();
+    final pos = allocateName();
     final cases = <String>[];
     for (final entry in map.entries) {
       final key = entry.key;
@@ -148,8 +116,9 @@ class _OrderedChoiceOfLiterals
         final value = strings[i];
         final string = allocateName();
         final text = helper.escapeString(value);
+        values['length'] = value.length.toString();
+        values['offset'] = offset;
         values['string'] = string;
-        values['input'] = input;
         values['text'] = text;
         if (i < strings.length - 1) {
           values['next'] = plunge(i + 1);
@@ -158,37 +127,29 @@ class _OrderedChoiceOfLiterals
             values['r'] = variable;
             if (value.length == 1) {
               template = '''
-state.ok = true;
+{{offset}} = {{length}};
 {{r}} = {{text}};''';
             } else if (value.length < 5) {
-              final tests = <String>[];
-              for (var i = 1; i < value.length; i++) {
-                final char = value.codeUnitAt(i);
-                final offset = i == 1 ? '' : '+ ${i - 1}';
-                tests.add('$input.codeUnitAt(state.pos$offset) == $char');
-              }
-
-              values['adjust_state_pos'] = value.length == 2
-                  ? 'state.pos++;'
-                  : 'state.pos += ${value.length - 1};';
-              values['offset'] =
-                  value.length == 2 ? '' : ' + ${value.length - 2}';
-              values['tests'] = tests.join('  &&\n');
+              values['test'] = helper.testLiteral(
+                  codeUnits: value.codeUnits.sublist(1),
+                  current: 'pos2',
+                  index: 'pos2',
+                  input: 'input',
+                  length: 'input.length');
               template = '''
-state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
-if (state.ok) {
-  {{adjust_state_pos}}
+final ok = {{test}};
+if (ok) {
+  {{offset}} = {{length}};
   {{r}} = {{text}};
 } else {
   {{next}}
 }''';
             } else {
-              values['size'] = (value.length - 1).toString();
               template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - 1);
-if (state.ok) {
-  state.pos += {{size}};
+final ok = input.startsWith({{string}}, state.pos);
+if (ok) {
+  {{offset}} = {{length}};
   {{r}} = {{string}};
 } else {
   {{next}}
@@ -197,35 +158,27 @@ if (state.ok) {
           } else {
             if (value.length == 1) {
               template = '''
-state.ok = true;''';
+{{offset}} = {{length}};''';
             } else if (value.length < 5) {
-              final tests = <String>[];
-              for (var i = 1; i < value.length; i++) {
-                final char = value.codeUnitAt(i);
-                final offset = i == 1 ? '' : '+ ${i - 1}';
-                tests.add('$input.codeUnitAt(state.pos$offset) == $char');
-              }
-
-              values['adjust_state_pos'] = value.length == 2
-                  ? 'state.pos++;'
-                  : 'state.pos += ${value.length - 1};';
-              values['offset'] =
-                  value.length == 2 ? '' : ' + ${value.length - 2}';
-              values['tests'] = tests.join('  &&\n');
+              values['test'] = helper.testLiteral(
+                  codeUnits: value.codeUnits.sublist(1),
+                  current: 'pos2',
+                  index: 'pos2',
+                  input: 'input',
+                  length: 'input.length');
               template = '''
-state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
-if (state.ok) {
-  {{adjust_state_pos}}
+final ok = {{test}};
+if (ok) {
+  {{offset}} = {{length}};
 } else {
   {{next}}
 }''';
             } else {
-              values['size'] = (value.length - 1).toString();
               template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - 1;
-if (state.ok) {
-  state.pos += {{size}};
+final ok = input.startsWith({{string}}, state.pos);
+if (ok) {
+  {{offset}} = {{length}};
 } else {
   {{next}}
 }''';
@@ -240,68 +193,54 @@ if (state.ok) {
           values['r'] = variable;
           if (value.length == 1) {
             template = '''
-state.ok = true;
+{{offset}} = {{length}};
 {{r}} = {{text}};''';
           } else if (value.length < 5) {
-            final tests = <String>[];
-            for (var i = 1; i < value.length; i++) {
-              final char = value.codeUnitAt(i);
-              final offset = i == 1 ? '' : '+ ${i - 1}';
-              tests.add('$input.codeUnitAt(state.pos$offset) == $char');
-            }
-
-            values['adjust_state_pos'] = value.length == 2
-                ? 'state.pos++;'
-                : 'state.pos += ${value.length - 1};';
-            values['offset'] =
-                value.length == 2 ? '' : ' + ${value.length - 2}';
-            values['tests'] = tests.join('  &&\n');
+            values['test'] = helper.testLiteral(
+              codeUnits: value.codeUnits.sublist(1),
+              current: 'pos2',
+              index: 'pos2',
+              input: 'input',
+              length: 'input.length',
+            );
             template = '''
-state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
-if (state.ok) {
-  {{adjust_state_pos}}
+final ok = {{test}};
+if (ok) {
+  {{offset}} = {{length}};
   {{r}} = {{text}};
 }''';
           } else {
-            values['size'] = (value.length - 1).toString();
             template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - 1});
-if (state.ok) {
-  state.pos += {{size}};
+final ok = input.startsWith({{string}}, state.pos);
+if (ok) {
+  {{offset}} = {{length}};
   {{r}} = {{string}};
 }''';
           }
         } else {
           if (value.length == 1) {
             template = '''
-state.ok = true;''';
+{{offset}} = {{length}};''';
           } else if (value.length < 5) {
-            final tests = <String>[];
-            for (var i = 1; i < value.length; i++) {
-              final char = value.codeUnitAt(i);
-              final offset = i == 1 ? '' : '+ ${i - 1}';
-              tests.add('$input.codeUnitAt(state.pos$offset) == $char');
-            }
-
-            values['adjust_state_pos'] = value.length == 2
-                ? 'state.pos++;'
-                : 'state.pos += ${value.length - 1};';
-            values['offset'] =
-                value.length == 2 ? '' : ' + ${value.length - 2}';
-            values['tests'] = tests.join('  &&\n');
+            values['test'] = helper.testLiteral(
+              codeUnits: value.codeUnits.sublist(1),
+              current: 'pos2',
+              index: 'pos2',
+              input: 'input',
+              length: 'input.length',
+            );
             template = '''
-state.ok = state.pos{{offset}} < {{input}}.length && {{tests}};
-if (state.ok) {
-  {{adjust_state_pos}}
+final ok = {{test}};
+if (ok) {
+  {{offset}} = {{length}};
 }''';
           } else {
-            values['size'] = (value.length - 1).toString();
             template = '''
 const {{string}} = {{text}};
-state.ok = {{input}}.startsWith({{string}}, state.pos - 1);
-if (state.ok) {
-  state.pos += {{size}};
+final ok = input.startsWith({{string}}, state.pos);
+if (ok) {
+  {{offset}} = {{length}};
 }''';
           }
         }
@@ -312,7 +251,6 @@ if (state.ok) {
       final values = <String, String>{};
       values['body'] = plunge(0);
       values['charCode'] = '$key';
-      values['input'] = input;
       const template = '''
 case {{charCode}}:
 {{body}}
@@ -321,23 +259,26 @@ break;''';
       cases.add(code);
     }
 
-    values['c'] = c;
+    values['pos'] = pos;
+    values['offset'] = offset;
     values['cases'] = cases.join('\n');
-    values['input'] = input;
-    values['pos'] = allocateName();
     values['strings'] = strings.map(helper.escapeString).join(', ');
     const template = '''
 final {{pos}} = state.pos;
-state.ok = false;
-final {{input}} = state.input;
-if (state.pos < {{input}}.length) {
-  final {{c}} = {{input}}.codeUnitAt(state.pos);
-  state.pos++;
-  switch ({{c}}) {
+var {{offset}} = 0;
+if (state.pos < state.input.length) {
+  final input = state.input;
+  final c = input.codeUnitAt(state.pos);
+  // ignore: unused_local_variable
+  final pos2 = state.pos + 1;
+  switch (c) {
     {{cases}}
   }
 }
-if (!state.ok) {
+if ({{offset}} > 0) {
+  state.advance({{offset}});
+  state.setOk(true);
+} else {
   state.pos = {{pos}};
   state.fail(const ErrorExpectedTags([{{strings}}]));
 }''';
@@ -407,33 +348,38 @@ if (!state.ok) {
     }
 
     final map = <int, List<String>>{};
-    var orderedList = strings.toList();
-    orderedList.sort();
-    orderedList = orderedList.reversed.toList();
-    for (var i = 0; i < orderedList.length; i++) {
-      final string = orderedList[i];
+    for (var i = 0; i < strings.length; i++) {
+      final string = strings[i];
       final codeUnit = string.codeUnitAt(0);
       (map[codeUnit] ??= []).add(string);
     }
 
-    for (final entry in map.entries) {
-      final codeUnit = entry.key;
-      final list1 = entry.value;
-      final list2 = strings.where((e) => e.codeUnitAt(0) == codeUnit).toList();
-      for (var i = 0; i < list1.length; i++) {
-        if (list1[i] != list2[i]) {
-          final rule = expression.rule;
-          final text = <String>[];
-          text.add('Invalid order of literals in ordered choice.');
-          text.add('Production rule: ${rule!.name}');
-          text.add('Ordered choice: $expression');
-          text.add('Invalid ordered literals:');
-          text.add(list2.map(helper.escapeString).join(' '));
-          text.add('Expected order of literals:');
-          text.add(list1.map(helper.escapeString).join(' '));
-          print(text.join('\n'));
-          return null;
+    var found = false;
+    var invalid = <String>[];
+    for (final list in map.values) {
+      invalid = list;
+      for (var i = 0; i < list.length; i++) {
+        final first = list[i];
+        for (var j = i + 1; j < list.length; j++) {
+          final next = list[j];
+          if (next.startsWith(first)) {
+            found = true;
+          }
         }
+      }
+
+      if (found) {
+        final rule = expression.rule;
+        final text = <String>[];
+        text.add('Invalid order of literals in ordered choice.');
+        text.add('Production rule: ${rule!.name}');
+        text.add('Ordered choice: $expression');
+        text.add('Invalid ordered literals:');
+        text.add(invalid.map(helper.escapeString).join(' '));
+        text.add('Expected order of literals:');
+        text.add(invalid.reversed.map(helper.escapeString).join(' '));
+        print(text.join('\n'));
+        return null;
       }
     }
 

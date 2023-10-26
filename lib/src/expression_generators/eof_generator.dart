@@ -1,3 +1,4 @@
+import '../async_generators/action_node.dart';
 import '../expressions/expressions.dart';
 import 'expression_generator.dart';
 
@@ -11,34 +12,31 @@ class EofGenerator extends ExpressionGenerator<EofExpression> {
   String generate() {
     final values = <String, String>{};
     const template = '''
-state.ok = state.pos >= state.input.length;
-if (!state.ok) {
+if (state.pos >= state.input.length) {
+  state.setOk(true);
+} else {
   state.fail(const ErrorExpectedEndOfInput());
 }''';
     return render(template, values);
   }
 
   @override
-  String generateAsync() {
-    final values = <String, String>{};
+  void generateAsync(BlockNode block) {
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    values['handle'] = asyncGenerator.functionName;
-    values['input'] = allocateName();
-    const template = '''
-final {{input}} = state.input;
-if (state.pos >= {{input}}.end && !{{input}}.isClosed) {
-  {{input}}.sleep = true;
-  {{input}}.handle = {{handle}};
-  return;
-}
-state.ok = state.pos >= {{input}}.end;
-if (!state.ok) {
-  state.fail(const ErrorExpectedEndOfInput());
-}''';
-    final source = render(template, values);
-    return asyncGenerator.renderAction(
-      source,
-      buffering: false,
-    );
+    final handle = asyncGenerator.functionName;
+    final input = allocateName();
+    final label = allocateName();
+    block.label(label);
+    block << 'final $input = state.input;';
+    block.if_('state.pos >= $input.end && !$input.isClosed', (block) {
+      block << '$input.sleep = true;';
+      block << '$input.handle = $handle;';
+      block.return_(label);
+    });
+    block.if_('state.pos >= $input.end', (block) {
+      block << 'state.setOk(true);';
+    }).else_((block) {
+      block << 'state.fail(const ErrorExpectedEndOfInput());';
+    });
   }
 }

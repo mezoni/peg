@@ -42,13 +42,6 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
-  void visitErrorHandler(ErrorHandlerExpression node) {
-    node.visitChildren(this);
-    final child = node.expression;
-    _addChild(node, child);
-  }
-
-  @override
   void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
@@ -57,6 +50,13 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
 
   @override
   void visitGroup(GroupExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
+  }
+
+  @override
+  void visitIndicate(IndicateExpression node) {
     node.visitChildren(this);
     final child = node.expression;
     _addChild(node, child);
@@ -86,6 +86,13 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   @override
   void visitMatchString(MatchStringExpression node) {
     node.visitChildren(this);
+  }
+
+  @override
+  void visitMessage(MessageExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
   }
 
   @override

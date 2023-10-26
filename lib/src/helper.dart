@@ -2,22 +2,22 @@ import 'dart:convert';
 
 import 'binary_search/binary_search.dart';
 
-String assignStatePos(String variable, List<(int, int)> ranges, bool negate) {
+String adjustStatePos(String variable, List<(int, int)> ranges, bool negate) {
   if (ranges.isEmpty) {
     throw ArgumentError('Must not be empty', 'ranges');
   }
 
   if (negate) {
-    return 'state.pos += $variable > 0xffff ? 2 : 1';
+    return 'state.advance($variable > 0xffff ? 2 : 1)';
   }
 
   final has16Bit = ranges.any((e) => e.$1 <= 0xffff || e.$2 <= 0xffff);
   final has32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
   return switch ((has16Bit, has32Bit)) {
-    (false, false) => 'state.pos += $variable > 0xffff ? 2 : 1',
-    (false, true) => 'state.pos += 2',
-    (true, false) => 'state.pos++',
-    (true, true) => 'state.pos += $variable > 0xffff ? 2 : 1',
+    (false, false) => 'state.advance($variable > 0xffff ? 2 : 1)',
+    (false, true) => 'state.advance(2)',
+    (true, false) => 'state.advance(1)',
+    (true, true) => 'state.advance($variable > 0xffff ? 2 : 1)',
   };
 }
 
@@ -119,29 +119,30 @@ String render(String template, Map<String, String> values,
 
 String testLiteral({
   required List<int> codeUnits,
-  required String end,
+  required String current,
+  required String index,
   required String input,
-  String? start,
+  required String length,
 }) {
   if (codeUnits.isEmpty) {
     throw ArgumentError('Must not be empty', 'string');
   }
 
   final buffer = StringBuffer();
-  buffer.write('state.pos');
+  buffer.write(current);
   if (codeUnits.length - 1 > 0) {
     buffer.write(' + ${codeUnits.length - 1}');
   }
 
-  buffer.write(' < $end &&');
+  buffer.write(' < $length &&');
   for (var i = 0; i < codeUnits.length; i++) {
     final char = codeUnits[i];
-    var statePos = start == null ? 'state.pos' : 'state.pos - $start';
+    var offset = index;
     if (i > 0) {
-      statePos = '$statePos + $i';
+      offset = '$offset + $i';
     }
 
-    buffer.write('$input.codeUnitAt($statePos) == $char');
+    buffer.write('$input.codeUnitAt($offset) == $char');
     if (i < codeUnits.length - 1) {
       buffer.writeln(' &&');
     }

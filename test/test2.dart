@@ -10,12 +10,13 @@ void main() {
   _testCharacterClass();
   _testCut();
   _testEof();
-  _testErrorHandler();
+  _testIndicate();
   _testExpected();
   _testList();
   _testList1();
   _testLiteral();
   _testMatchString();
+  _testMessage();
   _testNotPredicate();
   _testOneOrMore();
   _testOptional();
@@ -52,18 +53,20 @@ Future<void> __testFailure({
   final r3 = await _parseChunkedData(fastParseAsync, stream1);
   final r4 = await _parseChunkedData(parseAsync, stream2);
 
-  // TODO:
-  final errors2 = errors.map((e) => '$e').toSet();
-  expect(r1.errors.map((e) => '$e').toSet(), errors2,
+  String errorToString(ParseError error) {
+    return '$error.${error.length}';
+  }
+
+  final errors2 = errors.map(errorToString).toSet();
+  expect(r1.errors.map(errorToString).toSet(), errors2,
       reason: 'fastParse, errors != $errors, source: "$source", $fastParse');
-  expect(r2.errors.map((e) => '$e').toSet(), errors2,
+  expect(r2.errors.map(errorToString).toSet(), errors2,
       reason: 'parse, errors != $errors, source: "$source", $parse');
-  expect(r3.errors.map((e) => '$e').toSet(), errors2,
+  expect(r3.errors.map(errorToString).toSet(), errors2,
       reason:
           'fastParseAsync, errors != $errors, source: "$source", $fastParseAsync');
-  expect(r4.errors.map((e) => '$e').toSet(), errors2,
+  expect(r4.errors.map(errorToString).toSet(), errors2,
       reason: 'parseAsync, errors != $errors, source: "$source", $parseAsync');
-
   expect(r1.ok, false,
       reason: 'fastParse, ok != false, source: "$source", $fastParse');
   expect(r2.ok, false, reason: 'parse, ok != false, source: "$source", $parse');
@@ -165,11 +168,12 @@ void _testAndPredicate() {
 
     {
       const source = '013';
+      const failPos = 2;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 2),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 2,
+        failPos: failPos,
         fastParse: _parser.fastParseAndPredicate,
         fastParseAsync: _parser.fastParseAndPredicate$Async,
         parse: _parser.parseAndPredicate,
@@ -211,11 +215,12 @@ void _testAnyCharacter() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseAnyCharacter,
         fastParseAsync: _parser.fastParseAnyCharacter$Async,
         parse: _parser.parseAnyCharacter,
@@ -257,11 +262,12 @@ void _testCharacterClass() {
 
     {
       const source = 'a';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClass,
         fastParseAsync: _parser.fastParseCharacterClass$Async,
         parse: _parser.parseCharacterClass,
@@ -273,11 +279,12 @@ void _testCharacterClass() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClass,
         fastParseAsync: _parser.fastParseCharacterClass$Async,
         parse: _parser.parseCharacterClass,
@@ -302,11 +309,12 @@ void _testCharacterClass() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassChar32,
         fastParseAsync: _parser.fastParseCharacterClassChar32$Async,
         parse: _parser.parseCharacterClassChar32,
@@ -318,11 +326,12 @@ void _testCharacterClass() {
 
     {
       const source = '0';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassChar32,
         fastParseAsync: _parser.fastParseCharacterClassChar32$Async,
         parse: _parser.parseCharacterClassChar32,
@@ -360,11 +369,12 @@ void _testCharacterClass() {
 
     {
       const source = '0';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassCharNegate,
         fastParseAsync: _parser.fastParseCharacterClassCharNegate$Async,
         parse: _parser.parseCharacterClassCharNegate,
@@ -402,11 +412,12 @@ void _testCharacterClass() {
 
     {
       const source = '🚀';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassCharNegate32,
         fastParseAsync: _parser.fastParseCharacterClassCharNegate32$Async,
         parse: _parser.parseCharacterClassCharNegate32,
@@ -444,11 +455,12 @@ void _testCharacterClass() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassRange32,
         fastParseAsync: _parser.fastParseCharacterClassRange32$Async,
         parse: _parser.parseCharacterClassRange32,
@@ -460,11 +472,12 @@ void _testCharacterClass() {
 
     {
       const source = '\n';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCharacterClassRange32,
         fastParseAsync: _parser.fastParseCharacterClassRange32$Async,
         parse: _parser.parseCharacterClassRange32,
@@ -506,11 +519,12 @@ void _testCut() {
 
     {
       const source = '0+';
+      const failPos = 2;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 2),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 2,
+        failPos: failPos,
         fastParse: _parser.fastParseCut,
         fastParseAsync: _parser.fastParseCut$Async,
         parse: _parser.parseCut,
@@ -548,11 +562,12 @@ void _testCut() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseCut1,
         fastParseAsync: _parser.fastParseCut1$Async,
         parse: _parser.parseCut1,
@@ -607,11 +622,12 @@ void _testEof() {
 
     {
       const source = '01';
+      const failPos = 1;
       await __testFailure(
         errors: {
-          ErrorExpectedEndOfInput().getErrorMessage(source, 1),
+          ErrorExpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 1,
+        failPos: failPos,
         fastParse: _parser.fastParseEof,
         fastParseAsync: _parser.fastParseEof$Async,
         parse: _parser.parseEof,
@@ -623,32 +639,33 @@ void _testEof() {
   });
 }
 
-void _testErrorHandler() {
-  test('ErrorHandler', () async {
+void _testIndicate() {
+  test('Indicate', () async {
     {
-      const source = '0';
+      const source = '012';
       await __testSuccess(
-        fastParse: _parser.fastParseErrorHandler,
-        fastParseAsync: _parser.fastParseErrorHandler$Async,
-        parse: _parser.parseErrorHandler,
-        parseAsync: _parser.parseErrorHandler$Async,
-        pos: 1,
-        result: 0x30,
+        fastParse: _parser.fastParseIndicate,
+        fastParseAsync: _parser.fastParseIndicate$Async,
+        parse: _parser.parseIndicate,
+        parseAsync: _parser.parseIndicate$Async,
+        pos: 3,
+        result: [0x30, 0x31, 0x32],
         source: source,
       );
     }
 
     {
-      const source = '1';
+      const source = '01';
+      const failPos = 2;
       await __testFailure(
         errors: {
-          ErrorMessage(0, 'error'),
+          ErrorMessage(-2, 'error').getErrorMessage(source, failPos),
         },
-        failPos: 0,
-        fastParse: _parser.fastParseErrorHandler,
-        fastParseAsync: _parser.fastParseErrorHandler$Async,
-        parse: _parser.parseErrorHandler,
-        parseAsync: _parser.parseErrorHandler$Async,
+        failPos: failPos,
+        fastParse: _parser.fastParseIndicate,
+        fastParseAsync: _parser.fastParseIndicate$Async,
+        parse: _parser.parseIndicate,
+        parseAsync: _parser.parseIndicate$Async,
         pos: 0,
         source: source,
       );
@@ -673,11 +690,12 @@ void _testExpected() {
 
     {
       const source = 'a';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['digits']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['digits']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseExpected,
         fastParseAsync: _parser.fastParseExpected$Async,
         parse: _parser.parseExpected,
@@ -689,11 +707,12 @@ void _testExpected() {
 
     {
       const source = '0a';
+      const failPos = 1;
       await __testFailure(
         errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
         },
-        failPos: 1,
+        failPos: failPos,
         fastParse: _parser.fastParseExpected,
         fastParseAsync: _parser.fastParseExpected$Async,
         parse: _parser.parseExpected,
@@ -804,11 +823,12 @@ void _testList1() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseList1,
         fastParseAsync: _parser.fastParseList1$Async,
         parse: _parser.parseList1,
@@ -850,11 +870,12 @@ void _testLiteral() {
 
     {
       const source = '1';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['0']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['0']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiteral1,
         fastParseAsync: _parser.fastParseLiteral1$Async,
         parse: _parser.parseLiteral1,
@@ -879,11 +900,12 @@ void _testLiteral() {
 
     {
       const source = '0';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['01']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['01']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiteral2,
         fastParseAsync: _parser.fastParseLiteral2$Async,
         parse: _parser.parseLiteral2,
@@ -908,11 +930,12 @@ void _testLiteral() {
 
     {
       const source = '0';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['0123456789']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['0123456789']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiteral10,
         fastParseAsync: _parser.fastParseLiteral10$Async,
         parse: _parser.parseLiteral10,
@@ -924,12 +947,12 @@ void _testLiteral() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-          ErrorExpectedTags(['0123456789']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['0123456789']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiteral10,
         fastParseAsync: _parser.fastParseLiteral10$Async,
         parse: _parser.parseLiteral10,
@@ -980,12 +1003,13 @@ void _testLiteral() {
 
     {
       const source = '0';
+      const failPos = 0;
       await __testFailure(
         errors: {
           ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
-              .getErrorMessage(source, 0),
+              .getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiterals,
         fastParseAsync: _parser.fastParseLiterals$Async,
         parse: _parser.parseLiterals,
@@ -1036,12 +1060,13 @@ void _testLiteral() {
 
     {
       const source = 'x';
+      const failPos = 0;
       await __testFailure(
         errors: {
           ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
-              .getErrorMessage(source, 0),
+              .getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiterals,
         fastParseAsync: _parser.fastParseLiterals$Async,
         parse: _parser.parseLiterals,
@@ -1053,13 +1078,13 @@ void _testLiteral() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
           ErrorExpectedTags(['01', '012', '0123', 'A', 'a', 'ab'])
-              .getErrorMessage(source, 0),
+              .getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseLiterals,
         fastParseAsync: _parser.fastParseLiterals$Async,
         parse: _parser.parseLiterals,
@@ -1118,1235 +1143,16 @@ void _testMatchString() {
     {
       const source = '0';
       _parser.text = '1';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorExpectedTags(['1']).getErrorMessage(source, 0),
+          ErrorExpectedTags(['1']).getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseMatchString,
         fastParseAsync: _parser.fastParseMatchString$Async,
         parse: _parser.parseMatchString,
         parseAsync: _parser.parseMatchString$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testNotPredicate() {
-  test('NotPredicate', () async {
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseNotPredicate,
-        fastParseAsync: _parser.fastParseNotPredicate$Async,
-        parse: _parser.parseNotPredicate,
-        parseAsync: _parser.parseNotPredicate$Async,
-        pos: 2,
-        result: [null, 0x30, 0x31],
-        source: source,
-      );
-    }
-
-    {
-      const source = '012';
-      await __testFailure(
-        errors: {ErrorUnexpectedInput(0).getErrorMessage(source, 0)},
-        failPos: 0,
-        fastParse: _parser.fastParseNotPredicate,
-        fastParseAsync: _parser.fastParseNotPredicate$Async,
-        parse: _parser.parseNotPredicate,
-        parseAsync: _parser.parseNotPredicate$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testOneOrMore() {
-  test('OneOrMore', () async {
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseOneOrMore,
-        fastParseAsync: _parser.fastParseOneOrMore$Async,
-        parse: _parser.parseOneOrMore,
-        parseAsync: _parser.parseOneOrMore$Async,
-        pos: 1,
-        result: [0x30],
-        source: source,
-      );
-    }
-
-    {
-      const source = '00';
-      await __testSuccess(
-        fastParse: _parser.fastParseOneOrMore,
-        fastParseAsync: _parser.fastParseOneOrMore$Async,
-        parse: _parser.parseOneOrMore,
-        parseAsync: _parser.parseOneOrMore$Async,
-        pos: 2,
-        result: [0x30, 0x30],
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseOneOrMore,
-        fastParseAsync: _parser.fastParseOneOrMore$Async,
-        parse: _parser.parseOneOrMore,
-        parseAsync: _parser.parseOneOrMore$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testOptional() {
-  test('Optional', () async {
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseOptional,
-        fastParseAsync: _parser.fastParseOptional$Async,
-        parse: _parser.parseOptional,
-        parseAsync: _parser.parseOptional$Async,
-        pos: 2,
-        result: [0x30, 0x31],
-        source: source,
-      );
-    }
-
-    {
-      const source = '1';
-      await __testSuccess(
-        fastParse: _parser.fastParseOptional,
-        fastParseAsync: _parser.fastParseOptional$Async,
-        parse: _parser.parseOptional,
-        parseAsync: _parser.parseOptional$Async,
-        pos: 1,
-        result: [null, 0x31],
-        source: source,
-      );
-    }
-  });
-}
-
-void _testOrderedChoice() {
-  test('OrderedChoice', () async {
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseOrderedChoice2,
-        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
-        parse: _parser.parseOrderedChoice2,
-        parseAsync: _parser.parseOrderedChoice2$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '1';
-      await __testSuccess(
-        fastParse: _parser.fastParseOrderedChoice2,
-        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
-        parse: _parser.parseOrderedChoice2,
-        parseAsync: _parser.parseOrderedChoice2$Async,
-        pos: 1,
-        result: 0x31,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseOrderedChoice2,
-        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
-        parse: _parser.parseOrderedChoice2,
-        parseAsync: _parser.parseOrderedChoice2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseOrderedChoice2,
-        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
-        parse: _parser.parseOrderedChoice2,
-        parseAsync: _parser.parseOrderedChoice2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseOrderedChoice3,
-        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
-        parse: _parser.parseOrderedChoice3,
-        parseAsync: _parser.parseOrderedChoice3$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '1';
-      await __testSuccess(
-        fastParse: _parser.fastParseOrderedChoice3,
-        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
-        parse: _parser.parseOrderedChoice3,
-        parseAsync: _parser.parseOrderedChoice3$Async,
-        pos: 1,
-        result: 0x31,
-        source: source,
-      );
-    }
-
-    {
-      const source = '2';
-      await __testSuccess(
-        fastParse: _parser.fastParseOrderedChoice3,
-        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
-        parse: _parser.parseOrderedChoice3,
-        parseAsync: _parser.parseOrderedChoice3$Async,
-        pos: 1,
-        result: 0x32,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseOrderedChoice3,
-        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
-        parse: _parser.parseOrderedChoice3,
-        parseAsync: _parser.parseOrderedChoice3$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseOrderedChoice3,
-        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
-        parse: _parser.parseOrderedChoice3,
-        parseAsync: _parser.parseOrderedChoice3$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testRepetition() {
-  test('Repetition', () async {
-    {
-      const source = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMax,
-        fastParseAsync: _parser.fastParseRepetitionMax$Async,
-        parse: _parser.parseRepetitionMax,
-        parseAsync: _parser.parseRepetitionMax$Async,
-        pos: 0,
-        result: [],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMax,
-        fastParseAsync: _parser.fastParseRepetitionMax$Async,
-        parse: _parser.parseRepetitionMax,
-        parseAsync: _parser.parseRepetitionMax$Async,
-        pos: 2,
-        result: [0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMax,
-        fastParseAsync: _parser.fastParseRepetitionMax$Async,
-        parse: _parser.parseRepetitionMax,
-        parseAsync: _parser.parseRepetitionMax$Async,
-        pos: 4,
-        result: [0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMax,
-        fastParseAsync: _parser.fastParseRepetitionMax$Async,
-        parse: _parser.parseRepetitionMax,
-        parseAsync: _parser.parseRepetitionMax$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMax,
-        fastParseAsync: _parser.fastParseRepetitionMax$Async,
-        parse: _parser.parseRepetitionMax,
-        parseAsync: _parser.parseRepetitionMax$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMin,
-        fastParseAsync: _parser.fastParseRepetitionMin$Async,
-        parse: _parser.parseRepetitionMin,
-        parseAsync: _parser.parseRepetitionMin$Async,
-        pos: 8,
-        result: [0x1f680, 0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMin,
-        fastParseAsync: _parser.fastParseRepetitionMin$Async,
-        parse: _parser.parseRepetitionMin,
-        parseAsync: _parser.parseRepetitionMin$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 4),
-        },
-        failPos: 4,
-        fastParse: _parser.fastParseRepetitionMin,
-        fastParseAsync: _parser.fastParseRepetitionMin$Async,
-        parse: _parser.parseRepetitionMin,
-        parseAsync: _parser.parseRepetitionMin$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseRepetitionMin,
-        fastParseAsync: _parser.fastParseRepetitionMin$Async,
-        parse: _parser.parseRepetitionMin,
-        parseAsync: _parser.parseRepetitionMin$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMinMax,
-        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
-        parse: _parser.parseRepetitionMinMax,
-        parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 4,
-        result: [0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMinMax,
-        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
-        parse: _parser.parseRepetitionMinMax,
-        parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionMinMax,
-        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
-        parse: _parser.parseRepetitionMinMax,
-        parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 2,
-        fastParse: _parser.fastParseRepetitionMinMax,
-        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
-        parse: _parser.parseRepetitionMinMax,
-        parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseRepetitionMinMax,
-        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
-        parse: _parser.parseRepetitionMinMax,
-        parseAsync: _parser.parseRepetitionMinMax$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionN,
-        fastParseAsync: _parser.fastParseRepetitionN$Async,
-        parse: _parser.parseRepetitionN,
-        parseAsync: _parser.parseRepetitionN$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀🚀';
-      await __testSuccess(
-        fastParse: _parser.fastParseRepetitionN,
-        fastParseAsync: _parser.fastParseRepetitionN$Async,
-        parse: _parser.parseRepetitionN,
-        parseAsync: _parser.parseRepetitionN$Async,
-        pos: 6,
-        result: [0x1f680, 0x1f680, 0x1f680],
-        source: source,
-      );
-    }
-
-    {
-      const source = '🚀🚀';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 4,
-        fastParse: _parser.fastParseRepetitionN,
-        fastParseAsync: _parser.fastParseRepetitionN$Async,
-        parse: _parser.parseRepetitionN,
-        parseAsync: _parser.parseRepetitionN$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseRepetitionN,
-        fastParseAsync: _parser.fastParseRepetitionN$Async,
-        parse: _parser.parseRepetitionN,
-        parseAsync: _parser.parseRepetitionN$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testSequence() {
-  test('Sequence', () async {
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence1,
-        fastParseAsync: _parser.fastParseSequence1$Async,
-        parse: _parser.parseSequence1,
-        parseAsync: _parser.parseSequence1$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1,
-        fastParseAsync: _parser.fastParseSequence1$Async,
-        parse: _parser.parseSequence1,
-        parseAsync: _parser.parseSequence1$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1,
-        fastParseAsync: _parser.fastParseSequence1$Async,
-        parse: _parser.parseSequence1,
-        parseAsync: _parser.parseSequence1$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence1WithAction,
-        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
-        parse: _parser.parseSequence1WithAction,
-        parseAsync: _parser.parseSequence1WithAction$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithAction,
-        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
-        parse: _parser.parseSequence1WithAction,
-        parseAsync: _parser.parseSequence1WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithAction,
-        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
-        parse: _parser.parseSequence1WithAction,
-        parseAsync: _parser.parseSequence1WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence1WithVariable,
-        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
-        parse: _parser.parseSequence1WithVariable,
-        parseAsync: _parser.parseSequence1WithVariable$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithVariable,
-        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
-        parse: _parser.parseSequence1WithVariable,
-        parseAsync: _parser.parseSequence1WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithVariable,
-        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
-        parse: _parser.parseSequence1WithVariable,
-        parseAsync: _parser.parseSequence1WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence1WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
-        parse: _parser.parseSequence1WithVariableWithAction,
-        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
-        pos: 1,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
-        parse: _parser.parseSequence1WithVariableWithAction,
-        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence1WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
-        parse: _parser.parseSequence1WithVariableWithAction,
-        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2,
-        fastParseAsync: _parser.fastParseSequence2$Async,
-        parse: _parser.parseSequence2,
-        parseAsync: _parser.parseSequence2$Async,
-        pos: 2,
-        result: [0x30, 0x31],
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2,
-        fastParseAsync: _parser.fastParseSequence2$Async,
-        parse: _parser.parseSequence2,
-        parseAsync: _parser.parseSequence2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2,
-        fastParseAsync: _parser.fastParseSequence2$Async,
-        parse: _parser.parseSequence2,
-        parseAsync: _parser.parseSequence2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2,
-        fastParseAsync: _parser.fastParseSequence2$Async,
-        parse: _parser.parseSequence2,
-        parseAsync: _parser.parseSequence2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2,
-        fastParseAsync: _parser.fastParseSequence2$Async,
-        parse: _parser.parseSequence2,
-        parseAsync: _parser.parseSequence2$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2WithAction,
-        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
-        parse: _parser.parseSequence2WithAction,
-        parseAsync: _parser.parseSequence2WithAction$Async,
-        pos: 2,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithAction,
-        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
-        parse: _parser.parseSequence2WithAction,
-        parseAsync: _parser.parseSequence2WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithAction,
-        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
-        parse: _parser.parseSequence2WithAction,
-        parseAsync: _parser.parseSequence2WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithAction,
-        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
-        parse: _parser.parseSequence2WithAction,
-        parseAsync: _parser.parseSequence2WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithAction,
-        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
-        parse: _parser.parseSequence2WithAction,
-        parseAsync: _parser.parseSequence2WithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2WithVariable,
-        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
-        parse: _parser.parseSequence2WithVariable,
-        parseAsync: _parser.parseSequence2WithVariable$Async,
-        pos: 2,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariable,
-        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
-        parse: _parser.parseSequence2WithVariable,
-        parseAsync: _parser.parseSequence2WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariable,
-        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
-        parse: _parser.parseSequence2WithVariable,
-        parseAsync: _parser.parseSequence2WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariable,
-        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
-        parse: _parser.parseSequence2WithVariable,
-        parseAsync: _parser.parseSequence2WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariable,
-        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
-        parse: _parser.parseSequence2WithVariable,
-        parseAsync: _parser.parseSequence2WithVariable$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
-        parse: _parser.parseSequence2WithVariableWithAction,
-        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
-        pos: 2,
-        result: 0x30,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
-        parse: _parser.parseSequence2WithVariableWithAction,
-        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
-        parse: _parser.parseSequence2WithVariableWithAction,
-        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
-        parse: _parser.parseSequence2WithVariableWithAction,
-        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariableWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
-        parse: _parser.parseSequence2WithVariableWithAction,
-        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2WithVariables,
-        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
-        parse: _parser.parseSequence2WithVariables,
-        parseAsync: _parser.parseSequence2WithVariables$Async,
-        pos: 2,
-        result: (v1: 0x30, v2: 0x31),
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariables,
-        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
-        parse: _parser.parseSequence2WithVariables,
-        parseAsync: _parser.parseSequence2WithVariables$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariables,
-        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
-        parse: _parser.parseSequence2WithVariables,
-        parseAsync: _parser.parseSequence2WithVariables$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariables,
-        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
-        parse: _parser.parseSequence2WithVariables,
-        parseAsync: _parser.parseSequence2WithVariables$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariables,
-        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
-        parse: _parser.parseSequence2WithVariables,
-        parseAsync: _parser.parseSequence2WithVariables$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
-        parse: _parser.parseSequence2WithVariablesWithAction,
-        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
-        pos: 2,
-        result: 0x30 + 0x31,
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
-        parse: _parser.parseSequence2WithVariablesWithAction,
-        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
-        parse: _parser.parseSequence2WithVariablesWithAction,
-        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
-        parse: _parser.parseSequence2WithVariablesWithAction,
-        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 1),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
-        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
-        parse: _parser.parseSequence2WithVariablesWithAction,
-        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testSlice() {
-  test('Slice', () async {
-    {
-      const source = '012';
-      await __testSuccess(
-        fastParse: _parser.fastParseSlice,
-        fastParseAsync: _parser.fastParseSlice$Async,
-        parse: _parser.parseSlice,
-        parseAsync: _parser.parseSlice$Async,
-        pos: 3,
-        result: '012',
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseSlice,
-        fastParseAsync: _parser.fastParseSlice$Async,
-        parse: _parser.parseSlice,
-        parseAsync: _parser.parseSlice$Async,
-        pos: 2,
-        result: '01',
-        source: source,
-      );
-    }
-
-    {
-      const source = '';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSlice,
-        fastParseAsync: _parser.fastParseSlice$Async,
-        parse: _parser.parseSlice,
-        parseAsync: _parser.parseSlice$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = 'a';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedCharacter().getErrorMessage(source, 0),
-        },
-        failPos: 0,
-        fastParse: _parser.fastParseSlice,
-        fastParseAsync: _parser.fastParseSlice$Async,
-        parse: _parser.parseSlice,
-        parseAsync: _parser.parseSlice$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testFailure(
-        errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
-        },
-        failPos: 1,
-        fastParse: _parser.fastParseSlice,
-        fastParseAsync: _parser.fastParseSlice$Async,
-        parse: _parser.parseSlice,
-        parseAsync: _parser.parseSlice$Async,
         pos: 0,
         source: source,
       );
@@ -2475,8 +1281,1385 @@ void _testStringChars() {
   });
 }
 
+void _testMessage() {
+  test('Message', () async {
+    {
+      const source = '012';
+      await __testSuccess(
+        fastParse: _parser.fastParseMessage,
+        fastParseAsync: _parser.fastParseMessage$Async,
+        parse: _parser.parseMessage,
+        parseAsync: _parser.parseMessage$Async,
+        pos: 3,
+        result: [0x30, 0x31, 0x32],
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      const failPos = 2;
+      await __testFailure(
+        errors: {
+          ErrorMessage(0, 'error').getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseMessage,
+        fastParseAsync: _parser.fastParseMessage$Async,
+        parse: _parser.parseMessage,
+        parseAsync: _parser.parseMessage$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testNotPredicate() {
+  test('NotPredicate', () async {
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseNotPredicate,
+        fastParseAsync: _parser.fastParseNotPredicate$Async,
+        parse: _parser.parseNotPredicate,
+        parseAsync: _parser.parseNotPredicate$Async,
+        pos: 2,
+        result: [null, 0x30, 0x31],
+        source: source,
+      );
+    }
+
+    {
+      const source = '012';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedInput(3).getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseNotPredicate,
+        fastParseAsync: _parser.fastParseNotPredicate$Async,
+        parse: _parser.parseNotPredicate,
+        parseAsync: _parser.parseNotPredicate$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '03';
+      const failPos = 2;
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['abc']).getErrorMessage(source, failPos),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseNotPredicate2,
+        fastParseAsync: _parser.fastParseNotPredicate2$Async,
+        parse: _parser.parseNotPredicate2,
+        parseAsync: _parser.parseNotPredicate2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testOneOrMore() {
+  test('OneOrMore', () async {
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseOneOrMore,
+        fastParseAsync: _parser.fastParseOneOrMore$Async,
+        parse: _parser.parseOneOrMore,
+        parseAsync: _parser.parseOneOrMore$Async,
+        pos: 1,
+        result: [0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '00';
+      await __testSuccess(
+        fastParse: _parser.fastParseOneOrMore,
+        fastParseAsync: _parser.fastParseOneOrMore$Async,
+        parse: _parser.parseOneOrMore,
+        parseAsync: _parser.parseOneOrMore$Async,
+        pos: 2,
+        result: [0x30, 0x30],
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOneOrMore,
+        fastParseAsync: _parser.fastParseOneOrMore$Async,
+        parse: _parser.parseOneOrMore,
+        parseAsync: _parser.parseOneOrMore$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'abc';
+      await __testSuccess(
+        fastParse: _parser.fastParseOneOrMoreLiteral,
+        fastParseAsync: _parser.fastParseOneOrMoreLiteral$Async,
+        parse: _parser.parseOneOrMoreLiteral,
+        parseAsync: _parser.parseOneOrMoreLiteral$Async,
+        pos: 3,
+        result: ['abc'],
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['abc']).getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOneOrMoreLiteral,
+        fastParseAsync: _parser.fastParseOneOrMoreLiteral$Async,
+        parse: _parser.parseOneOrMoreLiteral,
+        parseAsync: _parser.parseOneOrMoreLiteral$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testOptional() {
+  test('Optional', () async {
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseOptional,
+        fastParseAsync: _parser.fastParseOptional$Async,
+        parse: _parser.parseOptional,
+        parseAsync: _parser.parseOptional$Async,
+        pos: 2,
+        result: [0x30, 0x31],
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseOptional,
+        fastParseAsync: _parser.fastParseOptional$Async,
+        parse: _parser.parseOptional,
+        parseAsync: _parser.parseOptional$Async,
+        pos: 1,
+        result: [null, 0x31],
+        source: source,
+      );
+    }
+  });
+}
+
+void _testOrderedChoice() {
+  test('OrderedChoice', () async {
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoice2,
+        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
+        parse: _parser.parseOrderedChoice2,
+        parseAsync: _parser.parseOrderedChoice2$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoice2,
+        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
+        parse: _parser.parseOrderedChoice2,
+        parseAsync: _parser.parseOrderedChoice2$Async,
+        pos: 1,
+        result: 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOrderedChoice2,
+        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
+        parse: _parser.parseOrderedChoice2,
+        parseAsync: _parser.parseOrderedChoice2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOrderedChoice2,
+        fastParseAsync: _parser.fastParseOrderedChoice2$Async,
+        parse: _parser.parseOrderedChoice2,
+        parseAsync: _parser.parseOrderedChoice2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoice3,
+        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
+        parse: _parser.parseOrderedChoice3,
+        parseAsync: _parser.parseOrderedChoice3$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoice3,
+        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
+        parse: _parser.parseOrderedChoice3,
+        parseAsync: _parser.parseOrderedChoice3$Async,
+        pos: 1,
+        result: 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '2';
+      await __testSuccess(
+        fastParse: _parser.fastParseOrderedChoice3,
+        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
+        parse: _parser.parseOrderedChoice3,
+        parseAsync: _parser.parseOrderedChoice3$Async,
+        pos: 1,
+        result: 0x32,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOrderedChoice3,
+        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
+        parse: _parser.parseOrderedChoice3,
+        parseAsync: _parser.parseOrderedChoice3$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseOrderedChoice3,
+        fastParseAsync: _parser.fastParseOrderedChoice3$Async,
+        parse: _parser.parseOrderedChoice3,
+        parseAsync: _parser.parseOrderedChoice3$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testRepetition() {
+  test('Repetition', () async {
+    {
+      const source = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMax,
+        fastParseAsync: _parser.fastParseRepetitionMax$Async,
+        parse: _parser.parseRepetitionMax,
+        parseAsync: _parser.parseRepetitionMax$Async,
+        pos: 0,
+        result: [],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMax,
+        fastParseAsync: _parser.fastParseRepetitionMax$Async,
+        parse: _parser.parseRepetitionMax,
+        parseAsync: _parser.parseRepetitionMax$Async,
+        pos: 2,
+        result: [0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMax,
+        fastParseAsync: _parser.fastParseRepetitionMax$Async,
+        parse: _parser.parseRepetitionMax,
+        parseAsync: _parser.parseRepetitionMax$Async,
+        pos: 4,
+        result: [0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMax,
+        fastParseAsync: _parser.fastParseRepetitionMax$Async,
+        parse: _parser.parseRepetitionMax,
+        parseAsync: _parser.parseRepetitionMax$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMax,
+        fastParseAsync: _parser.fastParseRepetitionMax$Async,
+        parse: _parser.parseRepetitionMax,
+        parseAsync: _parser.parseRepetitionMax$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMin,
+        fastParseAsync: _parser.fastParseRepetitionMin$Async,
+        parse: _parser.parseRepetitionMin,
+        parseAsync: _parser.parseRepetitionMin$Async,
+        pos: 8,
+        result: [0x1f680, 0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMin,
+        fastParseAsync: _parser.fastParseRepetitionMin$Async,
+        parse: _parser.parseRepetitionMin,
+        parseAsync: _parser.parseRepetitionMin$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀';
+      const failPos = 4;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionMin,
+        fastParseAsync: _parser.fastParseRepetitionMin$Async,
+        parse: _parser.parseRepetitionMin,
+        parseAsync: _parser.parseRepetitionMin$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionMin,
+        fastParseAsync: _parser.fastParseRepetitionMin$Async,
+        parse: _parser.parseRepetitionMin,
+        parseAsync: _parser.parseRepetitionMin$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMinMax,
+        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
+        parse: _parser.parseRepetitionMinMax,
+        parseAsync: _parser.parseRepetitionMinMax$Async,
+        pos: 4,
+        result: [0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMinMax,
+        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
+        parse: _parser.parseRepetitionMinMax,
+        parseAsync: _parser.parseRepetitionMinMax$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionMinMax,
+        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
+        parse: _parser.parseRepetitionMinMax,
+        parseAsync: _parser.parseRepetitionMinMax$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀';
+      const failPos = 2;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionMinMax,
+        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
+        parse: _parser.parseRepetitionMinMax,
+        parseAsync: _parser.parseRepetitionMinMax$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionMinMax,
+        fastParseAsync: _parser.fastParseRepetitionMinMax$Async,
+        parse: _parser.parseRepetitionMinMax,
+        parseAsync: _parser.parseRepetitionMinMax$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionN,
+        fastParseAsync: _parser.fastParseRepetitionN$Async,
+        parse: _parser.parseRepetitionN,
+        parseAsync: _parser.parseRepetitionN$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀🚀';
+      await __testSuccess(
+        fastParse: _parser.fastParseRepetitionN,
+        fastParseAsync: _parser.fastParseRepetitionN$Async,
+        parse: _parser.parseRepetitionN,
+        parseAsync: _parser.parseRepetitionN$Async,
+        pos: 6,
+        result: [0x1f680, 0x1f680, 0x1f680],
+        source: source,
+      );
+    }
+
+    {
+      const source = '🚀🚀';
+      const failPos = 4;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionN,
+        fastParseAsync: _parser.fastParseRepetitionN$Async,
+        parse: _parser.parseRepetitionN,
+        parseAsync: _parser.parseRepetitionN$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseRepetitionN,
+        fastParseAsync: _parser.fastParseRepetitionN$Async,
+        parse: _parser.parseRepetitionN,
+        parseAsync: _parser.parseRepetitionN$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testSequence() {
+  test('Sequence', () async {
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence1,
+        fastParseAsync: _parser.fastParseSequence1$Async,
+        parse: _parser.parseSequence1,
+        parseAsync: _parser.parseSequence1$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1,
+        fastParseAsync: _parser.fastParseSequence1$Async,
+        parse: _parser.parseSequence1,
+        parseAsync: _parser.parseSequence1$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1,
+        fastParseAsync: _parser.fastParseSequence1$Async,
+        parse: _parser.parseSequence1,
+        parseAsync: _parser.parseSequence1$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence1WithAction,
+        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
+        parse: _parser.parseSequence1WithAction,
+        parseAsync: _parser.parseSequence1WithAction$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithAction,
+        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
+        parse: _parser.parseSequence1WithAction,
+        parseAsync: _parser.parseSequence1WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithAction,
+        fastParseAsync: _parser.fastParseSequence1WithAction$Async,
+        parse: _parser.parseSequence1WithAction,
+        parseAsync: _parser.parseSequence1WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence1WithVariable,
+        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
+        parse: _parser.parseSequence1WithVariable,
+        parseAsync: _parser.parseSequence1WithVariable$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithVariable,
+        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
+        parse: _parser.parseSequence1WithVariable,
+        parseAsync: _parser.parseSequence1WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithVariable,
+        fastParseAsync: _parser.fastParseSequence1WithVariable$Async,
+        parse: _parser.parseSequence1WithVariable,
+        parseAsync: _parser.parseSequence1WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence1WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
+        parse: _parser.parseSequence1WithVariableWithAction,
+        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
+        pos: 1,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
+        parse: _parser.parseSequence1WithVariableWithAction,
+        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence1WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence1WithVariableWithAction$Async,
+        parse: _parser.parseSequence1WithVariableWithAction,
+        parseAsync: _parser.parseSequence1WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2,
+        fastParseAsync: _parser.fastParseSequence2$Async,
+        parse: _parser.parseSequence2,
+        parseAsync: _parser.parseSequence2$Async,
+        pos: 2,
+        result: [0x30, 0x31],
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2,
+        fastParseAsync: _parser.fastParseSequence2$Async,
+        parse: _parser.parseSequence2,
+        parseAsync: _parser.parseSequence2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2,
+        fastParseAsync: _parser.fastParseSequence2$Async,
+        parse: _parser.parseSequence2,
+        parseAsync: _parser.parseSequence2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2,
+        fastParseAsync: _parser.fastParseSequence2$Async,
+        parse: _parser.parseSequence2,
+        parseAsync: _parser.parseSequence2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2,
+        fastParseAsync: _parser.fastParseSequence2$Async,
+        parse: _parser.parseSequence2,
+        parseAsync: _parser.parseSequence2$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2WithAction,
+        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
+        parse: _parser.parseSequence2WithAction,
+        parseAsync: _parser.parseSequence2WithAction$Async,
+        pos: 2,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithAction,
+        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
+        parse: _parser.parseSequence2WithAction,
+        parseAsync: _parser.parseSequence2WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithAction,
+        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
+        parse: _parser.parseSequence2WithAction,
+        parseAsync: _parser.parseSequence2WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithAction,
+        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
+        parse: _parser.parseSequence2WithAction,
+        parseAsync: _parser.parseSequence2WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithAction,
+        fastParseAsync: _parser.fastParseSequence2WithAction$Async,
+        parse: _parser.parseSequence2WithAction,
+        parseAsync: _parser.parseSequence2WithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2WithVariable,
+        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
+        parse: _parser.parseSequence2WithVariable,
+        parseAsync: _parser.parseSequence2WithVariable$Async,
+        pos: 2,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariable,
+        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
+        parse: _parser.parseSequence2WithVariable,
+        parseAsync: _parser.parseSequence2WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariable,
+        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
+        parse: _parser.parseSequence2WithVariable,
+        parseAsync: _parser.parseSequence2WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariable,
+        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
+        parse: _parser.parseSequence2WithVariable,
+        parseAsync: _parser.parseSequence2WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariable,
+        fastParseAsync: _parser.fastParseSequence2WithVariable$Async,
+        parse: _parser.parseSequence2WithVariable,
+        parseAsync: _parser.parseSequence2WithVariable$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
+        parse: _parser.parseSequence2WithVariableWithAction,
+        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
+        pos: 2,
+        result: 0x30,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
+        parse: _parser.parseSequence2WithVariableWithAction,
+        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
+        parse: _parser.parseSequence2WithVariableWithAction,
+        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
+        parse: _parser.parseSequence2WithVariableWithAction,
+        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariableWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariableWithAction$Async,
+        parse: _parser.parseSequence2WithVariableWithAction,
+        parseAsync: _parser.parseSequence2WithVariableWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2WithVariables,
+        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
+        parse: _parser.parseSequence2WithVariables,
+        parseAsync: _parser.parseSequence2WithVariables$Async,
+        pos: 2,
+        result: (v1: 0x30, v2: 0x31),
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariables,
+        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
+        parse: _parser.parseSequence2WithVariables,
+        parseAsync: _parser.parseSequence2WithVariables$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariables,
+        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
+        parse: _parser.parseSequence2WithVariables,
+        parseAsync: _parser.parseSequence2WithVariables$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariables,
+        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
+        parse: _parser.parseSequence2WithVariables,
+        parseAsync: _parser.parseSequence2WithVariables$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariables,
+        fastParseAsync: _parser.fastParseSequence2WithVariables$Async,
+        parse: _parser.parseSequence2WithVariables,
+        parseAsync: _parser.parseSequence2WithVariables$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
+        parse: _parser.parseSequence2WithVariablesWithAction,
+        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
+        pos: 2,
+        result: 0x30 + 0x31,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
+        parse: _parser.parseSequence2WithVariablesWithAction,
+        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
+        parse: _parser.parseSequence2WithVariablesWithAction,
+        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
+        parse: _parser.parseSequence2WithVariablesWithAction,
+        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0a';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSequence2WithVariablesWithAction,
+        fastParseAsync: _parser.fastParseSequence2WithVariablesWithAction$Async,
+        parse: _parser.parseSequence2WithVariablesWithAction,
+        parseAsync: _parser.parseSequence2WithVariablesWithAction$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testSlice() {
+  test('Slice', () async {
+    {
+      const source = '012';
+      await __testSuccess(
+        fastParse: _parser.fastParseSlice,
+        fastParseAsync: _parser.fastParseSlice$Async,
+        parse: _parser.parseSlice,
+        parseAsync: _parser.parseSlice$Async,
+        pos: 3,
+        result: '012',
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseSlice,
+        fastParseAsync: _parser.fastParseSlice$Async,
+        parse: _parser.parseSlice,
+        parseAsync: _parser.parseSlice$Async,
+        pos: 2,
+        result: '01',
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSlice,
+        fastParseAsync: _parser.fastParseSlice$Async,
+        parse: _parser.parseSlice,
+        parseAsync: _parser.parseSlice$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'a';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSlice,
+        fastParseAsync: _parser.fastParseSlice$Async,
+        parse: _parser.parseSlice,
+        parseAsync: _parser.parseSlice$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseSlice,
+        fastParseAsync: _parser.fastParseSlice$Async,
+        parse: _parser.parseSlice,
+        parseAsync: _parser.parseSlice$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
 void _testVerify() {
   test('Verify', () async {
+    {
+      const source = 'abc';
+      await __testSuccess(
+        fastParse: _parser.fastParseVerify,
+        fastParseAsync: _parser.fastParseVerify$Async,
+        parse: _parser.parseVerify,
+        parseAsync: _parser.parseVerify$Async,
+        pos: 3,
+        result: 'abc',
+        source: source,
+      );
+    }
+
+    {
+      const source = '567';
+      await __testSuccess(
+        fastParse: _parser.fastParseVerify,
+        fastParseAsync: _parser.fastParseVerify$Async,
+        parse: _parser.parseVerify,
+        parseAsync: _parser.parseVerify$Async,
+        pos: 3,
+        result: [0x35, 0x36, 0x37],
+        source: source,
+      );
+    }
+
     {
       const source = '0';
       await __testSuccess(
@@ -2491,12 +2674,65 @@ void _testVerify() {
     }
 
     {
-      const source = '1';
+      const source = '56';
+      const failPos = 2;
       await __testFailure(
         errors: {
-          ErrorMessage(0, 'error'),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
+        fastParse: _parser.fastParseVerify,
+        fastParseAsync: _parser.fastParseVerify$Async,
+        parse: _parser.parseVerify,
+        parseAsync: _parser.parseVerify$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '569';
+      const failPos = 2;
+      await __testFailure(
+        errors: {
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseVerify,
+        fastParseAsync: _parser.fastParseVerify$Async,
+        parse: _parser.parseVerify,
+        parseAsync: _parser.parseVerify$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '2';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['abc']).getErrorMessage(source, failPos),
+          ErrorUnexpectedCharacter().getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseVerify,
+        fastParseAsync: _parser.fastParseVerify$Async,
+        parse: _parser.parseVerify,
+        parseAsync: _parser.parseVerify$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = '1';
+      const failPos = 1;
+      await __testFailure(
+        errors: {
+          ErrorMessage(-1, 'error').getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
         fastParse: _parser.fastParseVerify,
         fastParseAsync: _parser.fastParseVerify$Async,
         parse: _parser.parseVerify,
@@ -2508,11 +2744,13 @@ void _testVerify() {
 
     {
       const source = '';
+      const failPos = 0;
       await __testFailure(
         errors: {
-          ErrorUnexpectedEndOfInput().getErrorMessage(source, 0),
+          ErrorExpectedTags(['abc']).getErrorMessage(source, failPos),
+          ErrorUnexpectedEndOfInput().getErrorMessage(source, failPos),
         },
-        failPos: 0,
+        failPos: failPos,
         fastParse: _parser.fastParseVerify,
         fastParseAsync: _parser.fastParseVerify$Async,
         parse: _parser.parseVerify,

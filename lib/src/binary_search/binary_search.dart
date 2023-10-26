@@ -77,7 +77,52 @@ class BinarySearch {
       throw ArgumentError('Must not be empty', 'ranges');
     }
 
-    var node = _plunge(name, ranges, 0, ranges.length - 1);
+    AstNode plunge(int lo, int hi) {
+      final size = hi - lo;
+      if (size == 0) {
+        final range = ranges[lo];
+        final start = range.$1;
+        final end = range.$2;
+        final source = '$name >= $start && $name <= $end ? $lo : -1';
+        final result = _parse(source);
+        return result;
+      }
+
+      if (size == 1) {
+        final range = ranges[lo];
+        final start = range.$1;
+        final end = range.$2;
+        final right = plunge(hi, hi);
+        final source = '$name <= $end ? $name >= $start ? $lo : -1 : $right';
+        final result = _parse(source);
+        return result;
+      }
+
+      if (size == 2) {
+        final mid = lo + 1;
+        final range = ranges[mid];
+        final start = range.$1;
+        final end = range.$2;
+        final left = plunge(lo, lo);
+        final right = plunge(hi, hi);
+        final source =
+            '$name < $start ? $left : $name <= $end  ? $mid : $right ';
+        final result = _parse(source);
+        return result;
+      }
+
+      final mid = (lo + hi) >> 1;
+      final range = ranges[mid];
+      final start = range.$1;
+      final end = range.$2;
+      final left = plunge(lo, mid - 1);
+      final right = plunge(mid + 1, hi);
+      final source = '$name < $start ? $left : $name <= $end  ? $mid : $right ';
+      final result = _parse(source);
+      return result;
+    }
+
+    var node = plunge(0, ranges.length - 1);
     node = _optimizeTransitions(node);
     return node;
   }
@@ -103,50 +148,6 @@ class BinarySearch {
   AstNode _optimizeTransitions(AstNode node) {
     final optimizer = _TransitionOptimizer();
     final result = node.accept(optimizer);
-    return result;
-  }
-
-  AstNode _plunge(String name, List<(int, int)> ranges, int lo, int hi) {
-    final size = hi - lo;
-    if (size == 0) {
-      final range = ranges[lo];
-      final start = range.$1;
-      final end = range.$2;
-      final source = '$name >= $start && $name <= $end ? $lo : -1';
-      final result = _parse(source);
-      return result;
-    }
-
-    if (size == 1) {
-      final range = ranges[lo];
-      final start = range.$1;
-      final end = range.$2;
-      final right = _plunge(name, ranges, hi, hi);
-      final source = '$name <= $end ? $name >= $start ? $lo : -1 : $right';
-      final result = _parse(source);
-      return result;
-    }
-
-    if (size == 2) {
-      final mid = lo + 1;
-      final range = ranges[mid];
-      final start = range.$1;
-      final end = range.$2;
-      final left = _plunge(name, ranges, lo, lo);
-      final right = _plunge(name, ranges, hi, hi);
-      final source = '$name < $start ? $left : $name <= $end  ? $mid : $right ';
-      final result = _parse(source);
-      return result;
-    }
-
-    final mid = (lo + hi) >> 1;
-    final range = ranges[mid];
-    final start = range.$1;
-    final end = range.$2;
-    final left = _plunge(name, ranges, lo, mid - 1);
-    final right = _plunge(name, ranges, mid + 1, hi);
-    final source = '$name < $start ? $left : $name <= $end  ? $mid : $right ';
-    final result = _parse(source);
     return result;
   }
 }

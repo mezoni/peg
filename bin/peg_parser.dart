@@ -73,9 +73,14 @@ class PegParser {
     // v:'\'' Spaces
     final $0 = state.pos;
     const $1 = '\'';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 39;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -93,9 +98,14 @@ class PegParser {
     // '{' v:BlockBody* '}'
     final $0 = state.pos;
     const $1 = '{';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 123;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       while (true) {
         // BlockBody
@@ -106,10 +116,15 @@ class PegParser {
       }
       state.setOk(true);
       if (state.ok) {
-        const $2 = '}';
-        state.ok = state.pos < state.input.length &&
+        const $3 = '}';
+        final $4 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 125;
-        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$2]));
+        if ($4) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$3]));
+        }
       }
     }
     if (!state.ok) {
@@ -117,36 +132,45 @@ class PegParser {
     }
     if (!state.ok && state.isRecoverable) {
       // !'}' .
-      final $3 = state.pos;
-      final $4 = state.pos;
-      const $5 = '}';
-      state.ok = state.pos < state.input.length &&
+      final $5 = state.pos;
+      final $6 = state.pos;
+      state.mute++;
+      const $7 = '}';
+      final $8 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 125;
-      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$5]));
-      state.setOk(!state.ok);
-      if (!state.ok) {
-        final length = state.pos - $4;
+      if ($8) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$7]));
+      }
+      state.mute--;
+      if (state.ok) {
+        final length = state.pos - $6;
         state.failAt(
-            $4,
+            $6,
             switch (length) {
               0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(-1),
-              2 => const ErrorUnexpectedInput(-2),
+              1 => const ErrorUnexpectedInput(1),
+              2 => const ErrorUnexpectedInput(2),
               _ => ErrorUnexpectedInput(length)
             });
-        state.backtrack($4);
+        state.backtrack($6);
+      } else {
+        state.advance(0);
+        state.setOk(true);
       }
       if (state.ok) {
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $6 = state.input.runeAt(state.pos);
-          state.pos += $6 > 0xffff ? 2 : 1;
+        if (state.pos < state.input.length) {
+          final c = state.input.runeAt(state.pos);
+          state.advance(c > 0xffff ? 2 : 1);
+          state.setOk(true);
         } else {
-          state.fail(const ErrorUnexpectedCharacter());
+          state.fail(const ErrorUnexpectedEndOfInput());
         }
       }
       if (!state.ok) {
-        state.backtrack($3);
+        state.backtrack($5);
       }
     }
   }
@@ -158,9 +182,14 @@ class PegParser {
     // v:':' Spaces
     final $0 = state.pos;
     const $1 = ':';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 58;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -177,9 +206,14 @@ class PegParser {
     // v:',' Spaces
     final $0 = state.pos;
     const $1 = ',';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 44;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -196,49 +230,59 @@ class PegParser {
     // '#' (![\n\r] .)*
     final $0 = state.pos;
     const $1 = '#';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 35;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       while (true) {
         // ![\n\r] .
-        final $2 = state.pos;
         final $3 = state.pos;
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $4 = state.input.codeUnitAt(state.pos);
-          state.ok = $4 == 10 || $4 == 13;
-          if (state.ok) {
-            state.pos++;
-          }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorUnexpectedCharacter());
-        }
-        state.setOk(!state.ok);
-        if (!state.ok) {
-          final length = state.pos - $3;
-          state.failAt(
-              $3,
-              switch (length) {
-                0 => const ErrorUnexpectedInput(0),
-                1 => const ErrorUnexpectedInput(-1),
-                2 => const ErrorUnexpectedInput(-2),
-                _ => ErrorUnexpectedInput(length)
-              });
-          state.backtrack($3);
-        }
-        if (state.ok) {
-          state.ok = state.pos < state.input.length;
-          if (state.ok) {
-            final $5 = state.input.runeAt(state.pos);
-            state.pos += $5 > 0xffff ? 2 : 1;
+        final $4 = state.pos;
+        state.mute++;
+        if (state.pos < state.input.length) {
+          final $5 = state.input.codeUnitAt(state.pos);
+          final $6 = $5 == 10 || $5 == 13;
+          if ($6) {
+            state.advance(1);
+            state.setOk(true);
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        state.mute--;
+        if (state.ok) {
+          final length = state.pos - $4;
+          state.failAt(
+              $4,
+              switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                1 => const ErrorUnexpectedInput(1),
+                2 => const ErrorUnexpectedInput(2),
+                _ => ErrorUnexpectedInput(length)
+              });
+          state.backtrack($4);
+        } else {
+          state.advance(0);
+          state.setOk(true);
+        }
+        if (state.ok) {
+          if (state.pos < state.input.length) {
+            final c = state.input.runeAt(state.pos);
+            state.advance(c > 0xffff ? 2 : 1);
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedEndOfInput());
+          }
         }
         if (!state.ok) {
-          state.backtrack($2);
+          state.backtrack($3);
         }
         if (!state.ok) {
           break;
@@ -258,9 +302,14 @@ class PegParser {
     // v:'@' Spaces
     final $0 = state.pos;
     const $1 = '@';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 64;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -277,9 +326,14 @@ class PegParser {
     // v:'=' Spaces
     final $0 = state.pos;
     const $1 = '=';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 61;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -296,9 +350,14 @@ class PegParser {
     // v:'.' Spaces
     final $0 = state.pos;
     const $1 = '.';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 46;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -315,9 +374,14 @@ class PegParser {
     // v:'>' Spaces
     final $0 = state.pos;
     const $1 = '>';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 62;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -334,9 +398,14 @@ class PegParser {
     // v:'{' Spaces
     final $0 = state.pos;
     const $1 = '{';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 123;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -353,9 +422,14 @@ class PegParser {
     // v:'(' Spaces
     final $0 = state.pos;
     const $1 = '(';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 40;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -372,12 +446,248 @@ class PegParser {
     // v:'<' Spaces
     final $0 = state.pos;
     const $1 = '<';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 60;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// String
+  /// MetaName =
+  ///   !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
+  ///   ;
+  void fastParseMetaName(State<String> state) {
+    // !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
+    final $0 = state.pos;
+    final $1 = state.pos;
+    state.mute++;
+    // ReservedMetaName
+    fastParseReservedMetaName(state);
+    state.mute--;
+    if (state.ok) {
+      final length = state.pos - $1;
+      state.failAt(
+          $1,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($1);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      // '@' [a-zA-Z] [a-zA-Z_0-9]*
+      final $3 = state.pos;
+      const $4 = '@';
+      final $5 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64;
+      if ($5) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
+      if (state.ok) {
+        if (state.pos < state.input.length) {
+          final $6 = state.input.codeUnitAt(state.pos);
+          final $7 = $6 <= 90 ? $6 >= 65 : $6 >= 97 && $6 <= 122;
+          if ($7) {
+            state.advance(1);
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          for (var c = 0;
+              state.pos < state.input.length &&
+                  (c = state.input.codeUnitAt(state.pos)) == c &&
+                  (c < 65
+                      ? c >= 48 && c <= 57
+                      : c <= 90 || c == 95 || c >= 97 && c <= 122);
+              // ignore: curly_braces_in_flow_control_structures, empty_statements
+              state.advance(1));
+          state.setOk(true);
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($3);
+      }
+      if (state.ok) {
+        // Spaces
+        fastParseSpaces(state);
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
+  /// ReservedMetaName =
+  ///   $('@' ('eof' / 'expected' / 'indicate' / 'list1' / 'list' / 'matchString' / 'message' / 'stringChars' / 'verify')) ![a-zA-Z_0-9]+
+  ///   ;
+  void fastParseReservedMetaName(State<String> state) {
+    // $('@' ('eof' / 'expected' / 'indicate' / 'list1' / 'list' / 'matchString' / 'message' / 'stringChars' / 'verify')) ![a-zA-Z_0-9]+
+    final $0 = state.pos;
+    // '@' ('eof' / 'expected' / 'indicate' / 'list1' / 'list' / 'matchString' / 'message' / 'stringChars' / 'verify')
+    final $2 = state.pos;
+    const $3 = '@';
+    final $4 = state.pos < state.input.length &&
+        state.input.codeUnitAt(state.pos) == 64;
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
+    if (state.ok) {
+      final $6 = state.pos;
+      var $5 = 0;
+      if (state.pos < state.input.length) {
+        final input = state.input;
+        final c = input.codeUnitAt(state.pos);
+        // ignore: unused_local_variable
+        final pos2 = state.pos + 1;
+        switch (c) {
+          case 101:
+            final ok = pos2 + 1 < input.length &&
+                input.codeUnitAt(pos2) == 111 &&
+                input.codeUnitAt(pos2 + 1) == 102;
+            if (ok) {
+              $5 = 3;
+            } else {
+              const $8 = 'expected';
+              final ok = input.startsWith($8, state.pos);
+              if (ok) {
+                $5 = 8;
+              }
+            }
+            break;
+          case 105:
+            const $9 = 'indicate';
+            final ok = input.startsWith($9, state.pos);
+            if (ok) {
+              $5 = 8;
+            }
+            break;
+          case 108:
+            const $10 = 'list1';
+            final ok = input.startsWith($10, state.pos);
+            if (ok) {
+              $5 = 5;
+            } else {
+              final ok = pos2 + 2 < input.length &&
+                  input.codeUnitAt(pos2) == 105 &&
+                  input.codeUnitAt(pos2 + 1) == 115 &&
+                  input.codeUnitAt(pos2 + 2) == 116;
+              if (ok) {
+                $5 = 4;
+              }
+            }
+            break;
+          case 109:
+            const $12 = 'matchString';
+            final ok = input.startsWith($12, state.pos);
+            if (ok) {
+              $5 = 11;
+            } else {
+              const $13 = 'message';
+              final ok = input.startsWith($13, state.pos);
+              if (ok) {
+                $5 = 7;
+              }
+            }
+            break;
+          case 115:
+            const $14 = 'stringChars';
+            final ok = input.startsWith($14, state.pos);
+            if (ok) {
+              $5 = 11;
+            }
+            break;
+          case 118:
+            const $15 = 'verify';
+            final ok = input.startsWith($15, state.pos);
+            if (ok) {
+              $5 = 6;
+            }
+            break;
+        }
+      }
+      if ($5 > 0) {
+        state.advance($5);
+        state.setOk(true);
+      } else {
+        state.pos = $6;
+        state.fail(const ErrorExpectedTags([
+          'eof',
+          'expected',
+          'indicate',
+          'list1',
+          'list',
+          'matchString',
+          'message',
+          'stringChars',
+          'verify'
+        ]));
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($2);
+    }
+    if (state.ok) {
+      final $16 = state.pos;
+      state.mute++;
+      var $17 = false;
+      for (var c = 0;
+          state.pos < state.input.length &&
+              (c = state.input.codeUnitAt(state.pos)) == c &&
+              (c < 65
+                  ? c >= 48 && c <= 57
+                  : c <= 90 || c == 95 || c >= 97 && c <= 122);
+          state.advance(1),
+          // ignore: curly_braces_in_flow_control_structures, empty_statements
+          $17 = true);
+      if ($17) {
+        state.setOk($17);
+      } else {
+        state.pos < state.input.length
+            ? state.fail(const ErrorUnexpectedCharacter())
+            : state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      state.mute--;
+      if (state.ok) {
+        final length = state.pos - $16;
+        state.failAt(
+            $16,
+            switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              1 => const ErrorUnexpectedInput(1),
+              2 => const ErrorUnexpectedInput(2),
+              _ => ErrorUnexpectedInput(length)
+            });
+        state.backtrack($16);
+      } else {
+        state.advance(0);
+        state.setOk(true);
+      }
     }
     if (!state.ok) {
       state.backtrack($0);
@@ -391,9 +701,14 @@ class PegParser {
     // v:'}' Spaces
     final $0 = state.pos;
     const $1 = '}';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 125;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -410,9 +725,14 @@ class PegParser {
     // v:')' Spaces
     final $0 = state.pos;
     const $1 = ')';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 41;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -429,9 +749,14 @@ class PegParser {
     // v:']' Spaces
     final $0 = state.pos;
     const $1 = ']';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 93;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -448,9 +773,14 @@ class PegParser {
     // v:';' Spaces
     final $0 = state.pos;
     const $1 = ';';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 59;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -467,9 +797,14 @@ class PegParser {
     // v:'/' Spaces
     final $0 = state.pos;
     const $1 = '/';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 47;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -507,9 +842,14 @@ class PegParser {
     // v:'↑' Spaces
     final $0 = state.pos;
     const $1 = '↑';
-    state.ok = state.pos < state.input.length &&
+    final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 8593;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$1]));
+    if ($2) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$1]));
+    }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
@@ -524,16 +864,17 @@ class PegParser {
   ///   ;
   void fastParseWhiteSpace(State<String> state) {
     // [ \n\r\t]
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
+    if (state.pos < state.input.length) {
       final $1 = state.input.codeUnitAt(state.pos);
-      state.ok = $1 < 13 ? $1 >= 9 && $1 <= 10 : $1 <= 13 || $1 == 32;
-      if (state.ok) {
-        state.pos++;
+      final $2 = $1 < 13 ? $1 >= 9 && $1 <= 10 : $1 <= 13 || $1 == 32;
+      if ($2) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
   }
 
@@ -595,11 +936,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '&';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 38;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -642,11 +984,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '*';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 42;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -671,12 +1014,17 @@ class PegParser {
     // '{' v:$BlockBody* RightCurlyBracket
     final $2 = state.pos;
     const $3 = '{';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 123;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       String? $1;
-      final $4 = state.pos;
+      final $5 = state.pos;
       while (true) {
         // BlockBody
         fastParseBlockBody(state);
@@ -686,7 +1034,7 @@ class PegParser {
       }
       state.setOk(true);
       if (state.ok) {
-        $1 = state.input.substring($4, state.pos);
+        $1 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
         // RightCurlyBracket
@@ -712,54 +1060,68 @@ class PegParser {
     // '[^' r:(!']' v:Range)+ RightSquareBracket {}
     final $2 = state.pos;
     const $3 = '[^';
-    state.ok = state.pos + 1 < state.input.length &&
+    final $4 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 91 &&
         state.input.codeUnitAt(state.pos + 1) == 94;
-    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(2);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       List<(int, int)>? $1;
-      final $4 = <(int, int)>[];
+      final $7 = <(int, int)>[];
       while (true) {
-        (int, int)? $5;
+        (int, int)? $8;
         // !']' v:Range
-        final $7 = state.pos;
-        final $8 = state.pos;
-        const $9 = ']';
-        state.ok = state.pos < state.input.length &&
+        final $10 = state.pos;
+        final $11 = state.pos;
+        state.mute++;
+        const $12 = ']';
+        final $13 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 93;
-        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$9]));
-        state.setOk(!state.ok);
-        if (!state.ok) {
-          final length = state.pos - $8;
+        if ($13) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$12]));
+        }
+        state.mute--;
+        if (state.ok) {
+          final length = state.pos - $11;
           state.failAt(
-              $8,
+              $11,
               switch (length) {
                 0 => const ErrorUnexpectedInput(0),
-                1 => const ErrorUnexpectedInput(-1),
-                2 => const ErrorUnexpectedInput(-2),
+                1 => const ErrorUnexpectedInput(1),
+                2 => const ErrorUnexpectedInput(2),
                 _ => ErrorUnexpectedInput(length)
               });
-          state.backtrack($8);
+          state.backtrack($11);
+        } else {
+          state.advance(0);
+          state.setOk(true);
         }
         if (state.ok) {
-          (int, int)? $6;
+          (int, int)? $9;
           // Range
-          $6 = parseRange(state);
+          $9 = parseRange(state);
           if (state.ok) {
-            $5 = $6;
+            $8 = $9;
           }
         }
         if (!state.ok) {
-          state.backtrack($7);
+          state.backtrack($10);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $7.add($8!);
       }
-      state.setOk($4.isNotEmpty);
-      if (state.ok) {
-        $1 = $4;
+      if ($7.isNotEmpty) {
+        state.setOk(true);
+        $1 = $7;
       }
       if (state.ok) {
         // RightSquareBracket
@@ -777,69 +1139,83 @@ class PegParser {
     }
     if (!state.ok && state.isRecoverable) {
       // '[' r:(!']' v:Range)+ RightSquareBracket {}
-      final $11 = state.pos;
-      const $12 = '[';
-      state.ok = state.pos < state.input.length &&
+      final $15 = state.pos;
+      const $16 = '[';
+      final $17 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 91;
-      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$12]));
+      if ($17) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$16]));
+      }
       if (state.ok) {
-        List<(int, int)>? $10;
-        final $13 = <(int, int)>[];
+        List<(int, int)>? $14;
+        final $20 = <(int, int)>[];
         while (true) {
-          (int, int)? $14;
+          (int, int)? $21;
           // !']' v:Range
-          final $16 = state.pos;
-          final $17 = state.pos;
-          const $18 = ']';
-          state.ok = state.pos < state.input.length &&
+          final $23 = state.pos;
+          final $24 = state.pos;
+          state.mute++;
+          const $25 = ']';
+          final $26 = state.pos < state.input.length &&
               state.input.codeUnitAt(state.pos) == 93;
-          state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$18]));
-          state.setOk(!state.ok);
-          if (!state.ok) {
-            final length = state.pos - $17;
+          if ($26) {
+            state.advance(1);
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorExpectedTags([$25]));
+          }
+          state.mute--;
+          if (state.ok) {
+            final length = state.pos - $24;
             state.failAt(
-                $17,
+                $24,
                 switch (length) {
                   0 => const ErrorUnexpectedInput(0),
-                  1 => const ErrorUnexpectedInput(-1),
-                  2 => const ErrorUnexpectedInput(-2),
+                  1 => const ErrorUnexpectedInput(1),
+                  2 => const ErrorUnexpectedInput(2),
                   _ => ErrorUnexpectedInput(length)
                 });
-            state.backtrack($17);
+            state.backtrack($24);
+          } else {
+            state.advance(0);
+            state.setOk(true);
           }
           if (state.ok) {
-            (int, int)? $15;
+            (int, int)? $22;
             // Range
-            $15 = parseRange(state);
+            $22 = parseRange(state);
             if (state.ok) {
-              $14 = $15;
+              $21 = $22;
             }
           }
           if (!state.ok) {
-            state.backtrack($16);
+            state.backtrack($23);
           }
           if (!state.ok) {
             break;
           }
-          $13.add($14!);
+          $20.add($21!);
         }
-        state.setOk($13.isNotEmpty);
-        if (state.ok) {
-          $10 = $13;
+        if ($20.isNotEmpty) {
+          state.setOk(true);
+          $14 = $20;
         }
         if (state.ok) {
           // RightSquareBracket
           fastParseRightSquareBracket(state);
           if (state.ok) {
             Expression? $$;
-            final r = $10!;
+            final r = $14!;
             $$ = CharacterClassExpression(ranges: r);
             $0 = $$;
           }
         }
       }
       if (!state.ok) {
-        state.backtrack($11);
+        state.backtrack($15);
       }
     }
     return $0;
@@ -973,11 +1349,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '\$';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 36;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -996,77 +1373,60 @@ class PegParser {
 
   /// Expression
   /// Eof =
-  ///   '@eof' LeftParenthesis RightParenthesis Spaces {}
+  ///   !MetaName '@eof' Spaces LeftParenthesis RightParenthesis Spaces {}
   ///   ;
   Expression? parseEof(State<String> state) {
     Expression? $0;
-    // '@eof' LeftParenthesis RightParenthesis Spaces {}
+    // !MetaName '@eof' Spaces LeftParenthesis RightParenthesis Spaces {}
     final $1 = state.pos;
-    const $2 = '@eof';
-    state.ok = state.pos + 3 < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.codeUnitAt(state.pos + 1) == 101 &&
-        state.input.codeUnitAt(state.pos + 2) == 111 &&
-        state.input.codeUnitAt(state.pos + 3) == 102;
-    state.ok ? state.pos += 4 : state.fail(const ErrorExpectedTags([$2]));
+    final $2 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
-      if (state.ok) {
-        // RightParenthesis
-        fastParseRightParenthesis(state);
-        if (state.ok) {
-          // Spaces
-          fastParseSpaces(state);
-          if (state.ok) {
-            Expression? $$;
-            $$ = EofExpression();
-            $0 = $$;
-          }
-        }
+      final length = state.pos - $2;
+      state.failAt(
+          $2,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($2);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $3 = '@eof';
+      final $4 = state.pos + 3 < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.codeUnitAt(state.pos + 1) == 101 &&
+          state.input.codeUnitAt(state.pos + 2) == 111 &&
+          state.input.codeUnitAt(state.pos + 3) == 102;
+      if ($4) {
+        state.advance(4);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$3]));
       }
-    }
-    if (!state.ok) {
-      state.backtrack($1);
-    }
-    return $0;
-  }
-
-  /// Expression
-  /// ErrorHandler =
-  ///   '@errorHandler' LeftParenthesis e:Expression Comma h:Block RightParenthesis {}
-  ///   ;
-  Expression? parseErrorHandler(State<String> state) {
-    Expression? $0;
-    // '@errorHandler' LeftParenthesis e:Expression Comma h:Block RightParenthesis {}
-    final $3 = state.pos;
-    const $4 = '@errorHandler';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    state.ok ? state.pos += 13 : state.fail(const ErrorExpectedTags([$4]));
-    if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
       if (state.ok) {
-        Expression? $1;
-        // Expression
-        $1 = parseExpression(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            String? $2;
-            // Block
-            $2 = parseBlock(state);
+            // RightParenthesis
+            fastParseRightParenthesis(state);
             if (state.ok) {
-              // RightParenthesis
-              fastParseRightParenthesis(state);
+              // Spaces
+              fastParseSpaces(state);
               if (state.ok) {
                 Expression? $$;
-                final e = $1!;
-                final h = $2!;
-                $$ = ErrorHandlerExpression(expression: e, handler: h);
+                $$ = EofExpression();
                 $0 = $$;
               }
             }
@@ -1075,7 +1435,7 @@ class PegParser {
       }
     }
     if (!state.ok) {
-      state.backtrack($3);
+      state.backtrack($1);
     }
     return $0;
   }
@@ -1089,11 +1449,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '!';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 33;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -1112,40 +1473,71 @@ class PegParser {
 
   /// Expression
   /// Expected =
-  ///   '@expected' LeftParenthesis t:String Comma e:Expression RightParenthesis {}
+  ///   !MetaName '@expected' Spaces LeftParenthesis t:String Comma e:Expression RightParenthesis {}
   ///   ;
   Expression? parseExpected(State<String> state) {
     Expression? $0;
-    // '@expected' LeftParenthesis t:String Comma e:Expression RightParenthesis {}
+    // !MetaName '@expected' Spaces LeftParenthesis t:String Comma e:Expression RightParenthesis {}
     final $3 = state.pos;
-    const $4 = '@expected';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($4, state.pos);
-    state.ok ? state.pos += 9 : state.fail(const ErrorExpectedTags([$4]));
+    final $4 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $4;
+      state.failAt(
+          $4,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($4);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $5 = '@expected';
+      final $6 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.startsWith($5, state.pos);
+      if ($6) {
+        state.advance(9);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
       if (state.ok) {
-        String? $1;
-        // String
-        $1 = parseString(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            Expression? $2;
-            // Expression
-            $2 = parseExpression(state);
+            String? $1;
+            // String
+            $1 = parseString(state);
             if (state.ok) {
-              // RightParenthesis
-              fastParseRightParenthesis(state);
+              // Comma
+              fastParseComma(state);
               if (state.ok) {
-                Expression? $$;
-                final t = $1!;
-                final e = $2!;
-                $$ = ExpectedExpression(expression: e, tag: t);
-                $0 = $$;
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final t = $1!;
+                    final e = $2!;
+                    $$ = ExpectedExpression(expression: e, tag: t);
+                    $0 = $$;
+                  }
+                }
               }
             }
           }
@@ -1227,30 +1619,41 @@ class PegParser {
     // '%{' v:$(!'}%' v:.)* '}%' Spaces
     final $2 = state.pos;
     const $3 = '%{';
-    state.ok = state.pos + 1 < state.input.length &&
+    final $4 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 37 &&
         state.input.codeUnitAt(state.pos + 1) == 123;
-    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(2);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       String? $1;
-      final $4 = state.pos;
-      const $6 = '}%';
-      final $5 = state.input.indexOf($6, state.pos);
-      state.ok = $5 != -1;
-      if (state.ok) {
-        state.pos = $5;
+      final $5 = state.pos;
+      const $8 = '}%';
+      final $6 = state.input.indexOf($8, state.pos);
+      final $7 = $6 != -1;
+      if ($7) {
+        state.pos = $6;
+        state.setOk(true);
       } else {
-        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
+        state.failAt(state.input.length, const ErrorExpectedTags([$8]));
       }
       if (state.ok) {
-        $1 = state.input.substring($4, state.pos);
+        $1 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
-        const $7 = '}%';
-        state.ok = state.pos + 1 < state.input.length &&
+        const $9 = '}%';
+        final $10 = state.pos + 1 < state.input.length &&
             state.input.codeUnitAt(state.pos) == 125 &&
             state.input.codeUnitAt(state.pos + 1) == 37;
-        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$7]));
+        if ($10) {
+          state.advance(2);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$9]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -1306,33 +1709,46 @@ class PegParser {
     // 'u{' v:$[a-zA-Z0-9]+ '}' <int>{}
     final $2 = state.pos;
     const $3 = 'u{';
-    state.ok = state.pos + 1 < state.input.length &&
+    final $4 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 117 &&
         state.input.codeUnitAt(state.pos + 1) == 123;
-    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(2);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       String? $1;
-      final $4 = state.pos;
-      var $5 = false;
+      final $5 = state.pos;
+      var $6 = false;
       for (var c = 0;
           state.pos < state.input.length &&
               (c = state.input.codeUnitAt(state.pos)) == c &&
               (c < 65 ? c >= 48 && c <= 57 : c <= 90 || c >= 97 && c <= 122);
-          state.pos++,
+          state.advance(1),
           // ignore: curly_braces_in_flow_control_structures, empty_statements
-          $5 = true);
-      state.ok = $5;
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
+          $6 = true);
+      if ($6) {
+        state.setOk($6);
+      } else {
+        state.pos < state.input.length
+            ? state.fail(const ErrorUnexpectedCharacter())
+            : state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
-        $1 = state.input.substring($4, state.pos);
+        $1 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
-        const $6 = '}';
-        state.ok = state.pos < state.input.length &&
+        const $7 = '}';
+        final $8 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 125;
-        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$6]));
+        if ($8) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$7]));
+        }
         if (state.ok) {
           int? $$;
           final v = $1!;
@@ -1359,16 +1775,17 @@ class PegParser {
     final $3 = state.pos;
     // [a-zA-Z] [a-zA-Z_0-9]*
     final $4 = state.pos;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
+    if (state.pos < state.input.length) {
       final $5 = state.input.codeUnitAt(state.pos);
-      state.ok = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
-      if (state.ok) {
-        state.pos++;
+      final $6 = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
+      if ($6) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
       for (var c = 0;
@@ -1378,8 +1795,8 @@ class PegParser {
                   ? c >= 48 && c <= 57
                   : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
-          state.pos++);
-      state.ok = true;
+          state.advance(1));
+      state.setOk(true);
     }
     if (!state.ok) {
       state.backtrack($4);
@@ -1400,6 +1817,85 @@ class PegParser {
     return $0;
   }
 
+  /// Expression
+  /// Indicate =
+  ///   !MetaName '@indicate' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseIndicate(State<String> state) {
+    Expression? $0;
+    // !MetaName '@indicate' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis {}
+    final $3 = state.pos;
+    final $4 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
+    if (state.ok) {
+      final length = state.pos - $4;
+      state.failAt(
+          $4,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($4);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $5 = '@indicate';
+      final $6 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.startsWith($5, state.pos);
+      if ($6) {
+        state.advance(9);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
+      if (state.ok) {
+        // Spaces
+        fastParseSpaces(state);
+        if (state.ok) {
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
+          if (state.ok) {
+            String? $1;
+            // String
+            $1 = parseString(state);
+            if (state.ok) {
+              // Comma
+              fastParseComma(state);
+              if (state.ok) {
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final s = $1!;
+                    final e = $2!;
+                    $$ = IndicateExpression(expression: e, message: s);
+                    $0 = $$;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($3);
+    }
+    return $0;
+  }
+
   /// int
   /// Integer =
   ///   v:$[0-9]+ {}
@@ -1414,12 +1910,15 @@ class PegParser {
         state.pos < state.input.length &&
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c >= 48 && c <= 57);
-        state.pos++,
+        state.advance(1),
         // ignore: curly_braces_in_flow_control_structures, empty_statements
         $4 = true);
-    state.ok = $4;
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    if ($4) {
+      state.setOk($4);
+    } else {
+      state.pos < state.input.length
+          ? state.fail(const ErrorUnexpectedCharacter())
+          : state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
       $1 = state.input.substring($3, state.pos);
@@ -1435,43 +1934,74 @@ class PegParser {
 
   /// Expression
   /// List =
-  ///   '@list' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
+  ///   !MetaName '@list' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
   ///   ;
   Expression? parseList(State<String> state) {
     Expression? $0;
-    // '@list' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
+    // !MetaName '@list' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
     final $3 = state.pos;
-    const $4 = '@list';
-    state.ok = state.pos + 4 < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.codeUnitAt(state.pos + 1) == 108 &&
-        state.input.codeUnitAt(state.pos + 2) == 105 &&
-        state.input.codeUnitAt(state.pos + 3) == 115 &&
-        state.input.codeUnitAt(state.pos + 4) == 116;
-    state.ok ? state.pos += 5 : state.fail(const ErrorExpectedTags([$4]));
+    final $4 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $4;
+      state.failAt(
+          $4,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($4);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $5 = '@list';
+      final $6 = state.pos + 4 < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.codeUnitAt(state.pos + 1) == 108 &&
+          state.input.codeUnitAt(state.pos + 2) == 105 &&
+          state.input.codeUnitAt(state.pos + 3) == 115 &&
+          state.input.codeUnitAt(state.pos + 4) == 116;
+      if ($6) {
+        state.advance(5);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
       if (state.ok) {
-        Expression? $1;
-        // Expression
-        $1 = parseExpression(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            Expression? $2;
+            Expression? $1;
             // Expression
-            $2 = parseExpression(state);
+            $1 = parseExpression(state);
             if (state.ok) {
-              // RightParenthesis
-              fastParseRightParenthesis(state);
+              // Comma
+              fastParseComma(state);
               if (state.ok) {
-                Expression? $$;
-                final h = $1!;
-                final t = $2!;
-                $$ = ListExpression(first: h, next: t);
-                $0 = $$;
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final h = $1!;
+                    final t = $2!;
+                    $$ = ListExpression(first: h, next: t);
+                    $0 = $$;
+                  }
+                }
               }
             }
           }
@@ -1486,44 +2016,75 @@ class PegParser {
 
   /// Expression
   /// List1 =
-  ///   '@list1' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
+  ///   !MetaName '@list1' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
   ///   ;
   Expression? parseList1(State<String> state) {
     Expression? $0;
-    // '@list1' LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
+    // !MetaName '@list1' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis {}
     final $3 = state.pos;
-    const $4 = '@list1';
-    state.ok = state.pos + 5 < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.codeUnitAt(state.pos + 1) == 108 &&
-        state.input.codeUnitAt(state.pos + 2) == 105 &&
-        state.input.codeUnitAt(state.pos + 3) == 115 &&
-        state.input.codeUnitAt(state.pos + 4) == 116 &&
-        state.input.codeUnitAt(state.pos + 5) == 49;
-    state.ok ? state.pos += 6 : state.fail(const ErrorExpectedTags([$4]));
+    final $4 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $4;
+      state.failAt(
+          $4,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($4);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $5 = '@list1';
+      final $6 = state.pos + 5 < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.codeUnitAt(state.pos + 1) == 108 &&
+          state.input.codeUnitAt(state.pos + 2) == 105 &&
+          state.input.codeUnitAt(state.pos + 3) == 115 &&
+          state.input.codeUnitAt(state.pos + 4) == 116 &&
+          state.input.codeUnitAt(state.pos + 5) == 49;
+      if ($6) {
+        state.advance(6);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
       if (state.ok) {
-        Expression? $1;
-        // Expression
-        $1 = parseExpression(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            Expression? $2;
+            Expression? $1;
             // Expression
-            $2 = parseExpression(state);
+            $1 = parseExpression(state);
             if (state.ok) {
-              // RightParenthesis
-              fastParseRightParenthesis(state);
+              // Comma
+              fastParseComma(state);
               if (state.ok) {
-                Expression? $$;
-                final h = $1!;
-                final t = $2!;
-                $$ = List1Expression(first: h, next: t);
-                $0 = $$;
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final h = $1!;
+                    final t = $2!;
+                    $$ = List1Expression(first: h, next: t);
+                    $0 = $$;
+                  }
+                }
               }
             }
           }
@@ -1557,32 +2118,63 @@ class PegParser {
 
   /// Expression
   /// MatchString =
-  ///   '@matchString' LeftParenthesis b:Block RightParenthesis {}
+  ///   !MetaName '@matchString' Spaces LeftParenthesis b:Block RightParenthesis {}
   ///   ;
   Expression? parseMatchString(State<String> state) {
     Expression? $0;
-    // '@matchString' LeftParenthesis b:Block RightParenthesis {}
+    // !MetaName '@matchString' Spaces LeftParenthesis b:Block RightParenthesis {}
     final $2 = state.pos;
-    const $3 = '@matchString';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($3, state.pos);
-    state.ok ? state.pos += 12 : state.fail(const ErrorExpectedTags([$3]));
+    final $3 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $3;
+      state.failAt(
+          $3,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($3);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $4 = '@matchString';
+      final $5 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.startsWith($4, state.pos);
+      if ($5) {
+        state.advance(12);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
       if (state.ok) {
-        String? $1;
-        // Block
-        $1 = parseBlock(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // RightParenthesis
-          fastParseRightParenthesis(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            Expression? $$;
-            final b = $1!;
-            $$ = MatchStringExpression(value: b);
-            $0 = $$;
+            String? $1;
+            // Block
+            $1 = parseBlock(state);
+            if (state.ok) {
+              // RightParenthesis
+              fastParseRightParenthesis(state);
+              if (state.ok) {
+                Expression? $$;
+                final b = $1!;
+                $$ = MatchStringExpression(value: b);
+                $0 = $$;
+              }
+            }
           }
         }
       }
@@ -1601,30 +2193,41 @@ class PegParser {
     // '%%' v:$(!'%%' v:.)* '%%' Spaces
     final $2 = state.pos;
     const $3 = '%%';
-    state.ok = state.pos + 1 < state.input.length &&
+    final $4 = state.pos + 1 < state.input.length &&
         state.input.codeUnitAt(state.pos) == 37 &&
         state.input.codeUnitAt(state.pos + 1) == 37;
-    state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(2);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       String? $1;
-      final $4 = state.pos;
-      const $6 = '%%';
-      final $5 = state.input.indexOf($6, state.pos);
-      state.ok = $5 != -1;
-      if (state.ok) {
-        state.pos = $5;
+      final $5 = state.pos;
+      const $8 = '%%';
+      final $6 = state.input.indexOf($8, state.pos);
+      final $7 = $6 != -1;
+      if ($7) {
+        state.pos = $6;
+        state.setOk(true);
       } else {
-        state.failAt(state.input.length, const ErrorExpectedTags([$6]));
+        state.failAt(state.input.length, const ErrorExpectedTags([$8]));
       }
       if (state.ok) {
-        $1 = state.input.substring($4, state.pos);
+        $1 = state.input.substring($5, state.pos);
       }
       if (state.ok) {
-        const $7 = '%%';
-        state.ok = state.pos + 1 < state.input.length &&
+        const $9 = '%%';
+        final $10 = state.pos + 1 < state.input.length &&
             state.input.codeUnitAt(state.pos) == 37 &&
             state.input.codeUnitAt(state.pos + 1) == 37;
-        state.ok ? state.pos += 2 : state.fail(const ErrorExpectedTags([$7]));
+        if ($10) {
+          state.advance(2);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$9]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -1636,6 +2239,91 @@ class PegParser {
     }
     if (!state.ok) {
       state.backtrack($2);
+    }
+    return $0;
+  }
+
+  /// Expression
+  /// Message =
+  ///   !MetaName '@message' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis {}
+  ///   ;
+  Expression? parseMessage(State<String> state) {
+    Expression? $0;
+    // !MetaName '@message' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis {}
+    final $3 = state.pos;
+    final $4 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
+    if (state.ok) {
+      final length = state.pos - $4;
+      state.failAt(
+          $4,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($4);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $5 = '@message';
+      final $6 = state.pos + 7 < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.codeUnitAt(state.pos + 1) == 109 &&
+          state.input.codeUnitAt(state.pos + 2) == 101 &&
+          state.input.codeUnitAt(state.pos + 3) == 115 &&
+          state.input.codeUnitAt(state.pos + 4) == 115 &&
+          state.input.codeUnitAt(state.pos + 5) == 97 &&
+          state.input.codeUnitAt(state.pos + 6) == 103 &&
+          state.input.codeUnitAt(state.pos + 7) == 101;
+      if ($6) {
+        state.advance(8);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$5]));
+      }
+      if (state.ok) {
+        // Spaces
+        fastParseSpaces(state);
+        if (state.ok) {
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
+          if (state.ok) {
+            String? $1;
+            // String
+            $1 = parseString(state);
+            if (state.ok) {
+              // Comma
+              fastParseComma(state);
+              if (state.ok) {
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // RightParenthesis
+                  fastParseRightParenthesis(state);
+                  if (state.ok) {
+                    Expression? $$;
+                    final s = $1!;
+                    final e = $2!;
+                    $$ = MessageExpression(expression: e, message: s);
+                    $0 = $$;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($3);
     }
     return $0;
   }
@@ -1703,24 +2391,29 @@ class PegParser {
     // '\'' v:StringChar* Apostrophe {}
     final $2 = state.pos;
     const $3 = '\'';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 39;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       List<int>? $1;
-      final $4 = <int>[];
+      final $5 = <int>[];
       while (true) {
-        int? $5;
+        int? $6;
         // StringChar
-        $5 = parseStringChar(state);
+        $6 = parseStringChar(state);
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
       state.setOk(true);
       if (state.ok) {
-        $1 = $4;
+        $1 = $5;
       }
       if (state.ok) {
         // Apostrophe
@@ -2052,17 +2745,18 @@ class PegParser {
     final $3 = state.pos;
     // [$a-zA-Z_] [$0-9a-zA-Z_]*
     final $4 = state.pos;
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
+    if (state.pos < state.input.length) {
       final $5 = state.input.codeUnitAt(state.pos);
-      state.ok =
+      final $6 =
           $5 < 65 ? $5 == 36 : $5 <= 90 || $5 == 95 || $5 >= 97 && $5 <= 122;
-      if (state.ok) {
-        state.pos++;
+      if ($6) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
       for (var c = 0;
@@ -2072,8 +2766,8 @@ class PegParser {
                   ? c == 36 || c >= 48 && c <= 57
                   : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
-          state.pos++);
-      state.ok = true;
+          state.advance(1));
+      state.setOk(true);
     }
     if (!state.ok) {
       state.backtrack($4);
@@ -2157,11 +2851,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '+';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 43;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -2313,11 +3008,12 @@ class PegParser {
   ///   / Group
   ///   / Cut
   ///   / Eof
-  ///   / ErrorHandler
   ///   / Expected
+  ///   / Indicate
   ///   / List
   ///   / List1
   ///   / MatchString
+  ///   / Message
   ///   / StringChars
   ///   / Verify
   ///   ;
@@ -2355,13 +3051,13 @@ class PegParser {
                   // Eof
                   $0 = parseEof(state);
                   if (!state.ok && state.isRecoverable) {
-                    // ErrorHandler
-                    // ErrorHandler
-                    $0 = parseErrorHandler(state);
+                    // Expected
+                    // Expected
+                    $0 = parseExpected(state);
                     if (!state.ok && state.isRecoverable) {
-                      // Expected
-                      // Expected
-                      $0 = parseExpected(state);
+                      // Indicate
+                      // Indicate
+                      $0 = parseIndicate(state);
                       if (!state.ok && state.isRecoverable) {
                         // List
                         // List
@@ -2375,13 +3071,18 @@ class PegParser {
                             // MatchString
                             $0 = parseMatchString(state);
                             if (!state.ok && state.isRecoverable) {
-                              // StringChars
-                              // StringChars
-                              $0 = parseStringChars(state);
+                              // Message
+                              // Message
+                              $0 = parseMessage(state);
                               if (!state.ok && state.isRecoverable) {
-                                // Verify
-                                // Verify
-                                $0 = parseVerify(state);
+                                // StringChars
+                                // StringChars
+                                $0 = parseStringChars(state);
+                                if (!state.ok && state.isRecoverable) {
+                                  // Verify
+                                  // Verify
+                                  $0 = parseVerify(state);
+                                }
                               }
                             }
                           }
@@ -2408,11 +3109,12 @@ class PegParser {
     final $2 = state.pos;
     String? $1;
     const $3 = '?';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 63;
-    if (state.ok) {
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
       $1 = $3;
-      state.pos++;
     } else {
       state.fail(const ErrorExpectedTags([$3]));
     }
@@ -2443,9 +3145,14 @@ class PegParser {
     $1 = parseRangeChar(state);
     if (state.ok) {
       const $4 = '-';
-      state.ok = state.pos < state.input.length &&
+      final $5 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 45;
-      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$4]));
+      if ($5) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
       if (state.ok) {
         int? $2;
         // RangeChar
@@ -2464,12 +3171,12 @@ class PegParser {
     }
     if (!state.ok && state.isRecoverable) {
       // s:RangeChar {}
-      int? $5;
+      int? $6;
       // RangeChar
-      $5 = parseRangeChar(state);
+      $6 = parseRangeChar(state);
       if (state.ok) {
         (int, int)? $$;
-        final s = $5!;
+        final s = $6!;
         $$ = (s, s);
         $0 = $$;
       }
@@ -2487,25 +3194,31 @@ class PegParser {
     // '\\' v:(c:[-nrt\]\\^] <int>{} / HexChar)
     final $2 = state.pos;
     const $3 = '\\';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 92;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       int? $1;
       // c:[-nrt\]\\^] <int>{}
-      state.ok = state.pos < state.input.length;
-      if (state.ok) {
-        final $5 = state.input.codeUnitAt(state.pos);
-        state.ok = $5 < 110
-            ? $5 == 45 || $5 >= 92 && $5 <= 94
-            : $5 <= 110 || $5 == 114 || $5 == 116;
-        if (state.ok) {
-          state.pos++;
-          $1 = $5;
+      if (state.pos < state.input.length) {
+        final $6 = state.input.codeUnitAt(state.pos);
+        final $7 = $6 < 110
+            ? $6 == 45 || $6 >= 92 && $6 <= 94
+            : $6 <= 110 || $6 == 114 || $6 == 116;
+        if ($7) {
+          state.advance(1);
+          state.setOk(true);
+          $1 = $6;
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
         }
-      }
-      if (!state.ok) {
-        state.fail(const ErrorUnexpectedCharacter());
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
         int? $$;
@@ -2527,41 +3240,50 @@ class PegParser {
     }
     if (!state.ok && state.isRecoverable) {
       // !'\\' c:.
-      final $8 = state.pos;
-      final $9 = state.pos;
-      const $10 = '\\';
-      state.ok = state.pos < state.input.length &&
+      final $10 = state.pos;
+      final $11 = state.pos;
+      state.mute++;
+      const $12 = '\\';
+      final $13 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 92;
-      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$10]));
-      state.setOk(!state.ok);
-      if (!state.ok) {
-        final length = state.pos - $9;
+      if ($13) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$12]));
+      }
+      state.mute--;
+      if (state.ok) {
+        final length = state.pos - $11;
         state.failAt(
-            $9,
+            $11,
             switch (length) {
               0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(-1),
-              2 => const ErrorUnexpectedInput(-2),
+              1 => const ErrorUnexpectedInput(1),
+              2 => const ErrorUnexpectedInput(2),
               _ => ErrorUnexpectedInput(length)
             });
-        state.backtrack($9);
+        state.backtrack($11);
+      } else {
+        state.advance(0);
+        state.setOk(true);
       }
       if (state.ok) {
-        int? $7;
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $11 = state.input.runeAt(state.pos);
-          state.pos += $11 > 0xffff ? 2 : 1;
-          $7 = $11;
+        int? $9;
+        if (state.pos < state.input.length) {
+          final c = state.input.runeAt(state.pos);
+          state.advance(c > 0xffff ? 2 : 1);
+          state.setOk(true);
+          $9 = c;
         } else {
-          state.fail(const ErrorUnexpectedCharacter());
+          state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $0 = $7;
+          $0 = $9;
         }
       }
       if (!state.ok) {
-        state.backtrack($8);
+        state.backtrack($10);
       }
     }
     return $0;
@@ -2684,19 +3406,19 @@ class PegParser {
     // e:SequenceElement+ a:Action? {}
     final $3 = state.pos;
     List<Expression>? $1;
-    final $4 = <Expression>[];
+    final $6 = <Expression>[];
     while (true) {
-      Expression? $5;
+      Expression? $7;
       // SequenceElement
-      $5 = parseSequenceElement(state);
+      $7 = parseSequenceElement(state);
       if (!state.ok) {
         break;
       }
-      $4.add($5!);
+      $6.add($7!);
     }
-    state.setOk($4.isNotEmpty);
-    if (state.ok) {
-      $1 = $4;
+    if ($6.isNotEmpty) {
+      state.setOk(true);
+      $1 = $6;
     }
     if (state.ok) {
       SemanticAction? $2;
@@ -2798,8 +3520,9 @@ class PegParser {
             $3 = $5;
           }
           if (state.ok) {
-            state.ok = state.pos >= state.input.length;
-            if (!state.ok) {
+            if (state.pos >= state.input.length) {
+              state.setOk(true);
+            } else {
               state.fail(const ErrorExpectedEndOfInput());
             }
             if (state.ok) {
@@ -2829,59 +3552,78 @@ class PegParser {
     // '\'' cs:(!'\'' c:StringChar)* '\'' Spaces {}
     final $2 = state.pos;
     const $3 = '\'';
-    state.ok = state.pos < state.input.length &&
+    final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 39;
-    state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$3]));
+    if ($4) {
+      state.advance(1);
+      state.setOk(true);
+    } else {
+      state.fail(const ErrorExpectedTags([$3]));
+    }
     if (state.ok) {
       List<int>? $1;
-      final $4 = <int>[];
+      final $5 = <int>[];
       while (true) {
-        int? $5;
+        int? $6;
         // !'\'' c:StringChar
-        final $7 = state.pos;
         final $8 = state.pos;
-        const $9 = '\'';
-        state.ok = state.pos < state.input.length &&
+        final $9 = state.pos;
+        state.mute++;
+        const $10 = '\'';
+        final $11 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 39;
-        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$9]));
-        state.setOk(!state.ok);
-        if (!state.ok) {
-          final length = state.pos - $8;
+        if ($11) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$10]));
+        }
+        state.mute--;
+        if (state.ok) {
+          final length = state.pos - $9;
           state.failAt(
-              $8,
+              $9,
               switch (length) {
                 0 => const ErrorUnexpectedInput(0),
-                1 => const ErrorUnexpectedInput(-1),
-                2 => const ErrorUnexpectedInput(-2),
+                1 => const ErrorUnexpectedInput(1),
+                2 => const ErrorUnexpectedInput(2),
                 _ => ErrorUnexpectedInput(length)
               });
-          state.backtrack($8);
+          state.backtrack($9);
+        } else {
+          state.advance(0);
+          state.setOk(true);
         }
         if (state.ok) {
-          int? $6;
+          int? $7;
           // StringChar
-          $6 = parseStringChar(state);
+          $7 = parseStringChar(state);
           if (state.ok) {
-            $5 = $6;
+            $6 = $7;
           }
         }
         if (!state.ok) {
-          state.backtrack($7);
+          state.backtrack($8);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
       state.setOk(true);
       if (state.ok) {
-        $1 = $4;
+        $1 = $5;
       }
       if (state.ok) {
-        const $10 = '\'';
-        state.ok = state.pos < state.input.length &&
+        const $12 = '\'';
+        final $13 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 39;
-        state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$10]));
+        if ($13) {
+          state.advance(1);
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorExpectedTags([$12]));
+        }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
@@ -2908,59 +3650,66 @@ class PegParser {
   int? parseStringChar(State<String> state) {
     int? $0;
     // [ -[\]-\u{10ffff}]
-    state.ok = state.pos < state.input.length;
-    if (state.ok) {
+    if (state.pos < state.input.length) {
       final $2 = state.input.runeAt(state.pos);
-      state.ok = $2 <= 91 ? $2 >= 32 : $2 >= 93 && $2 <= 1114111;
-      if (state.ok) {
-        state.pos += $2 > 0xffff ? 2 : 1;
+      final $3 = $2 <= 91 ? $2 >= 32 : $2 >= 93 && $2 <= 1114111;
+      if ($3) {
+        state.advance($2 > 0xffff ? 2 : 1);
+        state.setOk(true);
         $0 = $2;
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
       }
-    }
-    if (!state.ok) {
-      state.fail(const ErrorUnexpectedCharacter());
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (!state.ok && state.isRecoverable) {
       // '\\' v:(c:[rnt'"\\] <int>{} / HexChar)
-      final $4 = state.pos;
-      const $5 = '\\';
-      state.ok = state.pos < state.input.length &&
+      final $5 = state.pos;
+      const $6 = '\\';
+      final $7 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 92;
-      state.ok ? state.pos++ : state.fail(const ErrorExpectedTags([$5]));
+      if ($7) {
+        state.advance(1);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$6]));
+      }
       if (state.ok) {
-        int? $3;
+        int? $4;
         // c:[rnt'"\\] <int>{}
-        state.ok = state.pos < state.input.length;
-        if (state.ok) {
-          final $7 = state.input.codeUnitAt(state.pos);
-          state.ok = $7 < 92
-              ? $7 == 34 || $7 == 39
-              : $7 <= 92 || ($7 < 114 ? $7 == 110 : $7 <= 114 || $7 == 116);
-          if (state.ok) {
-            state.pos++;
-            $3 = $7;
+        if (state.pos < state.input.length) {
+          final $9 = state.input.codeUnitAt(state.pos);
+          final $10 = $9 < 92
+              ? $9 == 34 || $9 == 39
+              : $9 <= 92 || ($9 < 114 ? $9 == 110 : $9 <= 114 || $9 == 116);
+          if ($10) {
+            state.advance(1);
+            state.setOk(true);
+            $4 = $9;
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
           }
-        }
-        if (!state.ok) {
-          state.fail(const ErrorUnexpectedCharacter());
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
           int? $$;
-          final c = $3!;
+          final c = $4!;
           $$ = _escape(c);
-          $3 = $$;
+          $4 = $$;
         }
         if (!state.ok && state.isRecoverable) {
           // HexChar
           // HexChar
-          $3 = parseHexChar(state);
+          $4 = parseHexChar(state);
         }
         if (state.ok) {
-          $0 = $3;
+          $0 = $4;
         }
       }
       if (!state.ok) {
-        state.backtrack($4);
+        state.backtrack($5);
       }
     }
     return $0;
@@ -2968,49 +3717,80 @@ class PegParser {
 
   /// Expression
   /// StringChars =
-  ///   '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
+  ///   !MetaName '@stringChars' Spaces LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
   ///   ;
   Expression? parseStringChars(State<String> state) {
     Expression? $0;
-    // '@stringChars' LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
+    // !MetaName '@stringChars' Spaces LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis {}
     final $4 = state.pos;
-    const $5 = '@stringChars';
-    state.ok = state.pos < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.startsWith($5, state.pos);
-    state.ok ? state.pos += 12 : state.fail(const ErrorExpectedTags([$5]));
+    final $5 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $5;
+      state.failAt(
+          $5,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($5);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $6 = '@stringChars';
+      final $7 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.startsWith($6, state.pos);
+      if ($7) {
+        state.advance(12);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$6]));
+      }
       if (state.ok) {
-        Expression? $1;
-        // Expression
-        $1 = parseExpression(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            Expression? $2;
+            Expression? $1;
             // Expression
-            $2 = parseExpression(state);
+            $1 = parseExpression(state);
             if (state.ok) {
               // Comma
               fastParseComma(state);
               if (state.ok) {
-                Expression? $3;
+                Expression? $2;
                 // Expression
-                $3 = parseExpression(state);
+                $2 = parseExpression(state);
                 if (state.ok) {
-                  // RightParenthesis
-                  fastParseRightParenthesis(state);
+                  // Comma
+                  fastParseComma(state);
                   if (state.ok) {
-                    Expression? $$;
-                    final n = $1!;
-                    final c = $2!;
-                    final e = $3!;
-                    $$ = StringCharsExpression(
-                        normalCharacters: n, escapeCharacter: c, escape: e);
-                    $0 = $$;
+                    Expression? $3;
+                    // Expression
+                    $3 = parseExpression(state);
+                    if (state.ok) {
+                      // RightParenthesis
+                      fastParseRightParenthesis(state);
+                      if (state.ok) {
+                        Expression? $$;
+                        final n = $1!;
+                        final c = $2!;
+                        final e = $3!;
+                        $$ = StringCharsExpression(
+                            normalCharacters: n, escapeCharacter: c, escape: e);
+                        $0 = $$;
+                      }
+                    }
                   }
                 }
               }
@@ -3202,45 +3982,87 @@ class PegParser {
 
   /// Expression
   /// Verify =
-  ///   '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
+  ///   !MetaName '@verify' Spaces LeftParenthesis m:String Comma e:Expression Comma b:Block RightParenthesis {}
   ///   ;
   Expression? parseVerify(State<String> state) {
     Expression? $0;
-    // '@verify' LeftParenthesis e:Expression Comma a:Block RightParenthesis {}
-    final $3 = state.pos;
-    const $4 = '@verify';
-    state.ok = state.pos + 6 < state.input.length &&
-        state.input.codeUnitAt(state.pos) == 64 &&
-        state.input.codeUnitAt(state.pos + 1) == 118 &&
-        state.input.codeUnitAt(state.pos + 2) == 101 &&
-        state.input.codeUnitAt(state.pos + 3) == 114 &&
-        state.input.codeUnitAt(state.pos + 4) == 105 &&
-        state.input.codeUnitAt(state.pos + 5) == 102 &&
-        state.input.codeUnitAt(state.pos + 6) == 121;
-    state.ok ? state.pos += 7 : state.fail(const ErrorExpectedTags([$4]));
+    // !MetaName '@verify' Spaces LeftParenthesis m:String Comma e:Expression Comma b:Block RightParenthesis {}
+    final $4 = state.pos;
+    final $5 = state.pos;
+    state.mute++;
+    // MetaName
+    fastParseMetaName(state);
+    state.mute--;
     if (state.ok) {
-      // LeftParenthesis
-      fastParseLeftParenthesis(state);
+      final length = state.pos - $5;
+      state.failAt(
+          $5,
+          switch (length) {
+            0 => const ErrorUnexpectedInput(0),
+            1 => const ErrorUnexpectedInput(1),
+            2 => const ErrorUnexpectedInput(2),
+            _ => ErrorUnexpectedInput(length)
+          });
+      state.backtrack($5);
+    } else {
+      state.advance(0);
+      state.setOk(true);
+    }
+    if (state.ok) {
+      const $6 = '@verify';
+      final $7 = state.pos + 6 < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64 &&
+          state.input.codeUnitAt(state.pos + 1) == 118 &&
+          state.input.codeUnitAt(state.pos + 2) == 101 &&
+          state.input.codeUnitAt(state.pos + 3) == 114 &&
+          state.input.codeUnitAt(state.pos + 4) == 105 &&
+          state.input.codeUnitAt(state.pos + 5) == 102 &&
+          state.input.codeUnitAt(state.pos + 6) == 121;
+      if ($7) {
+        state.advance(7);
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$6]));
+      }
       if (state.ok) {
-        Expression? $1;
-        // Expression
-        $1 = parseExpression(state);
+        // Spaces
+        fastParseSpaces(state);
         if (state.ok) {
-          // Comma
-          fastParseComma(state);
+          // LeftParenthesis
+          fastParseLeftParenthesis(state);
           if (state.ok) {
-            String? $2;
-            // Block
-            $2 = parseBlock(state);
+            String? $1;
+            // String
+            $1 = parseString(state);
             if (state.ok) {
-              // RightParenthesis
-              fastParseRightParenthesis(state);
+              // Comma
+              fastParseComma(state);
               if (state.ok) {
-                Expression? $$;
-                final e = $1!;
-                final a = $2!;
-                $$ = VerifyExpression(expression: e, handler: a);
-                $0 = $$;
+                Expression? $2;
+                // Expression
+                $2 = parseExpression(state);
+                if (state.ok) {
+                  // Comma
+                  fastParseComma(state);
+                  if (state.ok) {
+                    String? $3;
+                    // Block
+                    $3 = parseBlock(state);
+                    if (state.ok) {
+                      // RightParenthesis
+                      fastParseRightParenthesis(state);
+                      if (state.ok) {
+                        Expression? $$;
+                        final m = $1!;
+                        final e = $2!;
+                        final b = $3!;
+                        $$ = VerifyExpression(
+                            expression: e, message: m, predicate: b);
+                        $0 = $$;
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -3248,7 +4070,7 @@ class PegParser {
       }
     }
     if (!state.ok) {
-      state.backtrack($3);
+      state.backtrack($4);
     }
     return $0;
   }
@@ -3349,7 +4171,7 @@ String _errorMessage(
       .toSet()
       .toList();
   final offsets =
-      errors.map((e) => e.length < 0 ? offset - e.length : offset).toSet();
+      errors.map((e) => e.length < 0 ? offset + e.length : offset).toSet();
   final offsetMap = <int, ({int line, int column})>{};
   if (inputStart == 0) {
     var line = 1;
@@ -3442,22 +4264,8 @@ String _errorMessage(
 
 List<ParseError> _normalize<I>(I input, int offset, List<ParseError> errors) {
   final errorList = errors.toList();
-  var isEof = false;
-  if (input is String) {
-    if (offset >= input.length) {
-      isEof = true;
-    }
-  } else if (input is ChunkedParsingSink) {
-    if (input.isClosed && offset >= input.end) {
-      isEof = true;
-    }
-  }
-
-  if (isEof) {
-    errorList.add(const ErrorUnexpectedEndOfInput());
-    errorList.removeWhere((e) => e is ErrorUnexpectedCharacter);
-  } else if (errorList.isEmpty) {
-    errorList.add(const ErrorUnexpectedCharacter());
+  if (errorList.isEmpty) {
+    errorList.add(const ErrorUnknownError());
   }
 
   final expectedTags = errorList.whereType<ErrorExpectedTags>().toList();
@@ -3526,12 +4334,7 @@ class ChunkedParsingSink implements Sink<String> {
       throw StateError('Chunked data sink already closed');
     }
 
-    if (this.data.isEmpty) {
-      this.data = data;
-    } else {
-      this.data = '${this.data}$data';
-    }
-
+    this.data = this.data.isNotEmpty ? '${this.data}$data' : data;
     final length = this.data.length;
     end = start + length;
     if (bufferLoad < length) {
@@ -3550,12 +4353,9 @@ class ChunkedParsingSink implements Sink<String> {
     }
 
     if (_cuttingPosition > start) {
-      if (_cuttingPosition == end) {
-        this.data = '';
-      } else {
-        this.data = this.data.substring(_cuttingPosition - start);
-      }
-
+      this.data = _cuttingPosition != end
+          ? this.data.substring(_cuttingPosition - start)
+          : '';
       start = _cuttingPosition;
     }
   }
@@ -3777,9 +4577,11 @@ abstract class ParseError {
     for (final key in map.keys) {
       result = result.replaceAll(key, map[key]!);
     }
+
     if (quote) {
       result = "'$result'";
     }
+
     return result;
   }
 }
@@ -3819,8 +4621,6 @@ class ParseResult<I, O> {
 }
 
 class State<T> {
-  final List<ParseError?> errors = List.filled(64, null, growable: false);
-
   int errorCount = 0;
 
   int failPos = 0;
@@ -3831,11 +4631,28 @@ class State<T> {
 
   int lastFailPos = -1;
 
+  int mute = 0;
+
   bool ok = false;
 
   int pos = 0;
 
+  final List<ParseError?> _errors = List.filled(256, null, growable: false);
+
   State(this.input);
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void advance(int offset) {
+    if (mute == 0 && isRecoverable) {
+      if (failPos <= pos) {
+        failPos = 0;
+        errorCount = 0;
+      }
+    }
+
+    pos += offset;
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -3848,64 +4665,38 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool fail(ParseError error) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
-    return false;
+    return failAt(pos, error);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAll(List<ParseError> errors) {
-    ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
-
-    if (pos >= failPos) {
-      if (failPos < pos) {
-        failPos = pos;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
-        }
-      }
-    }
-    return false;
+    return failAllAt(pos, errors);
   }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
-    }
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      for (var i = 0; i < errors.length; i++) {
-        if (errorCount < errors.length) {
-          this.errors[errorCount++] = errors[i];
+        for (var i = 0; i < errors.length; i++) {
+          if (errorCount < errors.length) {
+            _errors[errorCount++] = errors[i];
+          }
+        }
+
+        if (lastFailPos < offset) {
+          lastFailPos = offset;
         }
       }
     }
+
     return false;
   }
 
@@ -3913,24 +4704,30 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (lastFailPos < pos) {
-      lastFailPos = pos;
+    if (mute == 0 || !isRecoverable) {
+      if (offset >= failPos) {
+        if (failPos < offset) {
+          failPos = offset;
+          errorCount = 0;
+        }
+
+        if (errorCount < _errors.length) {
+          _errors[errorCount++] = error;
+        }
+      }
+
+      if (lastFailPos < offset) {
+        lastFailPos = offset;
+      }
     }
 
-    if (offset >= failPos) {
-      if (failPos < offset) {
-        failPos = offset;
-        errorCount = 0;
-      }
-      if (errorCount < errors.length) {
-        errors[errorCount++] = error;
-      }
-    }
     return false;
   }
 
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   List<ParseError> getErrors() {
-    return List.generate(errorCount, (i) => errors[i]!);
+    return List.generate(errorCount, (i) => _errors[i]!);
   }
 
   @pragma('vm:prefer-inline')
@@ -3943,22 +4740,24 @@ class State<T> {
   String toString() {
     if (input case final String input) {
       if (pos >= input.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = input.length - pos;
       length = length > 40 ? 40 : length;
       final string = input.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     } else if (input case final ChunkedParsingSink input) {
       final source = input.data;
       final pos = this.pos - input.start;
       if (pos < 0 || pos >= source.length) {
-        return '$pos:';
+        return '$ok $pos:';
       }
+
       var length = source.length - pos;
       length = length > 40 ? 40 : length;
       final string = source.substring(pos, pos + length);
-      return '$pos:$string';
+      return '$ok $pos:$string';
     }
 
     return super.toString();
@@ -3978,8 +4777,10 @@ extension ParseStringExt on String {
           return 0x10000 + ((w1 & 0x3ff) << 10) + (w2 & 0x3ff);
         }
       }
+
       throw FormatException('Invalid UTF-16 character', this, index - 1);
     }
+
     return w1;
   }
 }
