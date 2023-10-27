@@ -1,7 +1,8 @@
 # 5.0.0
 
-- Error generation algorithms have been slightly reworked. This made it possible to reduce the impact of some errors on others. The fact is that PEG uses the so-called principle: the further away the position of the error, the more accurately it describes the real location of the failure. This was done by forcing `state.errorCount` and `state.failPos` to be reset whenever the position of a successful parse (`state.pos`) reaches or exceeds the position of an unsuccessful parse (`failPos`).
+- Error generation algorithms have been slightly reworked.
 - Breaking change: Removed meta expression `@errorHandler()`.
+- Breaking change: The `And Predicate` expression no longer returns a result. For consistency of these expressions `&expr == !(!expr)`.
 - Added meta expression `@indicate()`.
 - Added meta expression `@message()`.
 

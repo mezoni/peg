@@ -60,7 +60,7 @@ class TestParser {
       }
     }
     if ($0 > 0) {
-      state.advance($0);
+      state.pos += $0;
       state.setOk(true);
     } else {
       state.pos = $1;
@@ -198,7 +198,7 @@ class TestParser {
       }
     }
     if ($1 > 0) {
-      state.advance($1);
+      state.pos += $1;
       state.setOk(true);
     } else {
       state.pos = $2;
@@ -214,17 +214,18 @@ class TestParser {
   List<int>? parseSkipTil(State<String> state) {
     List<int>? $0;
     // (![E] v:.)*
-    final $2 = <int>[];
+    final $3 = <int>[];
+    final $2 = state.isOptional;
+    state.isOptional = true;
     while (true) {
-      int? $3;
+      int? $4;
       // ![E] v:.
-      final $5 = state.pos;
       final $6 = state.pos;
-      state.mute++;
+      final $7 = state.pos;
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 69;
         if (ok) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -232,47 +233,44 @@ class TestParser {
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
-      state.mute--;
       if (state.ok) {
-        final length = state.pos - $6;
-        state.failAt(
-            $6,
-            switch (length) {
-              0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(1),
-              2 => const ErrorUnexpectedInput(2),
-              _ => ErrorUnexpectedInput(length)
-            });
-        state.backtrack($6);
+        final length = $7 - state.pos;
+        state.fail(switch (length) {
+          0 => const ErrorUnexpectedInput(0),
+          -1 => const ErrorUnexpectedInput(-1),
+          -2 => const ErrorUnexpectedInput(-2),
+          _ => ErrorUnexpectedInput(length)
+        });
+        state.backtrack($7);
       } else {
-        state.advance(0);
         state.setOk(true);
       }
       if (state.ok) {
-        int? $4;
+        int? $5;
         if (state.pos < state.input.length) {
           final c = state.input.runeAt(state.pos);
-          state.advance(c > 0xffff ? 2 : 1);
+          state.pos += c > 0xffff ? 2 : 1;
           state.setOk(true);
-          $4 = c;
+          $5 = c;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $3 = $4;
+          $4 = $5;
         }
       }
       if (!state.ok) {
-        state.backtrack($5);
+        state.backtrack($6);
       }
       if (!state.ok) {
         break;
       }
-      $2.add($3!);
+      $3.add($4!);
     }
+    state.isOptional = $2;
     state.setOk(true);
     if (state.ok) {
-      $0 = $2;
+      $0 = $3;
     }
     return $0;
   }
@@ -283,65 +281,63 @@ class TestParser {
   List<int>? parseSkipUntil(State<String> state) {
     List<int>? $0;
     // (!'END' v:.)*
-    final $2 = <int>[];
+    final $3 = <int>[];
+    final $2 = state.isOptional;
+    state.isOptional = true;
     while (true) {
-      int? $3;
+      int? $4;
       // !'END' v:.
-      final $5 = state.pos;
       final $6 = state.pos;
-      state.mute++;
-      const $7 = 'END';
-      final $8 = state.pos + 2 < state.input.length &&
+      final $7 = state.pos;
+      const $8 = 'END';
+      final $9 = state.pos + 2 < state.input.length &&
           state.input.codeUnitAt(state.pos) == 69 &&
           state.input.codeUnitAt(state.pos + 1) == 78 &&
           state.input.codeUnitAt(state.pos + 2) == 68;
-      if ($8) {
-        state.advance(3);
+      if ($9) {
+        state.pos += 3;
         state.setOk(true);
       } else {
-        state.fail(const ErrorExpectedTags([$7]));
+        state.fail(const ErrorExpectedTags([$8]));
       }
-      state.mute--;
       if (state.ok) {
-        final length = state.pos - $6;
-        state.failAt(
-            $6,
-            switch (length) {
-              0 => const ErrorUnexpectedInput(0),
-              1 => const ErrorUnexpectedInput(1),
-              2 => const ErrorUnexpectedInput(2),
-              _ => ErrorUnexpectedInput(length)
-            });
-        state.backtrack($6);
+        final length = $7 - state.pos;
+        state.fail(switch (length) {
+          0 => const ErrorUnexpectedInput(0),
+          -1 => const ErrorUnexpectedInput(-1),
+          -2 => const ErrorUnexpectedInput(-2),
+          _ => ErrorUnexpectedInput(length)
+        });
+        state.backtrack($7);
       } else {
-        state.advance(0);
         state.setOk(true);
       }
       if (state.ok) {
-        int? $4;
+        int? $5;
         if (state.pos < state.input.length) {
           final c = state.input.runeAt(state.pos);
-          state.advance(c > 0xffff ? 2 : 1);
+          state.pos += c > 0xffff ? 2 : 1;
           state.setOk(true);
-          $4 = c;
+          $5 = c;
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $3 = $4;
+          $4 = $5;
         }
       }
       if (!state.ok) {
-        state.backtrack($5);
+        state.backtrack($6);
       }
       if (!state.ok) {
         break;
       }
-      $2.add($3!);
+      $3.add($4!);
     }
+    state.isOptional = $2;
     state.setOk(true);
     if (state.ok) {
-      $0 = $2;
+      $0 = $3;
     }
     return $0;
   }
@@ -1061,11 +1057,11 @@ class State<T> {
 
   final T input;
 
+  bool isOptional = false;
+
   bool isRecoverable = true;
 
   int lastFailPos = -1;
-
-  int mute = 0;
 
   bool ok = false;
 
@@ -1078,13 +1074,6 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void advance(int offset) {
-    if (mute == 0 && isRecoverable) {
-      if (failPos <= pos) {
-        failPos = 0;
-        errorCount = 0;
-      }
-    }
-
     pos += offset;
   }
 
@@ -1112,7 +1101,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1138,7 +1127,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1149,10 +1138,10 @@ class State<T> {
           _errors[errorCount++] = error;
         }
       }
+    }
 
-      if (lastFailPos < offset) {
-        lastFailPos = offset;
-      }
+    if (lastFailPos < offset) {
+      lastFailPos = offset;
     }
 
     return false;

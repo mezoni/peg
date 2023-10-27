@@ -40,7 +40,7 @@ class JsonParser {
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.advance(1));
+        state.pos++);
     state.setOk(true);
   }
 
@@ -50,22 +50,35 @@ class JsonParser {
   AsyncResult<Object?> fastParseSpaces$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     var $2 = 0;
+    late bool $3;
     void $1() {
       while (true) {
         switch ($2) {
           case 0:
-            final $3 = state.input;
-            if (state.pos >= $3.end && !$3.isClosed) {
-              $3.sleep = true;
-              $3.handle = $1;
-              $2 = 0;
+            $3 = state.isOptional;
+            state.isOptional = true;
+            $2 = 2;
+            break;
+          case 1:
+            state.isOptional = $3;
+            state.setOk(true);
+            $0.isComplete = true;
+            state.input.handle = $0.onComplete;
+            $2 = -1;
+            return;
+          case 2:
+            final $4 = state.input;
+            if (state.pos >= $4.end && !$4.isClosed) {
+              $4.sleep = true;
+              $4.handle = $1;
+              $2 = 2;
               return;
             }
-            if (state.pos < $3.end) {
-              final c = $3.data.codeUnitAt(state.pos - $3.start);
-              final $4 = c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32;
-              if ($4) {
-                state.advance(1);
+            if (state.pos < $4.end) {
+              final c = $4.data.codeUnitAt(state.pos - $4.start);
+              final $5 = c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32;
+              if ($5) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -77,14 +90,8 @@ class JsonParser {
               $2 = 1;
               break;
             }
-            $2 = 0;
+            $2 = 2;
             break;
-          case 1:
-            state.setOk(true);
-            $0.isComplete = true;
-            state.input.handle = $0.onComplete;
-            $2 = -1;
-            return;
           default:
             throw StateError('Invalid state: ${$2}');
         }
@@ -103,29 +110,31 @@ class JsonParser {
     beginEvent(JsonParserEvent.arrayEvent);
     List<Object?>? $0;
     // OpenBracket ↑ v:Values CloseBracket
-    final $3 = state.pos;
+    final $4 = state.pos;
     var $2 = true;
+    final $3 = state.isOptional;
     // @inline OpenBracket = v:'[' Spaces ;
     // v:'[' Spaces
-    final $4 = state.pos;
-    const $5 = '[';
-    final $6 = state.pos < state.input.length &&
+    final $5 = state.pos;
+    const $6 = '[';
+    final $7 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 91;
-    if ($6) {
-      state.advance(1);
+    if ($7) {
+      state.pos++;
       state.setOk(true);
     } else {
-      state.fail(const ErrorExpectedTags([$5]));
+      state.fail(const ErrorExpectedTags([$6]));
     }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.backtrack($4);
+      state.backtrack($5);
     }
     if (state.ok) {
       $2 = false;
+      state.isOptional = false;
       state.setOk(true);
       if (state.ok) {
         List<Object?>? $1;
@@ -134,22 +143,22 @@ class JsonParser {
         if (state.ok) {
           // @inline CloseBracket = v:']' Spaces ;
           // v:']' Spaces
-          final $7 = state.pos;
-          const $8 = ']';
-          final $9 = state.pos < state.input.length &&
+          final $8 = state.pos;
+          const $9 = ']';
+          final $10 = state.pos < state.input.length &&
               state.input.codeUnitAt(state.pos) == 93;
-          if ($9) {
-            state.advance(1);
+          if ($10) {
+            state.pos++;
             state.setOk(true);
           } else {
-            state.fail(const ErrorExpectedTags([$8]));
+            state.fail(const ErrorExpectedTags([$9]));
           }
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($7);
+            state.backtrack($8);
           }
           if (state.ok) {
             $0 = $1;
@@ -161,8 +170,9 @@ class JsonParser {
       if (!$2) {
         state.isRecoverable = false;
       }
-      state.backtrack($3);
+      state.backtrack($4);
     }
+    state.isOptional = $3;
     $0 = endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $0, state.ok);
     return $0;
   }
@@ -177,47 +187,49 @@ class JsonParser {
     List<Object?>? $2;
     var $3 = 0;
     late bool $5;
-    late int $6;
+    late bool $6;
     late int $7;
-    late AsyncResult<Object?> $12;
+    late int $8;
+    late AsyncResult<Object?> $13;
     List<Object?>? $4;
-    late AsyncResult<List<Object?>> $14;
-    late int $16;
-    late AsyncResult<Object?> $21;
+    late AsyncResult<List<Object?>> $15;
+    late int $17;
+    late AsyncResult<Object?> $22;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = state.pos;
-            $5 = true;
             $7 = state.pos;
+            $6 = true;
+            $5 = state.isOptional;
+            $8 = state.pos;
             $3 = 1;
             break;
           case 1:
-            final $8 = state.input;
-            if (state.pos >= $8.end && !$8.isClosed) {
-              $8.sleep = true;
-              $8.handle = $1;
+            final $9 = state.input;
+            if (state.pos >= $9.end && !$9.isClosed) {
+              $9.sleep = true;
+              $9.handle = $1;
               $3 = 1;
               return;
             }
-            const $9 = '[';
-            final $10 = state.pos < $8.end &&
-                $8.data.codeUnitAt(state.pos - $8.start) == 91;
-            if ($10) {
-              state.advance(1);
+            const $10 = '[';
+            final $11 = state.pos < $9.end &&
+                $9.data.codeUnitAt(state.pos - $9.start) == 91;
+            if ($11) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$9]));
+              state.fail(const ErrorExpectedTags([$10]));
             }
-            final $23 = state.ok;
-            if (!$23) {
+            final $24 = state.ok;
+            if (!$24) {
               $3 = 2;
               break;
             }
-            $12 = fastParseSpaces$Async(state);
-            if (!$12.isComplete) {
-              $12.onComplete = $1;
+            $13 = fastParseSpaces$Async(state);
+            if (!$13.isComplete) {
+              $13.onComplete = $1;
               $3 = 3;
               return;
             }
@@ -225,24 +237,25 @@ class JsonParser {
             break;
           case 2:
             if (!state.ok) {
-              state.backtrack($7);
+              state.backtrack($8);
             }
-            final $24 = state.ok;
-            if (!$24) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 4;
               break;
             }
-            $5 = false;
+            $6 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $25 = state.ok;
-            if (!$25) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 5;
               break;
             }
-            $14 = parseValues$Async(state);
-            if (!$14.isComplete) {
-              $14.onComplete = $1;
+            $15 = parseValues$Async(state);
+            if (!$15.isComplete) {
+              $15.onComplete = $1;
               $3 = 6;
               return;
             }
@@ -253,11 +266,12 @@ class JsonParser {
             break;
           case 4:
             if (!state.ok) {
-              if (!$5) {
+              if (!$6) {
                 state.isRecoverable = false;
               }
-              state.backtrack($6);
+              state.backtrack($7);
             }
+            state.isOptional = $5;
             endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $2, state.ok);
             $0.value = $2;
             $0.isComplete = true;
@@ -268,43 +282,43 @@ class JsonParser {
             $3 = 4;
             break;
           case 6:
-            $4 = $14.value;
-            final $26 = state.ok;
-            if (!$26) {
+            $4 = $15.value;
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 7;
               break;
             }
-            $16 = state.pos;
+            $17 = state.pos;
             $3 = 8;
             break;
           case 7:
             $3 = 5;
             break;
           case 8:
-            final $17 = state.input;
-            if (state.pos >= $17.end && !$17.isClosed) {
-              $17.sleep = true;
-              $17.handle = $1;
+            final $18 = state.input;
+            if (state.pos >= $18.end && !$18.isClosed) {
+              $18.sleep = true;
+              $18.handle = $1;
               $3 = 8;
               return;
             }
-            const $18 = ']';
-            final $19 = state.pos < $17.end &&
-                $17.data.codeUnitAt(state.pos - $17.start) == 93;
-            if ($19) {
-              state.advance(1);
+            const $19 = ']';
+            final $20 = state.pos < $18.end &&
+                $18.data.codeUnitAt(state.pos - $18.start) == 93;
+            if ($20) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$18]));
+              state.fail(const ErrorExpectedTags([$19]));
             }
-            final $27 = state.ok;
-            if (!$27) {
+            final $28 = state.ok;
+            if (!$28) {
               $3 = 9;
               break;
             }
-            $21 = fastParseSpaces$Async(state);
-            if (!$21.isComplete) {
-              $21.onComplete = $1;
+            $22 = fastParseSpaces$Async(state);
+            if (!$22.isComplete) {
+              $22.onComplete = $1;
               $3 = 10;
               return;
             }
@@ -312,7 +326,7 @@ class JsonParser {
             break;
           case 9:
             if (!state.ok) {
-              state.backtrack($16);
+              state.backtrack($17);
             }
             if (state.ok) {
               $2 = $4;
@@ -349,7 +363,7 @@ class JsonParser {
           : $3 <= 98 ||
               ($3 < 110 ? $3 == 102 : $3 <= 110 || $3 == 114 || $3 == 116);
       if ($4) {
-        state.advance(1);
+        state.pos++;
         state.setOk(true);
         $1 = $3;
       } else {
@@ -396,7 +410,7 @@ class JsonParser {
                   : c <= 98 ||
                       (c < 110 ? c == 102 : c <= 110 || c == 114 || c == 116);
               if ($6) {
-                state.advance(1);
+                state.pos++;
                 $4 = c;
                 state.setOk(true);
               } else {
@@ -438,7 +452,7 @@ class JsonParser {
     final $4 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 117;
     if ($4) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$3]));
@@ -490,7 +504,7 @@ class JsonParser {
             final $8 = state.pos < $6.end &&
                 $6.data.codeUnitAt(state.pos - $6.start) == 117;
             if ($8) {
-              state.advance(1);
+              state.pos++;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$7]));
@@ -562,7 +576,7 @@ class JsonParser {
             ? $12 >= 48 && $12 <= 57
             : $12 <= 70 || $12 >= 97 && $12 <= 102;
         if ($13) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -692,7 +706,7 @@ class JsonParser {
               final $13 =
                   c < 65 ? c >= 48 && c <= 57 : c <= 70 || c >= 97 && c <= 102;
               if ($13) {
-                state.advance(1);
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -726,8 +740,9 @@ class JsonParser {
     beginEvent(JsonParserEvent.keyValueEvent);
     MapEntry<String, Object?>? $0;
     // k:Key Colon ↑ v:Value {}
-    final $4 = state.pos;
+    final $5 = state.pos;
     var $3 = true;
+    final $4 = state.isOptional;
     String? $1;
     beginEvent(JsonParserEvent.keyEvent);
     // @inline @event Key = String ;
@@ -738,25 +753,26 @@ class JsonParser {
     if (state.ok) {
       // @inline Colon = v:':' Spaces ;
       // v:':' Spaces
-      final $6 = state.pos;
-      const $7 = ':';
-      final $8 = state.pos < state.input.length &&
+      final $7 = state.pos;
+      const $8 = ':';
+      final $9 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 58;
-      if ($8) {
-        state.advance(1);
+      if ($9) {
+        state.pos++;
         state.setOk(true);
       } else {
-        state.fail(const ErrorExpectedTags([$7]));
+        state.fail(const ErrorExpectedTags([$8]));
       }
       if (state.ok) {
         // Spaces
         fastParseSpaces(state);
       }
       if (!state.ok) {
-        state.backtrack($6);
+        state.backtrack($7);
       }
       if (state.ok) {
         $3 = false;
+        state.isOptional = false;
         state.setOk(true);
         if (state.ok) {
           Object? $2;
@@ -776,8 +792,9 @@ class JsonParser {
       if (!$3) {
         state.isRecoverable = false;
       }
-      state.backtrack($4);
+      state.backtrack($5);
     }
+    state.isOptional = $4;
     $0 = endEvent<MapEntry<String, Object?>>(
         JsonParserEvent.keyValueEvent, $0, state.ok);
     return $0;
@@ -795,46 +812,49 @@ class JsonParser {
     MapEntry<String, Object?>? $2;
     var $3 = 0;
     late bool $6;
-    late int $7;
+    late bool $7;
+    late int $8;
     String? $4;
-    late AsyncResult<String> $8;
-    late int $10;
-    late AsyncResult<Object?> $15;
+    late AsyncResult<String> $9;
+    late int $11;
+    late AsyncResult<Object?> $16;
     Object? $5;
-    late AsyncResult<Object?> $17;
+    late AsyncResult<Object?> $18;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $7 = state.pos;
-            $6 = true;
+            $8 = state.pos;
+            $7 = true;
+            $6 = state.isOptional;
             beginEvent(JsonParserEvent.keyEvent);
-            $8 = parseString$Async(state);
-            if (!$8.isComplete) {
-              $8.onComplete = $1;
+            $9 = parseString$Async(state);
+            if (!$9.isComplete) {
+              $9.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            $4 = $8.value;
+            $4 = $9.value;
             $4 = endEvent<String>(JsonParserEvent.keyEvent, $4, state.ok);
-            final $19 = state.ok;
-            if (!$19) {
+            final $20 = state.ok;
+            if (!$20) {
               $3 = 2;
               break;
             }
-            $10 = state.pos;
+            $11 = state.pos;
             $3 = 3;
             break;
           case 2:
             if (!state.ok) {
-              if (!$6) {
+              if (!$7) {
                 state.isRecoverable = false;
               }
-              state.backtrack($7);
+              state.backtrack($8);
             }
+            state.isOptional = $6;
             endEvent<MapEntry<String, Object?>>(
                 JsonParserEvent.keyValueEvent, $2, state.ok);
             $0.value = $2;
@@ -843,30 +863,30 @@ class JsonParser {
             $3 = -1;
             return;
           case 3:
-            final $11 = state.input;
-            if (state.pos >= $11.end && !$11.isClosed) {
-              $11.sleep = true;
-              $11.handle = $1;
+            final $12 = state.input;
+            if (state.pos >= $12.end && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
               $3 = 3;
               return;
             }
-            const $12 = ':';
-            final $13 = state.pos < $11.end &&
-                $11.data.codeUnitAt(state.pos - $11.start) == 58;
-            if ($13) {
-              state.advance(1);
+            const $13 = ':';
+            final $14 = state.pos < $12.end &&
+                $12.data.codeUnitAt(state.pos - $12.start) == 58;
+            if ($14) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$12]));
+              state.fail(const ErrorExpectedTags([$13]));
             }
-            final $20 = state.ok;
-            if (!$20) {
+            final $21 = state.ok;
+            if (!$21) {
               $3 = 4;
               break;
             }
-            $15 = fastParseSpaces$Async(state);
-            if (!$15.isComplete) {
-              $15.onComplete = $1;
+            $16 = fastParseSpaces$Async(state);
+            if (!$16.isComplete) {
+              $16.onComplete = $1;
               $3 = 5;
               return;
             }
@@ -874,24 +894,25 @@ class JsonParser {
             break;
           case 4:
             if (!state.ok) {
-              state.backtrack($10);
+              state.backtrack($11);
             }
-            final $21 = state.ok;
-            if (!$21) {
+            final $22 = state.ok;
+            if (!$22) {
               $3 = 6;
               break;
             }
-            $6 = false;
+            $7 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $22 = state.ok;
-            if (!$22) {
+            final $23 = state.ok;
+            if (!$23) {
               $3 = 7;
               break;
             }
-            $17 = parseValue$Async(state);
-            if (!$17.isComplete) {
-              $17.onComplete = $1;
+            $18 = parseValue$Async(state);
+            if (!$18.isComplete) {
+              $18.onComplete = $1;
               $3 = 8;
               return;
             }
@@ -907,7 +928,7 @@ class JsonParser {
             $3 = 6;
             break;
           case 8:
-            $5 = $17.value;
+            $5 = $18.value;
             if (state.ok) {
               MapEntry<String, Object?>? $$;
               final k = $4!;
@@ -934,6 +955,8 @@ class JsonParser {
     List<MapEntry<String, Object?>>? $0;
     // @list(KeyValue, Comma ↑ v:KeyValue)
     final $2 = <MapEntry<String, Object?>>[];
+    final $5 = state.isOptional;
+    state.isOptional = true;
     MapEntry<String, Object?>? $3;
     // KeyValue
     // KeyValue
@@ -943,51 +966,55 @@ class JsonParser {
       while (true) {
         MapEntry<String, Object?>? $4;
         // Comma ↑ v:KeyValue
-        final $9 = state.pos;
-        var $8 = true;
+        final $11 = state.pos;
+        var $9 = true;
+        final $10 = state.isOptional;
         // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
-        final $10 = state.pos;
-        const $11 = ',';
-        final $12 = state.pos < state.input.length &&
+        final $12 = state.pos;
+        const $13 = ',';
+        final $14 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 44;
-        if ($12) {
-          state.advance(1);
+        if ($14) {
+          state.pos++;
           state.setOk(true);
         } else {
-          state.fail(const ErrorExpectedTags([$11]));
+          state.fail(const ErrorExpectedTags([$13]));
         }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.backtrack($10);
+          state.backtrack($12);
         }
         if (state.ok) {
-          $8 = false;
+          $9 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            MapEntry<String, Object?>? $7;
+            MapEntry<String, Object?>? $8;
             // KeyValue
-            $7 = parseKeyValue(state);
+            $8 = parseKeyValue(state);
             if (state.ok) {
-              $4 = $7;
+              $4 = $8;
             }
           }
         }
         if (!state.ok) {
-          if (!$8) {
+          if (!$9) {
             state.isRecoverable = false;
           }
-          state.backtrack($9);
+          state.backtrack($11);
         }
+        state.isOptional = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
     }
+    state.isOptional = $5;
     state.setOk(true);
     if (state.ok) {
       $0 = $2;
@@ -1003,43 +1030,48 @@ class JsonParser {
     final $0 = AsyncResult<List<MapEntry<String, Object?>>>();
     List<MapEntry<String, Object?>>? $2;
     var $3 = 0;
-    late List<MapEntry<String, Object?>> $6;
+    late bool $6;
+    late List<MapEntry<String, Object?>> $7;
     MapEntry<String, Object?>? $4;
-    late AsyncResult<MapEntry<String, Object?>> $7;
+    late AsyncResult<MapEntry<String, Object?>> $8;
     MapEntry<String, Object?>? $5;
-    late bool $10;
-    late int $11;
-    late int $12;
-    late AsyncResult<Object?> $17;
-    MapEntry<String, Object?>? $9;
-    late AsyncResult<MapEntry<String, Object?>> $19;
+    late bool $11;
+    late bool $12;
+    late int $13;
+    late int $14;
+    late AsyncResult<Object?> $19;
+    MapEntry<String, Object?>? $10;
+    late AsyncResult<MapEntry<String, Object?>> $21;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = [];
-            $7 = parseKeyValue$Async(state);
-            if (!$7.isComplete) {
-              $7.onComplete = $1;
+            $7 = [];
+            $6 = state.isOptional;
+            state.isOptional = true;
+            $8 = parseKeyValue$Async(state);
+            if (!$8.isComplete) {
+              $8.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            $4 = $7.value;
-            final $21 = state.ok;
-            if (!$21) {
+            $4 = $8.value;
+            final $23 = state.ok;
+            if (!$23) {
               $3 = 2;
               break;
             }
-            $6.add($4!);
+            $7.add($4!);
             $3 = 4;
             break;
           case 2:
+            state.isOptional = $6;
             state.setOk(true);
             if (state.ok) {
-              $2 = $6;
+              $2 = $7;
             }
             $0.value = $2;
             $0.isComplete = true;
@@ -1050,36 +1082,37 @@ class JsonParser {
             $3 = 2;
             break;
           case 4:
-            $11 = state.pos;
-            $10 = true;
-            $12 = state.pos;
+            $13 = state.pos;
+            $12 = true;
+            $11 = state.isOptional;
+            $14 = state.pos;
             $3 = 5;
             break;
           case 5:
-            final $13 = state.input;
-            if (state.pos >= $13.end && !$13.isClosed) {
-              $13.sleep = true;
-              $13.handle = $1;
+            final $15 = state.input;
+            if (state.pos >= $15.end && !$15.isClosed) {
+              $15.sleep = true;
+              $15.handle = $1;
               $3 = 5;
               return;
             }
-            const $14 = ',';
-            final $15 = state.pos < $13.end &&
-                $13.data.codeUnitAt(state.pos - $13.start) == 44;
-            if ($15) {
-              state.advance(1);
+            const $16 = ',';
+            final $17 = state.pos < $15.end &&
+                $15.data.codeUnitAt(state.pos - $15.start) == 44;
+            if ($17) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$14]));
+              state.fail(const ErrorExpectedTags([$16]));
             }
-            final $23 = state.ok;
-            if (!$23) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 6;
               break;
             }
-            $17 = fastParseSpaces$Async(state);
-            if (!$17.isComplete) {
-              $17.onComplete = $1;
+            $19 = fastParseSpaces$Async(state);
+            if (!$19.isComplete) {
+              $19.onComplete = $1;
               $3 = 7;
               return;
             }
@@ -1087,24 +1120,25 @@ class JsonParser {
             break;
           case 6:
             if (!state.ok) {
-              state.backtrack($12);
+              state.backtrack($14);
             }
-            final $24 = state.ok;
-            if (!$24) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 8;
               break;
             }
-            $10 = false;
+            $12 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $25 = state.ok;
-            if (!$25) {
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 9;
               break;
             }
-            $19 = parseKeyValue$Async(state);
-            if (!$19.isComplete) {
-              $19.onComplete = $1;
+            $21 = parseKeyValue$Async(state);
+            if (!$21.isComplete) {
+              $21.onComplete = $1;
               $3 = 10;
               return;
             }
@@ -1115,25 +1149,26 @@ class JsonParser {
             break;
           case 8:
             if (!state.ok) {
-              if (!$10) {
+              if (!$12) {
                 state.isRecoverable = false;
               }
-              state.backtrack($11);
+              state.backtrack($13);
             }
+            state.isOptional = $11;
             if (!state.ok) {
               $3 = 3;
               break;
             }
-            $6.add($5!);
+            $7.add($5!);
             $3 = 4;
             break;
           case 9:
             $3 = 8;
             break;
           case 10:
-            $9 = $19.value;
+            $10 = $21.value;
             if (state.ok) {
-              $5 = $9;
+              $5 = $10;
             }
             $3 = 9;
             break;
@@ -1168,10 +1203,12 @@ class JsonParser {
     final $10 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
     final $11 = state.pos;
+    final $12 = state.isOptional;
+    state.isOptional = true;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 45;
       if (ok) {
-        state.advance(1);
+        state.pos++;
         state.setOk(true);
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -1179,6 +1216,7 @@ class JsonParser {
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
+    state.isOptional = $12;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -1187,7 +1225,7 @@ class JsonParser {
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 48;
         if (ok) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -1197,12 +1235,12 @@ class JsonParser {
       }
       if (!state.ok && state.isRecoverable) {
         // [1-9] [0-9]*
-        final $13 = state.pos;
+        final $14 = state.pos;
         if (state.pos < state.input.length) {
-          final $14 = state.input.codeUnitAt(state.pos);
-          final $15 = $14 >= 49 && $14 <= 57;
-          if ($15) {
-            state.advance(1);
+          final $15 = state.input.codeUnitAt(state.pos);
+          final $16 = $15 >= 49 && $15 <= 57;
+          if ($16) {
+            state.pos++;
             state.setOk(true);
           } else {
             state.fail(const ErrorUnexpectedCharacter());
@@ -1216,21 +1254,24 @@ class JsonParser {
                   (c = state.input.codeUnitAt(state.pos)) == c &&
                   (c >= 48 && c <= 57);
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              state.advance(1));
+              state.pos++);
           state.setOk(true);
         }
         if (!state.ok) {
-          state.backtrack($13);
+          state.backtrack($14);
         }
       }
       if (state.ok) {
+        final $17 = state.isOptional;
+        state.isOptional = true;
         // [.] ↑ [0-9]+
-        final $17 = state.pos;
-        var $16 = true;
+        final $20 = state.pos;
+        var $18 = true;
+        final $19 = state.isOptional;
         if (state.pos < state.input.length) {
           final ok = state.input.codeUnitAt(state.pos) == 46;
           if (ok) {
-            state.advance(1);
+            state.pos++;
             state.setOk(true);
           } else {
             state.fail(const ErrorUnexpectedCharacter());
@@ -1239,19 +1280,20 @@ class JsonParser {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $16 = false;
+          $18 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            var $18 = false;
+            var $21 = false;
             for (var c = 0;
                 state.pos < state.input.length &&
                     (c = state.input.codeUnitAt(state.pos)) == c &&
                     (c >= 48 && c <= 57);
-                state.advance(1),
+                state.pos++,
                 // ignore: curly_braces_in_flow_control_structures, empty_statements
-                $18 = true);
-            if ($18) {
-              state.setOk($18);
+                $21 = true);
+            if ($21) {
+              state.setOk($21);
             } else {
               state.pos < state.input.length
                   ? state.fail(const ErrorUnexpectedCharacter())
@@ -1260,23 +1302,28 @@ class JsonParser {
           }
         }
         if (!state.ok) {
-          if (!$16) {
+          if (!$18) {
             state.isRecoverable = false;
           }
-          state.backtrack($17);
+          state.backtrack($20);
         }
+        state.isOptional = $19;
+        state.isOptional = $17;
         if (!state.ok) {
           state.setOk(true);
         }
         if (state.ok) {
+          final $22 = state.isOptional;
+          state.isOptional = true;
           // [eE] ↑ [-+]? [0-9]+
-          final $20 = state.pos;
-          var $19 = true;
+          final $25 = state.pos;
+          var $23 = true;
+          final $24 = state.isOptional;
           if (state.pos < state.input.length) {
-            final $21 = state.input.codeUnitAt(state.pos);
-            final $22 = $21 == 69 || $21 == 101;
-            if ($22) {
-              state.advance(1);
+            final $26 = state.input.codeUnitAt(state.pos);
+            final $27 = $26 == 69 || $26 == 101;
+            if ($27) {
+              state.pos++;
               state.setOk(true);
             } else {
               state.fail(const ErrorUnexpectedCharacter());
@@ -1285,14 +1332,17 @@ class JsonParser {
             state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            $19 = false;
+            $23 = false;
+            state.isOptional = false;
             state.setOk(true);
             if (state.ok) {
+              final $28 = state.isOptional;
+              state.isOptional = true;
               if (state.pos < state.input.length) {
-                final $23 = state.input.codeUnitAt(state.pos);
-                final $24 = $23 == 43 || $23 == 45;
-                if ($24) {
-                  state.advance(1);
+                final $29 = state.input.codeUnitAt(state.pos);
+                final $30 = $29 == 43 || $29 == 45;
+                if ($30) {
+                  state.pos++;
                   state.setOk(true);
                 } else {
                   state.fail(const ErrorUnexpectedCharacter());
@@ -1300,20 +1350,21 @@ class JsonParser {
               } else {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
+              state.isOptional = $28;
               if (!state.ok) {
                 state.setOk(true);
               }
               if (state.ok) {
-                var $25 = false;
+                var $31 = false;
                 for (var c = 0;
                     state.pos < state.input.length &&
                         (c = state.input.codeUnitAt(state.pos)) == c &&
                         (c >= 48 && c <= 57);
-                    state.advance(1),
+                    state.pos++,
                     // ignore: curly_braces_in_flow_control_structures, empty_statements
-                    $25 = true);
-                if ($25) {
-                  state.setOk($25);
+                    $31 = true);
+                if ($31) {
+                  state.setOk($31);
                 } else {
                   state.pos < state.input.length
                       ? state.fail(const ErrorUnexpectedCharacter())
@@ -1323,11 +1374,13 @@ class JsonParser {
             }
           }
           if (!state.ok) {
-            if (!$19) {
+            if (!$23) {
               state.isRecoverable = false;
             }
-            state.backtrack($20);
+            state.backtrack($25);
           }
+          state.isOptional = $24;
+          state.isOptional = $22;
           if (!state.ok) {
             state.setOk(true);
           }
@@ -1387,14 +1440,23 @@ class JsonParser {
     String? $10;
     late int $11;
     late int $12;
-    late int $17;
-    late bool $24;
-    late int $25;
+    late bool $13;
+    late int $18;
+    late bool $22;
+    late bool $26;
+    late bool $27;
     late bool $28;
+    late int $29;
     late bool $32;
-    late int $33;
-    late bool $40;
-    late AsyncResult<Object?> $44;
+    late bool $33;
+    late bool $37;
+    late bool $38;
+    late bool $39;
+    late int $40;
+    late bool $44;
+    late bool $48;
+    late bool $49;
+    late AsyncResult<Object?> $53;
     void $1() {
       while (true) {
         switch ($3) {
@@ -1408,20 +1470,22 @@ class JsonParser {
             $11 = state.pos;
             state.input.beginBuffering();
             $12 = state.pos;
+            $13 = state.isOptional;
+            state.isOptional = true;
             $3 = 1;
             break;
           case 1:
-            final $13 = state.input;
-            if (state.pos >= $13.end && !$13.isClosed) {
-              $13.sleep = true;
-              $13.handle = $1;
+            final $14 = state.input;
+            if (state.pos >= $14.end && !$14.isClosed) {
+              $14.sleep = true;
+              $14.handle = $1;
               $3 = 1;
               return;
             }
-            if (state.pos < $13.end) {
-              final ok = $13.data.codeUnitAt(state.pos - $13.start) == 45;
+            if (state.pos < $14.end) {
+              final ok = $14.data.codeUnitAt(state.pos - $14.start) == 45;
               if (ok) {
-                state.advance(1);
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1429,11 +1493,12 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
+            state.isOptional = $13;
             if (!state.ok) {
               state.setOk(true);
             }
-            final $46 = state.ok;
-            if (!$46) {
+            final $55 = state.ok;
+            if (!$55) {
               $3 = 2;
               break;
             }
@@ -1466,31 +1531,31 @@ class JsonParser {
             if (state.lastFailPos < $9) {
               state.lastFailPos = $9;
             }
-            final $59 = state.ok;
-            if (!$59) {
-              $3 = 23;
+            final $68 = state.ok;
+            if (!$68) {
+              $3 = 25;
               break;
             }
-            $44 = fastParseSpaces$Async(state);
-            if (!$44.isComplete) {
-              $44.onComplete = $1;
-              $3 = 24;
+            $53 = fastParseSpaces$Async(state);
+            if (!$53.isComplete) {
+              $53.onComplete = $1;
+              $3 = 26;
               return;
             }
-            $3 = 24;
+            $3 = 26;
             break;
           case 3:
-            final $15 = state.input;
-            if (state.pos >= $15.end && !$15.isClosed) {
-              $15.sleep = true;
-              $15.handle = $1;
+            final $16 = state.input;
+            if (state.pos >= $16.end && !$16.isClosed) {
+              $16.sleep = true;
+              $16.handle = $1;
               $3 = 3;
               return;
             }
-            if (state.pos < $15.end) {
-              final ok = $15.data.codeUnitAt(state.pos - $15.start) == 48;
+            if (state.pos < $16.end) {
+              final ok = $16.data.codeUnitAt(state.pos - $16.start) == 48;
               if (ok) {
-                state.advance(1);
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1498,37 +1563,40 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $47 = !state.ok && state.isRecoverable;
-            if (!$47) {
+            final $56 = !state.ok && state.isRecoverable;
+            if (!$56) {
               $3 = 4;
               break;
             }
-            $17 = state.pos;
+            $18 = state.pos;
             $3 = 5;
             break;
           case 4:
-            final $50 = state.ok;
-            if (!$50) {
+            final $59 = state.ok;
+            if (!$59) {
               $3 = 9;
               break;
             }
-            $25 = state.pos;
-            $24 = true;
+            $26 = state.isOptional;
+            state.isOptional = true;
+            $29 = state.pos;
+            $28 = true;
+            $27 = state.isOptional;
             $3 = 10;
             break;
           case 5:
-            final $18 = state.input;
-            if (state.pos >= $18.end && !$18.isClosed) {
-              $18.sleep = true;
-              $18.handle = $1;
+            final $19 = state.input;
+            if (state.pos >= $19.end && !$19.isClosed) {
+              $19.sleep = true;
+              $19.handle = $1;
               $3 = 5;
               return;
             }
-            if (state.pos < $18.end) {
-              final c = $18.data.codeUnitAt(state.pos - $18.start);
-              final $19 = c >= 49 && c <= 57;
-              if ($19) {
-                state.advance(1);
+            if (state.pos < $19.end) {
+              final c = $19.data.codeUnitAt(state.pos - $19.start);
+              final $20 = c >= 49 && c <= 57;
+              if ($20) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1536,36 +1604,39 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $48 = state.ok;
-            if (!$48) {
+            final $57 = state.ok;
+            if (!$57) {
               $3 = 6;
               break;
             }
+            $22 = state.isOptional;
+            state.isOptional = true;
             $3 = 8;
             break;
           case 6:
             if (!state.ok) {
-              state.backtrack($17);
+              state.backtrack($18);
             }
             $3 = 4;
             break;
           case 7:
+            state.isOptional = $22;
             state.setOk(true);
             $3 = 6;
             break;
           case 8:
-            final $21 = state.input;
-            if (state.pos >= $21.end && !$21.isClosed) {
-              $21.sleep = true;
-              $21.handle = $1;
+            final $23 = state.input;
+            if (state.pos >= $23.end && !$23.isClosed) {
+              $23.sleep = true;
+              $23.handle = $1;
               $3 = 8;
               return;
             }
-            if (state.pos < $21.end) {
-              final c = $21.data.codeUnitAt(state.pos - $21.start);
-              final $22 = c >= 48 && c <= 57;
-              if ($22) {
-                state.advance(1);
+            if (state.pos < $23.end) {
+              final c = $23.data.codeUnitAt(state.pos - $23.start);
+              final $24 = c >= 48 && c <= 57;
+              if ($24) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1583,17 +1654,17 @@ class JsonParser {
             $3 = 2;
             break;
           case 10:
-            final $26 = state.input;
-            if (state.pos >= $26.end && !$26.isClosed) {
-              $26.sleep = true;
-              $26.handle = $1;
+            final $30 = state.input;
+            if (state.pos >= $30.end && !$30.isClosed) {
+              $30.sleep = true;
+              $30.handle = $1;
               $3 = 10;
               return;
             }
-            if (state.pos < $26.end) {
-              final ok = $26.data.codeUnitAt(state.pos - $26.start) == 46;
+            if (state.pos < $30.end) {
+              final ok = $30.data.codeUnitAt(state.pos - $30.start) == 46;
               if (ok) {
-                state.advance(1);
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1601,61 +1672,73 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $51 = state.ok;
-            if (!$51) {
+            final $60 = state.ok;
+            if (!$60) {
               $3 = 11;
               break;
             }
-            $24 = false;
+            $28 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $52 = state.ok;
-            if (!$52) {
+            final $61 = state.ok;
+            if (!$61) {
               $3 = 12;
               break;
             }
-            $28 = false;
+            $33 = false;
+            $32 = state.isOptional;
             $3 = 14;
             break;
           case 11:
             if (!state.ok) {
-              if (!$24) {
+              if (!$28) {
                 state.isRecoverable = false;
               }
-              state.backtrack($25);
+              state.backtrack($29);
             }
+            state.isOptional = $27;
+            state.isOptional = $26;
             if (!state.ok) {
               state.setOk(true);
             }
-            final $54 = state.ok;
-            if (!$54) {
-              $3 = 15;
+            final $63 = state.ok;
+            if (!$63) {
+              $3 = 16;
               break;
             }
-            $33 = state.pos;
-            $32 = true;
-            $3 = 16;
+            $37 = state.isOptional;
+            state.isOptional = true;
+            $40 = state.pos;
+            $39 = true;
+            $38 = state.isOptional;
+            $3 = 17;
             break;
           case 12:
             $3 = 11;
             break;
           case 13:
-            state.setOk($28);
+            state.isOptional = $32;
+            state.setOk($33);
             $3 = 12;
             break;
           case 14:
-            final $29 = state.input;
-            if (state.pos >= $29.end && !$29.isClosed) {
-              $29.sleep = true;
-              $29.handle = $1;
-              $3 = 14;
+            state.isOptional = $33;
+            $3 = 15;
+            break;
+          case 15:
+            final $34 = state.input;
+            if (state.pos >= $34.end && !$34.isClosed) {
+              $34.sleep = true;
+              $34.handle = $1;
+              $3 = 15;
               return;
             }
-            if (state.pos < $29.end) {
-              final c = $29.data.codeUnitAt(state.pos - $29.start);
-              final $30 = c >= 48 && c <= 57;
-              if ($30) {
-                state.advance(1);
+            if (state.pos < $34.end) {
+              final c = $34.data.codeUnitAt(state.pos - $34.start);
+              final $35 = c >= 48 && c <= 57;
+              if ($35) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1667,113 +1750,125 @@ class JsonParser {
               $3 = 13;
               break;
             }
-            $28 = true;
+            $33 = true;
             $3 = 14;
             break;
-          case 15:
+          case 16:
             $3 = 9;
             break;
-          case 16:
-            final $34 = state.input;
-            if (state.pos >= $34.end && !$34.isClosed) {
-              $34.sleep = true;
-              $34.handle = $1;
-              $3 = 16;
-              return;
-            }
-            if (state.pos < $34.end) {
-              final c = $34.data.codeUnitAt(state.pos - $34.start);
-              final $35 = c == 69 || c == 101;
-              if ($35) {
-                state.advance(1);
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            final $55 = state.ok;
-            if (!$55) {
-              $3 = 17;
-              break;
-            }
-            $32 = false;
-            state.setOk(true);
-            state.input.cut(state.pos);
-            final $56 = state.ok;
-            if (!$56) {
-              $3 = 18;
-              break;
-            }
-            $3 = 19;
-            break;
           case 17:
-            if (!state.ok) {
-              if (!$32) {
-                state.isRecoverable = false;
-              }
-              state.backtrack($33);
-            }
-            if (!state.ok) {
-              state.setOk(true);
-            }
-            $3 = 15;
-            break;
-          case 18:
-            $3 = 17;
-            break;
-          case 19:
-            final $37 = state.input;
-            if (state.pos >= $37.end && !$37.isClosed) {
-              $37.sleep = true;
-              $37.handle = $1;
-              $3 = 19;
-              return;
-            }
-            if (state.pos < $37.end) {
-              final c = $37.data.codeUnitAt(state.pos - $37.start);
-              final $38 = c == 43 || c == 45;
-              if ($38) {
-                state.advance(1);
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              state.setOk(true);
-            }
-            final $57 = state.ok;
-            if (!$57) {
-              $3 = 20;
-              break;
-            }
-            $40 = false;
-            $3 = 22;
-            break;
-          case 20:
-            $3 = 18;
-            break;
-          case 21:
-            state.setOk($40);
-            $3 = 20;
-            break;
-          case 22:
             final $41 = state.input;
             if (state.pos >= $41.end && !$41.isClosed) {
               $41.sleep = true;
               $41.handle = $1;
-              $3 = 22;
+              $3 = 17;
               return;
             }
             if (state.pos < $41.end) {
               final c = $41.data.codeUnitAt(state.pos - $41.start);
-              final $42 = c >= 48 && c <= 57;
+              final $42 = c == 69 || c == 101;
               if ($42) {
-                state.advance(1);
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            final $64 = state.ok;
+            if (!$64) {
+              $3 = 18;
+              break;
+            }
+            $39 = false;
+            state.isOptional = false;
+            state.setOk(true);
+            state.input.cut(state.pos);
+            final $65 = state.ok;
+            if (!$65) {
+              $3 = 19;
+              break;
+            }
+            $44 = state.isOptional;
+            state.isOptional = true;
+            $3 = 20;
+            break;
+          case 18:
+            if (!state.ok) {
+              if (!$39) {
+                state.isRecoverable = false;
+              }
+              state.backtrack($40);
+            }
+            state.isOptional = $38;
+            state.isOptional = $37;
+            if (!state.ok) {
+              state.setOk(true);
+            }
+            $3 = 16;
+            break;
+          case 19:
+            $3 = 18;
+            break;
+          case 20:
+            final $45 = state.input;
+            if (state.pos >= $45.end && !$45.isClosed) {
+              $45.sleep = true;
+              $45.handle = $1;
+              $3 = 20;
+              return;
+            }
+            if (state.pos < $45.end) {
+              final c = $45.data.codeUnitAt(state.pos - $45.start);
+              final $46 = c == 43 || c == 45;
+              if ($46) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            state.isOptional = $44;
+            if (!state.ok) {
+              state.setOk(true);
+            }
+            final $66 = state.ok;
+            if (!$66) {
+              $3 = 21;
+              break;
+            }
+            $49 = false;
+            $48 = state.isOptional;
+            $3 = 23;
+            break;
+          case 21:
+            $3 = 19;
+            break;
+          case 22:
+            state.isOptional = $48;
+            state.setOk($49);
+            $3 = 21;
+            break;
+          case 23:
+            state.isOptional = $49;
+            $3 = 24;
+            break;
+          case 24:
+            final $50 = state.input;
+            if (state.pos >= $50.end && !$50.isClosed) {
+              $50.sleep = true;
+              $50.handle = $1;
+              $3 = 24;
+              return;
+            }
+            if (state.pos < $50.end) {
+              final c = $50.data.codeUnitAt(state.pos - $50.start);
+              final $51 = c >= 48 && c <= 57;
+              if ($51) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1782,13 +1877,13 @@ class JsonParser {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
             if (!state.ok) {
-              $3 = 21;
+              $3 = 22;
               break;
             }
-            $40 = true;
-            $3 = 22;
+            $49 = true;
+            $3 = 23;
             break;
-          case 23:
+          case 25:
             if (!state.ok) {
               state.backtrack($5);
             }
@@ -1797,11 +1892,11 @@ class JsonParser {
             state.input.handle = $0.onComplete;
             $3 = -1;
             return;
-          case 24:
+          case 26:
             if (state.ok) {
               $2 = $4;
             }
-            $3 = 23;
+            $3 = 25;
             break;
           default:
             throw StateError('Invalid state: ${$3}');
@@ -1822,29 +1917,31 @@ class JsonParser {
     beginEvent(JsonParserEvent.objectEvent);
     Map<String, Object?>? $0;
     // OpenBrace ↑ kv:KeyValues CloseBrace {}
-    final $3 = state.pos;
+    final $4 = state.pos;
     var $2 = true;
+    final $3 = state.isOptional;
     // @inline OpenBrace = v:'{' Spaces ;
     // v:'{' Spaces
-    final $4 = state.pos;
-    const $5 = '{';
-    final $6 = state.pos < state.input.length &&
+    final $5 = state.pos;
+    const $6 = '{';
+    final $7 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 123;
-    if ($6) {
-      state.advance(1);
+    if ($7) {
+      state.pos++;
       state.setOk(true);
     } else {
-      state.fail(const ErrorExpectedTags([$5]));
+      state.fail(const ErrorExpectedTags([$6]));
     }
     if (state.ok) {
       // Spaces
       fastParseSpaces(state);
     }
     if (!state.ok) {
-      state.backtrack($4);
+      state.backtrack($5);
     }
     if (state.ok) {
       $2 = false;
+      state.isOptional = false;
       state.setOk(true);
       if (state.ok) {
         List<MapEntry<String, Object?>>? $1;
@@ -1853,22 +1950,22 @@ class JsonParser {
         if (state.ok) {
           // @inline CloseBrace = v:'}' Spaces ;
           // v:'}' Spaces
-          final $7 = state.pos;
-          const $8 = '}';
-          final $9 = state.pos < state.input.length &&
+          final $8 = state.pos;
+          const $9 = '}';
+          final $10 = state.pos < state.input.length &&
               state.input.codeUnitAt(state.pos) == 125;
-          if ($9) {
-            state.advance(1);
+          if ($10) {
+            state.pos++;
             state.setOk(true);
           } else {
-            state.fail(const ErrorExpectedTags([$8]));
+            state.fail(const ErrorExpectedTags([$9]));
           }
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($7);
+            state.backtrack($8);
           }
           if (state.ok) {
             Map<String, Object?>? $$;
@@ -1883,8 +1980,9 @@ class JsonParser {
       if (!$2) {
         state.isRecoverable = false;
       }
-      state.backtrack($3);
+      state.backtrack($4);
     }
+    state.isOptional = $3;
     $0 = endEvent<Map<String, Object?>>(
         JsonParserEvent.objectEvent, $0, state.ok);
     return $0;
@@ -1902,47 +2000,49 @@ class JsonParser {
     Map<String, Object?>? $2;
     var $3 = 0;
     late bool $5;
-    late int $6;
+    late bool $6;
     late int $7;
-    late AsyncResult<Object?> $12;
+    late int $8;
+    late AsyncResult<Object?> $13;
     List<MapEntry<String, Object?>>? $4;
-    late AsyncResult<List<MapEntry<String, Object?>>> $14;
-    late int $16;
-    late AsyncResult<Object?> $21;
+    late AsyncResult<List<MapEntry<String, Object?>>> $15;
+    late int $17;
+    late AsyncResult<Object?> $22;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = state.pos;
-            $5 = true;
             $7 = state.pos;
+            $6 = true;
+            $5 = state.isOptional;
+            $8 = state.pos;
             $3 = 1;
             break;
           case 1:
-            final $8 = state.input;
-            if (state.pos >= $8.end && !$8.isClosed) {
-              $8.sleep = true;
-              $8.handle = $1;
+            final $9 = state.input;
+            if (state.pos >= $9.end && !$9.isClosed) {
+              $9.sleep = true;
+              $9.handle = $1;
               $3 = 1;
               return;
             }
-            const $9 = '{';
-            final $10 = state.pos < $8.end &&
-                $8.data.codeUnitAt(state.pos - $8.start) == 123;
-            if ($10) {
-              state.advance(1);
+            const $10 = '{';
+            final $11 = state.pos < $9.end &&
+                $9.data.codeUnitAt(state.pos - $9.start) == 123;
+            if ($11) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$9]));
+              state.fail(const ErrorExpectedTags([$10]));
             }
-            final $23 = state.ok;
-            if (!$23) {
+            final $24 = state.ok;
+            if (!$24) {
               $3 = 2;
               break;
             }
-            $12 = fastParseSpaces$Async(state);
-            if (!$12.isComplete) {
-              $12.onComplete = $1;
+            $13 = fastParseSpaces$Async(state);
+            if (!$13.isComplete) {
+              $13.onComplete = $1;
               $3 = 3;
               return;
             }
@@ -1950,24 +2050,25 @@ class JsonParser {
             break;
           case 2:
             if (!state.ok) {
-              state.backtrack($7);
+              state.backtrack($8);
             }
-            final $24 = state.ok;
-            if (!$24) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 4;
               break;
             }
-            $5 = false;
+            $6 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $25 = state.ok;
-            if (!$25) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 5;
               break;
             }
-            $14 = parseKeyValues$Async(state);
-            if (!$14.isComplete) {
-              $14.onComplete = $1;
+            $15 = parseKeyValues$Async(state);
+            if (!$15.isComplete) {
+              $15.onComplete = $1;
               $3 = 6;
               return;
             }
@@ -1978,11 +2079,12 @@ class JsonParser {
             break;
           case 4:
             if (!state.ok) {
-              if (!$5) {
+              if (!$6) {
                 state.isRecoverable = false;
               }
-              state.backtrack($6);
+              state.backtrack($7);
             }
+            state.isOptional = $5;
             endEvent<Map<String, Object?>>(
                 JsonParserEvent.objectEvent, $2, state.ok);
             $0.value = $2;
@@ -1994,43 +2096,43 @@ class JsonParser {
             $3 = 4;
             break;
           case 6:
-            $4 = $14.value;
-            final $26 = state.ok;
-            if (!$26) {
+            $4 = $15.value;
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 7;
               break;
             }
-            $16 = state.pos;
+            $17 = state.pos;
             $3 = 8;
             break;
           case 7:
             $3 = 5;
             break;
           case 8:
-            final $17 = state.input;
-            if (state.pos >= $17.end && !$17.isClosed) {
-              $17.sleep = true;
-              $17.handle = $1;
+            final $18 = state.input;
+            if (state.pos >= $18.end && !$18.isClosed) {
+              $18.sleep = true;
+              $18.handle = $1;
               $3 = 8;
               return;
             }
-            const $18 = '}';
-            final $19 = state.pos < $17.end &&
-                $17.data.codeUnitAt(state.pos - $17.start) == 125;
-            if ($19) {
-              state.advance(1);
+            const $19 = '}';
+            final $20 = state.pos < $18.end &&
+                $18.data.codeUnitAt(state.pos - $18.start) == 125;
+            if ($20) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$18]));
+              state.fail(const ErrorExpectedTags([$19]));
             }
-            final $27 = state.ok;
-            if (!$27) {
+            final $28 = state.ok;
+            if (!$28) {
               $3 = 9;
               break;
             }
-            $21 = fastParseSpaces$Async(state);
-            if (!$21.isComplete) {
-              $21.onComplete = $1;
+            $22 = fastParseSpaces$Async(state);
+            if (!$22.isComplete) {
+              $22.onComplete = $1;
               $3 = 10;
               return;
             }
@@ -2038,7 +2140,7 @@ class JsonParser {
             break;
           case 9:
             if (!state.ok) {
-              state.backtrack($16);
+              state.backtrack($17);
             }
             if (state.ok) {
               Map<String, Object?>? $$;
@@ -2191,66 +2293,68 @@ class JsonParser {
   String? parseString(State<String> state) {
     String? $0;
     // '"' ↑ v:StringChars Quote
-    final $3 = state.pos;
+    final $4 = state.pos;
     var $2 = true;
-    const $4 = '"';
-    final $5 = state.pos < state.input.length &&
+    final $3 = state.isOptional;
+    const $5 = '"';
+    final $6 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 34;
-    if ($5) {
-      state.advance(1);
+    if ($6) {
+      state.pos++;
       state.setOk(true);
     } else {
-      state.fail(const ErrorExpectedTags([$4]));
+      state.fail(const ErrorExpectedTags([$5]));
     }
     if (state.ok) {
       $2 = false;
+      state.isOptional = false;
       state.setOk(true);
       if (state.ok) {
         String? $1;
         // @inline StringChars = @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex)) ;
         // @stringChars($[ -!#-[\]-\u{10ffff}]+, [\\], (EscapeChar / EscapeHex))
-        List<String>? $16;
-        String? $18;
+        List<String>? $17;
+        String? $19;
         while (true) {
-          String? $7;
+          String? $8;
           // $[ -!#-[\]-\u{10ffff}]+
-          final $10 = state.pos;
-          var $11 = false;
+          final $11 = state.pos;
+          var $12 = false;
           for (var c = 0;
               state.pos < state.input.length &&
                   (c = state.input.runeAt(state.pos)) == c &&
                   (c < 35
                       ? c >= 32 && c <= 33
                       : c <= 91 || c >= 93 && c <= 1114111);
-              state.advance(c > 0xffff ? 2 : 1),
+              state.pos += c > 0xffff ? 2 : 1,
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              $11 = true);
-          if ($11) {
-            state.setOk($11);
+              $12 = true);
+          if ($12) {
+            state.setOk($12);
           } else {
             state.pos < state.input.length
                 ? state.fail(const ErrorUnexpectedCharacter())
                 : state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            $7 = state.input.substring($10, state.pos);
+            $8 = state.input.substring($11, state.pos);
           }
           if (state.ok) {
-            final v = $7!;
-            if ($18 == null) {
-              $18 = v;
-            } else if ($16 == null) {
-              $16 = [$18, v];
+            final v = $8!;
+            if ($19 == null) {
+              $19 = v;
+            } else if ($17 == null) {
+              $17 = [$19, v];
             } else {
-              $16.add(v);
+              $17.add(v);
             }
           }
-          final $17 = state.pos;
+          final $18 = state.pos;
           // [\\]
           if (state.pos < state.input.length) {
             final ok = state.input.codeUnitAt(state.pos) == 92;
             if (ok) {
-              state.advance(1);
+              state.pos++;
               state.setOk(true);
             } else {
               state.fail(const ErrorUnexpectedCharacter());
@@ -2261,57 +2365,57 @@ class JsonParser {
           if (!state.ok) {
             break;
           }
-          String? $8;
+          String? $9;
           // (EscapeChar / EscapeHex)
           // EscapeChar
           // EscapeChar
-          $8 = parseEscapeChar(state);
+          $9 = parseEscapeChar(state);
           if (!state.ok && state.isRecoverable) {
             // EscapeHex
             // EscapeHex
-            $8 = parseEscapeHex(state);
+            $9 = parseEscapeHex(state);
           }
           if (!state.ok) {
-            state.backtrack($17);
+            state.backtrack($18);
             break;
           }
-          if ($18 == null) {
-            $18 = $8!;
+          if ($19 == null) {
+            $19 = $9!;
           } else {
-            if ($16 == null) {
-              $16 = [$18, $8!];
+            if ($17 == null) {
+              $17 = [$19, $9!];
             } else {
-              $16.add($8!);
+              $17.add($9!);
             }
           }
         }
         state.setOk(true);
-        if ($18 == null) {
+        if ($19 == null) {
           $1 = '';
-        } else if ($16 == null) {
-          $1 = $18;
+        } else if ($17 == null) {
+          $1 = $19;
         } else {
-          $1 = $16.join();
+          $1 = $17.join();
         }
         if (state.ok) {
           // @inline Quote = v:'"' Spaces ;
           // v:'"' Spaces
-          final $19 = state.pos;
-          const $20 = '"';
-          final $21 = state.pos < state.input.length &&
+          final $20 = state.pos;
+          const $21 = '"';
+          final $22 = state.pos < state.input.length &&
               state.input.codeUnitAt(state.pos) == 34;
-          if ($21) {
-            state.advance(1);
+          if ($22) {
+            state.pos++;
             state.setOk(true);
           } else {
-            state.fail(const ErrorExpectedTags([$20]));
+            state.fail(const ErrorExpectedTags([$21]));
           }
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($19);
+            state.backtrack($20);
           }
           if (state.ok) {
             $0 = $1;
@@ -2323,8 +2427,9 @@ class JsonParser {
       if (!$2) {
         state.isRecoverable = false;
       }
-      state.backtrack($3);
+      state.backtrack($4);
     }
+    state.isOptional = $3;
     return $0;
   }
 
@@ -2337,68 +2442,73 @@ class JsonParser {
     String? $2;
     var $3 = 0;
     late bool $5;
-    late int $6;
+    late bool $6;
+    late int $7;
     String? $4;
-    List<String>? $13;
-    late int $14;
-    String? $15;
-    String? $11;
-    late int $16;
-    late bool $17;
+    List<String>? $14;
+    late int $15;
+    String? $16;
     String? $12;
-    late AsyncResult<String> $23;
+    late int $17;
+    late bool $18;
+    late bool $19;
+    String? $13;
     late AsyncResult<String> $25;
-    late int $27;
-    late AsyncResult<Object?> $32;
+    late AsyncResult<String> $27;
+    late int $29;
+    late AsyncResult<Object?> $34;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = state.pos;
-            $5 = true;
+            $7 = state.pos;
+            $6 = true;
+            $5 = state.isOptional;
             $3 = 1;
             break;
           case 1:
-            final $7 = state.input;
-            if (state.pos >= $7.end && !$7.isClosed) {
-              $7.sleep = true;
-              $7.handle = $1;
+            final $8 = state.input;
+            if (state.pos >= $8.end && !$8.isClosed) {
+              $8.sleep = true;
+              $8.handle = $1;
               $3 = 1;
               return;
             }
-            const $8 = '"';
-            final $9 = state.pos < $7.end &&
-                $7.data.codeUnitAt(state.pos - $7.start) == 34;
-            if ($9) {
-              state.advance(1);
+            const $9 = '"';
+            final $10 = state.pos < $8.end &&
+                $8.data.codeUnitAt(state.pos - $8.start) == 34;
+            if ($10) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$8]));
+              state.fail(const ErrorExpectedTags([$9]));
             }
-            final $34 = state.ok;
-            if (!$34) {
+            final $36 = state.ok;
+            if (!$36) {
               $3 = 2;
               break;
             }
-            $5 = false;
+            $6 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $35 = state.ok;
-            if (!$35) {
+            final $37 = state.ok;
+            if (!$37) {
               $3 = 3;
               break;
             }
-            $13 = null;
-            $15 = null;
+            $14 = null;
+            $16 = null;
             $3 = 5;
             break;
           case 2:
             if (!state.ok) {
-              if (!$5) {
+              if (!$6) {
                 state.isRecoverable = false;
               }
-              state.backtrack($6);
+              state.backtrack($7);
             }
+            state.isOptional = $5;
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -2409,63 +2519,69 @@ class JsonParser {
             break;
           case 4:
             state.setOk(true);
-            if ($15 == null) {
+            if ($16 == null) {
               $4 = '';
-            } else if ($13 == null) {
-              $4 = $15;
+            } else if ($14 == null) {
+              $4 = $16;
             } else {
-              $4 = $13!.join();
+              $4 = $14!.join();
             }
-            final $39 = state.ok;
-            if (!$39) {
-              $3 = 12;
+            final $41 = state.ok;
+            if (!$41) {
+              $3 = 13;
               break;
             }
-            $27 = state.pos;
-            $3 = 13;
+            $29 = state.pos;
+            $3 = 14;
             break;
           case 5:
-            $16 = state.pos;
+            $17 = state.pos;
             state.input.beginBuffering();
-            $17 = false;
+            $19 = false;
+            $18 = state.isOptional;
             $3 = 7;
             break;
           case 6:
-            state.setOk($17);
+            state.isOptional = $18;
+            state.setOk($19);
             state.input.endBuffering();
             if (state.ok) {
               final input = state.input;
               final start = input.start;
-              $11 = input.data.substring($16 - start, state.pos - start);
+              $12 = input.data.substring($17 - start, state.pos - start);
             }
             if (state.ok) {
-              final v = $11!;
-              if ($15 == null) {
-                $15 = v;
-              } else if ($13 == null) {
-                $13 = [$15!, v];
+              final v = $12!;
+              if ($16 == null) {
+                $16 = v;
+              } else if ($14 == null) {
+                $14 = [$16!, v];
               } else {
-                $13!.add(v);
+                $14!.add(v);
               }
             }
-            $14 = state.pos;
-            $3 = 8;
+            $15 = state.pos;
+            $3 = 9;
             break;
           case 7:
-            final $18 = state.input;
-            if (state.pos >= $18.end && !$18.isClosed) {
-              $18.sleep = true;
-              $18.handle = $1;
-              $3 = 7;
+            state.isOptional = $19;
+            $3 = 8;
+            break;
+          case 8:
+            final $20 = state.input;
+            if (state.pos >= $20.end && !$20.isClosed) {
+              $20.sleep = true;
+              $20.handle = $1;
+              $3 = 8;
               return;
             }
-            if (state.pos < $18.end) {
-              final c = $18.data.runeAt(state.pos - $18.start);
-              final $19 = c < 35
+            if (state.pos < $20.end) {
+              final c = $20.data.runeAt(state.pos - $20.start);
+              final $21 = c < 35
                   ? c >= 32 && c <= 33
                   : c <= 91 || c >= 93 && c <= 1114111;
-              if ($19) {
-                state.advance(c > 0xffff ? 2 : 1);
+              if ($21) {
+                state.pos += c > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -2477,21 +2593,21 @@ class JsonParser {
               $3 = 6;
               break;
             }
-            $17 = true;
+            $19 = true;
             $3 = 7;
             break;
-          case 8:
-            final $21 = state.input;
-            if (state.pos >= $21.end && !$21.isClosed) {
-              $21.sleep = true;
-              $21.handle = $1;
-              $3 = 8;
+          case 9:
+            final $23 = state.input;
+            if (state.pos >= $23.end && !$23.isClosed) {
+              $23.sleep = true;
+              $23.handle = $1;
+              $3 = 9;
               return;
             }
-            if (state.pos < $21.end) {
-              final ok = $21.data.codeUnitAt(state.pos - $21.start) == 92;
+            if (state.pos < $23.end) {
+              final ok = $23.data.codeUnitAt(state.pos - $23.start) == 92;
               if (ok) {
-                state.advance(1);
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -2503,92 +2619,92 @@ class JsonParser {
               $3 = 4;
               break;
             }
-            $23 = parseEscapeChar$Async(state);
-            if (!$23.isComplete) {
-              $23.onComplete = $1;
-              $3 = 9;
-              return;
-            }
-            $3 = 9;
-            break;
-          case 9:
-            $12 = $23.value;
-            final $38 = !state.ok && state.isRecoverable;
-            if (!$38) {
-              $3 = 10;
-              break;
-            }
-            $25 = parseEscapeHex$Async(state);
+            $25 = parseEscapeChar$Async(state);
             if (!$25.isComplete) {
               $25.onComplete = $1;
-              $3 = 11;
+              $3 = 10;
               return;
             }
-            $3 = 11;
+            $3 = 10;
             break;
           case 10:
+            $13 = $25.value;
+            final $40 = !state.ok && state.isRecoverable;
+            if (!$40) {
+              $3 = 11;
+              break;
+            }
+            $27 = parseEscapeHex$Async(state);
+            if (!$27.isComplete) {
+              $27.onComplete = $1;
+              $3 = 12;
+              return;
+            }
+            $3 = 12;
+            break;
+          case 11:
             if (!state.ok) {
-              state.backtrack($14);
+              state.backtrack($15);
               $3 = 4;
               break;
             }
-            if ($15 == null) {
-              $15 = $12!;
-            } else if ($13 == null) {
-              $13 = [$15!, $12!];
+            if ($16 == null) {
+              $16 = $13!;
+            } else if ($14 == null) {
+              $14 = [$16!, $13!];
             } else {
-              $13!.add($12!);
+              $14!.add($13!);
             }
             $3 = 5;
             break;
-          case 11:
-            $12 = $25.value;
-            $3 = 10;
-            break;
           case 12:
-            $3 = 3;
+            $13 = $27.value;
+            $3 = 11;
             break;
           case 13:
-            final $28 = state.input;
-            if (state.pos >= $28.end && !$28.isClosed) {
-              $28.sleep = true;
-              $28.handle = $1;
-              $3 = 13;
-              return;
-            }
-            const $29 = '"';
-            final $30 = state.pos < $28.end &&
-                $28.data.codeUnitAt(state.pos - $28.start) == 34;
-            if ($30) {
-              state.advance(1);
-              state.setOk(true);
-            } else {
-              state.fail(const ErrorExpectedTags([$29]));
-            }
-            final $40 = state.ok;
-            if (!$40) {
-              $3 = 14;
-              break;
-            }
-            $32 = fastParseSpaces$Async(state);
-            if (!$32.isComplete) {
-              $32.onComplete = $1;
-              $3 = 15;
-              return;
-            }
-            $3 = 15;
+            $3 = 3;
             break;
           case 14:
+            final $30 = state.input;
+            if (state.pos >= $30.end && !$30.isClosed) {
+              $30.sleep = true;
+              $30.handle = $1;
+              $3 = 14;
+              return;
+            }
+            const $31 = '"';
+            final $32 = state.pos < $30.end &&
+                $30.data.codeUnitAt(state.pos - $30.start) == 34;
+            if ($32) {
+              state.pos++;
+              state.setOk(true);
+            } else {
+              state.fail(const ErrorExpectedTags([$31]));
+            }
+            final $42 = state.ok;
+            if (!$42) {
+              $3 = 15;
+              break;
+            }
+            $34 = fastParseSpaces$Async(state);
+            if (!$34.isComplete) {
+              $34.onComplete = $1;
+              $3 = 16;
+              return;
+            }
+            $3 = 16;
+            break;
+          case 15:
             if (!state.ok) {
-              state.backtrack($27);
+              state.backtrack($29);
             }
             if (state.ok) {
               $2 = $4;
             }
-            $3 = 12;
+            $3 = 13;
             break;
-          case 15:
-            $3 = 14;
+          case 16:
+            $3 = 15;
             break;
           default:
             throw StateError('Invalid state: ${$3}');
@@ -2640,7 +2756,7 @@ class JsonParser {
                 state.input.codeUnitAt(state.pos + 2) == 117 &&
                 state.input.codeUnitAt(state.pos + 3) == 101;
             if ($8) {
-              state.advance(4);
+              state.pos += 4;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$7]));
@@ -2670,7 +2786,7 @@ class JsonParser {
                   state.input.codeUnitAt(state.pos + 3) == 115 &&
                   state.input.codeUnitAt(state.pos + 4) == 101;
               if ($12) {
-                state.advance(5);
+                state.pos += 5;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorExpectedTags([$11]));
@@ -2699,7 +2815,7 @@ class JsonParser {
                     state.input.codeUnitAt(state.pos + 2) == 108 &&
                     state.input.codeUnitAt(state.pos + 3) == 108;
                 if ($16) {
-                  state.advance(4);
+                  state.pos += 4;
                   state.setOk(true);
                 } else {
                   state.fail(const ErrorExpectedTags([$15]));
@@ -2849,7 +2965,7 @@ class JsonParser {
                 $13.data.codeUnitAt(state.pos - $13.start + 2) == 117 &&
                 $13.data.codeUnitAt(state.pos - $13.start + 3) == 101;
             if ($15) {
-              state.advance(4);
+              state.pos += 4;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$14]));
@@ -2906,7 +3022,7 @@ class JsonParser {
                 $20.data.codeUnitAt(state.pos - $20.start + 3) == 115 &&
                 $20.data.codeUnitAt(state.pos - $20.start + 4) == 101;
             if ($22) {
-              state.advance(5);
+              state.pos += 5;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$21]));
@@ -2962,7 +3078,7 @@ class JsonParser {
                 $27.data.codeUnitAt(state.pos - $27.start + 2) == 108 &&
                 $27.data.codeUnitAt(state.pos - $27.start + 3) == 108;
             if ($29) {
-              state.advance(4);
+              state.pos += 4;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$28]));
@@ -3011,6 +3127,8 @@ class JsonParser {
     List<Object?>? $0;
     // @list(Value, Comma ↑ v:Value)
     final $2 = <Object?>[];
+    final $5 = state.isOptional;
+    state.isOptional = true;
     Object? $3;
     // Value
     // Value
@@ -3020,51 +3138,55 @@ class JsonParser {
       while (true) {
         Object? $4;
         // Comma ↑ v:Value
-        final $9 = state.pos;
-        var $8 = true;
+        final $11 = state.pos;
+        var $9 = true;
+        final $10 = state.isOptional;
         // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
-        final $10 = state.pos;
-        const $11 = ',';
-        final $12 = state.pos < state.input.length &&
+        final $12 = state.pos;
+        const $13 = ',';
+        final $14 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 44;
-        if ($12) {
-          state.advance(1);
+        if ($14) {
+          state.pos++;
           state.setOk(true);
         } else {
-          state.fail(const ErrorExpectedTags([$11]));
+          state.fail(const ErrorExpectedTags([$13]));
         }
         if (state.ok) {
           // Spaces
           fastParseSpaces(state);
         }
         if (!state.ok) {
-          state.backtrack($10);
+          state.backtrack($12);
         }
         if (state.ok) {
-          $8 = false;
+          $9 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            Object? $7;
+            Object? $8;
             // Value
-            $7 = parseValue(state);
+            $8 = parseValue(state);
             if (state.ok) {
-              $4 = $7;
+              $4 = $8;
             }
           }
         }
         if (!state.ok) {
-          if (!$8) {
+          if (!$9) {
             state.isRecoverable = false;
           }
-          state.backtrack($9);
+          state.backtrack($11);
         }
+        state.isOptional = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4);
       }
     }
+    state.isOptional = $5;
     state.setOk(true);
     if (state.ok) {
       $0 = $2;
@@ -3080,43 +3202,48 @@ class JsonParser {
     final $0 = AsyncResult<List<Object?>>();
     List<Object?>? $2;
     var $3 = 0;
-    late List<Object?> $6;
+    late bool $6;
+    late List<Object?> $7;
     Object? $4;
-    late AsyncResult<Object?> $7;
+    late AsyncResult<Object?> $8;
     Object? $5;
-    late bool $10;
-    late int $11;
-    late int $12;
-    late AsyncResult<Object?> $17;
-    Object? $9;
+    late bool $11;
+    late bool $12;
+    late int $13;
+    late int $14;
     late AsyncResult<Object?> $19;
+    Object? $10;
+    late AsyncResult<Object?> $21;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = [];
-            $7 = parseValue$Async(state);
-            if (!$7.isComplete) {
-              $7.onComplete = $1;
+            $7 = [];
+            $6 = state.isOptional;
+            state.isOptional = true;
+            $8 = parseValue$Async(state);
+            if (!$8.isComplete) {
+              $8.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            $4 = $7.value;
-            final $21 = state.ok;
-            if (!$21) {
+            $4 = $8.value;
+            final $23 = state.ok;
+            if (!$23) {
               $3 = 2;
               break;
             }
-            $6.add($4);
+            $7.add($4);
             $3 = 4;
             break;
           case 2:
+            state.isOptional = $6;
             state.setOk(true);
             if (state.ok) {
-              $2 = $6;
+              $2 = $7;
             }
             $0.value = $2;
             $0.isComplete = true;
@@ -3127,36 +3254,37 @@ class JsonParser {
             $3 = 2;
             break;
           case 4:
-            $11 = state.pos;
-            $10 = true;
-            $12 = state.pos;
+            $13 = state.pos;
+            $12 = true;
+            $11 = state.isOptional;
+            $14 = state.pos;
             $3 = 5;
             break;
           case 5:
-            final $13 = state.input;
-            if (state.pos >= $13.end && !$13.isClosed) {
-              $13.sleep = true;
-              $13.handle = $1;
+            final $15 = state.input;
+            if (state.pos >= $15.end && !$15.isClosed) {
+              $15.sleep = true;
+              $15.handle = $1;
               $3 = 5;
               return;
             }
-            const $14 = ',';
-            final $15 = state.pos < $13.end &&
-                $13.data.codeUnitAt(state.pos - $13.start) == 44;
-            if ($15) {
-              state.advance(1);
+            const $16 = ',';
+            final $17 = state.pos < $15.end &&
+                $15.data.codeUnitAt(state.pos - $15.start) == 44;
+            if ($17) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$14]));
+              state.fail(const ErrorExpectedTags([$16]));
             }
-            final $23 = state.ok;
-            if (!$23) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 6;
               break;
             }
-            $17 = fastParseSpaces$Async(state);
-            if (!$17.isComplete) {
-              $17.onComplete = $1;
+            $19 = fastParseSpaces$Async(state);
+            if (!$19.isComplete) {
+              $19.onComplete = $1;
               $3 = 7;
               return;
             }
@@ -3164,24 +3292,25 @@ class JsonParser {
             break;
           case 6:
             if (!state.ok) {
-              state.backtrack($12);
+              state.backtrack($14);
             }
-            final $24 = state.ok;
-            if (!$24) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 8;
               break;
             }
-            $10 = false;
+            $12 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $25 = state.ok;
-            if (!$25) {
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 9;
               break;
             }
-            $19 = parseValue$Async(state);
-            if (!$19.isComplete) {
-              $19.onComplete = $1;
+            $21 = parseValue$Async(state);
+            if (!$21.isComplete) {
+              $21.onComplete = $1;
               $3 = 10;
               return;
             }
@@ -3192,25 +3321,26 @@ class JsonParser {
             break;
           case 8:
             if (!state.ok) {
-              if (!$10) {
+              if (!$12) {
                 state.isRecoverable = false;
               }
-              state.backtrack($11);
+              state.backtrack($13);
             }
+            state.isOptional = $11;
             if (!state.ok) {
               $3 = 3;
               break;
             }
-            $6.add($5);
+            $7.add($5);
             $3 = 4;
             break;
           case 9:
             $3 = 8;
             break;
           case 10:
-            $9 = $19.value;
+            $10 = $21.value;
             if (state.ok) {
-              $5 = $9;
+              $5 = $10;
             }
             $3 = 9;
             break;
@@ -3785,11 +3915,11 @@ class State<T> {
 
   final T input;
 
+  bool isOptional = false;
+
   bool isRecoverable = true;
 
   int lastFailPos = -1;
-
-  int mute = 0;
 
   bool ok = false;
 
@@ -3802,13 +3932,6 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void advance(int offset) {
-    if (mute == 0 && isRecoverable) {
-      if (failPos <= pos) {
-        failPos = 0;
-        errorCount = 0;
-      }
-    }
-
     pos += offset;
   }
 
@@ -3836,7 +3959,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -3862,7 +3985,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -3873,10 +3996,10 @@ class State<T> {
           _errors[errorCount++] = error;
         }
       }
+    }
 
-      if (lastFailPos < offset) {
-        lastFailPos = offset;
-      }
+    if (lastFailPos < offset) {
+      lastFailPos = offset;
     }
 
     return false;

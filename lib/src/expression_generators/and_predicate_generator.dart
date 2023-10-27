@@ -12,12 +12,7 @@ class AndPredicateGenerator
   @override
   String generate() {
     final values = <String, String>{};
-    final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
-    if (variable != null) {
-      ruleGenerator.setExpressionVariable(child, variable);
-    }
-
     values['pos'] = allocateName();
     values['p'] = generateExpression(child, false);
     const template = '''

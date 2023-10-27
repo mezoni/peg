@@ -1332,10 +1332,10 @@ void _testNotPredicate() {
 
     {
       const source = '012';
-      const failPos = 0;
+      const failPos = 3;
       await __testFailure(
         errors: {
-          ErrorUnexpectedInput(3).getErrorMessage(source, failPos),
+          ErrorUnexpectedInput(-3).getErrorMessage(source, failPos),
         },
         failPos: failPos,
         fastParse: _parser.fastParseNotPredicate,

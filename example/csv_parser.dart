@@ -37,7 +37,7 @@ class CsvParser {
       }
     }
     if ($0 > 0) {
-      state.advance($0);
+      state.pos += $0;
       state.setOk(true);
     } else {
       state.pos = $1;
@@ -68,7 +68,7 @@ class CsvParser {
             final $5 = state.pos < $3.end &&
                 $3.data.codeUnitAt(state.pos - $3.start) == 10;
             if ($5) {
-              state.advance(1);
+              state.pos++;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$4]));
@@ -98,7 +98,7 @@ class CsvParser {
                 $7.data.codeUnitAt(state.pos - $7.start) == 13 &&
                 $7.data.codeUnitAt(state.pos - $7.start + 1) == 10;
             if ($9) {
-              state.advance(2);
+              state.pos += 2;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$8]));
@@ -125,7 +125,7 @@ class CsvParser {
             final $13 = state.pos < $11.end &&
                 $11.data.codeUnitAt(state.pos - $11.start) == 13;
             if ($13) {
-              state.advance(1);
+              state.pos++;
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedTags([$12]));
@@ -152,7 +152,7 @@ class CsvParser {
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c == 9 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.advance(1));
+        state.pos++);
     state.setOk(true);
   }
 
@@ -162,22 +162,35 @@ class CsvParser {
   AsyncResult<Object?> fastParseSpaces$Async(State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     var $2 = 0;
+    late bool $3;
     void $1() {
       while (true) {
         switch ($2) {
           case 0:
-            final $3 = state.input;
-            if (state.pos >= $3.end && !$3.isClosed) {
-              $3.sleep = true;
-              $3.handle = $1;
-              $2 = 0;
+            $3 = state.isOptional;
+            state.isOptional = true;
+            $2 = 2;
+            break;
+          case 1:
+            state.isOptional = $3;
+            state.setOk(true);
+            $0.isComplete = true;
+            state.input.handle = $0.onComplete;
+            $2 = -1;
+            return;
+          case 2:
+            final $4 = state.input;
+            if (state.pos >= $4.end && !$4.isClosed) {
+              $4.sleep = true;
+              $4.handle = $1;
+              $2 = 2;
               return;
             }
-            if (state.pos < $3.end) {
-              final c = $3.data.codeUnitAt(state.pos - $3.start);
-              final $4 = c == 9 || c == 32;
-              if ($4) {
-                state.advance(1);
+            if (state.pos < $4.end) {
+              final c = $4.data.codeUnitAt(state.pos - $4.start);
+              final $5 = c == 9 || c == 32;
+              if ($5) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -189,14 +202,8 @@ class CsvParser {
               $2 = 1;
               break;
             }
-            $2 = 0;
+            $2 = 2;
             break;
-          case 1:
-            state.setOk(true);
-            $0.isComplete = true;
-            state.input.handle = $0.onComplete;
-            $2 = -1;
-            return;
           default:
             throw StateError('Invalid state: ${$2}');
         }
@@ -231,52 +238,58 @@ class CsvParser {
     $3 = endEvent<String>(CsvParserEvent.fieldEvent, $3, state.ok);
     if (state.ok) {
       $2.add($3!);
+      final $5 = state.isOptional;
+      state.isOptional = true;
       while (true) {
         String? $4;
         // ',' ↑ v:Field
-        final $11 = state.pos;
-        var $10 = true;
-        const $12 = ',';
-        final $13 = state.pos < state.input.length &&
+        final $13 = state.pos;
+        var $11 = true;
+        final $12 = state.isOptional;
+        const $14 = ',';
+        final $15 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 44;
-        if ($13) {
-          state.advance(1);
+        if ($15) {
+          state.pos++;
           state.setOk(true);
         } else {
-          state.fail(const ErrorExpectedTags([$12]));
+          state.fail(const ErrorExpectedTags([$14]));
         }
         if (state.ok) {
-          $10 = false;
+          $11 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            String? $9;
+            String? $10;
             beginEvent(CsvParserEvent.fieldEvent);
             // @event @inline Field = String / Text ;
             // String
             // String
-            $9 = parseString(state);
+            $10 = parseString(state);
             if (!state.ok && state.isRecoverable) {
               // Text
               // Text
-              $9 = parseText(state);
+              $10 = parseText(state);
             }
-            $9 = endEvent<String>(CsvParserEvent.fieldEvent, $9, state.ok);
+            $10 = endEvent<String>(CsvParserEvent.fieldEvent, $10, state.ok);
             if (state.ok) {
-              $4 = $9;
+              $4 = $10;
             }
           }
         }
         if (!state.ok) {
-          if (!$10) {
+          if (!$11) {
             state.isRecoverable = false;
           }
-          state.backtrack($11);
+          state.backtrack($13);
         }
+        state.isOptional = $12;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
+      state.isOptional = $5;
     }
     state.setOk($2.isNotEmpty);
     if (state.ok) {
@@ -295,42 +308,44 @@ class CsvParser {
     beginEvent(CsvParserEvent.rowEvent);
     List<String>? $2;
     var $3 = 0;
-    late List<String> $6;
+    late bool $6;
+    late List<String> $7;
     String? $4;
-    late AsyncResult<String> $7;
-    late AsyncResult<String> $9;
+    late AsyncResult<String> $8;
+    late AsyncResult<String> $10;
     String? $5;
-    late bool $12;
-    late int $13;
-    String? $11;
-    late AsyncResult<String> $18;
+    late bool $13;
+    late bool $14;
+    late int $15;
+    String? $12;
     late AsyncResult<String> $20;
+    late AsyncResult<String> $22;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = [];
+            $7 = [];
             beginEvent(CsvParserEvent.fieldEvent);
             state.input.beginBuffering();
-            $7 = parseString$Async(state);
-            if (!$7.isComplete) {
-              $7.onComplete = $1;
+            $8 = parseString$Async(state);
+            if (!$8.isComplete) {
+              $8.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            $4 = $7.value;
+            $4 = $8.value;
             state.input.endBuffering();
-            final $22 = !state.ok && state.isRecoverable;
-            if (!$22) {
+            final $24 = !state.ok && state.isRecoverable;
+            if (!$24) {
               $3 = 2;
               break;
             }
-            $9 = parseText$Async(state);
-            if (!$9.isComplete) {
-              $9.onComplete = $1;
+            $10 = parseText$Async(state);
+            if (!$10.isComplete) {
+              $10.onComplete = $1;
               $3 = 3;
               return;
             }
@@ -338,22 +353,24 @@ class CsvParser {
             break;
           case 2:
             $4 = endEvent<String>(CsvParserEvent.fieldEvent, $4, state.ok);
-            final $23 = state.ok;
-            if (!$23) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 4;
               break;
             }
-            $6.add($4!);
+            $7.add($4!);
+            $6 = state.isOptional;
+            state.isOptional = true;
             $3 = 6;
             break;
           case 3:
-            $4 = $9.value;
+            $4 = $10.value;
             $3 = 2;
             break;
           case 4:
-            state.setOk($6.isNotEmpty);
+            state.setOk($7.isNotEmpty);
             if (state.ok) {
-              $2 = $6;
+              $2 = $7;
             }
             endEvent<List<String>>(CsvParserEvent.rowEvent, $2, state.ok);
             $0.value = $2;
@@ -362,48 +379,51 @@ class CsvParser {
             $3 = -1;
             return;
           case 5:
+            state.isOptional = $6;
             $3 = 4;
             break;
           case 6:
-            $13 = state.pos;
-            $12 = true;
+            $15 = state.pos;
+            $14 = true;
+            $13 = state.isOptional;
             $3 = 7;
             break;
           case 7:
-            final $14 = state.input;
-            if (state.pos >= $14.end && !$14.isClosed) {
-              $14.sleep = true;
-              $14.handle = $1;
+            final $16 = state.input;
+            if (state.pos >= $16.end && !$16.isClosed) {
+              $16.sleep = true;
+              $16.handle = $1;
               $3 = 7;
               return;
             }
-            const $15 = ',';
-            final $16 = state.pos < $14.end &&
-                $14.data.codeUnitAt(state.pos - $14.start) == 44;
-            if ($16) {
-              state.advance(1);
+            const $17 = ',';
+            final $18 = state.pos < $16.end &&
+                $16.data.codeUnitAt(state.pos - $16.start) == 44;
+            if ($18) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$15]));
+              state.fail(const ErrorExpectedTags([$17]));
             }
-            final $25 = state.ok;
-            if (!$25) {
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 8;
               break;
             }
-            $12 = false;
+            $14 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $26 = state.ok;
-            if (!$26) {
+            final $28 = state.ok;
+            if (!$28) {
               $3 = 9;
               break;
             }
             beginEvent(CsvParserEvent.fieldEvent);
             state.input.beginBuffering();
-            $18 = parseString$Async(state);
-            if (!$18.isComplete) {
-              $18.onComplete = $1;
+            $20 = parseString$Async(state);
+            if (!$20.isComplete) {
+              $20.onComplete = $1;
               $3 = 10;
               return;
             }
@@ -411,46 +431,47 @@ class CsvParser {
             break;
           case 8:
             if (!state.ok) {
-              if (!$12) {
+              if (!$14) {
                 state.isRecoverable = false;
               }
-              state.backtrack($13);
+              state.backtrack($15);
             }
+            state.isOptional = $13;
             if (!state.ok) {
               $3 = 5;
               break;
             }
-            $6.add($5!);
+            $7.add($5!);
             $3 = 6;
             break;
           case 9:
             $3 = 8;
             break;
           case 10:
-            $11 = $18.value;
+            $12 = $20.value;
             state.input.endBuffering();
-            final $27 = !state.ok && state.isRecoverable;
-            if (!$27) {
+            final $29 = !state.ok && state.isRecoverable;
+            if (!$29) {
               $3 = 11;
               break;
             }
-            $20 = parseText$Async(state);
-            if (!$20.isComplete) {
-              $20.onComplete = $1;
+            $22 = parseText$Async(state);
+            if (!$22.isComplete) {
+              $22.onComplete = $1;
               $3 = 12;
               return;
             }
             $3 = 12;
             break;
           case 11:
-            $11 = endEvent<String>(CsvParserEvent.fieldEvent, $11, state.ok);
+            $12 = endEvent<String>(CsvParserEvent.fieldEvent, $12, state.ok);
             if (state.ok) {
-              $5 = $11;
+              $5 = $12;
             }
             $3 = 9;
             break;
           case 12:
-            $11 = $20.value;
+            $12 = $22.value;
             $3 = 11;
             break;
           default:
@@ -476,67 +497,68 @@ class CsvParser {
     $3 = parseRow(state);
     if (state.ok) {
       $2.add($3!);
+      final $5 = state.isOptional;
+      state.isOptional = true;
       while (true) {
         List<String>? $4;
         // RowEnding ↑ v:Row
-        final $9 = state.pos;
-        var $8 = true;
+        final $11 = state.pos;
+        var $9 = true;
+        final $10 = state.isOptional;
         // @inline RowEnding = Eol !@eof() ;
         // Eol !@eof()
-        final $10 = state.pos;
+        final $12 = state.pos;
         // Eol
         fastParseEol(state);
         if (state.ok) {
-          final $11 = state.pos;
-          state.mute++;
+          final $13 = state.pos;
           if (state.pos >= state.input.length) {
             state.setOk(true);
           } else {
             state.fail(const ErrorExpectedEndOfInput());
           }
-          state.mute--;
           if (state.ok) {
-            final length = state.pos - $11;
-            state.failAt(
-                $11,
-                switch (length) {
-                  0 => const ErrorUnexpectedInput(0),
-                  1 => const ErrorUnexpectedInput(1),
-                  2 => const ErrorUnexpectedInput(2),
-                  _ => ErrorUnexpectedInput(length)
-                });
-            state.backtrack($11);
+            final length = $13 - state.pos;
+            state.fail(switch (length) {
+              0 => const ErrorUnexpectedInput(0),
+              -1 => const ErrorUnexpectedInput(-1),
+              -2 => const ErrorUnexpectedInput(-2),
+              _ => ErrorUnexpectedInput(length)
+            });
+            state.backtrack($13);
           } else {
-            state.advance(0);
             state.setOk(true);
           }
         }
         if (!state.ok) {
-          state.backtrack($10);
+          state.backtrack($12);
         }
         if (state.ok) {
-          $8 = false;
+          $9 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            List<String>? $7;
+            List<String>? $8;
             // Row
-            $7 = parseRow(state);
+            $8 = parseRow(state);
             if (state.ok) {
-              $4 = $7;
+              $4 = $8;
             }
           }
         }
         if (!state.ok) {
-          if (!$8) {
+          if (!$9) {
             state.isRecoverable = false;
           }
-          state.backtrack($9);
+          state.backtrack($11);
         }
+        state.isOptional = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
+      state.isOptional = $5;
     }
     state.setOk($2.isNotEmpty);
     if (state.ok) {
@@ -553,44 +575,48 @@ class CsvParser {
     final $0 = AsyncResult<List<List<String>>>();
     List<List<String>>? $2;
     var $3 = 0;
-    late List<List<String>> $6;
+    late bool $6;
+    late List<List<String>> $7;
     List<String>? $4;
-    late AsyncResult<List<String>> $7;
+    late AsyncResult<List<String>> $8;
     List<String>? $5;
-    late bool $10;
-    late int $11;
-    late int $12;
-    late AsyncResult<Object?> $13;
-    late int $15;
-    List<String>? $9;
-    late AsyncResult<List<String>> $18;
+    late bool $11;
+    late bool $12;
+    late int $13;
+    late int $14;
+    late AsyncResult<Object?> $15;
+    late int $17;
+    List<String>? $10;
+    late AsyncResult<List<String>> $20;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = [];
-            $7 = parseRow$Async(state);
-            if (!$7.isComplete) {
-              $7.onComplete = $1;
+            $7 = [];
+            $8 = parseRow$Async(state);
+            if (!$8.isComplete) {
+              $8.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            $4 = $7.value;
-            final $20 = state.ok;
-            if (!$20) {
+            $4 = $8.value;
+            final $22 = state.ok;
+            if (!$22) {
               $3 = 2;
               break;
             }
-            $6.add($4!);
+            $7.add($4!);
+            $6 = state.isOptional;
+            state.isOptional = true;
             $3 = 4;
             break;
           case 2:
-            state.setOk($6.isNotEmpty);
+            state.setOk($7.isNotEmpty);
             if (state.ok) {
-              $2 = $6;
+              $2 = $7;
             }
             $0.value = $2;
             $0.isComplete = true;
@@ -598,109 +624,108 @@ class CsvParser {
             $3 = -1;
             return;
           case 3:
+            state.isOptional = $6;
             $3 = 2;
             break;
           case 4:
-            $11 = state.pos;
-            $10 = true;
-            $12 = state.pos;
-            $13 = fastParseEol$Async(state);
-            if (!$13.isComplete) {
-              $13.onComplete = $1;
+            $13 = state.pos;
+            $12 = true;
+            $11 = state.isOptional;
+            $14 = state.pos;
+            $15 = fastParseEol$Async(state);
+            if (!$15.isComplete) {
+              $15.onComplete = $1;
               $3 = 5;
               return;
             }
             $3 = 5;
             break;
           case 5:
-            final $22 = state.ok;
-            if (!$22) {
+            final $24 = state.ok;
+            if (!$24) {
               $3 = 6;
               break;
             }
-            $15 = state.pos;
-            state.mute++;
+            $17 = state.pos;
             state.input.beginBuffering();
             $3 = 7;
             break;
           case 6:
             if (!state.ok) {
-              state.backtrack($12);
+              state.backtrack($14);
             }
-            final $23 = state.ok;
-            if (!$23) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 8;
               break;
             }
-            $10 = false;
+            $12 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $24 = state.ok;
-            if (!$24) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 9;
               break;
             }
-            $18 = parseRow$Async(state);
-            if (!$18.isComplete) {
-              $18.onComplete = $1;
+            $20 = parseRow$Async(state);
+            if (!$20.isComplete) {
+              $20.onComplete = $1;
               $3 = 10;
               return;
             }
             $3 = 10;
             break;
           case 7:
-            final $16 = state.input;
-            if (state.pos >= $16.end && !$16.isClosed) {
-              $16.sleep = true;
-              $16.handle = $1;
+            final $18 = state.input;
+            if (state.pos >= $18.end && !$18.isClosed) {
+              $18.sleep = true;
+              $18.handle = $1;
               $3 = 7;
               return;
             }
-            if (state.pos >= $16.end) {
+            if (state.pos >= $18.end) {
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedEndOfInput());
             }
             state.input.endBuffering();
-            state.mute--;
             if (state.ok) {
-              final length = state.pos - $15;
-              state.failAt(
-                  $15,
-                  switch (length) {
-                    0 => const ErrorUnexpectedInput(0),
-                    1 => const ErrorUnexpectedInput(1),
-                    2 => const ErrorUnexpectedInput(2),
-                    _ => ErrorUnexpectedInput(length)
-                  });
-              state.backtrack($15);
+              final length = $17 - state.pos;
+              state.fail(switch (length) {
+                0 => const ErrorUnexpectedInput(0),
+                -1 => const ErrorUnexpectedInput(-1),
+                -2 => const ErrorUnexpectedInput(-2),
+                _ => ErrorUnexpectedInput(length)
+              });
+              state.backtrack($17);
             } else {
-              state.advance(0);
               state.setOk(true);
             }
             $3 = 6;
             break;
           case 8:
             if (!state.ok) {
-              if (!$10) {
+              if (!$12) {
                 state.isRecoverable = false;
               }
-              state.backtrack($11);
+              state.backtrack($13);
             }
+            state.isOptional = $11;
             if (!state.ok) {
               $3 = 3;
               break;
             }
-            $6.add($5!);
+            $7.add($5!);
             $3 = 4;
             break;
           case 9:
             $3 = 8;
             break;
           case 10:
-            $9 = $18.value;
+            $10 = $20.value;
             if (state.ok) {
-              $5 = $9;
+              $5 = $10;
             }
             $3 = 9;
             break;
@@ -727,8 +752,11 @@ class CsvParser {
     // Rows
     $1 = parseRows(state);
     if (state.ok) {
+      final $3 = state.isOptional;
+      state.isOptional = true;
       // Eol
       fastParseEol(state);
+      state.isOptional = $3;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -763,7 +791,8 @@ class CsvParser {
     late int $5;
     List<List<String>>? $4;
     late AsyncResult<List<List<String>>> $6;
-    late AsyncResult<Object?> $8;
+    late bool $8;
+    late AsyncResult<Object?> $9;
     void $1() {
       while (true) {
         switch ($3) {
@@ -779,14 +808,16 @@ class CsvParser {
             break;
           case 1:
             $4 = $6.value;
-            final $12 = state.ok;
-            if (!$12) {
+            final $13 = state.ok;
+            if (!$13) {
               $3 = 2;
               break;
             }
-            $8 = fastParseEol$Async(state);
-            if (!$8.isComplete) {
-              $8.onComplete = $1;
+            $8 = state.isOptional;
+            state.isOptional = true;
+            $9 = fastParseEol$Async(state);
+            if (!$9.isComplete) {
+              $9.onComplete = $1;
               $3 = 3;
               return;
             }
@@ -804,11 +835,12 @@ class CsvParser {
             $3 = -1;
             return;
           case 3:
+            state.isOptional = $8;
             if (!state.ok) {
               state.setOk(true);
             }
-            final $13 = state.ok;
-            if (!$13) {
+            final $14 = state.ok;
+            if (!$14) {
               $3 = 4;
               break;
             }
@@ -818,14 +850,14 @@ class CsvParser {
             $3 = 2;
             break;
           case 5:
-            final $10 = state.input;
-            if (state.pos >= $10.end && !$10.isClosed) {
-              $10.sleep = true;
-              $10.handle = $1;
+            final $11 = state.input;
+            if (state.pos >= $11.end && !$11.isClosed) {
+              $11.sleep = true;
+              $11.handle = $1;
               $3 = 5;
               return;
             }
-            if (state.pos >= $10.end) {
+            if (state.pos >= $11.end) {
               state.setOk(true);
             } else {
               state.fail(const ErrorExpectedEndOfInput());
@@ -852,103 +884,108 @@ class CsvParser {
   String? parseString(State<String> state) {
     String? $0;
     // OpenQuote ↑ v:Chars CloseQuote {}
-    final $3 = state.pos;
+    final $4 = state.pos;
     var $2 = true;
+    final $3 = state.isOptional;
     // @inline OpenQuote = Spaces '"' ;
     // Spaces '"'
-    final $4 = state.pos;
+    final $5 = state.pos;
     // Spaces
     fastParseSpaces(state);
     if (state.ok) {
-      const $5 = '"';
-      final $6 = state.pos < state.input.length &&
+      const $6 = '"';
+      final $7 = state.pos < state.input.length &&
           state.input.codeUnitAt(state.pos) == 34;
-      if ($6) {
-        state.advance(1);
+      if ($7) {
+        state.pos++;
         state.setOk(true);
       } else {
-        state.fail(const ErrorExpectedTags([$5]));
+        state.fail(const ErrorExpectedTags([$6]));
       }
     }
     if (!state.ok) {
-      state.backtrack($4);
+      state.backtrack($5);
     }
     if (state.ok) {
       $2 = false;
+      state.isOptional = false;
       state.setOk(true);
       if (state.ok) {
         List<String>? $1;
         // @inline Chars = ($[^"]+ / '""' <String>{})* ;
         // ($[^"]+ / '""' <String>{})*
-        final $8 = <String>[];
+        final $10 = <String>[];
+        final $9 = state.isOptional;
+        state.isOptional = true;
         while (true) {
-          String? $9;
+          String? $11;
           // $[^"]+
-          final $11 = state.pos;
-          var $12 = false;
+          final $13 = state.pos;
+          var $14 = false;
           for (var c = 0;
               state.pos < state.input.length &&
                   (c = state.input.runeAt(state.pos)) == c &&
                   (c != 34);
-              state.advance(c > 0xffff ? 2 : 1),
+              state.pos += c > 0xffff ? 2 : 1,
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              $12 = true);
-          if ($12) {
-            state.setOk($12);
+              $14 = true);
+          if ($14) {
+            state.setOk($14);
           } else {
             state.pos < state.input.length
                 ? state.fail(const ErrorUnexpectedCharacter())
                 : state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            $9 = state.input.substring($11, state.pos);
+            $11 = state.input.substring($13, state.pos);
           }
           if (!state.ok && state.isRecoverable) {
             // '""' <String>{}
-            const $14 = '""';
-            final $15 = state.pos + 1 < state.input.length &&
+            const $16 = '""';
+            final $17 = state.pos + 1 < state.input.length &&
                 state.input.codeUnitAt(state.pos) == 34 &&
                 state.input.codeUnitAt(state.pos + 1) == 34;
-            if ($15) {
-              state.advance(2);
+            if ($17) {
+              state.pos += 2;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$14]));
+              state.fail(const ErrorExpectedTags([$16]));
             }
             if (state.ok) {
               String? $$;
               $$ = '"';
-              $9 = $$;
+              $11 = $$;
             }
           }
           if (!state.ok) {
             break;
           }
-          $8.add($9!);
+          $10.add($11!);
         }
+        state.isOptional = $9;
         state.setOk(true);
         if (state.ok) {
-          $1 = $8;
+          $1 = $10;
         }
         if (state.ok) {
           // @inline CloseQuote = '"' Spaces ;
           // '"' Spaces
-          final $16 = state.pos;
-          const $17 = '"';
-          final $18 = state.pos < state.input.length &&
+          final $18 = state.pos;
+          const $19 = '"';
+          final $20 = state.pos < state.input.length &&
               state.input.codeUnitAt(state.pos) == 34;
-          if ($18) {
-            state.advance(1);
+          if ($20) {
+            state.pos++;
             state.setOk(true);
           } else {
-            state.fail(const ErrorExpectedTags([$17]));
+            state.fail(const ErrorExpectedTags([$19]));
           }
           if (state.ok) {
             // Spaces
             fastParseSpaces(state);
           }
           if (!state.ok) {
-            state.backtrack($16);
+            state.backtrack($18);
           }
           if (state.ok) {
             String? $$;
@@ -963,8 +1000,9 @@ class CsvParser {
       if (!$2) {
         state.isRecoverable = false;
       }
-      state.backtrack($3);
+      state.backtrack($4);
     }
+    state.isOptional = $3;
     return $0;
   }
 
@@ -977,34 +1015,38 @@ class CsvParser {
     String? $2;
     var $3 = 0;
     late bool $5;
-    late int $6;
+    late bool $6;
     late int $7;
-    late AsyncResult<Object?> $8;
+    late int $8;
+    late AsyncResult<Object?> $9;
     List<String>? $4;
-    late List<String> $15;
-    String? $14;
-    late int $16;
-    late bool $17;
-    late int $25;
-    late AsyncResult<Object?> $30;
+    late bool $16;
+    late List<String> $17;
+    String? $15;
+    late int $18;
+    late bool $19;
+    late bool $20;
+    late int $28;
+    late AsyncResult<Object?> $33;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = state.pos;
-            $5 = true;
             $7 = state.pos;
-            $8 = fastParseSpaces$Async(state);
-            if (!$8.isComplete) {
-              $8.onComplete = $1;
+            $6 = true;
+            $5 = state.isOptional;
+            $8 = state.pos;
+            $9 = fastParseSpaces$Async(state);
+            if (!$9.isComplete) {
+              $9.onComplete = $1;
               $3 = 1;
               return;
             }
             $3 = 1;
             break;
           case 1:
-            final $32 = state.ok;
-            if (!$32) {
+            final $35 = state.ok;
+            if (!$35) {
               $3 = 2;
               break;
             }
@@ -1012,50 +1054,54 @@ class CsvParser {
             break;
           case 2:
             if (!state.ok) {
-              state.backtrack($7);
+              state.backtrack($8);
             }
-            final $33 = state.ok;
-            if (!$33) {
+            final $36 = state.ok;
+            if (!$36) {
               $3 = 4;
               break;
             }
-            $5 = false;
+            $6 = false;
+            state.isOptional = false;
             state.setOk(true);
             state.input.cut(state.pos);
-            final $34 = state.ok;
-            if (!$34) {
+            final $37 = state.ok;
+            if (!$37) {
               $3 = 5;
               break;
             }
-            $15 = <String>[];
+            $17 = <String>[];
+            $16 = state.isOptional;
+            state.isOptional = true;
             $3 = 7;
             break;
           case 3:
-            final $10 = state.input;
-            if (state.pos >= $10.end && !$10.isClosed) {
-              $10.sleep = true;
-              $10.handle = $1;
+            final $11 = state.input;
+            if (state.pos >= $11.end && !$11.isClosed) {
+              $11.sleep = true;
+              $11.handle = $1;
               $3 = 3;
               return;
             }
-            const $11 = '"';
-            final $12 = state.pos < $10.end &&
-                $10.data.codeUnitAt(state.pos - $10.start) == 34;
-            if ($12) {
-              state.advance(1);
+            const $12 = '"';
+            final $13 = state.pos < $11.end &&
+                $11.data.codeUnitAt(state.pos - $11.start) == 34;
+            if ($13) {
+              state.pos++;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$11]));
+              state.fail(const ErrorExpectedTags([$12]));
             }
             $3 = 2;
             break;
           case 4:
             if (!state.ok) {
-              if (!$5) {
+              if (!$6) {
                 state.isRecoverable = false;
               }
-              state.backtrack($6);
+              state.backtrack($7);
             }
+            state.isOptional = $5;
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -1065,52 +1111,59 @@ class CsvParser {
             $3 = 4;
             break;
           case 6:
+            state.isOptional = $16;
             state.setOk(true);
             if (state.ok) {
-              $4 = $15;
+              $4 = $17;
             }
-            final $38 = state.ok;
-            if (!$38) {
-              $3 = 12;
+            final $41 = state.ok;
+            if (!$41) {
+              $3 = 13;
               break;
             }
-            $25 = state.pos;
-            $3 = 13;
+            $28 = state.pos;
+            $3 = 14;
             break;
           case 7:
-            $16 = state.pos;
+            $18 = state.pos;
             state.input.beginBuffering();
-            $17 = false;
+            $20 = false;
+            $19 = state.isOptional;
             $3 = 9;
             break;
           case 8:
-            state.setOk($17);
+            state.isOptional = $19;
+            state.setOk($20);
             state.input.endBuffering();
             if (state.ok) {
               final input = state.input;
               final start = input.start;
-              $14 = input.data.substring($16 - start, state.pos - start);
+              $15 = input.data.substring($18 - start, state.pos - start);
             }
-            final $37 = !state.ok && state.isRecoverable;
-            if (!$37) {
-              $3 = 10;
+            final $40 = !state.ok && state.isRecoverable;
+            if (!$40) {
+              $3 = 11;
               break;
             }
-            $3 = 11;
+            $3 = 12;
             break;
           case 9:
-            final $18 = state.input;
-            if (state.pos >= $18.end && !$18.isClosed) {
-              $18.sleep = true;
-              $18.handle = $1;
-              $3 = 9;
+            state.isOptional = $20;
+            $3 = 10;
+            break;
+          case 10:
+            final $21 = state.input;
+            if (state.pos >= $21.end && !$21.isClosed) {
+              $21.sleep = true;
+              $21.handle = $1;
+              $3 = 10;
               return;
             }
-            if (state.pos < $18.end) {
-              final c = $18.data.runeAt(state.pos - $18.start);
-              final $19 = c != 34;
-              if ($19) {
-                state.advance(c > 0xffff ? 2 : 1);
+            if (state.pos < $21.end) {
+              final c = $21.data.runeAt(state.pos - $21.start);
+              final $22 = c != 34;
+              if ($22) {
+                state.pos += c > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1122,78 +1175,78 @@ class CsvParser {
               $3 = 8;
               break;
             }
-            $17 = true;
+            $20 = true;
             $3 = 9;
             break;
-          case 10:
+          case 11:
             if (!state.ok) {
               $3 = 6;
               break;
             }
-            $15.add($14!);
+            $17.add($15!);
             $3 = 7;
             break;
-          case 11:
-            final $21 = state.input;
-            if (state.pos + 1 >= $21.end && !$21.isClosed) {
-              $21.sleep = true;
-              $21.handle = $1;
-              $3 = 11;
+          case 12:
+            final $24 = state.input;
+            if (state.pos + 1 >= $24.end && !$24.isClosed) {
+              $24.sleep = true;
+              $24.handle = $1;
+              $3 = 12;
               return;
             }
-            const $22 = '""';
-            final $23 = state.pos + 1 < $21.end &&
-                $21.data.codeUnitAt(state.pos - $21.start) == 34 &&
-                $21.data.codeUnitAt(state.pos - $21.start + 1) == 34;
-            if ($23) {
-              state.advance(2);
+            const $25 = '""';
+            final $26 = state.pos + 1 < $24.end &&
+                $24.data.codeUnitAt(state.pos - $24.start) == 34 &&
+                $24.data.codeUnitAt(state.pos - $24.start + 1) == 34;
+            if ($26) {
+              state.pos += 2;
               state.setOk(true);
             } else {
-              state.fail(const ErrorExpectedTags([$22]));
+              state.fail(const ErrorExpectedTags([$25]));
             }
             if (state.ok) {
               String? $$;
               $$ = '"';
-              $14 = $$;
+              $15 = $$;
             }
-            $3 = 10;
-            break;
-          case 12:
-            $3 = 5;
+            $3 = 11;
             break;
           case 13:
-            final $26 = state.input;
-            if (state.pos >= $26.end && !$26.isClosed) {
-              $26.sleep = true;
-              $26.handle = $1;
-              $3 = 13;
-              return;
-            }
-            const $27 = '"';
-            final $28 = state.pos < $26.end &&
-                $26.data.codeUnitAt(state.pos - $26.start) == 34;
-            if ($28) {
-              state.advance(1);
-              state.setOk(true);
-            } else {
-              state.fail(const ErrorExpectedTags([$27]));
-            }
-            final $39 = state.ok;
-            if (!$39) {
-              $3 = 14;
-              break;
-            }
-            $30 = fastParseSpaces$Async(state);
-            if (!$30.isComplete) {
-              $30.onComplete = $1;
-              $3 = 15;
-              return;
-            }
-            $3 = 15;
+            $3 = 5;
             break;
           case 14:
+            final $29 = state.input;
+            if (state.pos >= $29.end && !$29.isClosed) {
+              $29.sleep = true;
+              $29.handle = $1;
+              $3 = 14;
+              return;
+            }
+            const $30 = '"';
+            final $31 = state.pos < $29.end &&
+                $29.data.codeUnitAt(state.pos - $29.start) == 34;
+            if ($31) {
+              state.pos++;
+              state.setOk(true);
+            } else {
+              state.fail(const ErrorExpectedTags([$30]));
+            }
+            final $42 = state.ok;
+            if (!$42) {
+              $3 = 15;
+              break;
+            }
+            $33 = fastParseSpaces$Async(state);
+            if (!$33.isComplete) {
+              $33.onComplete = $1;
+              $3 = 16;
+              return;
+            }
+            $3 = 16;
+            break;
+          case 15:
             if (!state.ok) {
-              state.backtrack($25);
+              state.backtrack($28);
             }
             if (state.ok) {
               String? $$;
@@ -1201,10 +1254,10 @@ class CsvParser {
               $$ = v.join();
               $2 = $$;
             }
-            $3 = 12;
+            $3 = 13;
             break;
-          case 15:
-            $3 = 14;
+          case 16:
+            $3 = 15;
             break;
           default:
             throw StateError('Invalid state: ${$3}');
@@ -1228,7 +1281,7 @@ class CsvParser {
             (c = state.input.runeAt(state.pos)) == c &&
             (!(c < 13 ? c == 10 : c <= 13 || c == 34 || c == 44));
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.advance(c > 0xffff ? 2 : 1));
+        state.pos += c > 0xffff ? 2 : 1);
     state.setOk(true);
     if (state.ok) {
       $0 = state.input.substring($2, state.pos);
@@ -1244,15 +1297,19 @@ class CsvParser {
     String? $2;
     var $3 = 0;
     late int $4;
+    late bool $5;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
             $4 = state.pos;
             state.input.beginBuffering();
+            $5 = state.isOptional;
+            state.isOptional = true;
             $3 = 2;
             break;
           case 1:
+            state.isOptional = $5;
             state.setOk(true);
             state.input.endBuffering();
             if (state.ok) {
@@ -1266,18 +1323,18 @@ class CsvParser {
             $3 = -1;
             return;
           case 2:
-            final $5 = state.input;
-            if (state.pos >= $5.end && !$5.isClosed) {
-              $5.sleep = true;
-              $5.handle = $1;
+            final $6 = state.input;
+            if (state.pos >= $6.end && !$6.isClosed) {
+              $6.sleep = true;
+              $6.handle = $1;
               $3 = 2;
               return;
             }
-            if (state.pos < $5.end) {
-              final c = $5.data.runeAt(state.pos - $5.start);
-              final $6 = !(c < 13 ? c == 10 : c <= 13 || c == 34 || c == 44);
-              if ($6) {
-                state.advance(c > 0xffff ? 2 : 1);
+            if (state.pos < $6.end) {
+              final c = $6.data.runeAt(state.pos - $6.start);
+              final $7 = !(c < 13 ? c == 10 : c <= 13 || c == 34 || c == 44);
+              if ($7) {
+                state.pos += c > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1855,11 +1912,11 @@ class State<T> {
 
   final T input;
 
+  bool isOptional = false;
+
   bool isRecoverable = true;
 
   int lastFailPos = -1;
-
-  int mute = 0;
 
   bool ok = false;
 
@@ -1872,13 +1929,6 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void advance(int offset) {
-    if (mute == 0 && isRecoverable) {
-      if (failPos <= pos) {
-        failPos = 0;
-        errorCount = 0;
-      }
-    }
-
     pos += offset;
   }
 
@@ -1906,7 +1956,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1932,7 +1982,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1943,10 +1993,10 @@ class State<T> {
           _errors[errorCount++] = error;
         }
       }
+    }
 
-      if (lastFailPos < offset) {
-        lastFailPos = offset;
-      }
+    if (lastFailPos < offset) {
+      lastFailPos = offset;
     }
 
     return false;

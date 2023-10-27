@@ -29,8 +29,7 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   @override
   void visitAndPredicate(AndPredicateExpression node) {
     node.visitChildren(this);
-    final child = node.expression;
-    _setResultType(node, _getResultType(child));
+    _setResultType(node, _nullableObjectType);
   }
 
   @override

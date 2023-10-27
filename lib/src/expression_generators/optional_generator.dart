@@ -17,9 +17,13 @@ class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
+    values['is_optional'] = allocateName();
     values['p'] = generateExpression(child, false);
     const template = '''
+final {{is_optional}} = state.isOptional;
+state.isOptional = true;
 {{p}}
+state.isOptional = {{is_optional}};
 if (!state.ok) {
   state.setOk(true);
 }''';
@@ -30,11 +34,18 @@ if (!state.ok) {
   void generateAsync(BlockNode block) {
     final variable = ruleGenerator.getExpressionVariable(expression);
     final child = expression.expression;
+    final asyncGenerator = ruleGenerator.asyncGenerator;
     if (variable != null) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
+    final isOptional = asyncGenerator
+        .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
+        .name;
+    block << '$isOptional = state.isOptional;';
+    block << 'state.isOptional = true;';
     generateAsyncExpression(block, child, false);
+    block << 'state.isOptional = $isOptional;';
     block.if_('!state.ok', (block) {
       block << 'state.setOk(true);';
     });

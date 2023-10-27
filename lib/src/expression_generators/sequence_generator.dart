@@ -24,16 +24,18 @@ class SequenceGenerator extends ExpressionGenerator<SequenceExpression> {
     final ok = hasCutExpression && children.length > 1
         ? allocateName()
         : '__undefined__';
-
+    final isOptional = hasCutExpression ? allocateName() : '__undefined__';
     values['pos'] = allocateName();
     String plunge(int i) {
       final values = <String, String>{};
       final child = children[i];
       values['ok'] = ok;
+      values['is_optional'] = isOptional;
       final template = StringBuffer();
       if (child is CutExpression) {
         if (children.length > 1) {
           template.writeln('{{ok}} = false;');
+          template.writeln('state.isOptional = false;');
         }
       }
 
@@ -91,37 +93,43 @@ if (state.ok) {
     values['inner'] = plunge(0);
     final template = StringBuffer();
     values['ok'] = ok;
-    values['declare'] = '';
     values['failure_handler'] = '';
     if (children.length == 1) {
       if (hasCutExpression) {
+        values['is_optional'] = isOptional;
         template.writeln('''
+final {{is_optional}} = state.isOptional;
+state.isOptional = false;
 {{inner}}
 if (!state.ok) {
   state.isRecoverable = false;
-}''');
+}
+state.isOptional = {{is_optional}};''');
       } else {
         template.writeln('{{inner}}');
       }
     } else {
+      template.writeln('final {{pos}} = state.pos;');
       if (hasCutExpression) {
-        if (children.length > 1) {
-          values['declare'] = 'var $ok = true;';
-          values['failure_handler'] = '''
+        values['is_optional'] = isOptional;
+        template.writeln('var $ok = true;');
+        template.writeln('final {{is_optional}} = state.isOptional;');
+        values['failure_handler'] = '''
 if (!$ok) {
   state.isRecoverable = false;
 }''';
-        }
       }
 
       template.writeln('''
-final {{pos}} = state.pos;
-{{declare}}
 {{inner}}
 if (!state.ok) {
   {{failure_handler}}
   state.backtrack({{pos}});
 }''');
+    }
+
+    if (hasCutExpression) {
+      template.writeln('state.isOptional = $isOptional;');
     }
 
     return render(template.toString(), values);
@@ -140,8 +148,19 @@ if (!state.ok) {
     final action = expression.action;
     final (declareVariable, result) = _generateResult(children);
     final hasCutExpression = children.any((e) => e is CutExpression);
+    var isOptional = '';
+    if (hasCutExpression) {
+      isOptional = asyncGenerator
+          .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
+          .name;
+    }
+
     if (children.length == 1) {
       final child = children[0];
+      if (hasCutExpression) {
+        block << '$isOptional = state.isOptional;';
+      }
+
       generateAsyncExpression(block, child, declareVariable);
       if (hasCutExpression) {
         block.if_('!state.ok', (block) {
@@ -157,6 +176,10 @@ if (!state.ok) {
           }
         });
       }
+
+      if (hasCutExpression) {
+        block << 'state.isOptional = $isOptional;';
+      }
     } else {
       var ok = '';
       if (hasCutExpression) {
@@ -171,12 +194,14 @@ if (!state.ok) {
       block << '$pos = state.pos;';
       if (hasCutExpression) {
         block << '$ok = true;';
+        block << '$isOptional = state.isOptional;';
       }
 
       void plunge(BlockNode block, int i) {
         final child = children[i];
         if (child is CutExpression) {
           block << '$ok = false;';
+          block << 'state.isOptional = false;';
         }
 
         generateAsyncExpression(block, child, declareVariable);
@@ -210,6 +235,9 @@ if (!state.ok) {
 
         block << 'state.backtrack($pos);';
       });
+      if (hasCutExpression) {
+        block << 'state.isOptional = $isOptional;';
+      }
     }
   }
 

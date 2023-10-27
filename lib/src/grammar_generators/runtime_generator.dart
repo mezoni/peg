@@ -551,11 +551,11 @@ class State<T> {
 
   final T input;
 
+  bool isOptional = false;
+
   bool isRecoverable = true;
 
   int lastFailPos = -1;
-
-  int mute = 0;
 
   bool ok = false;
 
@@ -568,13 +568,6 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void advance(int offset) {
-    if (mute == 0 && isRecoverable) {
-      if (failPos <= pos) {
-        failPos = 0;
-        errorCount = 0;
-      }
-    }
-
     pos += offset;
   }
 
@@ -602,7 +595,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -628,7 +621,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -639,10 +632,10 @@ class State<T> {
           _errors[errorCount++] = error;
         }
       }
+    }
 
-      if (lastFailPos < offset) {
-        lastFailPos = offset;
-      }
+    if (lastFailPos < offset) {
+      lastFailPos = offset;
     }
 
     return false;
@@ -707,9 +700,7 @@ extension ParseStringExt on String {
 
     return w1;
   }
-}
-
-''';
+}''';
 
   String generate() {
     return _template;

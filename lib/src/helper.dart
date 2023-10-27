@@ -8,16 +8,16 @@ String adjustStatePos(String variable, List<(int, int)> ranges, bool negate) {
   }
 
   if (negate) {
-    return 'state.advance($variable > 0xffff ? 2 : 1)';
+    return 'state.pos += $variable > 0xffff ? 2 : 1';
   }
 
   final has16Bit = ranges.any((e) => e.$1 <= 0xffff || e.$2 <= 0xffff);
   final has32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
   return switch ((has16Bit, has32Bit)) {
-    (false, false) => 'state.advance($variable > 0xffff ? 2 : 1)',
-    (false, true) => 'state.advance(2)',
-    (true, false) => 'state.advance(1)',
-    (true, true) => 'state.advance($variable > 0xffff ? 2 : 1)',
+    (false, false) => 'state.pos += $variable > 0xffff ? 2 : 1',
+    (false, true) => 'state.pos += 2',
+    (true, false) => 'state.pos++',
+    (true, true) => 'state.pos += $variable > 0xffff ? 2 : 1',
   };
 }
 

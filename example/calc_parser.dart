@@ -52,7 +52,7 @@ class CalcParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 41;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -76,7 +76,7 @@ class CalcParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 40;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -100,7 +100,7 @@ class CalcParser {
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.advance(1));
+        state.pos++);
     state.setOk(true);
   }
 
@@ -117,41 +117,47 @@ class CalcParser {
     $1 = parseMul(state);
     if (state.ok) {
       List<({String op, num expr})>? $2;
-      final $4 = <({String op, num expr})>[];
+      final $5 = <({String op, num expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, num expr})? $5;
+        ({String op, num expr})? $6;
         // op:AddOp ↑ expr:Mul
-        final $9 = state.pos;
-        var $8 = true;
-        String? $6;
+        final $11 = state.pos;
+        var $9 = true;
+        final $10 = state.isOptional;
+        String? $7;
         // AddOp
-        $6 = parseAddOp(state);
+        $7 = parseAddOp(state);
         if (state.ok) {
-          $8 = false;
+          $9 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            num? $7;
+            num? $8;
             // Mul
-            $7 = parseMul(state);
+            $8 = parseMul(state);
             if (state.ok) {
-              $5 = (op: $6!, expr: $7!);
+              $6 = (op: $7!, expr: $8!);
             }
           }
         }
         if (!state.ok) {
-          if (!$8) {
+          if (!$9) {
             state.isRecoverable = false;
           }
-          state.backtrack($9);
+          state.backtrack($11);
         }
+        state.isOptional = $10;
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         num? $$;
@@ -194,7 +200,7 @@ class CalcParser {
       }
     }
     if ($3 > 0) {
-      state.advance($3);
+      state.pos += $3;
       state.setOk(true);
     } else {
       state.pos = $4;
@@ -237,41 +243,47 @@ class CalcParser {
     $1 = parsePrefix(state);
     if (state.ok) {
       List<({String op, num expr})>? $2;
-      final $4 = <({String op, num expr})>[];
+      final $5 = <({String op, num expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, num expr})? $5;
+        ({String op, num expr})? $6;
         // op:MulOp ↑ expr:Prefix
-        final $9 = state.pos;
-        var $8 = true;
-        String? $6;
+        final $11 = state.pos;
+        var $9 = true;
+        final $10 = state.isOptional;
+        String? $7;
         // MulOp
-        $6 = parseMulOp(state);
+        $7 = parseMulOp(state);
         if (state.ok) {
-          $8 = false;
+          $9 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
-            num? $7;
+            num? $8;
             // Prefix
-            $7 = parsePrefix(state);
+            $8 = parsePrefix(state);
             if (state.ok) {
-              $5 = (op: $6!, expr: $7!);
+              $6 = (op: $7!, expr: $8!);
             }
           }
         }
         if (!state.ok) {
-          if (!$8) {
+          if (!$9) {
             state.isRecoverable = false;
           }
-          state.backtrack($9);
+          state.backtrack($11);
         }
+        state.isOptional = $10;
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         num? $$;
@@ -314,7 +326,7 @@ class CalcParser {
       }
     }
     if ($3 > 0) {
-      state.advance($3);
+      state.pos += $3;
       state.setOk(true);
     } else {
       state.pos = $4;
@@ -349,7 +361,7 @@ class CalcParser {
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
-        state.advance(1);
+        state.pos++;
         state.setOk(true);
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -364,7 +376,7 @@ class CalcParser {
         final $7 = state.input.codeUnitAt(state.pos);
         final $8 = $7 >= 49 && $7 <= 57;
         if ($8) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -378,7 +390,7 @@ class CalcParser {
                 (c = state.input.codeUnitAt(state.pos)) == c &&
                 (c >= 48 && c <= 57);
             // ignore: curly_braces_in_flow_control_structures, empty_statements
-            state.advance(1));
+            state.pos++);
         state.setOk(true);
       }
       if (!state.ok) {
@@ -386,13 +398,16 @@ class CalcParser {
       }
     }
     if (state.ok) {
+      final $9 = state.isOptional;
+      state.isOptional = true;
       // [.] ↑ [0-9]+
-      final $10 = state.pos;
-      var $9 = true;
+      final $12 = state.pos;
+      var $10 = true;
+      final $11 = state.isOptional;
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 46;
         if (ok) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -401,19 +416,20 @@ class CalcParser {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
-        $9 = false;
+        $10 = false;
+        state.isOptional = false;
         state.setOk(true);
         if (state.ok) {
-          var $11 = false;
+          var $13 = false;
           for (var c = 0;
               state.pos < state.input.length &&
                   (c = state.input.codeUnitAt(state.pos)) == c &&
                   (c >= 48 && c <= 57);
-              state.advance(1),
+              state.pos++,
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              $11 = true);
-          if ($11) {
-            state.setOk($11);
+              $13 = true);
+          if ($13) {
+            state.setOk($13);
           } else {
             state.pos < state.input.length
                 ? state.fail(const ErrorUnexpectedCharacter())
@@ -422,23 +438,28 @@ class CalcParser {
         }
       }
       if (!state.ok) {
-        if (!$9) {
+        if (!$10) {
           state.isRecoverable = false;
         }
-        state.backtrack($10);
+        state.backtrack($12);
       }
+      state.isOptional = $11;
+      state.isOptional = $9;
       if (!state.ok) {
         state.setOk(true);
       }
       if (state.ok) {
+        final $14 = state.isOptional;
+        state.isOptional = true;
         // [eE] ↑ [-+]? [0-9]+
-        final $13 = state.pos;
-        var $12 = true;
+        final $17 = state.pos;
+        var $15 = true;
+        final $16 = state.isOptional;
         if (state.pos < state.input.length) {
-          final $14 = state.input.codeUnitAt(state.pos);
-          final $15 = $14 == 69 || $14 == 101;
-          if ($15) {
-            state.advance(1);
+          final $18 = state.input.codeUnitAt(state.pos);
+          final $19 = $18 == 69 || $18 == 101;
+          if ($19) {
+            state.pos++;
             state.setOk(true);
           } else {
             state.fail(const ErrorUnexpectedCharacter());
@@ -447,14 +468,17 @@ class CalcParser {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
         if (state.ok) {
-          $12 = false;
+          $15 = false;
+          state.isOptional = false;
           state.setOk(true);
           if (state.ok) {
+            final $20 = state.isOptional;
+            state.isOptional = true;
             if (state.pos < state.input.length) {
-              final $16 = state.input.codeUnitAt(state.pos);
-              final $17 = $16 == 43 || $16 == 45;
-              if ($17) {
-                state.advance(1);
+              final $21 = state.input.codeUnitAt(state.pos);
+              final $22 = $21 == 43 || $21 == 45;
+              if ($22) {
+                state.pos++;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -462,20 +486,21 @@ class CalcParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
+            state.isOptional = $20;
             if (!state.ok) {
               state.setOk(true);
             }
             if (state.ok) {
-              var $18 = false;
+              var $23 = false;
               for (var c = 0;
                   state.pos < state.input.length &&
                       (c = state.input.codeUnitAt(state.pos)) == c &&
                       (c >= 48 && c <= 57);
-                  state.advance(1),
+                  state.pos++,
                   // ignore: curly_braces_in_flow_control_structures, empty_statements
-                  $18 = true);
-              if ($18) {
-                state.setOk($18);
+                  $23 = true);
+              if ($23) {
+                state.setOk($23);
               } else {
                 state.pos < state.input.length
                     ? state.fail(const ErrorUnexpectedCharacter())
@@ -485,11 +510,13 @@ class CalcParser {
           }
         }
         if (!state.ok) {
-          if (!$12) {
+          if (!$15) {
             state.isRecoverable = false;
           }
-          state.backtrack($13);
+          state.backtrack($17);
         }
+        state.isOptional = $16;
+        state.isOptional = $14;
         if (!state.ok) {
           state.setOk(true);
         }
@@ -534,16 +561,19 @@ class CalcParser {
     // o:'-'? e:Primary {}
     final $9 = state.pos;
     String? $7;
-    const $10 = '-';
-    final $11 = state.pos < state.input.length &&
+    final $10 = state.isOptional;
+    state.isOptional = true;
+    const $11 = '-';
+    final $12 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 45;
-    if ($11) {
-      state.advance(1);
+    if ($12) {
+      state.pos++;
       state.setOk(true);
-      $7 = $10;
+      $7 = $11;
     } else {
-      state.fail(const ErrorExpectedTags([$10]));
+      state.fail(const ErrorExpectedTags([$11]));
     }
+    state.isOptional = $10;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -555,23 +585,23 @@ class CalcParser {
       $8 = parseNumber(state);
       if (!state.ok && state.isRecoverable) {
         // OpenParenthesis v:Expression CloseParenthesis
-        final $14 = state.pos;
+        final $15 = state.pos;
         // OpenParenthesis
         fastParseOpenParenthesis(state);
         if (state.ok) {
-          num? $13;
+          num? $14;
           // Expression
-          $13 = parseExpression(state);
+          $14 = parseExpression(state);
           if (state.ok) {
             // CloseParenthesis
             fastParseCloseParenthesis(state);
             if (state.ok) {
-              $8 = $13;
+              $8 = $14;
             }
           }
         }
         if (!state.ok) {
-          state.backtrack($14);
+          state.backtrack($15);
         }
       }
       if (state.ok) {

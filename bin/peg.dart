@@ -88,15 +88,16 @@ Otherwise it will be written to a separate file 'peg_parser_runtime.dart'.''',
   final converterSource = converterGenerator.generate();
   File(converterFilePath).writeAsStringSync(converterSource);
   final files = [parserFilePath, converterFilePath];
-  files.sort();
-  await _format(files);
-
   if (!addRuntime) {
     final runtimeGenerator = RuntimeGenerator();
     final runtimeSource = runtimeGenerator.generate();
     final runtimeFilename = path.join(outputDir, 'peg_parser_runtime.dart');
     File(runtimeFilename).writeAsStringSync(runtimeSource);
+    files.add(runtimeFilename);
   }
+
+  files.sort();
+  await _format(files);
 }
 
 Future<void> _format(List<String> filenames) async {

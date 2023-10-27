@@ -168,7 +168,7 @@ class BinaryParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 41;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -192,7 +192,7 @@ class BinaryParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 58;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -216,7 +216,7 @@ class BinaryParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 40;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -240,7 +240,7 @@ class BinaryParser {
     final $2 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 63;
     if ($2) {
-      state.advance(1);
+      state.pos++;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$1]));
@@ -264,7 +264,7 @@ class BinaryParser {
             (c = state.input.codeUnitAt(state.pos)) == c &&
             (c < 13 ? c >= 9 && c <= 10 : c <= 13 || c == 32);
         // ignore: curly_braces_in_flow_control_structures, empty_statements
-        state.advance(1));
+        state.pos++);
     state.setOk(true);
   }
 
@@ -284,7 +284,7 @@ class BinaryParser {
         state.input.codeUnitAt(state.pos + 2) == 117 &&
         state.input.codeUnitAt(state.pos + 3) == 101;
     if ($3) {
-      state.advance(4);
+      state.pos += 4;
       state.setOk(true);
     } else {
       state.fail(const ErrorExpectedTags([$2]));
@@ -312,7 +312,7 @@ class BinaryParser {
           state.input.codeUnitAt(state.pos + 3) == 115 &&
           state.input.codeUnitAt(state.pos + 4) == 101;
       if ($6) {
-        state.advance(5);
+        state.pos += 5;
         state.setOk(true);
       } else {
         state.fail(const ErrorExpectedTags([$5]));
@@ -395,33 +395,36 @@ class BinaryParser {
     $1 = parseRelational(state);
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
-      final $4 = <({String op, AstNode expr})>[];
+      final $5 = <({String op, AstNode expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, AstNode expr})? $5;
+        ({String op, AstNode expr})? $6;
         // op:EqualityOp expr:Relational
-        final $8 = state.pos;
-        String? $6;
+        final $9 = state.pos;
+        String? $7;
         // EqualityOp
-        $6 = parseEqualityOp(state);
+        $7 = parseEqualityOp(state);
         if (state.ok) {
-          AstNode? $7;
+          AstNode? $8;
           // Relational
-          $7 = parseRelational(state);
+          $8 = parseRelational(state);
           if (state.ok) {
-            $5 = (op: $6!, expr: $7!);
+            $6 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
-          state.backtrack($8);
+          state.backtrack($9);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         AstNode? $$;
@@ -475,7 +478,7 @@ class BinaryParser {
       }
     }
     if ($7 > 0) {
-      state.advance($7);
+      state.pos += $7;
       state.setOk(true);
     } else {
       state.pos = $8;
@@ -605,7 +608,7 @@ class BinaryParser {
       final $5 =
           $4 < 65 ? $4 == 36 : $4 <= 90 || $4 == 95 || $4 >= 97 && $4 <= 122;
       if ($5) {
-        state.advance(1);
+        state.pos++;
         state.setOk(true);
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -621,7 +624,7 @@ class BinaryParser {
                   ? c == 36 || c >= 48 && c <= 57
                   : c <= 90 || c == 95 || c >= 97 && c <= 122);
           // ignore: curly_braces_in_flow_control_structures, empty_statements
-          state.advance(1));
+          state.pos++);
       state.setOk(true);
     }
     if (!state.ok) {
@@ -646,33 +649,36 @@ class BinaryParser {
     $1 = parseEquality(state);
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
-      final $4 = <({String op, AstNode expr})>[];
+      final $5 = <({String op, AstNode expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, AstNode expr})? $5;
+        ({String op, AstNode expr})? $6;
         // op:LogicalAndOp expr:Equality
-        final $8 = state.pos;
-        String? $6;
+        final $9 = state.pos;
+        String? $7;
         // LogicalAndOp
-        $6 = parseLogicalAndOp(state);
+        $7 = parseLogicalAndOp(state);
         if (state.ok) {
-          AstNode? $7;
+          AstNode? $8;
           // Equality
-          $7 = parseEquality(state);
+          $8 = parseEquality(state);
           if (state.ok) {
-            $5 = (op: $6!, expr: $7!);
+            $6 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
-          state.backtrack($8);
+          state.backtrack($9);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         AstNode? $$;
@@ -707,7 +713,7 @@ class BinaryParser {
         state.input.codeUnitAt(state.pos) == 38 &&
         state.input.codeUnitAt(state.pos + 1) == 38;
     if ($9) {
-      state.advance(2);
+      state.pos += 2;
       state.setOk(true);
       $1 = $8;
     } else {
@@ -750,33 +756,36 @@ class BinaryParser {
     $1 = parseLogicalAnd(state);
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
-      final $4 = <({String op, AstNode expr})>[];
+      final $5 = <({String op, AstNode expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, AstNode expr})? $5;
+        ({String op, AstNode expr})? $6;
         // op:LogicalOrOp expr:LogicalAnd
-        final $8 = state.pos;
-        String? $6;
+        final $9 = state.pos;
+        String? $7;
         // LogicalOrOp
-        $6 = parseLogicalOrOp(state);
+        $7 = parseLogicalOrOp(state);
         if (state.ok) {
-          AstNode? $7;
+          AstNode? $8;
           // LogicalAnd
-          $7 = parseLogicalAnd(state);
+          $8 = parseLogicalAnd(state);
           if (state.ok) {
-            $5 = (op: $6!, expr: $7!);
+            $6 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
-          state.backtrack($8);
+          state.backtrack($9);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         AstNode? $$;
@@ -811,7 +820,7 @@ class BinaryParser {
         state.input.codeUnitAt(state.pos) == 124 &&
         state.input.codeUnitAt(state.pos + 1) == 124;
     if ($9) {
-      state.advance(2);
+      state.pos += 2;
       state.setOk(true);
       $1 = $8;
     } else {
@@ -896,7 +905,7 @@ class BinaryParser {
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
-        state.advance(1);
+        state.pos++;
         state.setOk(true);
       } else {
         state.fail(const ErrorUnexpectedCharacter());
@@ -907,11 +916,13 @@ class BinaryParser {
     if (!state.ok && state.isRecoverable) {
       // ([-])? [1-9] [0-9]*
       final $4 = state.pos;
+      final $5 = state.isOptional;
+      state.isOptional = true;
       // [-]
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 45;
         if (ok) {
-          state.advance(1);
+          state.pos++;
           state.setOk(true);
         } else {
           state.fail(const ErrorUnexpectedCharacter());
@@ -919,15 +930,16 @@ class BinaryParser {
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
+      state.isOptional = $5;
       if (!state.ok) {
         state.setOk(true);
       }
       if (state.ok) {
         if (state.pos < state.input.length) {
-          final $6 = state.input.codeUnitAt(state.pos);
-          final $7 = $6 >= 49 && $6 <= 57;
-          if ($7) {
-            state.advance(1);
+          final $7 = state.input.codeUnitAt(state.pos);
+          final $8 = $7 >= 49 && $7 <= 57;
+          if ($8) {
+            state.pos++;
             state.setOk(true);
           } else {
             state.fail(const ErrorUnexpectedCharacter());
@@ -941,7 +953,7 @@ class BinaryParser {
                   (c = state.input.codeUnitAt(state.pos)) == c &&
                   (c >= 48 && c <= 57);
               // ignore: curly_braces_in_flow_control_structures, empty_statements
-              state.advance(1));
+              state.pos++);
           state.setOk(true);
         }
       }
@@ -997,33 +1009,36 @@ class BinaryParser {
     $1 = parsePrimary(state);
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
-      final $4 = <({String op, AstNode expr})>[];
+      final $5 = <({String op, AstNode expr})>[];
+      final $4 = state.isOptional;
+      state.isOptional = true;
       while (true) {
-        ({String op, AstNode expr})? $5;
+        ({String op, AstNode expr})? $6;
         // op:RelationalOp expr:Primary
-        final $8 = state.pos;
-        String? $6;
+        final $9 = state.pos;
+        String? $7;
         // RelationalOp
-        $6 = parseRelationalOp(state);
+        $7 = parseRelationalOp(state);
         if (state.ok) {
-          AstNode? $7;
+          AstNode? $8;
           // Primary
-          $7 = parsePrimary(state);
+          $8 = parsePrimary(state);
           if (state.ok) {
-            $5 = (op: $6!, expr: $7!);
+            $6 = (op: $7!, expr: $8!);
           }
         }
         if (!state.ok) {
-          state.backtrack($8);
+          state.backtrack($9);
         }
         if (!state.ok) {
           break;
         }
-        $4.add($5!);
+        $5.add($6!);
       }
+      state.isOptional = $4;
       state.setOk(true);
       if (state.ok) {
-        $2 = $4;
+        $2 = $5;
       }
       if (state.ok) {
         AstNode? $$;
@@ -1083,7 +1098,7 @@ class BinaryParser {
       }
     }
     if ($7 > 0) {
-      state.advance($7);
+      state.pos += $7;
       state.setOk(true);
     } else {
       state.pos = $8;
@@ -1695,11 +1710,11 @@ class State<T> {
 
   final T input;
 
+  bool isOptional = false;
+
   bool isRecoverable = true;
 
   int lastFailPos = -1;
-
-  int mute = 0;
 
   bool ok = false;
 
@@ -1712,13 +1727,6 @@ class State<T> {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void advance(int offset) {
-    if (mute == 0 && isRecoverable) {
-      if (failPos <= pos) {
-        failPos = 0;
-        errorCount = 0;
-      }
-    }
-
     pos += offset;
   }
 
@@ -1746,7 +1754,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1772,7 +1780,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (mute == 0 || !isRecoverable) {
+    if (!isOptional || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1783,10 +1791,10 @@ class State<T> {
           _errors[errorCount++] = error;
         }
       }
+    }
 
-      if (lastFailPos < offset) {
-        lastFailPos = offset;
-      }
+    if (lastFailPos < offset) {
+      lastFailPos = offset;
     }
 
     return false;

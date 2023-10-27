@@ -176,6 +176,7 @@ Primary =
   / CharacterClass
   / AnyCharacter
   / Group
+  / MetaExpression
   / Cut
   / Eof
   / Expected
@@ -208,31 +209,34 @@ Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
 
 Expression
-Eof = !MetaName '@eof' Spaces LeftParenthesis RightParenthesis Spaces { $$ = EofExpression(); } ;
+MetaExpression = !ReservedMetaName @verify('Unknown meta expression', MetaName, { false }) { $$ = null; };
 
 Expression
-Expected = !MetaName '@expected' Spaces LeftParenthesis t:String Comma e:Expression RightParenthesis { $$ = ExpectedExpression(expression: e, tag: t); } ;
+Eof = '@eof' Spaces LeftParenthesis RightParenthesis Spaces { $$ = EofExpression(); } ;
 
 Expression
-Indicate = !MetaName '@indicate' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis { $$ = IndicateExpression(expression: e, message: s); } ;
+Expected = '@expected' Spaces LeftParenthesis t:String Comma e:Expression RightParenthesis { $$ = ExpectedExpression(expression: e, tag: t); } ;
 
 Expression
-List = !MetaName '@list' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = ListExpression(first: h, next: t); } ;
+Indicate = '@indicate' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis { $$ = IndicateExpression(expression: e, message: s); } ;
 
 Expression
-List1 = !MetaName '@list1' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = List1Expression(first: h, next: t); } ;
+List = '@list' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = ListExpression(first: h, next: t); } ;
 
 Expression
-MatchString = !MetaName '@matchString' Spaces LeftParenthesis b:Block RightParenthesis { $$ = MatchStringExpression(value: b); } ;
+List1 = '@list1' Spaces LeftParenthesis h:Expression Comma t:Expression RightParenthesis { $$ = List1Expression(first: h, next: t); } ;
 
 Expression
-Message = !MetaName '@message' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis { $$ = MessageExpression(expression: e, message: s); } ;
+MatchString = '@matchString' Spaces LeftParenthesis b:Block RightParenthesis { $$ = MatchStringExpression(value: b); } ;
 
 Expression
-StringChars = !MetaName '@stringChars' Spaces LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
+Message = '@message' Spaces LeftParenthesis s:String Comma e:Expression RightParenthesis { $$ = MessageExpression(expression: e, message: s); } ;
 
 Expression
-Verify = !MetaName '@verify' Spaces LeftParenthesis m:String Comma e:Expression Comma b:Block RightParenthesis { $$ = VerifyExpression(expression: e, message:m, predicate: b); } ;
+StringChars = '@stringChars' Spaces LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
+
+Expression
+Verify = '@verify' Spaces LeftParenthesis m:String Comma e:Expression Comma b:Block RightParenthesis { $$ = VerifyExpression(expression: e, message:m, predicate: b); } ;
 
 (int, int)
 Range =

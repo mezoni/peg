@@ -45,9 +45,9 @@ class LiteralGenerator extends ExpressionGenerator<LiteralExpression> {
     values['char'] = string.codeUnitAt(0).toString();
     values['string'] = helper.escapeString(string);
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.advance(1)';
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['adjust_state_pos'] = 'state.advance(${string.length})';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
     }
 
     var template = '';
@@ -97,9 +97,9 @@ if ({{ok}}) {
     final offset = (string.length - 1).toString();
     var adjustStatePos = '';
     if (string.length == 1) {
-      adjustStatePos = 'state.advance(1)';
+      adjustStatePos = 'state.pos++';
     } else {
-      adjustStatePos = 'state.advance(${string.length})';
+      adjustStatePos = 'state.pos += ${string.length}';
     }
 
     var assignResult = '';
@@ -137,7 +137,6 @@ if ({{ok}}) {
       assignResult = '$variable = \'\';';
     }
 
-    block << 'state.advance(0);';
     block << 'state.setOk(true);';
     block << assignResult;
   }
@@ -160,9 +159,9 @@ if ({{ok}}) {
     );
     var adjustStatePos = '';
     if (string.length == 1) {
-      adjustStatePos = 'state.advance(1)';
+      adjustStatePos = 'state.pos++';
     } else {
-      adjustStatePos = 'state.advance(${string.length})';
+      adjustStatePos = 'state.pos += ${string.length}';
     }
 
     var assignResult = '';
@@ -202,14 +201,12 @@ if ({{ok}}) {
     if (variable != null) {
       values['r'] = variable;
       template = '''
-state.advance(0);
 state.setOk(true);
 if (state.ok) {
   {{r}} = '';
 }''';
     } else {
       template = '''
-state.advance(0);
 state.setOk(true);''';
     }
     return render(template, values);
@@ -229,9 +226,9 @@ state.setOk(true);''';
       length: 'state.input.length',
     );
     if (string.length == 1) {
-      values['adjust_state_pos'] = 'state.advance(1)';
+      values['adjust_state_pos'] = 'state.pos++';
     } else {
-      values['adjust_state_pos'] = 'state.advance(${string.length})';
+      values['adjust_state_pos'] = 'state.pos += ${string.length}';
     }
 
     var template = '';

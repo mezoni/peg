@@ -276,7 +276,7 @@ if (state.pos < state.input.length) {
   }
 }
 if ({{offset}} > 0) {
-  state.advance({{offset}});
+  state.pos += {{offset}};
   state.setOk(true);
 } else {
   state.pos = {{pos}};
