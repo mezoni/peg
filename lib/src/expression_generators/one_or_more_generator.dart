@@ -19,7 +19,7 @@ class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
       return optimized;
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     var template = '';
     if (variable != null) {
       values['O'] = child.resultType.toString();
@@ -29,16 +29,16 @@ class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{list}} = <{{O}}>[];
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while (true) {
-  state.isOptional = {{list}}.isNotEmpty;
+  state.ignoreErrors = {{list}}.isNotEmpty;
   {{p}}
   if (!state.ok) {
     break;
   }
   {{list}}.add({{rv}});
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if ({{list}}.isNotEmpty) {
   state.setOk(true);
   {{r}} = {{list}};
@@ -47,16 +47,16 @@ if ({{list}}.isNotEmpty) {
       values['ok'] = allocateName();
       template = '''
 var {{ok}} = false;
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while (true) {
-  state.isOptional = {{ok}};
+  state.ignoreErrors = {{ok}};
   {{p}}
   if (!state.ok) {
     break;
   }
   {{ok}} = true;
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 state.setOk({{ok}});''';
     }
 
@@ -74,7 +74,7 @@ state.setOk({{ok}});''';
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     if (variable != null) {
@@ -85,16 +85,16 @@ state.setOk({{ok}});''';
           .name;
       final rv1 = getExpressionVariableWithNullCheck(child);
       block << '$list = <$elementType>[];';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('true', (block) {
-        block << 'state.isOptional = $list.isNotEmpty;';
+        block << 'state.ignoreErrors = $list.isNotEmpty;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$list.add($rv1);';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block.if_('$list.isNotEmpty', (block) {
         block << 'state.setOk(true);';
         block << '$variable = $list;';
@@ -104,16 +104,16 @@ state.setOk({{ok}});''';
           .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
           .name;
       block << '$ok = false;';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('true', (block) {
-        block << 'state.isOptional = $ok;';
+        block << 'state.ignoreErrors = $ok;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$ok = true;';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'state.setOk($ok);';
     }
   }

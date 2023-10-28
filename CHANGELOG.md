@@ -5,6 +5,7 @@
 - Breaking change: The `And Predicate` expression no longer returns a result. For consistency of these expressions `&expr == !(!expr)`.
 - Added meta expression `@indicate()`.
 - Added meta expression `@message()`.
+- Changes in the file `README.md`.
 
 # 4.0.7
 

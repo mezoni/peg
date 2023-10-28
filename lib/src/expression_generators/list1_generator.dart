@@ -26,7 +26,7 @@ class List1Generator extends ExpressionGenerator<List1Expression> {
       values['ok'] = allocateName();
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     values['pos'] = allocateName();
     values['p1'] = generateExpression(first, true);
     values['p2'] = generateExpression(next, true);
@@ -37,8 +37,8 @@ final {{list}} = <{{O}}>[];
 {{p1}}
 if (state.ok) {
   {{list}}.add({{rv1}});
-  final {{is_optional}} = state.isOptional;
-  state.isOptional = true;
+  final {{ignore_errors}} = state.ignoreErrors;
+  state.ignoreErrors = true;
   while (true) {
     {{p2}}
     if (!state.ok) {
@@ -46,7 +46,7 @@ if (state.ok) {
     }
     {{list}}.add({{rv2}});
   }
-  state.isOptional = {{is_optional}};
+  state.ignoreErrors = {{ignore_errors}};
 }
 state.setOk({{list}}.isNotEmpty);
 if (state.ok) {
@@ -58,15 +58,15 @@ var {{ok}} = false;
 {{p1}}
 if (state.ok) {
   {{ok}} = true;
-  final {{is_optional}} = state.isOptional;
-  state.isOptional = true;
+  final {{ignore_errors}} = state.ignoreErrors;
+  state.ignoreErrors = true;
   while (true) {
     {{p2}}
     if (!state.ok) {
       break;
     }
   }
-  state.isOptional = {{is_optional}};
+  state.ignoreErrors = {{ignore_errors}};
 }
 state.setOk({{ok}});''';
     }
@@ -86,7 +86,7 @@ state.setOk({{ok}});''';
       ruleGenerator.allocateExpressionVariable(next);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     if (variable != null) {
@@ -102,8 +102,8 @@ state.setOk({{ok}});''';
       generateAsyncExpression(block, first, true);
       block.if_('state.ok', (block) {
         block << '$list.add($rv1);';
-        block << '$isOptional = state.isOptional;';
-        block << 'state.isOptional = true;';
+        block << '$ignoreErrors = state.ignoreErrors;';
+        block << 'state.ignoreErrors = true;';
         block.while_('true', (block) {
           generateAsyncExpression(block, next, true);
           block.if_('!state.ok', (block) {
@@ -111,7 +111,7 @@ state.setOk({{ok}});''';
           });
           block << '$list.add($rv2);';
         });
-        block << 'state.isOptional = $isOptional;';
+        block << 'state.ignoreErrors = $ignoreErrors;';
       });
       block << 'state.setOk($list.isNotEmpty);';
       block.if_('state.ok', (block) {
@@ -125,15 +125,15 @@ state.setOk({{ok}});''';
       generateAsyncExpression(block, first, true);
       block.if_('state.ok', (block) {
         block << '$ok = true;';
-        block << '$isOptional = state.isOptional;';
-        block << 'state.isOptional = true;';
+        block << '$ignoreErrors = state.ignoreErrors;';
+        block << 'state.ignoreErrors = true;';
         block.while_('true', (block) {
           generateAsyncExpression(block, next, true);
           block.if_('!state.ok', (block) {
             block.break_();
           });
         });
-        block << 'state.isOptional = $isOptional;';
+        block << 'state.ignoreErrors = $ignoreErrors;';
       });
       block << 'state.setOk($ok);';
     }

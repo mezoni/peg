@@ -167,12 +167,12 @@ class CsvParser {
       while (true) {
         switch ($2) {
           case 0:
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -238,14 +238,14 @@ class CsvParser {
     $3 = endEvent<String>(CsvParserEvent.fieldEvent, $3, state.ok);
     if (state.ok) {
       $2.add($3!);
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         String? $4;
         // ',' ↑ v:Field
         final $13 = state.pos;
         var $11 = true;
-        final $12 = state.isOptional;
+        final $12 = state.ignoreErrors;
         const $14 = ',';
         final $15 = state.pos < state.input.length &&
             state.input.codeUnitAt(state.pos) == 44;
@@ -257,7 +257,7 @@ class CsvParser {
         }
         if (state.ok) {
           $11 = false;
-          state.isOptional = false;
+          state.ignoreErrors = false;
           state.setOk(true);
           if (state.ok) {
             String? $10;
@@ -283,13 +283,13 @@ class CsvParser {
           }
           state.backtrack($13);
         }
-        state.isOptional = $12;
+        state.ignoreErrors = $12;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
     }
     state.setOk($2.isNotEmpty);
     if (state.ok) {
@@ -359,8 +359,8 @@ class CsvParser {
               break;
             }
             $7.add($4!);
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 6;
             break;
           case 3:
@@ -379,13 +379,13 @@ class CsvParser {
             $3 = -1;
             return;
           case 5:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             $3 = 4;
             break;
           case 6:
             $15 = state.pos;
             $14 = true;
-            $13 = state.isOptional;
+            $13 = state.ignoreErrors;
             $3 = 7;
             break;
           case 7:
@@ -411,7 +411,7 @@ class CsvParser {
               break;
             }
             $14 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $28 = state.ok;
@@ -436,7 +436,7 @@ class CsvParser {
               }
               state.backtrack($15);
             }
-            state.isOptional = $13;
+            state.ignoreErrors = $13;
             if (!state.ok) {
               $3 = 5;
               break;
@@ -497,14 +497,14 @@ class CsvParser {
     $3 = parseRow(state);
     if (state.ok) {
       $2.add($3!);
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         List<String>? $4;
         // RowEnding ↑ v:Row
         final $11 = state.pos;
         var $9 = true;
-        final $10 = state.isOptional;
+        final $10 = state.ignoreErrors;
         // @inline RowEnding = Eol !@eof() ;
         // Eol !@eof()
         final $12 = state.pos;
@@ -535,7 +535,7 @@ class CsvParser {
         }
         if (state.ok) {
           $9 = false;
-          state.isOptional = false;
+          state.ignoreErrors = false;
           state.setOk(true);
           if (state.ok) {
             List<String>? $8;
@@ -552,13 +552,13 @@ class CsvParser {
           }
           state.backtrack($11);
         }
-        state.isOptional = $10;
+        state.ignoreErrors = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
     }
     state.setOk($2.isNotEmpty);
     if (state.ok) {
@@ -609,8 +609,8 @@ class CsvParser {
               break;
             }
             $7.add($4!);
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 4;
             break;
           case 2:
@@ -624,13 +624,13 @@ class CsvParser {
             $3 = -1;
             return;
           case 3:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             $3 = 2;
             break;
           case 4:
             $13 = state.pos;
             $12 = true;
-            $11 = state.isOptional;
+            $11 = state.ignoreErrors;
             $14 = state.pos;
             $15 = fastParseEol$Async(state);
             if (!$15.isComplete) {
@@ -660,7 +660,7 @@ class CsvParser {
               break;
             }
             $12 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $26 = state.ok;
@@ -711,7 +711,7 @@ class CsvParser {
               }
               state.backtrack($13);
             }
-            state.isOptional = $11;
+            state.ignoreErrors = $11;
             if (!state.ok) {
               $3 = 3;
               break;
@@ -752,11 +752,11 @@ class CsvParser {
     // Rows
     $1 = parseRows(state);
     if (state.ok) {
-      final $3 = state.isOptional;
-      state.isOptional = true;
+      final $3 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Eol
       fastParseEol(state);
-      state.isOptional = $3;
+      state.ignoreErrors = $3;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -813,8 +813,8 @@ class CsvParser {
               $3 = 2;
               break;
             }
-            $8 = state.isOptional;
-            state.isOptional = true;
+            $8 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $9 = fastParseEol$Async(state);
             if (!$9.isComplete) {
               $9.onComplete = $1;
@@ -835,7 +835,7 @@ class CsvParser {
             $3 = -1;
             return;
           case 3:
-            state.isOptional = $8;
+            state.ignoreErrors = $8;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -886,7 +886,7 @@ class CsvParser {
     // OpenQuote ↑ v:Chars CloseQuote {}
     final $4 = state.pos;
     var $2 = true;
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     // @inline OpenQuote = Spaces '"' ;
     // Spaces '"'
     final $5 = state.pos;
@@ -908,15 +908,15 @@ class CsvParser {
     }
     if (state.ok) {
       $2 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
       if (state.ok) {
         List<String>? $1;
         // @inline Chars = ($[^"]+ / '""' <String>{})* ;
         // ($[^"]+ / '""' <String>{})*
         final $10 = <String>[];
-        final $9 = state.isOptional;
-        state.isOptional = true;
+        final $9 = state.ignoreErrors;
+        state.ignoreErrors = true;
         while (true) {
           String? $11;
           // $[^"]+
@@ -962,7 +962,7 @@ class CsvParser {
           }
           $10.add($11!);
         }
-        state.isOptional = $9;
+        state.ignoreErrors = $9;
         state.setOk(true);
         if (state.ok) {
           $1 = $10;
@@ -1002,7 +1002,7 @@ class CsvParser {
       }
       state.backtrack($4);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     return $0;
   }
 
@@ -1034,7 +1034,7 @@ class CsvParser {
           case 0:
             $7 = state.pos;
             $6 = true;
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $8 = state.pos;
             $9 = fastParseSpaces$Async(state);
             if (!$9.isComplete) {
@@ -1062,7 +1062,7 @@ class CsvParser {
               break;
             }
             $6 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $37 = state.ok;
@@ -1071,8 +1071,8 @@ class CsvParser {
               break;
             }
             $17 = <String>[];
-            $16 = state.isOptional;
-            state.isOptional = true;
+            $16 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 7;
             break;
           case 3:
@@ -1101,7 +1101,7 @@ class CsvParser {
               }
               state.backtrack($7);
             }
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -1111,7 +1111,7 @@ class CsvParser {
             $3 = 4;
             break;
           case 6:
-            state.isOptional = $16;
+            state.ignoreErrors = $16;
             state.setOk(true);
             if (state.ok) {
               $4 = $17;
@@ -1128,11 +1128,11 @@ class CsvParser {
             $18 = state.pos;
             state.input.beginBuffering();
             $20 = false;
-            $19 = state.isOptional;
+            $19 = state.ignoreErrors;
             $3 = 9;
             break;
           case 8:
-            state.isOptional = $19;
+            state.ignoreErrors = $19;
             state.setOk($20);
             state.input.endBuffering();
             if (state.ok) {
@@ -1148,7 +1148,7 @@ class CsvParser {
             $3 = 12;
             break;
           case 9:
-            state.isOptional = $20;
+            state.ignoreErrors = $20;
             $3 = 10;
             break;
           case 10:
@@ -1304,12 +1304,12 @@ class CsvParser {
           case 0:
             $4 = state.pos;
             state.input.beginBuffering();
-            $5 = state.isOptional;
-            state.isOptional = true;
+            $5 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             state.setOk(true);
             state.input.endBuffering();
             if (state.ok) {
@@ -1910,9 +1910,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -1925,12 +1925,6 @@ class State<T> {
   final List<ParseError?> _errors = List.filled(256, null, growable: false);
 
   State(this.input);
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void advance(int offset) {
-    pos += offset;
-  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -1956,7 +1950,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1982,7 +1976,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;

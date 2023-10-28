@@ -396,8 +396,8 @@ class BinaryParser {
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
       final $5 = <({String op, AstNode expr})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({String op, AstNode expr})? $6;
         // op:EqualityOp expr:Relational
@@ -421,7 +421,7 @@ class BinaryParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -650,8 +650,8 @@ class BinaryParser {
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
       final $5 = <({String op, AstNode expr})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({String op, AstNode expr})? $6;
         // op:LogicalAndOp expr:Equality
@@ -675,7 +675,7 @@ class BinaryParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -757,8 +757,8 @@ class BinaryParser {
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
       final $5 = <({String op, AstNode expr})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({String op, AstNode expr})? $6;
         // op:LogicalOrOp expr:LogicalAnd
@@ -782,7 +782,7 @@ class BinaryParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -916,8 +916,8 @@ class BinaryParser {
     if (!state.ok && state.isRecoverable) {
       // ([-])? [1-9] [0-9]*
       final $4 = state.pos;
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // [-]
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 45;
@@ -930,7 +930,7 @@ class BinaryParser {
       } else {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -1010,8 +1010,8 @@ class BinaryParser {
     if (state.ok) {
       List<({String op, AstNode expr})>? $2;
       final $5 = <({String op, AstNode expr})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({String op, AstNode expr})? $6;
         // op:RelationalOp expr:Primary
@@ -1035,7 +1035,7 @@ class BinaryParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -1708,9 +1708,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -1723,12 +1723,6 @@ class State<T> {
   final List<ParseError?> _errors = List.filled(256, null, growable: false);
 
   State(this.input);
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void advance(int offset) {
-    pos += offset;
-  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -1754,7 +1748,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -1780,7 +1774,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;

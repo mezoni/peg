@@ -681,7 +681,7 @@ class Test2Parser {
     // [0] [+] ↑ [1]
     final $2 = state.pos;
     var $0 = true;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
@@ -707,7 +707,7 @@ class Test2Parser {
       }
       if (state.ok) {
         $0 = false;
-        state.isOptional = false;
+        state.ignoreErrors = false;
         state.setOk(true);
         if (state.ok) {
           if (state.pos < state.input.length) {
@@ -730,7 +730,7 @@ class Test2Parser {
       }
       state.backtrack($2);
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if (!state.ok && state.isRecoverable) {
       // [0]
       if (state.pos < state.input.length) {
@@ -764,7 +764,7 @@ class Test2Parser {
             state.input.beginBuffering();
             $5 = state.pos;
             $4 = true;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 1;
             break;
           case 1:
@@ -800,7 +800,7 @@ class Test2Parser {
               }
               state.backtrack($5);
             }
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.input.endBuffering();
             final $17 = !state.ok && state.isRecoverable;
             if (!$17) {
@@ -834,7 +834,7 @@ class Test2Parser {
               break;
             }
             $4 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $16 = state.ok;
@@ -915,7 +915,7 @@ class Test2Parser {
     // [0] ↑
     final $2 = state.pos;
     var $0 = true;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
@@ -929,7 +929,7 @@ class Test2Parser {
     }
     if (state.ok) {
       $0 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
     }
     if (!state.ok) {
@@ -938,7 +938,7 @@ class Test2Parser {
       }
       state.backtrack($2);
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if (!state.ok && state.isRecoverable) {
       // [1]
       if (state.pos < state.input.length) {
@@ -971,7 +971,7 @@ class Test2Parser {
           case 0:
             $5 = state.pos;
             $4 = true;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 1;
             break;
           case 1:
@@ -995,7 +995,7 @@ class Test2Parser {
             }
             if (state.ok) {
               $4 = false;
-              state.isOptional = false;
+              state.ignoreErrors = false;
               state.setOk(true);
               state.input.cut(state.pos);
             }
@@ -1005,7 +1005,7 @@ class Test2Parser {
               }
               state.backtrack($5);
             }
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             final $10 = !state.ok && state.isRecoverable;
             if (!$10) {
               $2 = 2;
@@ -1057,7 +1057,7 @@ class Test2Parser {
     // [0] ↑ ([a] / [b]) [1]
     final $2 = state.pos;
     var $0 = true;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
@@ -1071,7 +1071,7 @@ class Test2Parser {
     }
     if (state.ok) {
       $0 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
       if (state.ok) {
         // [a]
@@ -1121,7 +1121,7 @@ class Test2Parser {
       }
       state.backtrack($2);
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if (!state.ok && state.isRecoverable) {
       // [0]
       if (state.pos < state.input.length) {
@@ -1156,7 +1156,7 @@ class Test2Parser {
             state.input.beginBuffering();
             $5 = state.pos;
             $4 = true;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 1;
             break;
           case 1:
@@ -1184,7 +1184,7 @@ class Test2Parser {
               break;
             }
             $4 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $17 = state.ok;
@@ -1201,7 +1201,7 @@ class Test2Parser {
               }
               state.backtrack($5);
             }
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.input.endBuffering();
             final $20 = !state.ok && state.isRecoverable;
             if (!$20) {
@@ -1443,9 +1443,9 @@ class Test2Parser {
     // [0-9]{2,}
     final $7 = state.pos;
     var $8 = 0;
-    final $6 = state.isOptional;
+    final $6 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $8 >= 2;
+      state.ignoreErrors = $8 >= 2;
       if (state.pos < state.input.length) {
         final $9 = state.input.codeUnitAt(state.pos);
         final $10 = $9 >= 48 && $9 <= 57;
@@ -1463,7 +1463,7 @@ class Test2Parser {
       }
       $8++;
     }
-    state.isOptional = $6;
+    state.ignoreErrors = $6;
     if ($8 >= 2) {
       state.setOk(true);
     } else {
@@ -1507,11 +1507,11 @@ class Test2Parser {
             state.lastFailPos = -1;
             $8 = state.pos;
             $9 = 0;
-            $7 = state.isOptional;
+            $7 = state.ignoreErrors;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $7;
+            state.ignoreErrors = $7;
             final $10 = $9 >= 2;
             if ($10) {
               state.setOk(true);
@@ -1534,7 +1534,7 @@ class Test2Parser {
             $2 = -1;
             return;
           case 2:
-            state.isOptional = $9 >= 2;
+            state.ignoreErrors = $9 >= 2;
             $2 = 3;
             break;
           case 3:
@@ -1777,8 +1777,8 @@ class Test2Parser {
   ///   ;
   void fastParseList(State<String> state) {
     // @list([0], [,] v:[0])
-    final $1 = state.isOptional;
-    state.isOptional = true;
+    final $1 = state.ignoreErrors;
+    state.ignoreErrors = true;
     // [0]
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
@@ -1827,7 +1827,7 @@ class Test2Parser {
         }
       }
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     state.setOk(true);
   }
 
@@ -1843,8 +1843,8 @@ class Test2Parser {
       while (true) {
         switch ($2) {
           case 0:
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 1;
             break;
           case 1:
@@ -1874,7 +1874,7 @@ class Test2Parser {
             $2 = 4;
             break;
           case 2:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -1974,8 +1974,8 @@ class Test2Parser {
     }
     if (state.ok) {
       $1 = true;
-      final $2 = state.isOptional;
-      state.isOptional = true;
+      final $2 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         // [,] v:[0]
         final $5 = state.pos;
@@ -2010,7 +2010,7 @@ class Test2Parser {
           break;
         }
       }
-      state.isOptional = $2;
+      state.ignoreErrors = $2;
     }
     state.setOk($1);
   }
@@ -2056,8 +2056,8 @@ class Test2Parser {
               break;
             }
             $4 = true;
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 4;
             break;
           case 2:
@@ -2067,7 +2067,7 @@ class Test2Parser {
             $2 = -1;
             return;
           case 3:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             $2 = 2;
             break;
           case 4:
@@ -3688,18 +3688,18 @@ class Test2Parser {
         switch ($2) {
           case 0:
             $4 = false;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk($4);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $2 = -1;
             return;
           case 2:
-            state.isOptional = $4;
+            state.ignoreErrors = $4;
             $2 = 3;
             break;
           case 3:
@@ -3744,9 +3744,9 @@ class Test2Parser {
   void fastParseOneOrMoreLiteral(State<String> state) {
     // 'abc'+
     var $2 = false;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $2;
+      state.ignoreErrors = $2;
       const $3 = 'abc';
       final $4 = state.pos + 2 < state.input.length &&
           state.input.codeUnitAt(state.pos) == 97 &&
@@ -3763,7 +3763,7 @@ class Test2Parser {
       }
       $2 = true;
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     state.setOk($2);
   }
 
@@ -3781,18 +3781,18 @@ class Test2Parser {
         switch ($2) {
           case 0:
             $4 = false;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk($4);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $2 = -1;
             return;
           case 2:
-            state.isOptional = $4;
+            state.ignoreErrors = $4;
             $2 = 3;
             break;
           case 3:
@@ -3837,8 +3837,8 @@ class Test2Parser {
   void fastParseOptional(State<String> state) {
     // [0]? [1]
     final $0 = state.pos;
-    final $1 = state.isOptional;
-    state.isOptional = true;
+    final $1 = state.ignoreErrors;
+    state.ignoreErrors = true;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
@@ -3850,7 +3850,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -3886,8 +3886,8 @@ class Test2Parser {
         switch ($2) {
           case 0:
             $3 = state.pos;
-            $4 = state.isOptional;
-            state.isOptional = true;
+            $4 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 1;
             break;
           case 1:
@@ -3909,7 +3909,7 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            state.isOptional = $4;
+            state.ignoreErrors = $4;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -4222,8 +4222,8 @@ class Test2Parser {
   void fastParseRepetitionMax(State<String> state) {
     // [\u{1f680}]{,3}
     var $2 = 0;
-    final $1 = state.isOptional;
-    state.isOptional = true;
+    final $1 = state.ignoreErrors;
+    state.ignoreErrors = true;
     while ($2 < 3) {
       if (state.pos < state.input.length) {
         final ok = state.input.runeAt(state.pos) == 128640;
@@ -4241,7 +4241,7 @@ class Test2Parser {
       }
       $2++;
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     state.setOk(true);
   }
 
@@ -4259,12 +4259,12 @@ class Test2Parser {
         switch ($2) {
           case 0:
             $4 = 0;
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -4321,9 +4321,9 @@ class Test2Parser {
     // [\u{1f680}]{3,}
     final $2 = state.pos;
     var $3 = 0;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $3 >= 3;
+      state.ignoreErrors = $3 >= 3;
       if (state.pos < state.input.length) {
         final ok = state.input.runeAt(state.pos) == 128640;
         if (ok) {
@@ -4340,7 +4340,7 @@ class Test2Parser {
       }
       $3++;
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if ($3 >= 3) {
       state.setOk(true);
     } else {
@@ -4364,11 +4364,11 @@ class Test2Parser {
           case 0:
             $4 = state.pos;
             $5 = 0;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             final $6 = $5 >= 3;
             if ($6) {
               state.setOk(true);
@@ -4380,7 +4380,7 @@ class Test2Parser {
             $2 = -1;
             return;
           case 2:
-            state.isOptional = $5 >= 3;
+            state.ignoreErrors = $5 >= 3;
             $2 = 3;
             break;
           case 3:
@@ -4426,9 +4426,9 @@ class Test2Parser {
     // [\u{1f680}]{2,3}
     final $2 = state.pos;
     var $3 = 0;
-    final $1 = state.isOptional;
+    final $1 = state.ignoreErrors;
     while ($3 < 3) {
-      state.isOptional = $3 >= 2;
+      state.ignoreErrors = $3 >= 2;
       if (state.pos < state.input.length) {
         final ok = state.input.runeAt(state.pos) == 128640;
         if (ok) {
@@ -4445,7 +4445,7 @@ class Test2Parser {
       }
       $3++;
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     if ($3 >= 2) {
       state.setOk(true);
     } else {
@@ -4469,11 +4469,11 @@ class Test2Parser {
           case 0:
             $4 = state.pos;
             $5 = 0;
-            $3 = state.isOptional;
+            $3 = state.ignoreErrors;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             if ($5 >= 2) {
               state.setOk(true);
             } else {
@@ -4489,7 +4489,7 @@ class Test2Parser {
               $2 = 1;
               break;
             }
-            state.isOptional = $5 >= 2;
+            state.ignoreErrors = $5 >= 2;
             $2 = 3;
             break;
           case 3:
@@ -5975,7 +5975,7 @@ class Test2Parser {
           case 0:
             state.input.beginBuffering();
             $5 = false;
-            $4 = state.isOptional;
+            $4 = state.ignoreErrors;
             $2 = 3;
             break;
           case 1:
@@ -5985,14 +5985,14 @@ class Test2Parser {
             $2 = -1;
             return;
           case 2:
-            state.isOptional = $4;
+            state.ignoreErrors = $4;
             state.setOk($5);
             state.input.endBuffering();
             $3 = state.pos;
             $2 = 5;
             break;
           case 3:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             $2 = 4;
             break;
           case 4:
@@ -6389,12 +6389,12 @@ class Test2Parser {
       while (true) {
         switch ($2) {
           case 0:
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -6442,17 +6442,15 @@ class Test2Parser {
     List<Object?>? $0;
     // &([0] [1] [2]) [0] [1] [2]
     final $5 = state.pos;
-    List<Object?>? $1;
+    Object? $1;
     final $6 = state.pos;
     // [0] [1] [2]
-    final $10 = state.pos;
-    int? $7;
+    final $7 = state.pos;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
         state.pos++;
         state.setOk(true);
-        $7 = 48;
       } else {
         state.fail(const ErrorUnexpectedCharacter());
       }
@@ -6460,13 +6458,11 @@ class Test2Parser {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
     if (state.ok) {
-      int? $8;
       if (state.pos < state.input.length) {
         final ok = state.input.codeUnitAt(state.pos) == 49;
         if (ok) {
           state.pos++;
           state.setOk(true);
-          $8 = 49;
         } else {
           state.fail(const ErrorUnexpectedCharacter());
         }
@@ -6474,26 +6470,21 @@ class Test2Parser {
         state.fail(const ErrorUnexpectedEndOfInput());
       }
       if (state.ok) {
-        int? $9;
         if (state.pos < state.input.length) {
           final ok = state.input.codeUnitAt(state.pos) == 50;
           if (ok) {
             state.pos++;
             state.setOk(true);
-            $9 = 50;
           } else {
             state.fail(const ErrorUnexpectedCharacter());
           }
         } else {
           state.fail(const ErrorUnexpectedEndOfInput());
         }
-        if (state.ok) {
-          $1 = [$7!, $8!, $9!];
-        }
       }
     }
     if (!state.ok) {
-      state.backtrack($10);
+      state.backtrack($7);
     }
     if (state.ok) {
       state.backtrack($6);
@@ -6541,7 +6532,7 @@ class Test2Parser {
             state.fail(const ErrorUnexpectedEndOfInput());
           }
           if (state.ok) {
-            $0 = [$1!, $2!, $3!, $4!];
+            $0 = [$1, $2!, $3!, $4!];
           }
         }
       }
@@ -6561,12 +6552,9 @@ class Test2Parser {
     List<Object?>? $2;
     var $3 = 0;
     late int $8;
-    List<Object?>? $4;
+    Object? $4;
     late int $9;
-    late int $13;
-    int? $10;
-    int? $11;
-    int? $12;
+    late int $10;
     int? $5;
     int? $6;
     int? $7;
@@ -6577,31 +6565,30 @@ class Test2Parser {
             $8 = state.pos;
             $9 = state.pos;
             state.input.beginBuffering();
-            $13 = state.pos;
+            $10 = state.pos;
             $3 = 1;
             break;
           case 1:
-            final $14 = state.input;
-            if (state.pos >= $14.end && !$14.isClosed) {
-              $14.sleep = true;
-              $14.handle = $1;
+            final $11 = state.input;
+            if (state.pos >= $11.end && !$11.isClosed) {
+              $11.sleep = true;
+              $11.handle = $1;
               $3 = 1;
               return;
             }
-            if (state.pos < $14.end) {
-              final ok = $14.data.codeUnitAt(state.pos - $14.start) == 48;
+            if (state.pos < $11.end) {
+              final ok = $11.data.codeUnitAt(state.pos - $11.start) == 48;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
-                $10 = 48;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $26 = state.ok;
-            if (!$26) {
+            final $23 = state.ok;
+            if (!$23) {
               $3 = 2;
               break;
             }
@@ -6609,41 +6596,40 @@ class Test2Parser {
             break;
           case 2:
             if (!state.ok) {
-              state.backtrack($13);
+              state.backtrack($10);
             }
             state.input.endBuffering();
             if (state.ok) {
               state.backtrack($9);
             }
-            final $28 = state.ok;
-            if (!$28) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 6;
               break;
             }
             $3 = 7;
             break;
           case 3:
-            final $16 = state.input;
-            if (state.pos >= $16.end && !$16.isClosed) {
-              $16.sleep = true;
-              $16.handle = $1;
+            final $13 = state.input;
+            if (state.pos >= $13.end && !$13.isClosed) {
+              $13.sleep = true;
+              $13.handle = $1;
               $3 = 3;
               return;
             }
-            if (state.pos < $16.end) {
-              final ok = $16.data.codeUnitAt(state.pos - $16.start) == 49;
+            if (state.pos < $13.end) {
+              final ok = $13.data.codeUnitAt(state.pos - $13.start) == 49;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
-                $11 = 49;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $27 = state.ok;
-            if (!$27) {
+            final $24 = state.ok;
+            if (!$24) {
               $3 = 4;
               break;
             }
@@ -6653,27 +6639,23 @@ class Test2Parser {
             $3 = 2;
             break;
           case 5:
-            final $18 = state.input;
-            if (state.pos >= $18.end && !$18.isClosed) {
-              $18.sleep = true;
-              $18.handle = $1;
+            final $15 = state.input;
+            if (state.pos >= $15.end && !$15.isClosed) {
+              $15.sleep = true;
+              $15.handle = $1;
               $3 = 5;
               return;
             }
-            if (state.pos < $18.end) {
-              final ok = $18.data.codeUnitAt(state.pos - $18.start) == 50;
+            if (state.pos < $15.end) {
+              final ok = $15.data.codeUnitAt(state.pos - $15.start) == 50;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
-                $12 = 50;
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
               }
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (state.ok) {
-              $4 = [$10!, $11!, $12!];
             }
             $3 = 4;
             break;
@@ -6687,15 +6669,15 @@ class Test2Parser {
             $3 = -1;
             return;
           case 7:
-            final $20 = state.input;
-            if (state.pos >= $20.end && !$20.isClosed) {
-              $20.sleep = true;
-              $20.handle = $1;
+            final $17 = state.input;
+            if (state.pos >= $17.end && !$17.isClosed) {
+              $17.sleep = true;
+              $17.handle = $1;
               $3 = 7;
               return;
             }
-            if (state.pos < $20.end) {
-              final ok = $20.data.codeUnitAt(state.pos - $20.start) == 48;
+            if (state.pos < $17.end) {
+              final ok = $17.data.codeUnitAt(state.pos - $17.start) == 48;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -6706,8 +6688,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $29 = state.ok;
-            if (!$29) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 8;
               break;
             }
@@ -6717,15 +6699,15 @@ class Test2Parser {
             $3 = 6;
             break;
           case 9:
-            final $22 = state.input;
-            if (state.pos >= $22.end && !$22.isClosed) {
-              $22.sleep = true;
-              $22.handle = $1;
+            final $19 = state.input;
+            if (state.pos >= $19.end && !$19.isClosed) {
+              $19.sleep = true;
+              $19.handle = $1;
               $3 = 9;
               return;
             }
-            if (state.pos < $22.end) {
-              final ok = $22.data.codeUnitAt(state.pos - $22.start) == 49;
+            if (state.pos < $19.end) {
+              final ok = $19.data.codeUnitAt(state.pos - $19.start) == 49;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -6736,8 +6718,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $30 = state.ok;
-            if (!$30) {
+            final $27 = state.ok;
+            if (!$27) {
               $3 = 10;
               break;
             }
@@ -6747,15 +6729,15 @@ class Test2Parser {
             $3 = 8;
             break;
           case 11:
-            final $24 = state.input;
-            if (state.pos >= $24.end && !$24.isClosed) {
-              $24.sleep = true;
-              $24.handle = $1;
+            final $21 = state.input;
+            if (state.pos >= $21.end && !$21.isClosed) {
+              $21.sleep = true;
+              $21.handle = $1;
               $3 = 11;
               return;
             }
-            if (state.pos < $24.end) {
-              final ok = $24.data.codeUnitAt(state.pos - $24.start) == 50;
+            if (state.pos < $21.end) {
+              final ok = $21.data.codeUnitAt(state.pos - $21.start) == 50;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -6767,7 +6749,7 @@ class Test2Parser {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
             if (state.ok) {
-              $2 = [$4!, $5!, $6!, $7!];
+              $2 = [$4, $5!, $6!, $7!];
             }
             $3 = 10;
             break;
@@ -7190,7 +7172,7 @@ class Test2Parser {
     // [0] [+] ↑ [1]
     final $7 = state.pos;
     var $5 = true;
-    final $6 = state.isOptional;
+    final $6 = state.ignoreErrors;
     int? $1;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
@@ -7220,7 +7202,7 @@ class Test2Parser {
       }
       if (state.ok) {
         $5 = false;
-        state.isOptional = false;
+        state.ignoreErrors = false;
         Object? $3;
         state.setOk(true);
         if (state.ok) {
@@ -7249,7 +7231,7 @@ class Test2Parser {
       }
       state.backtrack($7);
     }
-    state.isOptional = $6;
+    state.ignoreErrors = $6;
     if (!state.ok && state.isRecoverable) {
       // [0]
       if (state.pos < state.input.length) {
@@ -7290,7 +7272,7 @@ class Test2Parser {
             state.input.beginBuffering();
             $10 = state.pos;
             $9 = true;
-            $8 = state.isOptional;
+            $8 = state.ignoreErrors;
             $3 = 1;
             break;
           case 1:
@@ -7327,7 +7309,7 @@ class Test2Parser {
               }
               state.backtrack($10);
             }
-            state.isOptional = $8;
+            state.ignoreErrors = $8;
             state.input.endBuffering();
             final $22 = !state.ok && state.isRecoverable;
             if (!$22) {
@@ -7362,7 +7344,7 @@ class Test2Parser {
               break;
             }
             $9 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $21 = state.ok;
@@ -7450,7 +7432,7 @@ class Test2Parser {
     // [0] ↑
     final $5 = state.pos;
     var $3 = true;
-    final $4 = state.isOptional;
+    final $4 = state.ignoreErrors;
     int? $1;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
@@ -7466,7 +7448,7 @@ class Test2Parser {
     }
     if (state.ok) {
       $3 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       Object? $2;
       state.setOk(true);
       if (state.ok) {
@@ -7479,7 +7461,7 @@ class Test2Parser {
       }
       state.backtrack($5);
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     if (!state.ok && state.isRecoverable) {
       // [1]
       if (state.pos < state.input.length) {
@@ -7517,7 +7499,7 @@ class Test2Parser {
           case 0:
             $8 = state.pos;
             $7 = true;
-            $6 = state.isOptional;
+            $6 = state.ignoreErrors;
             $3 = 1;
             break;
           case 1:
@@ -7542,7 +7524,7 @@ class Test2Parser {
             }
             if (state.ok) {
               $7 = false;
-              state.isOptional = false;
+              state.ignoreErrors = false;
               state.setOk(true);
               state.input.cut(state.pos);
               if (state.ok) {
@@ -7555,7 +7537,7 @@ class Test2Parser {
               }
               state.backtrack($8);
             }
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             final $13 = !state.ok && state.isRecoverable;
             if (!$13) {
               $3 = 2;
@@ -7610,7 +7592,7 @@ class Test2Parser {
     // [0] ↑ ([a] / [b]) [1]
     final $7 = state.pos;
     var $5 = true;
-    final $6 = state.isOptional;
+    final $6 = state.ignoreErrors;
     int? $1;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
@@ -7626,7 +7608,7 @@ class Test2Parser {
     }
     if (state.ok) {
       $5 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       Object? $2;
       state.setOk(true);
       if (state.ok) {
@@ -7685,7 +7667,7 @@ class Test2Parser {
       }
       state.backtrack($7);
     }
-    state.isOptional = $6;
+    state.ignoreErrors = $6;
     if (!state.ok && state.isRecoverable) {
       // [0]
       if (state.pos < state.input.length) {
@@ -7727,7 +7709,7 @@ class Test2Parser {
             state.input.beginBuffering();
             $10 = state.pos;
             $9 = true;
-            $8 = state.isOptional;
+            $8 = state.ignoreErrors;
             $3 = 1;
             break;
           case 1:
@@ -7756,7 +7738,7 @@ class Test2Parser {
               break;
             }
             $9 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $22 = state.ok;
@@ -7773,7 +7755,7 @@ class Test2Parser {
               }
               state.backtrack($10);
             }
-            state.isOptional = $8;
+            state.ignoreErrors = $8;
             state.input.endBuffering();
             final $25 = !state.ok && state.isRecoverable;
             if (!$25) {
@@ -8040,9 +8022,9 @@ class Test2Parser {
     // [0-9]{2,}
     final $9 = state.pos;
     final $10 = <int>[];
-    final $8 = state.isOptional;
+    final $8 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $10.length >= 2;
+      state.ignoreErrors = $10.length >= 2;
       int? $7;
       if (state.pos < state.input.length) {
         final $11 = state.input.codeUnitAt(state.pos);
@@ -8062,7 +8044,7 @@ class Test2Parser {
       }
       $10.add($7!);
     }
-    state.isOptional = $8;
+    state.ignoreErrors = $8;
     if ($10.length >= 2) {
       state.setOk(true);
       $0 = $10;
@@ -8109,11 +8091,11 @@ class Test2Parser {
             state.lastFailPos = -1;
             $10 = state.pos;
             $11 = <int>[];
-            $9 = state.isOptional;
+            $9 = state.ignoreErrors;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $9;
+            state.ignoreErrors = $9;
             if ($11.length >= 2) {
               state.setOk(true);
               $2 = $11;
@@ -8137,7 +8119,7 @@ class Test2Parser {
             $3 = -1;
             return;
           case 2:
-            state.isOptional = $11.length >= 2;
+            state.ignoreErrors = $11.length >= 2;
             $3 = 3;
             break;
           case 3:
@@ -8405,8 +8387,8 @@ class Test2Parser {
     List<int>? $0;
     // @list([0], [,] v:[0])
     final $2 = <int>[];
-    final $5 = state.isOptional;
-    state.isOptional = true;
+    final $5 = state.ignoreErrors;
+    state.ignoreErrors = true;
     int? $3;
     // [0]
     if (state.pos < state.input.length) {
@@ -8465,7 +8447,7 @@ class Test2Parser {
         $2.add($4!);
       }
     }
-    state.isOptional = $5;
+    state.ignoreErrors = $5;
     state.setOk(true);
     if (state.ok) {
       $0 = $2;
@@ -8491,8 +8473,8 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $7 = [];
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 1;
             break;
           case 1:
@@ -8524,7 +8506,7 @@ class Test2Parser {
             $3 = 4;
             break;
           case 2:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             state.setOk(true);
             if (state.ok) {
               $2 = $7;
@@ -8636,8 +8618,8 @@ class Test2Parser {
     }
     if (state.ok) {
       $2.add($3!);
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         int? $4;
         // [,] v:[0]
@@ -8679,7 +8661,7 @@ class Test2Parser {
         }
         $2.add($4!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
     }
     state.setOk($2.isNotEmpty);
     if (state.ok) {
@@ -8734,8 +8716,8 @@ class Test2Parser {
               break;
             }
             $7.add($4!);
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 4;
             break;
           case 2:
@@ -8749,7 +8731,7 @@ class Test2Parser {
             $3 = -1;
             return;
           case 3:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             $3 = 2;
             break;
           case 4:
@@ -10508,11 +10490,11 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $6 = <int>[];
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             if ($6.isNotEmpty) {
               state.setOk(true);
               $2 = $6;
@@ -10523,7 +10505,7 @@ class Test2Parser {
             $3 = -1;
             return;
           case 2:
-            state.isOptional = $6.isNotEmpty;
+            state.ignoreErrors = $6.isNotEmpty;
             $3 = 3;
             break;
           case 3:
@@ -10570,9 +10552,9 @@ class Test2Parser {
     List<String>? $0;
     // 'abc'+
     final $3 = <String>[];
-    final $2 = state.isOptional;
+    final $2 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $3.isNotEmpty;
+      state.ignoreErrors = $3.isNotEmpty;
       String? $4;
       const $5 = 'abc';
       final $6 = state.pos + 2 < state.input.length &&
@@ -10591,7 +10573,7 @@ class Test2Parser {
       }
       $3.add($4!);
     }
-    state.isOptional = $2;
+    state.ignoreErrors = $2;
     if ($3.isNotEmpty) {
       state.setOk(true);
       $0 = $3;
@@ -10615,11 +10597,11 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $6 = <String>[];
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             if ($6.isNotEmpty) {
               state.setOk(true);
               $2 = $6;
@@ -10630,7 +10612,7 @@ class Test2Parser {
             $3 = -1;
             return;
           case 2:
-            state.isOptional = $6.isNotEmpty;
+            state.ignoreErrors = $6.isNotEmpty;
             $3 = 3;
             break;
           case 3:
@@ -10678,8 +10660,8 @@ class Test2Parser {
     // [0]? [1]
     final $3 = state.pos;
     int? $1;
-    final $4 = state.isOptional;
-    state.isOptional = true;
+    final $4 = state.ignoreErrors;
+    state.ignoreErrors = true;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 48;
       if (ok) {
@@ -10692,7 +10674,7 @@ class Test2Parser {
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -10737,8 +10719,8 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $6 = state.pos;
-            $7 = state.isOptional;
-            state.isOptional = true;
+            $7 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 1;
             break;
           case 1:
@@ -10761,7 +10743,7 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            state.isOptional = $7;
+            state.ignoreErrors = $7;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -11096,8 +11078,8 @@ class Test2Parser {
     List<int>? $0;
     // [\u{1f680}]{,3}
     final $4 = <int>[];
-    final $3 = state.isOptional;
-    state.isOptional = true;
+    final $3 = state.ignoreErrors;
+    state.ignoreErrors = true;
     while ($4.length < 3) {
       int? $2;
       if (state.pos < state.input.length) {
@@ -11117,7 +11099,7 @@ class Test2Parser {
       }
       $4.add($2!);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     state.setOk(true);
     if (state.ok) {
       $0 = $4;
@@ -11141,12 +11123,12 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $6 = <int>[];
-            $5 = state.isOptional;
-            state.isOptional = true;
+            $5 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             state.setOk(true);
             if (state.ok) {
               $2 = $6;
@@ -11209,9 +11191,9 @@ class Test2Parser {
     // [\u{1f680}]{3,}
     final $4 = state.pos;
     final $5 = <int>[];
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $5.length >= 3;
+      state.ignoreErrors = $5.length >= 3;
       int? $2;
       if (state.pos < state.input.length) {
         final ok = state.input.runeAt(state.pos) == 128640;
@@ -11230,7 +11212,7 @@ class Test2Parser {
       }
       $5.add($2!);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     if ($5.length >= 3) {
       state.setOk(true);
       $0 = $5;
@@ -11258,11 +11240,11 @@ class Test2Parser {
           case 0:
             $6 = state.pos;
             $7 = <int>[];
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             if ($7.length >= 3) {
               state.setOk(true);
               $2 = $7;
@@ -11275,7 +11257,7 @@ class Test2Parser {
             $3 = -1;
             return;
           case 2:
-            state.isOptional = $7.length >= 3;
+            state.ignoreErrors = $7.length >= 3;
             $3 = 3;
             break;
           case 3:
@@ -11323,9 +11305,9 @@ class Test2Parser {
     // [\u{1f680}]{2,3}
     final $4 = state.pos;
     final $5 = <int>[];
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     while ($5.length < 3) {
-      state.isOptional = $5.length >= 2;
+      state.ignoreErrors = $5.length >= 2;
       int? $2;
       if (state.pos < state.input.length) {
         final ok = state.input.runeAt(state.pos) == 128640;
@@ -11344,7 +11326,7 @@ class Test2Parser {
       }
       $5.add($2!);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     if ($5.length >= 2) {
       state.setOk(true);
       $0 = $5;
@@ -11372,11 +11354,11 @@ class Test2Parser {
           case 0:
             $6 = state.pos;
             $7 = <int>[];
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             if ($7.length >= 2) {
               state.setOk(true);
               $2 = $7;
@@ -11394,7 +11376,7 @@ class Test2Parser {
               $3 = 1;
               break;
             }
-            state.isOptional = $7.length >= 2;
+            state.ignoreErrors = $7.length >= 2;
             $3 = 3;
             break;
           case 3:
@@ -16358,11 +16340,11 @@ class Test2Parser {
             $9 = state.pos;
             state.input.beginBuffering();
             $11 = false;
-            $10 = state.isOptional;
+            $10 = state.ignoreErrors;
             $3 = 4;
             break;
           case 3:
-            state.isOptional = $10;
+            state.ignoreErrors = $10;
             state.setOk($11);
             state.input.endBuffering();
             if (state.ok) {
@@ -16384,7 +16366,7 @@ class Test2Parser {
             $3 = 6;
             break;
           case 4:
-            state.isOptional = $11;
+            state.ignoreErrors = $11;
             $3 = 5;
             break;
           case 5:
@@ -16823,12 +16805,12 @@ class Test2Parser {
         switch ($3) {
           case 0:
             $6 = <int>[];
-            $5 = state.isOptional;
-            state.isOptional = true;
+            $5 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 2;
             break;
           case 1:
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             state.setOk(true);
             if (state.ok) {
               $2 = $6;
@@ -17425,9 +17407,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -17440,12 +17422,6 @@ class State<T> {
   final List<ParseError?> _errors = List.filled(256, null, growable: false);
 
   State(this.input);
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void advance(int offset) {
-    pos += offset;
-  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -17471,7 +17447,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -17497,7 +17473,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;

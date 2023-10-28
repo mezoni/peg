@@ -59,7 +59,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     if (variable != null) {
@@ -70,8 +70,8 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
           .name;
       final rv1 = getExpressionVariableWithNullCheck(child);
       block << '$list = <$elementType>[];';
-      block << '$isOptional = state.isOptional;';
-      block << 'state.isOptional = true;';
+      block << '$ignoreErrors = state.ignoreErrors;';
+      block << 'state.ignoreErrors = true;';
       block.while_('$list.length < $max', (block) {
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
@@ -79,7 +79,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
         });
         block << '$list.add($rv1);';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'state.setOk(true);';
       block.if_('state.ok', (block) {
         block << '$variable = $list;';
@@ -89,8 +89,8 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
           .allocateVariable(isLate: true, type: GenericType(name: 'int'))
           .name;
       block << '$count = 0;';
-      block << '$isOptional = state.isOptional;';
-      block << 'state.isOptional = true;';
+      block << '$ignoreErrors = state.ignoreErrors;';
+      block << 'state.ignoreErrors = true;';
       block.while_('$count < $max', (block) {
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
@@ -98,7 +98,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
         });
         block << '$count++;';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'state.setOk(true);';
     }
   }
@@ -112,7 +112,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     final pos = asyncGenerator
@@ -127,16 +127,16 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       final rv1 = getExpressionVariableWithNullCheck(child);
       block << '$pos = state.pos;';
       block << '$list = <$elementType>[];';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('true', (block) {
-        block << 'state.isOptional = $list.length >= $min;';
+        block << 'state.ignoreErrors = $list.length >= $min;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$list.add($rv1);';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block.if_('$list.length >= $min', (block) {
         block << 'state.setOk(true);';
         block << '$variable = $list;';
@@ -150,16 +150,16 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       final ok = allocateName();
       block << '$pos = state.pos;';
       block << '$count = 0;';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('true', (block) {
-        block << 'state.isOptional = $count >= $min;';
+        block << 'state.ignoreErrors = $count >= $min;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$count++;';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'final $ok = $count >= $min;';
       block.if_(ok, (block) {
         block << 'state.setOk(true);';
@@ -178,7 +178,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     if (variable != null) {
@@ -189,8 +189,8 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
           .name;
       final rv1 = getExpressionVariableWithNullCheck(child);
       block << '$list = <$elementType>[];';
-      block << '$isOptional = state.isOptional;';
-      block << 'state.isOptional = true;';
+      block << '$ignoreErrors = state.ignoreErrors;';
+      block << 'state.ignoreErrors = true;';
       block.while_('true', (block) {
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
@@ -198,21 +198,21 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
         });
         block << '$list.add($rv1);';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'state.setOk(true);';
       block.if_('state.ok', (block) {
         block << '$variable = $list;';
       });
     } else {
-      block << '$isOptional = state.isOptional;';
-      block << 'state.isOptional = true;';
+      block << '$ignoreErrors = state.ignoreErrors;';
+      block << 'state.ignoreErrors = true;';
       block.while_('true', (block) {
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block << 'state.setOk(true);';
     }
   }
@@ -226,7 +226,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
     final pos = asyncGenerator
@@ -241,16 +241,16 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       final rv1 = getExpressionVariableWithNullCheck(child);
       block << '$pos = state.pos;';
       block << '$list = <$elementType>[];';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('$list.length < $max', (block) {
-        block << 'state.isOptional = $list.length >= $min;';
+        block << 'state.ignoreErrors = $list.length >= $min;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$list.add($rv1);';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block.if_('$list.length >= $min', (block) {
         block << 'state.setOk(true);';
         block << '$variable = $list;';
@@ -263,16 +263,16 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
           .name;
       block << '$pos = state.pos;';
       block << '$count = 0;';
-      block << '$isOptional = state.isOptional;';
+      block << '$ignoreErrors = state.ignoreErrors;';
       block.while_('$count < $max', (block) {
-        block << 'state.isOptional = $count >= $min;';
+        block << 'state.ignoreErrors = $count >= $min;';
         generateAsyncExpression(block, child, true);
         block.if_('!state.ok', (block) {
           block.break_();
         });
         block << '$count++;';
       });
-      block << 'state.isOptional = $isOptional;';
+      block << 'state.ignoreErrors = $ignoreErrors;';
       block.if_('$count >= $min', (block) {
         block << 'state.setOk(true);';
       }).else_((block) {
@@ -344,7 +344,7 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     values['max'] = '$max';
     var template = '';
     if (variable != null) {
@@ -354,8 +354,8 @@ class RepetitionGenerator extends ExpressionGenerator<RepetitionExpression> {
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{list}} = <{{O}}>[];
-final {{is_optional}} = state.isOptional;
-state.isOptional = true;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = true;
 while ({{list}}.length < {{max}}) {
   {{p}}
   if (!state.ok) {
@@ -363,7 +363,7 @@ while ({{list}}.length < {{max}}) {
   }
   {{list}}.add({{rv}});
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 state.setOk(true);
 if (state.ok) {
  {{r}} = {{list}};
@@ -372,8 +372,8 @@ if (state.ok) {
       values['count'] = allocateName();
       template = '''
 var {{count}} = 0;
-final {{is_optional}} = state.isOptional;
-state.isOptional = true;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = true;
 while ({{count}} < {{max}}) {
   {{p}}
   if (!state.ok) {
@@ -381,7 +381,7 @@ while ({{count}} < {{max}}) {
   }
   {{count}}++;
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 state.setOk(true);''';
     }
 
@@ -397,7 +397,7 @@ state.setOk(true);''';
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     values['pos'] = allocateName();
     values['min'] = '$min';
     var template = '';
@@ -409,16 +409,16 @@ state.setOk(true);''';
       template = '''
 final {{pos}} = state.pos;
 final {{list}} = <{{O}}>[];
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while (true) {
-  state.isOptional = {{list}}.length >= {{min}};
+  state.ignoreErrors = {{list}}.length >= {{min}};
   {{p}}
   if (!state.ok) {
     break;
   }
   {{list}}.add({{rv}});
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if ({{list}}.length >= {{min}}) {
   state.setOk(true);
  {{r}} = {{list}};
@@ -430,16 +430,16 @@ if ({{list}}.length >= {{min}}) {
       template = '''
 final {{pos}} = state.pos;
 var {{count}} = 0;
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while (true) {
-  state.isOptional = {{count}} >= {{min}};
+  state.ignoreErrors = {{count}} >= {{min}};
   {{p}}
   if (!state.ok) {
     break;
   }
   {{count}}++;
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if ({{count}} >= {{min}}) {
 state.setOk(true);
 } else  {
@@ -459,7 +459,7 @@ state.setOk(true);
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     var template = '';
     if (variable != null) {
       values['O'] = child.resultType.toString();
@@ -468,8 +468,8 @@ state.setOk(true);
       values['rv'] = getExpressionVariableWithNullCheck(child);
       template = '''
 final {{list}} = <{{O}}>[];
-final {{is_optional}} = state.isOptional;
-state.isOptional = true;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = true;
 while (true) {
   {{p}}
   if (!state.ok) {
@@ -477,22 +477,22 @@ while (true) {
   }
   {{list}}.add({{rv}});
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 state.setOk(true);
 if (state.ok) {
  {{r}} = {{list}};
 }''';
     } else {
       template = '''
-final {{is_optional}} = state.isOptional;
-state.isOptional = true;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = true;
 while (true) {
   {{p}}
   if (!state.ok) {
     break;
   }
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 state.setOk(true);''';
     }
 
@@ -508,7 +508,7 @@ state.setOk(true);''';
       ruleGenerator.allocateExpressionVariable(child);
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     values['pos'] = allocateName();
     values['min'] = '$min';
     values['max'] = '$max';
@@ -521,16 +521,16 @@ state.setOk(true);''';
       template = '''
 final {{pos}} = state.pos;
 final {{list}} = <{{O}}>[];
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while ({{list}}.length < {{max}}) {
-  state.isOptional = {{list}}.length >= {{min}};
+  state.ignoreErrors = {{list}}.length >= {{min}};
   {{p}}
   if (!state.ok) {
     break;
   }
   {{list}}.add({{rv}});
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if ({{list}}.length >= {{min}}) {
   state.setOk(true);
  {{r}} = {{list}};
@@ -542,16 +542,16 @@ if ({{list}}.length >= {{min}}) {
       template = '''
 final {{pos}} = state.pos;
 var {{count}} = 0;
-final {{is_optional}} = state.isOptional;
+final {{ignore_errors}} = state.ignoreErrors;
 while ({{count}} < {{max}}) {
-  state.isOptional = {{count}} >= {{min}};
+  state.ignoreErrors = {{count}} >= {{min}};
   {{p}}
   if (!state.ok) {
     break;
   }
   {{count}}++;
 }
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if ({{count}} >= {{min}}) {
   state.setOk(true);
 } else {

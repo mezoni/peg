@@ -156,12 +156,7 @@ void _testAndPredicate() {
         parse: _parser.parseAndPredicate,
         parseAsync: _parser.parseAndPredicate$Async,
         pos: 3,
-        result: [
-          [0x30, 0x31, 0x32],
-          0x30,
-          0x31,
-          0x32
-        ],
+        result: [null, 0x30, 0x31, 0x32],
         source: source,
       );
     }

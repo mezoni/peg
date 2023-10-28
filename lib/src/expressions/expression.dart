@@ -13,7 +13,7 @@ abstract class Expression {
 
   bool isLast = false;
 
-  bool isOptional = false;
+  bool ignoreErrors = false;
 
   int level = 0;
 

@@ -27,12 +27,7 @@ if (state.ok) {
   @override
   void generateAsync(BlockNode block) {
     final child = expression.expression;
-    final variable = ruleGenerator.getExpressionVariable(expression);
     final asyncGenerator = ruleGenerator.asyncGenerator;
-    if (variable != null) {
-      ruleGenerator.setExpressionVariable(child, variable);
-    }
-
     final pos = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'int'))
         .name;

@@ -17,13 +17,13 @@ class OptionalGenerator extends ExpressionGenerator<OptionalExpression> {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    values['is_optional'] = allocateName();
+    values['ignore_errors'] = allocateName();
     values['p'] = generateExpression(child, false);
     const template = '''
-final {{is_optional}} = state.isOptional;
-state.isOptional = true;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = true;
 {{p}}
-state.isOptional = {{is_optional}};
+state.ignoreErrors = {{ignore_errors}};
 if (!state.ok) {
   state.setOk(true);
 }''';
@@ -39,13 +39,13 @@ if (!state.ok) {
       ruleGenerator.setExpressionVariable(child, variable);
     }
 
-    final isOptional = asyncGenerator
+    final ignoreErrors = asyncGenerator
         .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
         .name;
-    block << '$isOptional = state.isOptional;';
-    block << 'state.isOptional = true;';
+    block << '$ignoreErrors = state.ignoreErrors;';
+    block << 'state.ignoreErrors = true;';
     generateAsyncExpression(block, child, false);
-    block << 'state.isOptional = $isOptional;';
+    block << 'state.ignoreErrors = $ignoreErrors;';
     block.if_('!state.ok', (block) {
       block << 'state.setOk(true);';
     });

@@ -547,9 +547,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -587,7 +587,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -613,7 +613,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;

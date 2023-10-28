@@ -24,18 +24,18 @@ class SequenceGenerator extends ExpressionGenerator<SequenceExpression> {
     final ok = hasCutExpression && children.length > 1
         ? allocateName()
         : '__undefined__';
-    final isOptional = hasCutExpression ? allocateName() : '__undefined__';
+    final ignoreErrors = hasCutExpression ? allocateName() : '__undefined__';
     values['pos'] = allocateName();
     String plunge(int i) {
       final values = <String, String>{};
       final child = children[i];
       values['ok'] = ok;
-      values['is_optional'] = isOptional;
+      values['ignore_errors'] = ignoreErrors;
       final template = StringBuffer();
       if (child is CutExpression) {
         if (children.length > 1) {
           template.writeln('{{ok}} = false;');
-          template.writeln('state.isOptional = false;');
+          template.writeln('state.ignoreErrors = false;');
         }
       }
 
@@ -96,24 +96,24 @@ if (state.ok) {
     values['failure_handler'] = '';
     if (children.length == 1) {
       if (hasCutExpression) {
-        values['is_optional'] = isOptional;
+        values['ignore_errors'] = ignoreErrors;
         template.writeln('''
-final {{is_optional}} = state.isOptional;
-state.isOptional = false;
+final {{ignore_errors}} = state.ignoreErrors;
+state.ignoreErrors = false;
 {{inner}}
 if (!state.ok) {
   state.isRecoverable = false;
 }
-state.isOptional = {{is_optional}};''');
+state.ignoreErrors = {{ignore_errors}};''');
       } else {
         template.writeln('{{inner}}');
       }
     } else {
       template.writeln('final {{pos}} = state.pos;');
       if (hasCutExpression) {
-        values['is_optional'] = isOptional;
+        values['ignore_errors'] = ignoreErrors;
         template.writeln('var $ok = true;');
-        template.writeln('final {{is_optional}} = state.isOptional;');
+        template.writeln('final {{ignore_errors}} = state.ignoreErrors;');
         values['failure_handler'] = '''
 if (!$ok) {
   state.isRecoverable = false;
@@ -129,7 +129,7 @@ if (!state.ok) {
     }
 
     if (hasCutExpression) {
-      template.writeln('state.isOptional = $isOptional;');
+      template.writeln('state.ignoreErrors = $ignoreErrors;');
     }
 
     return render(template.toString(), values);
@@ -148,9 +148,9 @@ if (!state.ok) {
     final action = expression.action;
     final (declareVariable, result) = _generateResult(children);
     final hasCutExpression = children.any((e) => e is CutExpression);
-    var isOptional = '';
+    var ignoreErrors = '';
     if (hasCutExpression) {
-      isOptional = asyncGenerator
+      ignoreErrors = asyncGenerator
           .allocateVariable(isLate: true, type: GenericType(name: 'bool'))
           .name;
     }
@@ -158,7 +158,7 @@ if (!state.ok) {
     if (children.length == 1) {
       final child = children[0];
       if (hasCutExpression) {
-        block << '$isOptional = state.isOptional;';
+        block << '$ignoreErrors = state.ignoreErrors;';
       }
 
       generateAsyncExpression(block, child, declareVariable);
@@ -178,7 +178,7 @@ if (!state.ok) {
       }
 
       if (hasCutExpression) {
-        block << 'state.isOptional = $isOptional;';
+        block << 'state.ignoreErrors = $ignoreErrors;';
       }
     } else {
       var ok = '';
@@ -194,14 +194,14 @@ if (!state.ok) {
       block << '$pos = state.pos;';
       if (hasCutExpression) {
         block << '$ok = true;';
-        block << '$isOptional = state.isOptional;';
+        block << '$ignoreErrors = state.ignoreErrors;';
       }
 
       void plunge(BlockNode block, int i) {
         final child = children[i];
         if (child is CutExpression) {
           block << '$ok = false;';
-          block << 'state.isOptional = false;';
+          block << 'state.ignoreErrors = false;';
         }
 
         generateAsyncExpression(block, child, declareVariable);
@@ -236,7 +236,7 @@ if (!state.ok) {
         block << 'state.backtrack($pos);';
       });
       if (hasCutExpression) {
-        block << 'state.isOptional = $isOptional;';
+        block << 'state.ignoreErrors = $ignoreErrors;';
       }
     }
   }

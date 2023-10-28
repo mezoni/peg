@@ -55,12 +55,12 @@ class JsonParser {
       while (true) {
         switch ($2) {
           case 0:
-            $3 = state.isOptional;
-            state.isOptional = true;
+            $3 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $2 = 2;
             break;
           case 1:
-            state.isOptional = $3;
+            state.ignoreErrors = $3;
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -112,7 +112,7 @@ class JsonParser {
     // OpenBracket ↑ v:Values CloseBracket
     final $4 = state.pos;
     var $2 = true;
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     // @inline OpenBracket = v:'[' Spaces ;
     // v:'[' Spaces
     final $5 = state.pos;
@@ -134,7 +134,7 @@ class JsonParser {
     }
     if (state.ok) {
       $2 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
       if (state.ok) {
         List<Object?>? $1;
@@ -172,7 +172,7 @@ class JsonParser {
       }
       state.backtrack($4);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     $0 = endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $0, state.ok);
     return $0;
   }
@@ -201,7 +201,7 @@ class JsonParser {
           case 0:
             $7 = state.pos;
             $6 = true;
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $8 = state.pos;
             $3 = 1;
             break;
@@ -245,7 +245,7 @@ class JsonParser {
               break;
             }
             $6 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $26 = state.ok;
@@ -271,7 +271,7 @@ class JsonParser {
               }
               state.backtrack($7);
             }
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             endEvent<List<Object?>>(JsonParserEvent.arrayEvent, $2, state.ok);
             $0.value = $2;
             $0.isComplete = true;
@@ -742,7 +742,7 @@ class JsonParser {
     // k:Key Colon ↑ v:Value {}
     final $5 = state.pos;
     var $3 = true;
-    final $4 = state.isOptional;
+    final $4 = state.ignoreErrors;
     String? $1;
     beginEvent(JsonParserEvent.keyEvent);
     // @inline @event Key = String ;
@@ -772,7 +772,7 @@ class JsonParser {
       }
       if (state.ok) {
         $3 = false;
-        state.isOptional = false;
+        state.ignoreErrors = false;
         state.setOk(true);
         if (state.ok) {
           Object? $2;
@@ -794,7 +794,7 @@ class JsonParser {
       }
       state.backtrack($5);
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     $0 = endEvent<MapEntry<String, Object?>>(
         JsonParserEvent.keyValueEvent, $0, state.ok);
     return $0;
@@ -826,7 +826,7 @@ class JsonParser {
           case 0:
             $8 = state.pos;
             $7 = true;
-            $6 = state.isOptional;
+            $6 = state.ignoreErrors;
             beginEvent(JsonParserEvent.keyEvent);
             $9 = parseString$Async(state);
             if (!$9.isComplete) {
@@ -854,7 +854,7 @@ class JsonParser {
               }
               state.backtrack($8);
             }
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             endEvent<MapEntry<String, Object?>>(
                 JsonParserEvent.keyValueEvent, $2, state.ok);
             $0.value = $2;
@@ -902,7 +902,7 @@ class JsonParser {
               break;
             }
             $7 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $23 = state.ok;
@@ -955,8 +955,8 @@ class JsonParser {
     List<MapEntry<String, Object?>>? $0;
     // @list(KeyValue, Comma ↑ v:KeyValue)
     final $2 = <MapEntry<String, Object?>>[];
-    final $5 = state.isOptional;
-    state.isOptional = true;
+    final $5 = state.ignoreErrors;
+    state.ignoreErrors = true;
     MapEntry<String, Object?>? $3;
     // KeyValue
     // KeyValue
@@ -968,7 +968,7 @@ class JsonParser {
         // Comma ↑ v:KeyValue
         final $11 = state.pos;
         var $9 = true;
-        final $10 = state.isOptional;
+        final $10 = state.ignoreErrors;
         // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
         final $12 = state.pos;
@@ -990,7 +990,7 @@ class JsonParser {
         }
         if (state.ok) {
           $9 = false;
-          state.isOptional = false;
+          state.ignoreErrors = false;
           state.setOk(true);
           if (state.ok) {
             MapEntry<String, Object?>? $8;
@@ -1007,14 +1007,14 @@ class JsonParser {
           }
           state.backtrack($11);
         }
-        state.isOptional = $10;
+        state.ignoreErrors = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4!);
       }
     }
-    state.isOptional = $5;
+    state.ignoreErrors = $5;
     state.setOk(true);
     if (state.ok) {
       $0 = $2;
@@ -1047,8 +1047,8 @@ class JsonParser {
         switch ($3) {
           case 0:
             $7 = [];
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $8 = parseKeyValue$Async(state);
             if (!$8.isComplete) {
               $8.onComplete = $1;
@@ -1068,7 +1068,7 @@ class JsonParser {
             $3 = 4;
             break;
           case 2:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             state.setOk(true);
             if (state.ok) {
               $2 = $7;
@@ -1084,7 +1084,7 @@ class JsonParser {
           case 4:
             $13 = state.pos;
             $12 = true;
-            $11 = state.isOptional;
+            $11 = state.ignoreErrors;
             $14 = state.pos;
             $3 = 5;
             break;
@@ -1128,7 +1128,7 @@ class JsonParser {
               break;
             }
             $12 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $27 = state.ok;
@@ -1154,7 +1154,7 @@ class JsonParser {
               }
               state.backtrack($13);
             }
-            state.isOptional = $11;
+            state.ignoreErrors = $11;
             if (!state.ok) {
               $3 = 3;
               break;
@@ -1203,8 +1203,8 @@ class JsonParser {
     final $10 = state.pos;
     // [-]? ([0] / [1-9] [0-9]*) ([.] ↑ [0-9]+)? ([eE] ↑ [-+]? [0-9]+)?
     final $11 = state.pos;
-    final $12 = state.isOptional;
-    state.isOptional = true;
+    final $12 = state.ignoreErrors;
+    state.ignoreErrors = true;
     if (state.pos < state.input.length) {
       final ok = state.input.codeUnitAt(state.pos) == 45;
       if (ok) {
@@ -1216,7 +1216,7 @@ class JsonParser {
     } else {
       state.fail(const ErrorUnexpectedEndOfInput());
     }
-    state.isOptional = $12;
+    state.ignoreErrors = $12;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -1262,12 +1262,12 @@ class JsonParser {
         }
       }
       if (state.ok) {
-        final $17 = state.isOptional;
-        state.isOptional = true;
+        final $17 = state.ignoreErrors;
+        state.ignoreErrors = true;
         // [.] ↑ [0-9]+
         final $20 = state.pos;
         var $18 = true;
-        final $19 = state.isOptional;
+        final $19 = state.ignoreErrors;
         if (state.pos < state.input.length) {
           final ok = state.input.codeUnitAt(state.pos) == 46;
           if (ok) {
@@ -1281,7 +1281,7 @@ class JsonParser {
         }
         if (state.ok) {
           $18 = false;
-          state.isOptional = false;
+          state.ignoreErrors = false;
           state.setOk(true);
           if (state.ok) {
             var $21 = false;
@@ -1307,18 +1307,18 @@ class JsonParser {
           }
           state.backtrack($20);
         }
-        state.isOptional = $19;
-        state.isOptional = $17;
+        state.ignoreErrors = $19;
+        state.ignoreErrors = $17;
         if (!state.ok) {
           state.setOk(true);
         }
         if (state.ok) {
-          final $22 = state.isOptional;
-          state.isOptional = true;
+          final $22 = state.ignoreErrors;
+          state.ignoreErrors = true;
           // [eE] ↑ [-+]? [0-9]+
           final $25 = state.pos;
           var $23 = true;
-          final $24 = state.isOptional;
+          final $24 = state.ignoreErrors;
           if (state.pos < state.input.length) {
             final $26 = state.input.codeUnitAt(state.pos);
             final $27 = $26 == 69 || $26 == 101;
@@ -1333,11 +1333,11 @@ class JsonParser {
           }
           if (state.ok) {
             $23 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             if (state.ok) {
-              final $28 = state.isOptional;
-              state.isOptional = true;
+              final $28 = state.ignoreErrors;
+              state.ignoreErrors = true;
               if (state.pos < state.input.length) {
                 final $29 = state.input.codeUnitAt(state.pos);
                 final $30 = $29 == 43 || $29 == 45;
@@ -1350,7 +1350,7 @@ class JsonParser {
               } else {
                 state.fail(const ErrorUnexpectedEndOfInput());
               }
-              state.isOptional = $28;
+              state.ignoreErrors = $28;
               if (!state.ok) {
                 state.setOk(true);
               }
@@ -1379,8 +1379,8 @@ class JsonParser {
             }
             state.backtrack($25);
           }
-          state.isOptional = $24;
-          state.isOptional = $22;
+          state.ignoreErrors = $24;
+          state.ignoreErrors = $22;
           if (!state.ok) {
             state.setOk(true);
           }
@@ -1470,8 +1470,8 @@ class JsonParser {
             $11 = state.pos;
             state.input.beginBuffering();
             $12 = state.pos;
-            $13 = state.isOptional;
-            state.isOptional = true;
+            $13 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 1;
             break;
           case 1:
@@ -1493,7 +1493,7 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            state.isOptional = $13;
+            state.ignoreErrors = $13;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -1577,11 +1577,11 @@ class JsonParser {
               $3 = 9;
               break;
             }
-            $26 = state.isOptional;
-            state.isOptional = true;
+            $26 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $29 = state.pos;
             $28 = true;
-            $27 = state.isOptional;
+            $27 = state.ignoreErrors;
             $3 = 10;
             break;
           case 5:
@@ -1609,8 +1609,8 @@ class JsonParser {
               $3 = 6;
               break;
             }
-            $22 = state.isOptional;
-            state.isOptional = true;
+            $22 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 8;
             break;
           case 6:
@@ -1620,7 +1620,7 @@ class JsonParser {
             $3 = 4;
             break;
           case 7:
-            state.isOptional = $22;
+            state.ignoreErrors = $22;
             state.setOk(true);
             $3 = 6;
             break;
@@ -1678,7 +1678,7 @@ class JsonParser {
               break;
             }
             $28 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $61 = state.ok;
@@ -1687,7 +1687,7 @@ class JsonParser {
               break;
             }
             $33 = false;
-            $32 = state.isOptional;
+            $32 = state.ignoreErrors;
             $3 = 14;
             break;
           case 11:
@@ -1697,8 +1697,8 @@ class JsonParser {
               }
               state.backtrack($29);
             }
-            state.isOptional = $27;
-            state.isOptional = $26;
+            state.ignoreErrors = $27;
+            state.ignoreErrors = $26;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -1707,23 +1707,23 @@ class JsonParser {
               $3 = 16;
               break;
             }
-            $37 = state.isOptional;
-            state.isOptional = true;
+            $37 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $40 = state.pos;
             $39 = true;
-            $38 = state.isOptional;
+            $38 = state.ignoreErrors;
             $3 = 17;
             break;
           case 12:
             $3 = 11;
             break;
           case 13:
-            state.isOptional = $32;
+            state.ignoreErrors = $32;
             state.setOk($33);
             $3 = 12;
             break;
           case 14:
-            state.isOptional = $33;
+            state.ignoreErrors = $33;
             $3 = 15;
             break;
           case 15:
@@ -1782,7 +1782,7 @@ class JsonParser {
               break;
             }
             $39 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $65 = state.ok;
@@ -1790,8 +1790,8 @@ class JsonParser {
               $3 = 19;
               break;
             }
-            $44 = state.isOptional;
-            state.isOptional = true;
+            $44 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $3 = 20;
             break;
           case 18:
@@ -1801,8 +1801,8 @@ class JsonParser {
               }
               state.backtrack($40);
             }
-            state.isOptional = $38;
-            state.isOptional = $37;
+            state.ignoreErrors = $38;
+            state.ignoreErrors = $37;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -1831,7 +1831,7 @@ class JsonParser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            state.isOptional = $44;
+            state.ignoreErrors = $44;
             if (!state.ok) {
               state.setOk(true);
             }
@@ -1841,19 +1841,19 @@ class JsonParser {
               break;
             }
             $49 = false;
-            $48 = state.isOptional;
+            $48 = state.ignoreErrors;
             $3 = 23;
             break;
           case 21:
             $3 = 19;
             break;
           case 22:
-            state.isOptional = $48;
+            state.ignoreErrors = $48;
             state.setOk($49);
             $3 = 21;
             break;
           case 23:
-            state.isOptional = $49;
+            state.ignoreErrors = $49;
             $3 = 24;
             break;
           case 24:
@@ -1919,7 +1919,7 @@ class JsonParser {
     // OpenBrace ↑ kv:KeyValues CloseBrace {}
     final $4 = state.pos;
     var $2 = true;
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     // @inline OpenBrace = v:'{' Spaces ;
     // v:'{' Spaces
     final $5 = state.pos;
@@ -1941,7 +1941,7 @@ class JsonParser {
     }
     if (state.ok) {
       $2 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
       if (state.ok) {
         List<MapEntry<String, Object?>>? $1;
@@ -1982,7 +1982,7 @@ class JsonParser {
       }
       state.backtrack($4);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     $0 = endEvent<Map<String, Object?>>(
         JsonParserEvent.objectEvent, $0, state.ok);
     return $0;
@@ -2014,7 +2014,7 @@ class JsonParser {
           case 0:
             $7 = state.pos;
             $6 = true;
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $8 = state.pos;
             $3 = 1;
             break;
@@ -2058,7 +2058,7 @@ class JsonParser {
               break;
             }
             $6 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $26 = state.ok;
@@ -2084,7 +2084,7 @@ class JsonParser {
               }
               state.backtrack($7);
             }
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             endEvent<Map<String, Object?>>(
                 JsonParserEvent.objectEvent, $2, state.ok);
             $0.value = $2;
@@ -2295,7 +2295,7 @@ class JsonParser {
     // '"' ↑ v:StringChars Quote
     final $4 = state.pos;
     var $2 = true;
-    final $3 = state.isOptional;
+    final $3 = state.ignoreErrors;
     const $5 = '"';
     final $6 = state.pos < state.input.length &&
         state.input.codeUnitAt(state.pos) == 34;
@@ -2307,7 +2307,7 @@ class JsonParser {
     }
     if (state.ok) {
       $2 = false;
-      state.isOptional = false;
+      state.ignoreErrors = false;
       state.setOk(true);
       if (state.ok) {
         String? $1;
@@ -2429,7 +2429,7 @@ class JsonParser {
       }
       state.backtrack($4);
     }
-    state.isOptional = $3;
+    state.ignoreErrors = $3;
     return $0;
   }
 
@@ -2463,7 +2463,7 @@ class JsonParser {
           case 0:
             $7 = state.pos;
             $6 = true;
-            $5 = state.isOptional;
+            $5 = state.ignoreErrors;
             $3 = 1;
             break;
           case 1:
@@ -2489,7 +2489,7 @@ class JsonParser {
               break;
             }
             $6 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $37 = state.ok;
@@ -2508,7 +2508,7 @@ class JsonParser {
               }
               state.backtrack($7);
             }
-            state.isOptional = $5;
+            state.ignoreErrors = $5;
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
@@ -2538,11 +2538,11 @@ class JsonParser {
             $17 = state.pos;
             state.input.beginBuffering();
             $19 = false;
-            $18 = state.isOptional;
+            $18 = state.ignoreErrors;
             $3 = 7;
             break;
           case 6:
-            state.isOptional = $18;
+            state.ignoreErrors = $18;
             state.setOk($19);
             state.input.endBuffering();
             if (state.ok) {
@@ -2564,7 +2564,7 @@ class JsonParser {
             $3 = 9;
             break;
           case 7:
-            state.isOptional = $19;
+            state.ignoreErrors = $19;
             $3 = 8;
             break;
           case 8:
@@ -3127,8 +3127,8 @@ class JsonParser {
     List<Object?>? $0;
     // @list(Value, Comma ↑ v:Value)
     final $2 = <Object?>[];
-    final $5 = state.isOptional;
-    state.isOptional = true;
+    final $5 = state.ignoreErrors;
+    state.ignoreErrors = true;
     Object? $3;
     // Value
     // Value
@@ -3140,7 +3140,7 @@ class JsonParser {
         // Comma ↑ v:Value
         final $11 = state.pos;
         var $9 = true;
-        final $10 = state.isOptional;
+        final $10 = state.ignoreErrors;
         // @inline Comma = v:',' Spaces ;
         // v:',' Spaces
         final $12 = state.pos;
@@ -3162,7 +3162,7 @@ class JsonParser {
         }
         if (state.ok) {
           $9 = false;
-          state.isOptional = false;
+          state.ignoreErrors = false;
           state.setOk(true);
           if (state.ok) {
             Object? $8;
@@ -3179,14 +3179,14 @@ class JsonParser {
           }
           state.backtrack($11);
         }
-        state.isOptional = $10;
+        state.ignoreErrors = $10;
         if (!state.ok) {
           break;
         }
         $2.add($4);
       }
     }
-    state.isOptional = $5;
+    state.ignoreErrors = $5;
     state.setOk(true);
     if (state.ok) {
       $0 = $2;
@@ -3219,8 +3219,8 @@ class JsonParser {
         switch ($3) {
           case 0:
             $7 = [];
-            $6 = state.isOptional;
-            state.isOptional = true;
+            $6 = state.ignoreErrors;
+            state.ignoreErrors = true;
             $8 = parseValue$Async(state);
             if (!$8.isComplete) {
               $8.onComplete = $1;
@@ -3240,7 +3240,7 @@ class JsonParser {
             $3 = 4;
             break;
           case 2:
-            state.isOptional = $6;
+            state.ignoreErrors = $6;
             state.setOk(true);
             if (state.ok) {
               $2 = $7;
@@ -3256,7 +3256,7 @@ class JsonParser {
           case 4:
             $13 = state.pos;
             $12 = true;
-            $11 = state.isOptional;
+            $11 = state.ignoreErrors;
             $14 = state.pos;
             $3 = 5;
             break;
@@ -3300,7 +3300,7 @@ class JsonParser {
               break;
             }
             $12 = false;
-            state.isOptional = false;
+            state.ignoreErrors = false;
             state.setOk(true);
             state.input.cut(state.pos);
             final $27 = state.ok;
@@ -3326,7 +3326,7 @@ class JsonParser {
               }
               state.backtrack($13);
             }
-            state.isOptional = $11;
+            state.ignoreErrors = $11;
             if (!state.ok) {
               $3 = 3;
               break;
@@ -3913,9 +3913,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -3928,12 +3928,6 @@ class State<T> {
   final List<ParseError?> _errors = List.filled(256, null, growable: false);
 
   State(this.input);
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void advance(int offset) {
-    pos += offset;
-  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -3959,7 +3953,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -3985,7 +3979,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;

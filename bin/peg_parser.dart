@@ -107,8 +107,8 @@ class PegParser {
       state.fail(const ErrorExpectedTags([$1]));
     }
     if (state.ok) {
-      final $3 = state.isOptional;
-      state.isOptional = true;
+      final $3 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         // BlockBody
         fastParseBlockBody(state);
@@ -116,7 +116,7 @@ class PegParser {
           break;
         }
       }
-      state.isOptional = $3;
+      state.ignoreErrors = $3;
       state.setOk(true);
       if (state.ok) {
         const $4 = '}';
@@ -237,8 +237,8 @@ class PegParser {
       state.fail(const ErrorExpectedTags([$1]));
     }
     if (state.ok) {
-      final $3 = state.isOptional;
-      state.isOptional = true;
+      final $3 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         // ![\n\r] .
         final $4 = state.pos;
@@ -283,7 +283,7 @@ class PegParser {
           break;
         }
       }
-      state.isOptional = $3;
+      state.ignoreErrors = $3;
       state.setOk(true);
     }
     if (!state.ok) {
@@ -733,8 +733,8 @@ class PegParser {
   ///   ;
   void fastParseSpaces(State<String> state) {
     // (WhiteSpace / Comment)*
-    final $1 = state.isOptional;
-    state.isOptional = true;
+    final $1 = state.ignoreErrors;
+    state.ignoreErrors = true;
     while (true) {
       // WhiteSpace
       // WhiteSpace
@@ -748,7 +748,7 @@ class PegParser {
         break;
       }
     }
-    state.isOptional = $1;
+    state.ignoreErrors = $1;
     state.setOk(true);
   }
 
@@ -804,8 +804,8 @@ class PegParser {
     // t:(LessThanSign v:Type GreaterThanSign)? b:Block {}
     final $3 = state.pos;
     ResultType? $1;
-    final $4 = state.isOptional;
-    state.isOptional = true;
+    final $4 = state.ignoreErrors;
+    state.ignoreErrors = true;
     // LessThanSign v:Type GreaterThanSign
     final $6 = state.pos;
     // LessThanSign
@@ -825,7 +825,7 @@ class PegParser {
     if (!state.ok) {
       state.backtrack($6);
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -945,8 +945,8 @@ class PegParser {
     if (state.ok) {
       String? $1;
       final $5 = state.pos;
-      final $6 = state.isOptional;
-      state.isOptional = true;
+      final $6 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         // BlockBody
         fastParseBlockBody(state);
@@ -954,7 +954,7 @@ class PegParser {
           break;
         }
       }
-      state.isOptional = $6;
+      state.ignoreErrors = $6;
       state.setOk(true);
       if (state.ok) {
         $1 = state.input.substring($5, state.pos);
@@ -995,9 +995,9 @@ class PegParser {
     if (state.ok) {
       List<(int, int)>? $1;
       final $6 = <(int, int)>[];
-      final $5 = state.isOptional;
+      final $5 = state.ignoreErrors;
       while (true) {
-        state.isOptional = $6.isNotEmpty;
+        state.ignoreErrors = $6.isNotEmpty;
         (int, int)? $7;
         // !']' v:Range
         final $9 = state.pos;
@@ -1039,7 +1039,7 @@ class PegParser {
         }
         $6.add($7!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
       if ($6.isNotEmpty) {
         state.setOk(true);
         $1 = $6;
@@ -1073,9 +1073,9 @@ class PegParser {
       if (state.ok) {
         List<(int, int)>? $13;
         final $18 = <(int, int)>[];
-        final $17 = state.isOptional;
+        final $17 = state.ignoreErrors;
         while (true) {
-          state.isOptional = $18.isNotEmpty;
+          state.ignoreErrors = $18.isNotEmpty;
           (int, int)? $19;
           // !']' v:Range
           final $21 = state.pos;
@@ -1117,7 +1117,7 @@ class PegParser {
           }
           $18.add($19!);
         }
-        state.isOptional = $17;
+        state.ignoreErrors = $17;
         if ($18.isNotEmpty) {
           state.setOk(true);
           $13 = $18;
@@ -1167,21 +1167,21 @@ class PegParser {
     // m:Metadata? t:Type? i:Identifier EqualsSign e:Expression Semicolon {}
     final $5 = state.pos;
     List<({String name, List<Object?> arguments})>? $1;
-    final $6 = state.isOptional;
-    state.isOptional = true;
+    final $6 = state.ignoreErrors;
+    state.ignoreErrors = true;
     // Metadata
     $1 = parseMetadata(state);
-    state.isOptional = $6;
+    state.ignoreErrors = $6;
     if (!state.ok) {
       state.setOk(true);
     }
     if (state.ok) {
       ResultType? $2;
-      final $7 = state.isOptional;
-      state.isOptional = true;
+      final $7 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Type
       $2 = parseType(state);
-      state.isOptional = $7;
+      state.ignoreErrors = $7;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -1224,11 +1224,11 @@ class PegParser {
       // m:Metadata? i:Identifier EqualsSign e:Expression Semicolon {}
       final $11 = state.pos;
       List<({String name, List<Object?> arguments})>? $8;
-      final $12 = state.isOptional;
-      state.isOptional = true;
+      final $12 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Metadata
       $8 = parseMetadata(state);
-      state.isOptional = $12;
+      state.ignoreErrors = $12;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -2249,8 +2249,8 @@ class PegParser {
     if (state.ok) {
       List<({String name, List<Object?> arguments})>? $2;
       final $5 = <({String name, List<Object?> arguments})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({String name, List<Object?> arguments})? $6;
         // Spaces v:MetadataElement
@@ -2273,7 +2273,7 @@ class PegParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -2311,8 +2311,8 @@ class PegParser {
     if (state.ok) {
       List<int>? $1;
       final $6 = <int>[];
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         int? $7;
         // StringChar
@@ -2322,7 +2322,7 @@ class PegParser {
         }
         $6.add($7!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
       state.setOk(true);
       if (state.ok) {
         $1 = $6;
@@ -2358,8 +2358,8 @@ class PegParser {
     if (state.ok) {
       List<Object?>? $2;
       final $5 = <Object?>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         Object? $6;
         // Comma v:MetadataArgument
@@ -2382,7 +2382,7 @@ class PegParser {
         }
         $5.add($6);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -2413,11 +2413,11 @@ class PegParser {
     fastParseLeftParenthesis(state);
     if (state.ok) {
       List<Object?>? $1;
-      final $3 = state.isOptional;
-      state.isOptional = true;
+      final $3 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // MetadataArgumentList
       $1 = parseMetadataArgumentList(state);
-      state.isOptional = $3;
+      state.ignoreErrors = $3;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -2455,11 +2455,11 @@ class PegParser {
       $1 = parseIdentifier(state);
       if (state.ok) {
         List<Object?>? $2;
-        final $4 = state.isOptional;
-        state.isOptional = true;
+        final $4 = state.ignoreErrors;
+        state.ignoreErrors = true;
         // MetadataArguments
         $2 = parseMetadataArguments(state);
-        state.isOptional = $4;
+        state.ignoreErrors = $4;
         if (!state.ok) {
           state.setOk(true);
         }
@@ -2609,8 +2609,8 @@ class PegParser {
       if (state.ok) {
         List<({ResultType type, String name})>? $2;
         final $5 = <({ResultType type, String name})>[];
-        final $4 = state.isOptional;
-        state.isOptional = true;
+        final $4 = state.ignoreErrors;
+        state.ignoreErrors = true;
         while (true) {
           ({ResultType type, String name})? $6;
           // Comma v:NamedField
@@ -2633,7 +2633,7 @@ class PegParser {
           }
           $5.add($6!);
         }
-        state.isOptional = $4;
+        state.ignoreErrors = $4;
         state.setOk(true);
         if (state.ok) {
           $2 = $5;
@@ -2726,8 +2726,8 @@ class PegParser {
     if (state.ok) {
       List<Expression>? $2;
       final $5 = <Expression>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         Expression? $6;
         // Solidus v:Sequence
@@ -2750,7 +2750,7 @@ class PegParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -2813,11 +2813,11 @@ class PegParser {
     $1 = parseType(state);
     if (state.ok) {
       String? $2;
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // NativeIdentifier
       $2 = parseNativeIdentifier(state);
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -2846,8 +2846,8 @@ class PegParser {
     if (state.ok) {
       List<({ResultType type, String? name})>? $2;
       final $5 = <({ResultType type, String? name})>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ({ResultType type, String? name})? $6;
         // Comma v:PositionalField
@@ -2870,7 +2870,7 @@ class PegParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -2898,8 +2898,8 @@ class PegParser {
     // p:(DollarSign / Ampersand / ExclamationMark)? s:Suffix {}
     final $3 = state.pos;
     String? $1;
-    final $4 = state.isOptional;
-    state.isOptional = true;
+    final $4 = state.ignoreErrors;
+    state.ignoreErrors = true;
     // DollarSign
     // DollarSign
     $1 = parseDollarSign(state);
@@ -2913,7 +2913,7 @@ class PegParser {
         $1 = parseExclamationMark(state);
       }
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     if (!state.ok) {
       state.setOk(true);
     }
@@ -3344,9 +3344,9 @@ class PegParser {
     final $3 = state.pos;
     List<Expression>? $1;
     final $5 = <Expression>[];
-    final $4 = state.isOptional;
+    final $4 = state.ignoreErrors;
     while (true) {
-      state.isOptional = $5.isNotEmpty;
+      state.ignoreErrors = $5.isNotEmpty;
       Expression? $6;
       // SequenceElement
       $6 = parseSequenceElement(state);
@@ -3355,18 +3355,18 @@ class PegParser {
       }
       $5.add($6!);
     }
-    state.isOptional = $4;
+    state.ignoreErrors = $4;
     if ($5.isNotEmpty) {
       state.setOk(true);
       $1 = $5;
     }
     if (state.ok) {
       SemanticAction? $2;
-      final $7 = state.isOptional;
-      state.isOptional = true;
+      final $7 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Action
       $2 = parseAction(state);
-      state.isOptional = $7;
+      state.ignoreErrors = $7;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -3434,29 +3434,29 @@ class PegParser {
     fastParseSpaces(state);
     if (state.ok) {
       String? $1;
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Globals
       $1 = parseGlobals(state);
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
       if (!state.ok) {
         state.setOk(true);
       }
       if (state.ok) {
         String? $2;
-        final $6 = state.isOptional;
-        state.isOptional = true;
+        final $6 = state.ignoreErrors;
+        state.ignoreErrors = true;
         // Members
         $2 = parseMembers(state);
-        state.isOptional = $6;
+        state.ignoreErrors = $6;
         if (!state.ok) {
           state.setOk(true);
         }
         if (state.ok) {
           List<ProductionRule>? $3;
           final $8 = <ProductionRule>[];
-          final $7 = state.isOptional;
-          state.isOptional = true;
+          final $7 = state.ignoreErrors;
+          state.ignoreErrors = true;
           while (true) {
             ProductionRule? $9;
             // Definition
@@ -3466,7 +3466,7 @@ class PegParser {
             }
             $8.add($9!);
           }
-          state.isOptional = $7;
+          state.ignoreErrors = $7;
           state.setOk(true);
           if (state.ok) {
             $3 = $8;
@@ -3515,8 +3515,8 @@ class PegParser {
     if (state.ok) {
       List<int>? $1;
       final $6 = <int>[];
-      final $5 = state.isOptional;
-      state.isOptional = true;
+      final $5 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         int? $7;
         // !'\'' c:StringChar
@@ -3559,7 +3559,7 @@ class PegParser {
         }
         $6.add($7!);
       }
-      state.isOptional = $5;
+      state.ignoreErrors = $5;
       state.setOk(true);
       if (state.ok) {
         $1 = $6;
@@ -3746,8 +3746,8 @@ class PegParser {
     $1 = parsePrimary(state);
     if (state.ok) {
       Object? $2;
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // Asterisk
       // Asterisk
       $2 = parseAsterisk(state);
@@ -3782,7 +3782,7 @@ class PegParser {
           }
         }
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -3838,11 +3838,11 @@ class PegParser {
     }
     if (state.ok) {
       String? $2;
-      final $6 = state.isOptional;
-      state.isOptional = true;
+      final $6 = state.ignoreErrors;
+      state.ignoreErrors = true;
       // QuestionMark
       $2 = parseQuestionMark(state);
-      state.isOptional = $6;
+      state.ignoreErrors = $6;
       if (!state.ok) {
         state.setOk(true);
       }
@@ -3874,8 +3874,8 @@ class PegParser {
     if (state.ok) {
       List<ResultType>? $2;
       final $5 = <ResultType>[];
-      final $4 = state.isOptional;
-      state.isOptional = true;
+      final $4 = state.ignoreErrors;
+      state.ignoreErrors = true;
       while (true) {
         ResultType? $6;
         // Comma v:Type
@@ -3898,7 +3898,7 @@ class PegParser {
         }
         $5.add($6!);
       }
-      state.isOptional = $4;
+      state.ignoreErrors = $4;
       state.setOk(true);
       if (state.ok) {
         $2 = $5;
@@ -4540,9 +4540,9 @@ class State<T> {
 
   int failPos = 0;
 
-  final T input;
+  bool ignoreErrors = false;
 
-  bool isOptional = false;
+  final T input;
 
   bool isRecoverable = true;
 
@@ -4555,12 +4555,6 @@ class State<T> {
   final List<ParseError?> _errors = List.filled(256, null, growable: false);
 
   State(this.input);
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void advance(int offset) {
-    pos += offset;
-  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
@@ -4586,7 +4580,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAllAt(int offset, List<ParseError> errors) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
@@ -4612,7 +4606,7 @@ class State<T> {
   @pragma('dart2js:tryInline')
   bool failAt(int offset, ParseError error) {
     ok = false;
-    if (!isOptional || !isRecoverable) {
+    if (!ignoreErrors || !isRecoverable) {
       if (offset >= failPos) {
         if (failPos < offset) {
           failPos = offset;
