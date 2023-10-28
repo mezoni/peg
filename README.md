@@ -562,11 +562,9 @@ String = '"' v:StringChars* Quote { $$ = v.join(); } ;
 
 Name: `@verify`  
 Parameters:
+- Error message
 - Processed expression
-- Source code of the handler
-
-⚠️ **Important information:**  
-To avoid situations where error registration in the `@verify` meta expression handler may be performed incorrectly, the local variable `ParseError? error` is intended for this purpose. If this variable is set to a value in the handler, this will mean that the verification was completed unsuccessfully and this error must be registered. The local variable `start` will also be available.
+- Predicate
 
 The meta expression `@verify` is intended to support the implementation of certain functions of context-sensitive grammars.  
 Despite the fact that this meta expression looks at first glance as dependent on the processed expression, nevertheless it can also be used as an independent expression, in the case of using the processed expression, which always succeeds.  
@@ -584,13 +582,13 @@ At the same time, any available data can be used as verification data (for examp
 Example of result verification:
 
 ```
-Verify41 = @verify(Integer, { if ($$ != 41) { error = ErrorMessage(state.pos - pos, 'error'); } }) ;
+Verify41 = @verify('Not a lucky number', SomeNumber, { $$ == 41 }) ;
 ```
 
 Example of parser configuration verification:
 
 ```
-Verify41 = @verify('', { if (!flag) { error = ErrorMessage(0, 'error'); } }) ;
+VerifyFlag = @verify('Some error', SomeExpression, { flag }) ;
 ```
 
 ## Semantic variables and actions
