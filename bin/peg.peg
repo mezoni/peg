@@ -176,17 +176,9 @@ Primary =
   / CharacterClass
   / AnyCharacter
   / Group
-  / MetaExpression
   / Cut
-  / Eof
-  / Expected
-  / Indicate
-  / List
-  / List1
-  / MatchString
-  / Message
-  / StringChars
-  / Verify ;
+  / MetaExpression
+  ;
 
 Expression
 AnyCharacter = FullStop { $$ = AnyCharacterExpression(); };
@@ -209,7 +201,18 @@ Expression
 Symbol = i:Identifier { $$ = SymbolExpression(name: i); } ;
 
 Expression
-MetaExpression = !ReservedMetaName @verify('Unknown meta expression', MetaName, { false }) { $$ = null; };
+MetaExpression =
+  @indicate('Unknown meta expression', !MetaName) v:(
+    Eof
+    / Expected
+    / Indicate
+    / List
+    / List1
+    / MatchString
+    / Message
+    / StringChars
+    / Verify
+  ) ;
 
 Expression
 Eof = '@eof' Spaces LeftParenthesis RightParenthesis Spaces { $$ = EofExpression(); } ;

@@ -1,3 +1,7 @@
+# 5.0.1
+
+- Changes in the grammar file `bin/peg.peg`.
+
 # 5.0.0
 
 - Error generation algorithms have been slightly reworked.

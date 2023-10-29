@@ -459,6 +459,78 @@ class PegParser {
     }
   }
 
+  /// String
+  /// MetaName =
+  ///   !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
+  ///   ;
+  void fastParseMetaName(State<String> state) {
+    // !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
+    final $0 = state.pos;
+    final $1 = state.pos;
+    // ReservedMetaName
+    fastParseReservedMetaName(state);
+    if (state.ok) {
+      final length = $1 - state.pos;
+      state.fail(switch (length) {
+        0 => const ErrorUnexpectedInput(0),
+        -1 => const ErrorUnexpectedInput(-1),
+        -2 => const ErrorUnexpectedInput(-2),
+        _ => ErrorUnexpectedInput(length)
+      });
+      state.backtrack($1);
+    } else {
+      state.setOk(true);
+    }
+    if (state.ok) {
+      // '@' [a-zA-Z] [a-zA-Z_0-9]*
+      final $3 = state.pos;
+      const $4 = '@';
+      final $5 = state.pos < state.input.length &&
+          state.input.codeUnitAt(state.pos) == 64;
+      if ($5) {
+        state.pos++;
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorExpectedTags([$4]));
+      }
+      if (state.ok) {
+        if (state.pos < state.input.length) {
+          final $6 = state.input.codeUnitAt(state.pos);
+          final $7 = $6 <= 90 ? $6 >= 65 : $6 >= 97 && $6 <= 122;
+          if ($7) {
+            state.pos++;
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+        if (state.ok) {
+          for (var c = 0;
+              state.pos < state.input.length &&
+                  (c = state.input.codeUnitAt(state.pos)) == c &&
+                  (c < 65
+                      ? c >= 48 && c <= 57
+                      : c <= 90 || c == 95 || c >= 97 && c <= 122);
+              // ignore: curly_braces_in_flow_control_structures, empty_statements
+              state.pos++);
+          state.setOk(true);
+        }
+      }
+      if (!state.ok) {
+        state.backtrack($3);
+      }
+      if (state.ok) {
+        // Spaces
+        fastParseSpaces(state);
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($0);
+    }
+  }
+
   /// ReservedMetaName =
   ///   $('@' ('eof' / 'expected' / 'indicate' / 'list1' / 'list' / 'matchString' / 'message' / 'stringChars' / 'verify')) ![a-zA-Z_0-9]+
   ///   ;
@@ -2104,128 +2176,93 @@ class PegParser {
 
   /// Expression
   /// MetaExpression =
-  ///   !ReservedMetaName @verify('Unknown meta expression', MetaName) {}
+  ///   @indicate('Unknown meta expression', !MetaName) v:(Eof / Expected / Indicate / List / List1 / MatchString / Message / StringChars / Verify)
   ///   ;
   Expression? parseMetaExpression(State<String> state) {
     Expression? $0;
-    // !ReservedMetaName @verify('Unknown meta expression', MetaName) {}
-    final $1 = state.pos;
+    // @indicate('Unknown meta expression', !MetaName) v:(Eof / Expected / Indicate / List / List1 / MatchString / Message / StringChars / Verify)
     final $2 = state.pos;
-    // ReservedMetaName
-    fastParseReservedMetaName(state);
+    final $6 = state.pos;
+    final $3 = state.errorCount;
+    final $4 = state.failPos;
+    final $5 = state.lastFailPos;
+    state.lastFailPos = -1;
+    // !MetaName
+    final $8 = state.pos;
+    // MetaName
+    fastParseMetaName(state);
     if (state.ok) {
-      final length = $2 - state.pos;
+      final length = $8 - state.pos;
       state.fail(switch (length) {
         0 => const ErrorUnexpectedInput(0),
         -1 => const ErrorUnexpectedInput(-1),
         -2 => const ErrorUnexpectedInput(-2),
         _ => ErrorUnexpectedInput(length)
       });
-      state.backtrack($2);
+      state.backtrack($8);
     } else {
       state.setOk(true);
-    }
-    if (state.ok) {
-      final $5 = state.pos;
-      String? $3;
-      // MetaName
-      // MetaName
-      $3 = parseMetaName(state);
-      if (state.ok) {
-        // ignore: unused_local_variable
-        final $$ = $3!;
-        final $4 = (() => false)();
-        if (!$4) {
-          state.fail(ErrorMessage($5 - state.pos, 'Unknown meta expression'));
-          state.backtrack($5);
-        }
-      }
-      if (state.ok) {
-        Expression? $$;
-        $$ = null;
-        $0 = $$;
-      }
     }
     if (!state.ok) {
-      state.backtrack($1);
-    }
-    return $0;
-  }
-
-  /// String
-  /// MetaName =
-  ///   !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
-  ///   ;
-  String? parseMetaName(State<String> state) {
-    String? $0;
-    // !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces
-    final $2 = state.pos;
-    final $3 = state.pos;
-    // ReservedMetaName
-    fastParseReservedMetaName(state);
-    if (state.ok) {
-      final length = $3 - state.pos;
-      state.fail(switch (length) {
-        0 => const ErrorUnexpectedInput(0),
-        -1 => const ErrorUnexpectedInput(-1),
-        -2 => const ErrorUnexpectedInput(-2),
-        _ => ErrorUnexpectedInput(length)
-      });
-      state.backtrack($3);
-    } else {
-      state.setOk(true);
-    }
-    if (state.ok) {
-      String? $1;
-      final $4 = state.pos;
-      // '@' [a-zA-Z] [a-zA-Z_0-9]*
-      final $5 = state.pos;
-      const $6 = '@';
-      final $7 = state.pos < state.input.length &&
-          state.input.codeUnitAt(state.pos) == 64;
-      if ($7) {
-        state.pos++;
-        state.setOk(true);
-      } else {
-        state.fail(const ErrorExpectedTags([$6]));
+      if (state.lastFailPos == $4) {
+        state.errorCount = $3;
+      } else if (state.lastFailPos > $4) {
+        state.errorCount = 0;
       }
-      if (state.ok) {
-        if (state.pos < state.input.length) {
-          final $8 = state.input.codeUnitAt(state.pos);
-          final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
-          if ($9) {
-            state.pos++;
-            state.setOk(true);
-          } else {
-            state.fail(const ErrorUnexpectedCharacter());
+      final length = $6 - state.lastFailPos;
+      state.failAt(
+          state.lastFailPos, ErrorMessage(length, 'Unknown meta expression'));
+    }
+    if (state.lastFailPos < $5) {
+      state.lastFailPos = $5;
+    }
+    if (state.ok) {
+      Expression? $1;
+      // Eof
+      // Eof
+      $1 = parseEof(state);
+      if (!state.ok && state.isRecoverable) {
+        // Expected
+        // Expected
+        $1 = parseExpected(state);
+        if (!state.ok && state.isRecoverable) {
+          // Indicate
+          // Indicate
+          $1 = parseIndicate(state);
+          if (!state.ok && state.isRecoverable) {
+            // List
+            // List
+            $1 = parseList(state);
+            if (!state.ok && state.isRecoverable) {
+              // List1
+              // List1
+              $1 = parseList1(state);
+              if (!state.ok && state.isRecoverable) {
+                // MatchString
+                // MatchString
+                $1 = parseMatchString(state);
+                if (!state.ok && state.isRecoverable) {
+                  // Message
+                  // Message
+                  $1 = parseMessage(state);
+                  if (!state.ok && state.isRecoverable) {
+                    // StringChars
+                    // StringChars
+                    $1 = parseStringChars(state);
+                    if (!state.ok && state.isRecoverable) {
+                      // Verify
+                      // Verify
+                      $1 = parseVerify(state);
+                    }
+                  }
+                }
+              }
+            }
           }
-        } else {
-          state.fail(const ErrorUnexpectedEndOfInput());
         }
-        if (state.ok) {
-          for (var c = 0;
-              state.pos < state.input.length &&
-                  (c = state.input.codeUnitAt(state.pos)) == c &&
-                  (c < 65
-                      ? c >= 48 && c <= 57
-                      : c <= 90 || c == 95 || c >= 97 && c <= 122);
-              // ignore: curly_braces_in_flow_control_structures, empty_statements
-              state.pos++);
-          state.setOk(true);
-        }
-      }
-      if (!state.ok) {
-        state.backtrack($5);
       }
       if (state.ok) {
-        $1 = state.input.substring($4, state.pos);
-      }
-      if (state.ok) {
-        // Spaces
-        fastParseSpaces(state);
-        if (state.ok) {
-          $0 = $1;
-        }
+        $0 = $1;
       }
     }
     if (!state.ok) {
@@ -2942,17 +2979,8 @@ class PegParser {
   ///   / CharacterClass
   ///   / AnyCharacter
   ///   / Group
-  ///   / MetaExpression
   ///   / Cut
-  ///   / Eof
-  ///   / Expected
-  ///   / Indicate
-  ///   / List
-  ///   / List1
-  ///   / MatchString
-  ///   / Message
-  ///   / StringChars
-  ///   / Verify
+  ///   / MetaExpression
   ///   ;
   Expression? parsePrimary(State<String> state) {
     Expression? $0;
@@ -2980,58 +3008,13 @@ class PegParser {
               // Group
               $0 = parseGroup(state);
               if (!state.ok && state.isRecoverable) {
-                // MetaExpression
-                // MetaExpression
-                $0 = parseMetaExpression(state);
+                // Cut
+                // Cut
+                $0 = parseCut(state);
                 if (!state.ok && state.isRecoverable) {
-                  // Cut
-                  // Cut
-                  $0 = parseCut(state);
-                  if (!state.ok && state.isRecoverable) {
-                    // Eof
-                    // Eof
-                    $0 = parseEof(state);
-                    if (!state.ok && state.isRecoverable) {
-                      // Expected
-                      // Expected
-                      $0 = parseExpected(state);
-                      if (!state.ok && state.isRecoverable) {
-                        // Indicate
-                        // Indicate
-                        $0 = parseIndicate(state);
-                        if (!state.ok && state.isRecoverable) {
-                          // List
-                          // List
-                          $0 = parseList(state);
-                          if (!state.ok && state.isRecoverable) {
-                            // List1
-                            // List1
-                            $0 = parseList1(state);
-                            if (!state.ok && state.isRecoverable) {
-                              // MatchString
-                              // MatchString
-                              $0 = parseMatchString(state);
-                              if (!state.ok && state.isRecoverable) {
-                                // Message
-                                // Message
-                                $0 = parseMessage(state);
-                                if (!state.ok && state.isRecoverable) {
-                                  // StringChars
-                                  // StringChars
-                                  $0 = parseStringChars(state);
-                                  if (!state.ok && state.isRecoverable) {
-                                    // Verify
-                                    // Verify
-                                    $0 = parseVerify(state);
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  // MetaExpression
+                  // MetaExpression
+                  $0 = parseMetaExpression(state);
                 }
               }
             }
