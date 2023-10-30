@@ -2,6 +2,7 @@
 
 - Changes in the grammar file `bin/peg.peg`.
 - Added meta expression `@tag()`
+- Changes in the file `README.md`.
 
 # 5.0.0
 
