@@ -380,6 +380,7 @@ The following meta expression exist in the current version.
 - `@matchString`
 - `@message`
 - `@stringChars`
+- `@tag`
 - `@verify`
 
 ### @eof
@@ -401,7 +402,7 @@ Parameters:
 - Literal value of `tag`
 - Processed expression
 
-The meta expression `@expected` replaces parsing error of the child expression with an error that displays a message that the specified tag is expected.
+If errors occurred at the initial position of parsing a child expression, then meta expression `@expected` replaces parsing error of the child expression with an error that displays a message that the specified tag is expected.
 
 Example:
 
@@ -556,6 +557,29 @@ StringChars =
 
 String
 String = '"' v:StringChars* Quote { $$ = v.join(); } ;
+```
+
+### @tag
+
+Name: `@tag`  
+Parameters:
+- Literal value of `tag`
+- Processed expression
+
+The meta expression `@tag` replaces parsing error of the child expression with an error that displays a message that the specified tag is expected.
+
+Example:
+
+```
+@tag('FOR', $([Ff] [Oo] [Rr]))
+```
+
+Example of error output:
+
+```
+FormatException: line 1, column 1 (offset 0): Expected: 'FOR'
+Fo
+^
 ```
 
 ### @verify

@@ -1,6 +1,7 @@
 # 5.0.1
 
 - Changes in the grammar file `bin/peg.peg`.
+- Added meta expression `@tag()`
 
 # 5.0.0
 

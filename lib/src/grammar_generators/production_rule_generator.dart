@@ -388,6 +388,12 @@ AsyncResult<{{type}}> {{name}}(State<ChunkedParsingSink> state) {
   }
 
   @override
+  String visitTag(TagExpression node) {
+    final generator = TagGenerator(expression: node, ruleGenerator: this);
+    return _generate(generator);
+  }
+
+  @override
   String visitVerify(VerifyExpression node) {
     final generator = VerifyGenerator(expression: node, ruleGenerator: this);
     return _generate(generator);

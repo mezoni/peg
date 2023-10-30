@@ -158,6 +158,11 @@ class StartingCharactersResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitTag(TagExpression node) {
+    _addNode(node);
+  }
+
+  @override
   void visitVerify(VerifyExpression node) {
     _addNode(node);
   }

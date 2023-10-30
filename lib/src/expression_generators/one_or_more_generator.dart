@@ -14,7 +14,7 @@ class OneOrMoreGenerator extends ExpressionGenerator<OneOrMoreExpression> {
     final values = <String, String>{};
     final child = expression.expression;
     final variable = ruleGenerator.getExpressionVariable(expression);
-    final optimized = _TakeWhile1Generator.optimize(this);
+    final optimized = _TakeWhile1Generator.optimize(this, null);
     if (optimized != null) {
       return optimized;
     }
@@ -70,6 +70,11 @@ state.setOk({{ok}});''';
     final child = expression.expression;
     final elementType = child.resultType!;
     final asyncGenerator = ruleGenerator.asyncGenerator;
+    final optimized = _TakeWhile1Generator.optimize(this, block);
+    if (optimized != null) {
+      return;
+    }
+
     if (variable != null) {
       ruleGenerator.allocateExpressionVariable(child);
     }
@@ -181,7 +186,89 @@ if ({{ok}}) {
     return render(template, values);
   }
 
-  static String? optimize(OneOrMoreGenerator generator) {
+  @override
+  void generateAsync(BlockNode block) {
+    final child = expression.expression as CharacterClassExpression;
+    final ranges = child.ranges;
+    final negate = child.negate;
+    final variable = ruleGenerator.getExpressionVariable(expression);
+    final asyncGenerator = ruleGenerator.asyncGenerator;
+    final handle = asyncGenerator.functionName;
+    final c = allocateName();
+    final ok = allocateName();
+    final predicate = helper.rangesToPredicate(c, ranges, negate);
+    final input = allocateName();
+    final label = allocateName();
+    final adjustStatePos = helper.adjustStatePos(c, ranges, negate);
+    final charAt = helper.charAt(ranges, negate);
+    if (variable != null) {
+      final elementType = child.resultType!;
+      final list = asyncGenerator
+          .allocateVariable(
+              isLate: true,
+              type: GenericType(name: 'List', arguments: [elementType]))
+          .name;
+      final done = allocateName();
+      block << '$list = <$elementType>[];';
+      block.label(label);
+      block << 'final $input = state.input;';
+      block << 'var $done = false;';
+      block.while_('state.pos < $input.end', (block) {
+        block << 'final $c = $input.data.$charAt(state.pos - $input.start);';
+        block << 'final $ok = $predicate;';
+        block.if_('!$ok', (block) {
+          block << '$done = true;';
+          block.break_();
+        });
+        block << '$adjustStatePos;';
+        block << '$list.add($c);';
+      });
+      block.if_('!$done && !$input.isClosed', (block) {
+        block << '$input.sleep = true;';
+        block << '$input.handle = $handle;';
+        block.return_(label);
+      });
+      block.if_('$list.isNotEmpty', (block) {
+        block << '$variable = $list;';
+        block << 'state.setOk(true);';
+      }).else_((block) {
+        block <<
+            '$input.isClosed ? state.fail(const ErrorUnexpectedEndOfInput()): state.fail(const ErrorUnexpectedCharacter());';
+      });
+    } else {
+      final count = asyncGenerator
+          .allocateVariable(isLate: true, type: GenericType(name: 'int'))
+          .name;
+      final done = allocateName();
+      block << '$count = 0;';
+      block.label(label);
+      block << 'final $input = state.input;';
+      block << 'var $done = false;';
+      block.while_('state.pos < $input.end', (block) {
+        block << 'final $c = $input.data.$charAt(state.pos - $input.start);';
+        block << 'final $ok = $predicate;';
+        block.if_('!$ok', (block) {
+          block << '$done = true;';
+          block.break_();
+        });
+        block << '$adjustStatePos;';
+        block << '$count++;';
+      });
+      block.if_('!$done && !$input.isClosed', (block) {
+        block << '$input.sleep = true;';
+        block << '$input.handle = $handle;';
+        block.return_(label);
+      });
+      block.if_('$count != 0', (block) {
+        block << 'state.setOk(true);';
+      }).else_((block) {
+        block <<
+            '$input.isClosed ? state.fail(const ErrorUnexpectedEndOfInput()): state.fail(const ErrorUnexpectedCharacter());';
+      });
+    }
+  }
+
+  static String? optimize(OneOrMoreGenerator generator, BlockNode? block) {
     final expression = generator.expression;
     final child = expression.expression;
     if (child is! CharacterClassExpression) {
@@ -193,6 +280,11 @@ if ({{ok}}) {
       ruleGenerator: generator.ruleGenerator,
     );
 
-    return generator2.generate();
+    if (block == null) {
+      return generator2.generate();
+    }
+
+    generator2.generateAsync(block);
+    return '';
   }
 }

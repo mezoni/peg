@@ -17,35 +17,35 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   @override
   void visitAndPredicate(AndPredicateExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, true);
   }
 
   @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, false);
   }
 
   @override
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, false);
   }
 
   @override
   void visitCut(CutExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, true);
   }
 
   @override
   void visitEof(EofExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -53,7 +53,7 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitExpected(ExpectedExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
@@ -61,7 +61,7 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitGroup(GroupExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
@@ -69,14 +69,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitIndicate(IndicateExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override
   void visitList(ListExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, true);
+    _setIgnoreErrors(node, true);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -84,7 +84,7 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitList1(List1Expression node) {
     node.visitChildren(this);
     final first = node.first;
-    _setignoreErrors(node, first.ignoreErrors);
+    _setIgnoreErrors(node, first.ignoreErrors);
     _setMayNotConsumeInput(node, first.mayNotConsumeInput);
   }
 
@@ -93,14 +93,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     final string = node.string;
     final isEmpty = string.isEmpty;
     node.visitChildren(this);
-    _setignoreErrors(node, isEmpty);
+    _setIgnoreErrors(node, isEmpty);
     _setMayNotConsumeInput(node, isEmpty);
   }
 
   @override
   void visitMatchString(MatchStringExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, true);
+    _setIgnoreErrors(node, true);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -108,14 +108,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitMessage(MessageExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override
   void visitNotPredicate(NotPredicateExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, false);
+    _setIgnoreErrors(node, false);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -123,14 +123,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitOneOrMore(OneOrMoreExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override
   void visitOptional(OptionalExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, true);
+    _setIgnoreErrors(node, true);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -140,7 +140,7 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final ignoreErrors = children.any((e) => e.ignoreErrors);
     final mayNotConsumeInput = children.any((e) => e.mayNotConsumeInput);
-    _setignoreErrors(node, ignoreErrors);
+    _setIgnoreErrors(node, ignoreErrors);
     _setMayNotConsumeInput(node, mayNotConsumeInput);
   }
 
@@ -149,7 +149,7 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final child = node.expression;
     final ignoreErrors = node.min == 0 || node.max == 0 || child.ignoreErrors;
-    _setignoreErrors(node, ignoreErrors);
+    _setIgnoreErrors(node, ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput || ignoreErrors);
   }
 
@@ -164,21 +164,29 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitSlice(SliceExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override
   void visitStringChars(StringCharsExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, true);
+    _setIgnoreErrors(node, true);
     _setMayNotConsumeInput(node, true);
   }
 
   @override
   void visitSymbol(SymbolExpression node) {
     final child = node.reference!.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
+    _setMayNotConsumeInput(node, child.mayNotConsumeInput);
+  }
+
+  @override
+  void visitTag(TagExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
@@ -186,14 +194,14 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
   void visitVerify(VerifyExpression node) {
     node.visitChildren(this);
     final child = node.expression;
-    _setignoreErrors(node, child.ignoreErrors);
+    _setIgnoreErrors(node, child.ignoreErrors);
     _setMayNotConsumeInput(node, child.mayNotConsumeInput);
   }
 
   @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     node.visitChildren(this);
-    _setignoreErrors(node, true);
+    _setIgnoreErrors(node, true);
     _setMayNotConsumeInput(node, true);
   }
 
@@ -202,11 +210,11 @@ class OptionalExpressionsResolver extends ExpressionVisitor<void> {
     final ignoreErrors = children.where((e) => e.ignoreErrors).length == length;
     final mayNotConsumeInput =
         children.where((e) => e.mayNotConsumeInput).length == length;
-    _setignoreErrors(node, ignoreErrors);
+    _setIgnoreErrors(node, ignoreErrors);
     _setMayNotConsumeInput(node, mayNotConsumeInput);
   }
 
-  void _setignoreErrors(Expression node, bool ignoreErrors) {
+  void _setIgnoreErrors(Expression node, bool ignoreErrors) {
     if (ignoreErrors) {
       if (node.ignoreErrors != ignoreErrors) {
         _hasModifications = true;

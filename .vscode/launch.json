@@ -45,6 +45,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
+                "--async",
                 "test/test.peg"
             ]
         },

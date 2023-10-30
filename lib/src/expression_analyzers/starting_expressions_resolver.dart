@@ -165,6 +165,13 @@ class StartingExpressionsResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitTag(TagExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _addChild(node, child);
+  }
+
+  @override
   void visitVerify(VerifyExpression node) {
     node.visitChildren(this);
     final child = node.expression;

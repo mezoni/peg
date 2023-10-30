@@ -398,9 +398,9 @@ class Test2Parser {
               return;
             }
             if (state.pos < $3.end) {
-              final c = $3.data.codeUnitAt(state.pos - $3.start);
-              final $4 = c >= 48 && c <= 57;
-              if ($4) {
+              final $4 = $3.data.codeUnitAt(state.pos - $3.start);
+              final $5 = $4 >= 48 && $4 <= 57;
+              if ($5) {
                 state.pos++;
                 state.setOk(true);
               } else {
@@ -522,10 +522,10 @@ class Test2Parser {
               return;
             }
             if (state.pos < $3.end) {
-              final c = $3.data.runeAt(state.pos - $3.start);
-              final $4 = c != 48;
-              if ($4) {
-                state.pos += c > 0xffff ? 2 : 1;
+              final $4 = $3.data.runeAt(state.pos - $3.start);
+              final $5 = $4 != 48;
+              if ($5) {
+                state.pos += $4 > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -585,10 +585,10 @@ class Test2Parser {
               return;
             }
             if (state.pos < $3.end) {
-              final c = $3.data.runeAt(state.pos - $3.start);
-              final $4 = c != 128640;
-              if ($4) {
-                state.pos += c > 0xffff ? 2 : 1;
+              final $4 = $3.data.runeAt(state.pos - $3.start);
+              final $5 = $4 != 128640;
+              if ($5) {
+                state.pos += $4 > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -648,10 +648,10 @@ class Test2Parser {
               return;
             }
             if (state.pos < $3.end) {
-              final c = $3.data.runeAt(state.pos - $3.start);
-              final $4 = c >= 32 && c <= 128640;
-              if ($4) {
-                state.pos += c > 0xffff ? 2 : 1;
+              final $4 = $3.data.runeAt(state.pos - $3.start);
+              final $5 = $4 >= 32 && $4 <= 128640;
+              if ($5) {
+                state.pos += $4 > 0xffff ? 2 : 1;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -1546,9 +1546,9 @@ class Test2Parser {
               return;
             }
             if (state.pos < $11.end) {
-              final c = $11.data.codeUnitAt(state.pos - $11.start);
-              final $12 = c >= 48 && c <= 57;
-              if ($12) {
+              final $12 = $11.data.codeUnitAt(state.pos - $11.start);
+              final $13 = $12 >= 48 && $12 <= 57;
+              if ($13) {
                 state.pos++;
                 state.setOk(true);
               } else {
@@ -3681,53 +3681,44 @@ class Test2Parser {
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     var $2 = 0;
-    late bool $3;
-    late bool $4;
+    late int $7;
     void $1() {
       while (true) {
         switch ($2) {
           case 0:
-            $4 = false;
-            $3 = state.ignoreErrors;
-            $2 = 2;
+            $7 = 0;
+            $2 = 1;
             break;
           case 1:
-            state.ignoreErrors = $3;
-            state.setOk($4);
+            final $5 = state.input;
+            var $8 = false;
+            while (state.pos < $5.end) {
+              final $3 = $5.data.codeUnitAt(state.pos - $5.start);
+              final $4 = $3 == 48;
+              if (!$4) {
+                $8 = true;
+                break;
+              }
+              state.pos++;
+              $7++;
+            }
+            if (!$8 && !$5.isClosed) {
+              $5.sleep = true;
+              $5.handle = $1;
+              $2 = 1;
+              return;
+            }
+            if ($7 != 0) {
+              state.setOk(true);
+            } else {
+              $5.isClosed
+                  ? state.fail(const ErrorUnexpectedEndOfInput())
+                  : state.fail(const ErrorUnexpectedCharacter());
+            }
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $2 = -1;
             return;
-          case 2:
-            state.ignoreErrors = $4;
-            $2 = 3;
-            break;
-          case 3:
-            final $5 = state.input;
-            if (state.pos >= $5.end && !$5.isClosed) {
-              $5.sleep = true;
-              $5.handle = $1;
-              $2 = 3;
-              return;
-            }
-            if (state.pos < $5.end) {
-              final ok = $5.data.codeUnitAt(state.pos - $5.start) == 48;
-              if (ok) {
-                state.pos++;
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              $2 = 1;
-              break;
-            }
-            $4 = true;
-            $2 = 2;
-            break;
           default:
             throw StateError('Invalid state: ${$2}');
         }
@@ -5967,16 +5958,14 @@ class Test2Parser {
     final $0 = AsyncResult<Object?>();
     var $2 = 0;
     late int $3;
-    late bool $4;
-    late bool $5;
+    late int $8;
     void $1() {
       while (true) {
         switch ($2) {
           case 0:
             state.input.beginBuffering();
-            $5 = false;
-            $4 = state.ignoreErrors;
-            $2 = 3;
+            $8 = 0;
+            $2 = 2;
             break;
           case 1:
             state.setOk(true);
@@ -5985,53 +5974,45 @@ class Test2Parser {
             $2 = -1;
             return;
           case 2:
-            state.ignoreErrors = $4;
-            state.setOk($5);
-            state.input.endBuffering();
-            $3 = state.pos;
-            $2 = 5;
-            break;
-          case 3:
-            state.ignoreErrors = $5;
-            $2 = 4;
-            break;
-          case 4:
             final $6 = state.input;
-            if (state.pos >= $6.end && !$6.isClosed) {
+            var $9 = false;
+            while (state.pos < $6.end) {
+              final $4 = $6.data.codeUnitAt(state.pos - $6.start);
+              final $5 = $4 >= 48 && $4 <= 57;
+              if (!$5) {
+                $9 = true;
+                break;
+              }
+              state.pos++;
+              $8++;
+            }
+            if (!$9 && !$6.isClosed) {
               $6.sleep = true;
               $6.handle = $1;
-              $2 = 4;
+              $2 = 2;
               return;
             }
-            if (state.pos < $6.end) {
-              final c = $6.data.codeUnitAt(state.pos - $6.start);
-              final $7 = c >= 48 && c <= 57;
-              if ($7) {
-                state.pos++;
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
+            if ($8 != 0) {
+              state.setOk(true);
             } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
+              $6.isClosed
+                  ? state.fail(const ErrorUnexpectedEndOfInput())
+                  : state.fail(const ErrorUnexpectedCharacter());
             }
-            if (!state.ok) {
-              $2 = 2;
-              break;
-            }
-            $5 = true;
+            state.input.endBuffering();
+            $3 = state.pos;
             $2 = 3;
             break;
-          case 5:
-            final $9 = state.input;
-            if (state.pos >= $9.end && !$9.isClosed) {
-              $9.sleep = true;
-              $9.handle = $1;
-              $2 = 5;
+          case 3:
+            final $10 = state.input;
+            if (state.pos >= $10.end && !$10.isClosed) {
+              $10.sleep = true;
+              $10.handle = $1;
+              $2 = 3;
               return;
             }
-            if (state.pos < $9.end) {
-              final ok = $9.data.codeUnitAt(state.pos - $9.start) == 92;
+            if (state.pos < $10.end) {
+              final ok = $10.data.codeUnitAt(state.pos - $10.start) == 92;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -6045,18 +6026,18 @@ class Test2Parser {
               $2 = 1;
               break;
             }
-            $2 = 6;
+            $2 = 4;
             break;
-          case 6:
-            final $11 = state.input;
-            if (state.pos >= $11.end && !$11.isClosed) {
-              $11.sleep = true;
-              $11.handle = $1;
-              $2 = 6;
+          case 4:
+            final $12 = state.input;
+            if (state.pos >= $12.end && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
+              $2 = 4;
               return;
             }
-            if (state.pos < $11.end) {
-              final ok = $11.data.codeUnitAt(state.pos - $11.start) == 116;
+            if (state.pos < $12.end) {
+              final ok = $12.data.codeUnitAt(state.pos - $12.start) == 116;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -6077,6 +6058,188 @@ class Test2Parser {
               break;
             }
             $2 = 0;
+            break;
+          default:
+            throw StateError('Invalid state: ${$2}');
+        }
+      }
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Tag =
+  ///   @tag('FOR', $([Ff] [Oo] [Rr]))
+  ///   ;
+  void fastParseTag(State<String> state) {
+    // @tag('FOR', $([Ff] [Oo] [Rr]))
+    final $1 = state.pos;
+    final $2 = state.ignoreErrors;
+    state.ignoreErrors = true;
+    // $([Ff] [Oo] [Rr])
+    // [Ff] [Oo] [Rr]
+    final $5 = state.pos;
+    if (state.pos < state.input.length) {
+      final $6 = state.input.codeUnitAt(state.pos);
+      final $7 = $6 == 70 || $6 == 102;
+      if ($7) {
+        state.pos++;
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      if (state.pos < state.input.length) {
+        final $8 = state.input.codeUnitAt(state.pos);
+        final $9 = $8 == 79 || $8 == 111;
+        if ($9) {
+          state.pos++;
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (state.ok) {
+        if (state.pos < state.input.length) {
+          final $10 = state.input.codeUnitAt(state.pos);
+          final $11 = $10 == 82 || $10 == 114;
+          if ($11) {
+            state.pos++;
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($5);
+    }
+    state.ignoreErrors = $2;
+    if (!state.ok) {
+      state.failAt($1, const ErrorExpectedTags(['FOR']));
+    }
+  }
+
+  /// Tag =
+  ///   @tag('FOR', $([Ff] [Oo] [Rr]))
+  ///   ;
+  AsyncResult<Object?> fastParseTag$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<Object?>();
+    var $2 = 0;
+    late int $3;
+    late bool $4;
+    late int $5;
+    void $1() {
+      while (true) {
+        switch ($2) {
+          case 0:
+            $3 = state.pos;
+            $4 = state.ignoreErrors;
+            state.ignoreErrors = true;
+            state.input.beginBuffering();
+            $5 = state.pos;
+            $2 = 1;
+            break;
+          case 1:
+            final $6 = state.input;
+            if (state.pos >= $6.end && !$6.isClosed) {
+              $6.sleep = true;
+              $6.handle = $1;
+              $2 = 1;
+              return;
+            }
+            if (state.pos < $6.end) {
+              final $7 = $6.data.codeUnitAt(state.pos - $6.start);
+              final $8 = $7 == 70 || $7 == 102;
+              if ($8) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            final $18 = state.ok;
+            if (!$18) {
+              $2 = 2;
+              break;
+            }
+            $2 = 3;
+            break;
+          case 2:
+            if (!state.ok) {
+              state.backtrack($5);
+            }
+            state.input.endBuffering();
+            state.ignoreErrors = $4;
+            if (!state.ok) {
+              state.failAt($3, const ErrorExpectedTags(['FOR']));
+            }
+            $0.isComplete = true;
+            state.input.handle = $0.onComplete;
+            $2 = -1;
+            return;
+          case 3:
+            final $10 = state.input;
+            if (state.pos >= $10.end && !$10.isClosed) {
+              $10.sleep = true;
+              $10.handle = $1;
+              $2 = 3;
+              return;
+            }
+            if (state.pos < $10.end) {
+              final $11 = $10.data.codeUnitAt(state.pos - $10.start);
+              final $12 = $11 == 79 || $11 == 111;
+              if ($12) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            final $19 = state.ok;
+            if (!$19) {
+              $2 = 4;
+              break;
+            }
+            $2 = 5;
+            break;
+          case 4:
+            $2 = 2;
+            break;
+          case 5:
+            final $14 = state.input;
+            if (state.pos >= $14.end && !$14.isClosed) {
+              $14.sleep = true;
+              $14.handle = $1;
+              $2 = 5;
+              return;
+            }
+            if (state.pos < $14.end) {
+              final $15 = $14.data.codeUnitAt(state.pos - $14.start);
+              final $16 = $15 == 82 || $15 == 114;
+              if ($16) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            $2 = 4;
             break;
           default:
             throw StateError('Invalid state: ${$2}');
@@ -6215,8 +6378,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorExpectedTags([$4]));
             }
-            final $20 = !state.ok && state.isRecoverable;
-            if (!$20) {
+            final $21 = !state.ok && state.isRecoverable;
+            if (!$21) {
               $2 = 1;
               break;
             }
@@ -6247,8 +6410,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $21 = state.ok;
-            if (!$21) {
+            final $22 = state.ok;
+            if (!$22) {
               $2 = 3;
               break;
             }
@@ -6258,8 +6421,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($7);
             }
-            final $23 = !state.ok && state.isRecoverable;
-            if (!$23) {
+            final $24 = !state.ok && state.isRecoverable;
+            if (!$24) {
               $2 = 7;
               break;
             }
@@ -6286,8 +6449,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $22 = state.ok;
-            if (!$22) {
+            final $23 = state.ok;
+            if (!$23) {
               $2 = 5;
               break;
             }
@@ -6329,11 +6492,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $17.end) {
-              final c = $17.data.codeUnitAt(state.pos - $17.start);
-              final $18 = c >= 48 && c <= 49;
-              if ($18) {
+              final $18 = $17.data.codeUnitAt(state.pos - $17.start);
+              final $19 = $18 >= 48 && $18 <= 49;
+              if ($19) {
                 state.pos++;
-                $14 = c;
+                $14 = $18;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -6384,47 +6547,32 @@ class Test2Parser {
       State<ChunkedParsingSink> state) {
     final $0 = AsyncResult<Object?>();
     var $2 = 0;
-    late bool $3;
     void $1() {
       while (true) {
         switch ($2) {
           case 0:
-            $3 = state.ignoreErrors;
-            state.ignoreErrors = true;
-            $2 = 2;
-            break;
-          case 1:
-            state.ignoreErrors = $3;
+            final $5 = state.input;
+            var $7 = false;
+            while (state.pos < $5.end) {
+              final $3 = $5.data.codeUnitAt(state.pos - $5.start);
+              final $4 = $3 == 48;
+              if (!$4) {
+                $7 = true;
+                break;
+              }
+              state.pos++;
+            }
+            if (!$7 && !$5.isClosed) {
+              $5.sleep = true;
+              $5.handle = $1;
+              $2 = 0;
+              return;
+            }
             state.setOk(true);
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $2 = -1;
             return;
-          case 2:
-            final $4 = state.input;
-            if (state.pos >= $4.end && !$4.isClosed) {
-              $4.sleep = true;
-              $4.handle = $1;
-              $2 = 2;
-              return;
-            }
-            if (state.pos < $4.end) {
-              final ok = $4.data.codeUnitAt(state.pos - $4.start) == 48;
-              if (ok) {
-                state.pos++;
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              $2 = 1;
-              break;
-            }
-            $2 = 2;
-            break;
           default:
             throw StateError('Invalid state: ${$2}');
         }
@@ -6862,11 +7010,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $4.end) {
-              final c = $4.data.codeUnitAt(state.pos - $4.start);
-              final $5 = c >= 48 && c <= 57;
-              if ($5) {
+              final $5 = $4.data.codeUnitAt(state.pos - $4.start);
+              final $6 = $5 >= 48 && $5 <= 57;
+              if ($6) {
                 state.pos++;
-                $2 = c;
+                $2 = $5;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -6998,11 +7146,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $4.end) {
-              final c = $4.data.runeAt(state.pos - $4.start);
-              final $5 = c != 48;
-              if ($5) {
-                state.pos += c > 0xffff ? 2 : 1;
-                $2 = c;
+              final $5 = $4.data.runeAt(state.pos - $4.start);
+              final $6 = $5 != 48;
+              if ($6) {
+                state.pos += $5 > 0xffff ? 2 : 1;
+                $2 = $5;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -7067,11 +7215,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $4.end) {
-              final c = $4.data.runeAt(state.pos - $4.start);
-              final $5 = c != 128640;
-              if ($5) {
-                state.pos += c > 0xffff ? 2 : 1;
-                $2 = c;
+              final $5 = $4.data.runeAt(state.pos - $4.start);
+              final $6 = $5 != 128640;
+              if ($6) {
+                state.pos += $5 > 0xffff ? 2 : 1;
+                $2 = $5;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -7136,11 +7284,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $4.end) {
-              final c = $4.data.runeAt(state.pos - $4.start);
-              final $5 = c >= 32 && c <= 128640;
-              if ($5) {
-                state.pos += c > 0xffff ? 2 : 1;
-                $2 = c;
+              final $5 = $4.data.runeAt(state.pos - $4.start);
+              final $6 = $5 >= 32 && $5 <= 128640;
+              if ($6) {
+                state.pos += $5 > 0xffff ? 2 : 1;
+                $2 = $5;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -8131,11 +8279,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $12.end) {
-              final c = $12.data.codeUnitAt(state.pos - $12.start);
-              final $13 = c >= 48 && c <= 57;
-              if ($13) {
+              final $13 = $12.data.codeUnitAt(state.pos - $12.start);
+              final $14 = $13 >= 48 && $13 <= 57;
+              if ($14) {
                 state.pos++;
-                $8 = c;
+                $8 = $13;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -10482,59 +10630,46 @@ class Test2Parser {
     final $0 = AsyncResult<List<int>>();
     List<int>? $2;
     var $3 = 0;
-    late bool $5;
-    late List<int> $6;
-    int? $4;
+    late List<int> $8;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = <int>[];
-            $5 = state.ignoreErrors;
-            $3 = 2;
+            $8 = <int>[];
+            $3 = 1;
             break;
           case 1:
-            state.ignoreErrors = $5;
-            if ($6.isNotEmpty) {
+            final $6 = state.input;
+            var $9 = false;
+            while (state.pos < $6.end) {
+              final $4 = $6.data.codeUnitAt(state.pos - $6.start);
+              final $5 = $4 == 48;
+              if (!$5) {
+                $9 = true;
+                break;
+              }
+              state.pos++;
+              $8.add($4);
+            }
+            if (!$9 && !$6.isClosed) {
+              $6.sleep = true;
+              $6.handle = $1;
+              $3 = 1;
+              return;
+            }
+            if ($8.isNotEmpty) {
+              $2 = $8;
               state.setOk(true);
-              $2 = $6;
+            } else {
+              $6.isClosed
+                  ? state.fail(const ErrorUnexpectedEndOfInput())
+                  : state.fail(const ErrorUnexpectedCharacter());
             }
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $3 = -1;
             return;
-          case 2:
-            state.ignoreErrors = $6.isNotEmpty;
-            $3 = 3;
-            break;
-          case 3:
-            final $7 = state.input;
-            if (state.pos >= $7.end && !$7.isClosed) {
-              $7.sleep = true;
-              $7.handle = $1;
-              $3 = 3;
-              return;
-            }
-            if (state.pos < $7.end) {
-              final ok = $7.data.codeUnitAt(state.pos - $7.start) == 48;
-              if (ok) {
-                state.pos++;
-                state.setOk(true);
-                $4 = 48;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              $3 = 1;
-              break;
-            }
-            $6.add($4!);
-            $3 = 2;
-            break;
           default:
             throw StateError('Invalid state: ${$3}');
         }
@@ -12946,6 +13081,7 @@ class Test2Parser {
   ///   / (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
   ///   / (v:Slice Slice)
   ///   / (v:StringChars StringChars)
+  ///   / (v:Tag Tag)
   ///   / (v:Verify Verify)
   ///   / (v:ZeroOrMore ZeroOrMore)
   ///   ;
@@ -13838,15 +13974,15 @@ class Test2Parser {
                                                                                                 state.backtrack($138);
                                                                                               }
                                                                                               if (!state.ok && state.isRecoverable) {
-                                                                                                // (v:Verify Verify)
-                                                                                                // v:Verify Verify
+                                                                                                // (v:Tag Tag)
+                                                                                                // v:Tag Tag
                                                                                                 final $141 = state.pos;
-                                                                                                Object? $140;
-                                                                                                // Verify
-                                                                                                $140 = parseVerify(state);
+                                                                                                String? $140;
+                                                                                                // Tag
+                                                                                                $140 = parseTag(state);
                                                                                                 if (state.ok) {
-                                                                                                  // Verify
-                                                                                                  fastParseVerify(state);
+                                                                                                  // Tag
+                                                                                                  fastParseTag(state);
                                                                                                   if (state.ok) {
                                                                                                     $0 = $140;
                                                                                                   }
@@ -13855,21 +13991,39 @@ class Test2Parser {
                                                                                                   state.backtrack($141);
                                                                                                 }
                                                                                                 if (!state.ok && state.isRecoverable) {
-                                                                                                  // (v:ZeroOrMore ZeroOrMore)
-                                                                                                  // v:ZeroOrMore ZeroOrMore
+                                                                                                  // (v:Verify Verify)
+                                                                                                  // v:Verify Verify
                                                                                                   final $144 = state.pos;
-                                                                                                  List<int>? $143;
-                                                                                                  // ZeroOrMore
-                                                                                                  $143 = parseZeroOrMore(state);
+                                                                                                  Object? $143;
+                                                                                                  // Verify
+                                                                                                  $143 = parseVerify(state);
                                                                                                   if (state.ok) {
-                                                                                                    // ZeroOrMore
-                                                                                                    fastParseZeroOrMore(state);
+                                                                                                    // Verify
+                                                                                                    fastParseVerify(state);
                                                                                                     if (state.ok) {
                                                                                                       $0 = $143;
                                                                                                     }
                                                                                                   }
                                                                                                   if (!state.ok) {
                                                                                                     state.backtrack($144);
+                                                                                                  }
+                                                                                                  if (!state.ok && state.isRecoverable) {
+                                                                                                    // (v:ZeroOrMore ZeroOrMore)
+                                                                                                    // v:ZeroOrMore ZeroOrMore
+                                                                                                    final $147 = state.pos;
+                                                                                                    List<int>? $146;
+                                                                                                    // ZeroOrMore
+                                                                                                    $146 = parseZeroOrMore(state);
+                                                                                                    if (state.ok) {
+                                                                                                      // ZeroOrMore
+                                                                                                      fastParseZeroOrMore(state);
+                                                                                                      if (state.ok) {
+                                                                                                        $0 = $146;
+                                                                                                      }
+                                                                                                    }
+                                                                                                    if (!state.ok) {
+                                                                                                      state.backtrack($147);
+                                                                                                    }
                                                                                                   }
                                                                                                 }
                                                                                               }
@@ -13968,6 +14122,7 @@ class Test2Parser {
   ///   / (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
   ///   / (v:Slice Slice)
   ///   / (v:StringChars StringChars)
+  ///   / (v:Tag Tag)
   ///   / (v:Verify Verify)
   ///   / (v:ZeroOrMore ZeroOrMore)
   ///   ;
@@ -14160,13 +14315,17 @@ class Test2Parser {
     late AsyncResult<String> $276;
     late AsyncResult<Object?> $278;
     late int $281;
-    Object? $280;
-    late AsyncResult<Object?> $282;
+    String? $280;
+    late AsyncResult<String> $282;
     late AsyncResult<Object?> $284;
     late int $287;
-    List<int>? $286;
-    late AsyncResult<List<int>> $288;
+    Object? $286;
+    late AsyncResult<Object?> $288;
     late AsyncResult<Object?> $290;
+    late int $293;
+    List<int>? $292;
+    late AsyncResult<List<int>> $294;
+    late AsyncResult<Object?> $296;
     void $1() {
       while (true) {
         switch ($3) {
@@ -14182,8 +14341,8 @@ class Test2Parser {
             break;
           case 1:
             $4 = $6.value;
-            final $292 = state.ok;
-            if (!$292) {
+            final $298 = state.ok;
+            if (!$298) {
               $3 = 2;
               break;
             }
@@ -14199,8 +14358,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($5);
             }
-            final $293 = !state.ok && state.isRecoverable;
-            if (!$293) {
+            final $299 = !state.ok && state.isRecoverable;
+            if (!$299) {
               $3 = 4;
               break;
             }
@@ -14227,8 +14386,8 @@ class Test2Parser {
             return;
           case 5:
             $10 = $12.value;
-            final $294 = state.ok;
-            if (!$294) {
+            final $300 = state.ok;
+            if (!$300) {
               $3 = 6;
               break;
             }
@@ -14244,8 +14403,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($11);
             }
-            final $295 = !state.ok && state.isRecoverable;
-            if (!$295) {
+            final $301 = !state.ok && state.isRecoverable;
+            if (!$301) {
               $3 = 8;
               break;
             }
@@ -14269,8 +14428,8 @@ class Test2Parser {
             break;
           case 9:
             $16 = $18.value;
-            final $296 = state.ok;
-            if (!$296) {
+            final $302 = state.ok;
+            if (!$302) {
               $3 = 10;
               break;
             }
@@ -14286,8 +14445,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($17);
             }
-            final $297 = !state.ok && state.isRecoverable;
-            if (!$297) {
+            final $303 = !state.ok && state.isRecoverable;
+            if (!$303) {
               $3 = 12;
               break;
             }
@@ -14311,8 +14470,8 @@ class Test2Parser {
             break;
           case 13:
             $22 = $24.value;
-            final $298 = state.ok;
-            if (!$298) {
+            final $304 = state.ok;
+            if (!$304) {
               $3 = 14;
               break;
             }
@@ -14328,8 +14487,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($23);
             }
-            final $299 = !state.ok && state.isRecoverable;
-            if (!$299) {
+            final $305 = !state.ok && state.isRecoverable;
+            if (!$305) {
               $3 = 16;
               break;
             }
@@ -14353,8 +14512,8 @@ class Test2Parser {
             break;
           case 17:
             $28 = $30.value;
-            final $300 = state.ok;
-            if (!$300) {
+            final $306 = state.ok;
+            if (!$306) {
               $3 = 18;
               break;
             }
@@ -14370,8 +14529,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($29);
             }
-            final $301 = !state.ok && state.isRecoverable;
-            if (!$301) {
+            final $307 = !state.ok && state.isRecoverable;
+            if (!$307) {
               $3 = 20;
               break;
             }
@@ -14395,8 +14554,8 @@ class Test2Parser {
             break;
           case 21:
             $34 = $36.value;
-            final $302 = state.ok;
-            if (!$302) {
+            final $308 = state.ok;
+            if (!$308) {
               $3 = 22;
               break;
             }
@@ -14412,8 +14571,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($35);
             }
-            final $303 = !state.ok && state.isRecoverable;
-            if (!$303) {
+            final $309 = !state.ok && state.isRecoverable;
+            if (!$309) {
               $3 = 24;
               break;
             }
@@ -14437,8 +14596,8 @@ class Test2Parser {
             break;
           case 25:
             $40 = $42.value;
-            final $304 = state.ok;
-            if (!$304) {
+            final $310 = state.ok;
+            if (!$310) {
               $3 = 26;
               break;
             }
@@ -14454,8 +14613,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($41);
             }
-            final $305 = !state.ok && state.isRecoverable;
-            if (!$305) {
+            final $311 = !state.ok && state.isRecoverable;
+            if (!$311) {
               $3 = 28;
               break;
             }
@@ -14480,8 +14639,8 @@ class Test2Parser {
             break;
           case 29:
             $46 = $48.value;
-            final $306 = state.ok;
-            if (!$306) {
+            final $312 = state.ok;
+            if (!$312) {
               $3 = 30;
               break;
             }
@@ -14498,8 +14657,8 @@ class Test2Parser {
               state.backtrack($47);
             }
             state.input.endBuffering();
-            final $307 = !state.ok && state.isRecoverable;
-            if (!$307) {
+            final $313 = !state.ok && state.isRecoverable;
+            if (!$313) {
               $3 = 32;
               break;
             }
@@ -14524,8 +14683,8 @@ class Test2Parser {
             break;
           case 33:
             $52 = $54.value;
-            final $308 = state.ok;
-            if (!$308) {
+            final $314 = state.ok;
+            if (!$314) {
               $3 = 34;
               break;
             }
@@ -14542,8 +14701,8 @@ class Test2Parser {
               state.backtrack($53);
             }
             state.input.endBuffering();
-            final $309 = !state.ok && state.isRecoverable;
-            if (!$309) {
+            final $315 = !state.ok && state.isRecoverable;
+            if (!$315) {
               $3 = 36;
               break;
             }
@@ -14568,8 +14727,8 @@ class Test2Parser {
             break;
           case 37:
             $58 = $60.value;
-            final $310 = state.ok;
-            if (!$310) {
+            final $316 = state.ok;
+            if (!$316) {
               $3 = 38;
               break;
             }
@@ -14586,8 +14745,8 @@ class Test2Parser {
               state.backtrack($59);
             }
             state.input.endBuffering();
-            final $311 = !state.ok && state.isRecoverable;
-            if (!$311) {
+            final $317 = !state.ok && state.isRecoverable;
+            if (!$317) {
               $3 = 40;
               break;
             }
@@ -14611,8 +14770,8 @@ class Test2Parser {
             break;
           case 41:
             $64 = $66.value;
-            final $312 = state.ok;
-            if (!$312) {
+            final $318 = state.ok;
+            if (!$318) {
               $3 = 42;
               break;
             }
@@ -14628,8 +14787,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($65);
             }
-            final $313 = !state.ok && state.isRecoverable;
-            if (!$313) {
+            final $319 = !state.ok && state.isRecoverable;
+            if (!$319) {
               $3 = 44;
               break;
             }
@@ -14653,8 +14812,8 @@ class Test2Parser {
             break;
           case 45:
             $70 = $72.value;
-            final $314 = state.ok;
-            if (!$314) {
+            final $320 = state.ok;
+            if (!$320) {
               $3 = 46;
               break;
             }
@@ -14670,8 +14829,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($71);
             }
-            final $315 = !state.ok && state.isRecoverable;
-            if (!$315) {
+            final $321 = !state.ok && state.isRecoverable;
+            if (!$321) {
               $3 = 48;
               break;
             }
@@ -14695,8 +14854,8 @@ class Test2Parser {
             break;
           case 49:
             $76 = $78.value;
-            final $316 = state.ok;
-            if (!$316) {
+            final $322 = state.ok;
+            if (!$322) {
               $3 = 50;
               break;
             }
@@ -14712,8 +14871,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($77);
             }
-            final $317 = !state.ok && state.isRecoverable;
-            if (!$317) {
+            final $323 = !state.ok && state.isRecoverable;
+            if (!$323) {
               $3 = 52;
               break;
             }
@@ -14737,8 +14896,8 @@ class Test2Parser {
             break;
           case 53:
             $82 = $84.value;
-            final $318 = state.ok;
-            if (!$318) {
+            final $324 = state.ok;
+            if (!$324) {
               $3 = 54;
               break;
             }
@@ -14754,8 +14913,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($83);
             }
-            final $319 = !state.ok && state.isRecoverable;
-            if (!$319) {
+            final $325 = !state.ok && state.isRecoverable;
+            if (!$325) {
               $3 = 56;
               break;
             }
@@ -14779,8 +14938,8 @@ class Test2Parser {
             break;
           case 57:
             $88 = $90.value;
-            final $320 = state.ok;
-            if (!$320) {
+            final $326 = state.ok;
+            if (!$326) {
               $3 = 58;
               break;
             }
@@ -14796,8 +14955,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($89);
             }
-            final $321 = !state.ok && state.isRecoverable;
-            if (!$321) {
+            final $327 = !state.ok && state.isRecoverable;
+            if (!$327) {
               $3 = 60;
               break;
             }
@@ -14821,8 +14980,8 @@ class Test2Parser {
             break;
           case 61:
             $94 = $96.value;
-            final $322 = state.ok;
-            if (!$322) {
+            final $328 = state.ok;
+            if (!$328) {
               $3 = 62;
               break;
             }
@@ -14838,8 +14997,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($95);
             }
-            final $323 = !state.ok && state.isRecoverable;
-            if (!$323) {
+            final $329 = !state.ok && state.isRecoverable;
+            if (!$329) {
               $3 = 64;
               break;
             }
@@ -14863,8 +15022,8 @@ class Test2Parser {
             break;
           case 65:
             $100 = $102.value;
-            final $324 = state.ok;
-            if (!$324) {
+            final $330 = state.ok;
+            if (!$330) {
               $3 = 66;
               break;
             }
@@ -14880,8 +15039,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($101);
             }
-            final $325 = !state.ok && state.isRecoverable;
-            if (!$325) {
+            final $331 = !state.ok && state.isRecoverable;
+            if (!$331) {
               $3 = 68;
               break;
             }
@@ -14905,8 +15064,8 @@ class Test2Parser {
             break;
           case 69:
             $106 = $108.value;
-            final $326 = state.ok;
-            if (!$326) {
+            final $332 = state.ok;
+            if (!$332) {
               $3 = 70;
               break;
             }
@@ -14922,8 +15081,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($107);
             }
-            final $327 = !state.ok && state.isRecoverable;
-            if (!$327) {
+            final $333 = !state.ok && state.isRecoverable;
+            if (!$333) {
               $3 = 72;
               break;
             }
@@ -14947,8 +15106,8 @@ class Test2Parser {
             break;
           case 73:
             $112 = $114.value;
-            final $328 = state.ok;
-            if (!$328) {
+            final $334 = state.ok;
+            if (!$334) {
               $3 = 74;
               break;
             }
@@ -14964,8 +15123,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($113);
             }
-            final $329 = !state.ok && state.isRecoverable;
-            if (!$329) {
+            final $335 = !state.ok && state.isRecoverable;
+            if (!$335) {
               $3 = 76;
               break;
             }
@@ -14989,8 +15148,8 @@ class Test2Parser {
             break;
           case 77:
             $118 = $120.value;
-            final $330 = state.ok;
-            if (!$330) {
+            final $336 = state.ok;
+            if (!$336) {
               $3 = 78;
               break;
             }
@@ -15006,8 +15165,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($119);
             }
-            final $331 = !state.ok && state.isRecoverable;
-            if (!$331) {
+            final $337 = !state.ok && state.isRecoverable;
+            if (!$337) {
               $3 = 80;
               break;
             }
@@ -15031,8 +15190,8 @@ class Test2Parser {
             break;
           case 81:
             $124 = $126.value;
-            final $332 = state.ok;
-            if (!$332) {
+            final $338 = state.ok;
+            if (!$338) {
               $3 = 82;
               break;
             }
@@ -15048,8 +15207,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($125);
             }
-            final $333 = !state.ok && state.isRecoverable;
-            if (!$333) {
+            final $339 = !state.ok && state.isRecoverable;
+            if (!$339) {
               $3 = 84;
               break;
             }
@@ -15073,8 +15232,8 @@ class Test2Parser {
             break;
           case 85:
             $130 = $132.value;
-            final $334 = state.ok;
-            if (!$334) {
+            final $340 = state.ok;
+            if (!$340) {
               $3 = 86;
               break;
             }
@@ -15090,8 +15249,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($131);
             }
-            final $335 = !state.ok && state.isRecoverable;
-            if (!$335) {
+            final $341 = !state.ok && state.isRecoverable;
+            if (!$341) {
               $3 = 88;
               break;
             }
@@ -15115,8 +15274,8 @@ class Test2Parser {
             break;
           case 89:
             $136 = $138.value;
-            final $336 = state.ok;
-            if (!$336) {
+            final $342 = state.ok;
+            if (!$342) {
               $3 = 90;
               break;
             }
@@ -15132,8 +15291,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($137);
             }
-            final $337 = !state.ok && state.isRecoverable;
-            if (!$337) {
+            final $343 = !state.ok && state.isRecoverable;
+            if (!$343) {
               $3 = 92;
               break;
             }
@@ -15157,8 +15316,8 @@ class Test2Parser {
             break;
           case 93:
             $142 = $144.value;
-            final $338 = state.ok;
-            if (!$338) {
+            final $344 = state.ok;
+            if (!$344) {
               $3 = 94;
               break;
             }
@@ -15174,8 +15333,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($143);
             }
-            final $339 = !state.ok && state.isRecoverable;
-            if (!$339) {
+            final $345 = !state.ok && state.isRecoverable;
+            if (!$345) {
               $3 = 96;
               break;
             }
@@ -15199,8 +15358,8 @@ class Test2Parser {
             break;
           case 97:
             $148 = $150.value;
-            final $340 = state.ok;
-            if (!$340) {
+            final $346 = state.ok;
+            if (!$346) {
               $3 = 98;
               break;
             }
@@ -15216,8 +15375,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($149);
             }
-            final $341 = !state.ok && state.isRecoverable;
-            if (!$341) {
+            final $347 = !state.ok && state.isRecoverable;
+            if (!$347) {
               $3 = 100;
               break;
             }
@@ -15241,8 +15400,8 @@ class Test2Parser {
             break;
           case 101:
             $154 = $156.value;
-            final $342 = state.ok;
-            if (!$342) {
+            final $348 = state.ok;
+            if (!$348) {
               $3 = 102;
               break;
             }
@@ -15258,8 +15417,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($155);
             }
-            final $343 = !state.ok && state.isRecoverable;
-            if (!$343) {
+            final $349 = !state.ok && state.isRecoverable;
+            if (!$349) {
               $3 = 104;
               break;
             }
@@ -15283,8 +15442,8 @@ class Test2Parser {
             break;
           case 105:
             $160 = $162.value;
-            final $344 = state.ok;
-            if (!$344) {
+            final $350 = state.ok;
+            if (!$350) {
               $3 = 106;
               break;
             }
@@ -15300,8 +15459,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($161);
             }
-            final $345 = !state.ok && state.isRecoverable;
-            if (!$345) {
+            final $351 = !state.ok && state.isRecoverable;
+            if (!$351) {
               $3 = 108;
               break;
             }
@@ -15325,8 +15484,8 @@ class Test2Parser {
             break;
           case 109:
             $166 = $168.value;
-            final $346 = state.ok;
-            if (!$346) {
+            final $352 = state.ok;
+            if (!$352) {
               $3 = 110;
               break;
             }
@@ -15342,8 +15501,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($167);
             }
-            final $347 = !state.ok && state.isRecoverable;
-            if (!$347) {
+            final $353 = !state.ok && state.isRecoverable;
+            if (!$353) {
               $3 = 112;
               break;
             }
@@ -15367,8 +15526,8 @@ class Test2Parser {
             break;
           case 113:
             $172 = $174.value;
-            final $348 = state.ok;
-            if (!$348) {
+            final $354 = state.ok;
+            if (!$354) {
               $3 = 114;
               break;
             }
@@ -15384,8 +15543,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($173);
             }
-            final $349 = !state.ok && state.isRecoverable;
-            if (!$349) {
+            final $355 = !state.ok && state.isRecoverable;
+            if (!$355) {
               $3 = 116;
               break;
             }
@@ -15409,8 +15568,8 @@ class Test2Parser {
             break;
           case 117:
             $178 = $180.value;
-            final $350 = state.ok;
-            if (!$350) {
+            final $356 = state.ok;
+            if (!$356) {
               $3 = 118;
               break;
             }
@@ -15426,8 +15585,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($179);
             }
-            final $351 = !state.ok && state.isRecoverable;
-            if (!$351) {
+            final $357 = !state.ok && state.isRecoverable;
+            if (!$357) {
               $3 = 120;
               break;
             }
@@ -15451,8 +15610,8 @@ class Test2Parser {
             break;
           case 121:
             $184 = $186.value;
-            final $352 = state.ok;
-            if (!$352) {
+            final $358 = state.ok;
+            if (!$358) {
               $3 = 122;
               break;
             }
@@ -15468,8 +15627,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($185);
             }
-            final $353 = !state.ok && state.isRecoverable;
-            if (!$353) {
+            final $359 = !state.ok && state.isRecoverable;
+            if (!$359) {
               $3 = 124;
               break;
             }
@@ -15493,8 +15652,8 @@ class Test2Parser {
             break;
           case 125:
             $190 = $192.value;
-            final $354 = state.ok;
-            if (!$354) {
+            final $360 = state.ok;
+            if (!$360) {
               $3 = 126;
               break;
             }
@@ -15510,8 +15669,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($191);
             }
-            final $355 = !state.ok && state.isRecoverable;
-            if (!$355) {
+            final $361 = !state.ok && state.isRecoverable;
+            if (!$361) {
               $3 = 128;
               break;
             }
@@ -15535,8 +15694,8 @@ class Test2Parser {
             break;
           case 129:
             $196 = $198.value;
-            final $356 = state.ok;
-            if (!$356) {
+            final $362 = state.ok;
+            if (!$362) {
               $3 = 130;
               break;
             }
@@ -15552,8 +15711,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($197);
             }
-            final $357 = !state.ok && state.isRecoverable;
-            if (!$357) {
+            final $363 = !state.ok && state.isRecoverable;
+            if (!$363) {
               $3 = 132;
               break;
             }
@@ -15577,8 +15736,8 @@ class Test2Parser {
             break;
           case 133:
             $202 = $204.value;
-            final $358 = state.ok;
-            if (!$358) {
+            final $364 = state.ok;
+            if (!$364) {
               $3 = 134;
               break;
             }
@@ -15594,8 +15753,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($203);
             }
-            final $359 = !state.ok && state.isRecoverable;
-            if (!$359) {
+            final $365 = !state.ok && state.isRecoverable;
+            if (!$365) {
               $3 = 136;
               break;
             }
@@ -15619,8 +15778,8 @@ class Test2Parser {
             break;
           case 137:
             $208 = $210.value;
-            final $360 = state.ok;
-            if (!$360) {
+            final $366 = state.ok;
+            if (!$366) {
               $3 = 138;
               break;
             }
@@ -15636,8 +15795,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($209);
             }
-            final $361 = !state.ok && state.isRecoverable;
-            if (!$361) {
+            final $367 = !state.ok && state.isRecoverable;
+            if (!$367) {
               $3 = 140;
               break;
             }
@@ -15661,8 +15820,8 @@ class Test2Parser {
             break;
           case 141:
             $214 = $216.value;
-            final $362 = state.ok;
-            if (!$362) {
+            final $368 = state.ok;
+            if (!$368) {
               $3 = 142;
               break;
             }
@@ -15678,8 +15837,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($215);
             }
-            final $363 = !state.ok && state.isRecoverable;
-            if (!$363) {
+            final $369 = !state.ok && state.isRecoverable;
+            if (!$369) {
               $3 = 144;
               break;
             }
@@ -15703,8 +15862,8 @@ class Test2Parser {
             break;
           case 145:
             $220 = $222.value;
-            final $364 = state.ok;
-            if (!$364) {
+            final $370 = state.ok;
+            if (!$370) {
               $3 = 146;
               break;
             }
@@ -15720,8 +15879,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($221);
             }
-            final $365 = !state.ok && state.isRecoverable;
-            if (!$365) {
+            final $371 = !state.ok && state.isRecoverable;
+            if (!$371) {
               $3 = 148;
               break;
             }
@@ -15745,8 +15904,8 @@ class Test2Parser {
             break;
           case 149:
             $226 = $228.value;
-            final $366 = state.ok;
-            if (!$366) {
+            final $372 = state.ok;
+            if (!$372) {
               $3 = 150;
               break;
             }
@@ -15762,8 +15921,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($227);
             }
-            final $367 = !state.ok && state.isRecoverable;
-            if (!$367) {
+            final $373 = !state.ok && state.isRecoverable;
+            if (!$373) {
               $3 = 152;
               break;
             }
@@ -15787,8 +15946,8 @@ class Test2Parser {
             break;
           case 153:
             $232 = $234.value;
-            final $368 = state.ok;
-            if (!$368) {
+            final $374 = state.ok;
+            if (!$374) {
               $3 = 154;
               break;
             }
@@ -15804,8 +15963,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($233);
             }
-            final $369 = !state.ok && state.isRecoverable;
-            if (!$369) {
+            final $375 = !state.ok && state.isRecoverable;
+            if (!$375) {
               $3 = 156;
               break;
             }
@@ -15829,8 +15988,8 @@ class Test2Parser {
             break;
           case 157:
             $238 = $240.value;
-            final $370 = state.ok;
-            if (!$370) {
+            final $376 = state.ok;
+            if (!$376) {
               $3 = 158;
               break;
             }
@@ -15846,8 +16005,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($239);
             }
-            final $371 = !state.ok && state.isRecoverable;
-            if (!$371) {
+            final $377 = !state.ok && state.isRecoverable;
+            if (!$377) {
               $3 = 160;
               break;
             }
@@ -15871,8 +16030,8 @@ class Test2Parser {
             break;
           case 161:
             $244 = $246.value;
-            final $372 = state.ok;
-            if (!$372) {
+            final $378 = state.ok;
+            if (!$378) {
               $3 = 162;
               break;
             }
@@ -15888,8 +16047,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($245);
             }
-            final $373 = !state.ok && state.isRecoverable;
-            if (!$373) {
+            final $379 = !state.ok && state.isRecoverable;
+            if (!$379) {
               $3 = 164;
               break;
             }
@@ -15913,8 +16072,8 @@ class Test2Parser {
             break;
           case 165:
             $250 = $252.value;
-            final $374 = state.ok;
-            if (!$374) {
+            final $380 = state.ok;
+            if (!$380) {
               $3 = 166;
               break;
             }
@@ -15930,8 +16089,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($251);
             }
-            final $375 = !state.ok && state.isRecoverable;
-            if (!$375) {
+            final $381 = !state.ok && state.isRecoverable;
+            if (!$381) {
               $3 = 168;
               break;
             }
@@ -15955,8 +16114,8 @@ class Test2Parser {
             break;
           case 169:
             $256 = $258.value;
-            final $376 = state.ok;
-            if (!$376) {
+            final $382 = state.ok;
+            if (!$382) {
               $3 = 170;
               break;
             }
@@ -15972,8 +16131,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($257);
             }
-            final $377 = !state.ok && state.isRecoverable;
-            if (!$377) {
+            final $383 = !state.ok && state.isRecoverable;
+            if (!$383) {
               $3 = 172;
               break;
             }
@@ -15997,8 +16156,8 @@ class Test2Parser {
             break;
           case 173:
             $262 = $264.value;
-            final $378 = state.ok;
-            if (!$378) {
+            final $384 = state.ok;
+            if (!$384) {
               $3 = 174;
               break;
             }
@@ -16014,8 +16173,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($263);
             }
-            final $379 = !state.ok && state.isRecoverable;
-            if (!$379) {
+            final $385 = !state.ok && state.isRecoverable;
+            if (!$385) {
               $3 = 176;
               break;
             }
@@ -16039,8 +16198,8 @@ class Test2Parser {
             break;
           case 177:
             $268 = $270.value;
-            final $380 = state.ok;
-            if (!$380) {
+            final $386 = state.ok;
+            if (!$386) {
               $3 = 178;
               break;
             }
@@ -16056,8 +16215,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($269);
             }
-            final $381 = !state.ok && state.isRecoverable;
-            if (!$381) {
+            final $387 = !state.ok && state.isRecoverable;
+            if (!$387) {
               $3 = 180;
               break;
             }
@@ -16081,8 +16240,8 @@ class Test2Parser {
             break;
           case 181:
             $274 = $276.value;
-            final $382 = state.ok;
-            if (!$382) {
+            final $388 = state.ok;
+            if (!$388) {
               $3 = 182;
               break;
             }
@@ -16098,13 +16257,13 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($275);
             }
-            final $383 = !state.ok && state.isRecoverable;
-            if (!$383) {
+            final $389 = !state.ok && state.isRecoverable;
+            if (!$389) {
               $3 = 184;
               break;
             }
             $281 = state.pos;
-            $282 = parseVerify$Async(state);
+            $282 = parseTag$Async(state);
             if (!$282.isComplete) {
               $282.onComplete = $1;
               $3 = 185;
@@ -16123,12 +16282,12 @@ class Test2Parser {
             break;
           case 185:
             $280 = $282.value;
-            final $384 = state.ok;
-            if (!$384) {
+            final $390 = state.ok;
+            if (!$390) {
               $3 = 186;
               break;
             }
-            $284 = fastParseVerify$Async(state);
+            $284 = fastParseTag$Async(state);
             if (!$284.isComplete) {
               $284.onComplete = $1;
               $3 = 187;
@@ -16140,13 +16299,13 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($281);
             }
-            final $385 = !state.ok && state.isRecoverable;
-            if (!$385) {
+            final $391 = !state.ok && state.isRecoverable;
+            if (!$391) {
               $3 = 188;
               break;
             }
             $287 = state.pos;
-            $288 = parseZeroOrMore$Async(state);
+            $288 = parseVerify$Async(state);
             if (!$288.isComplete) {
               $288.onComplete = $1;
               $3 = 189;
@@ -16165,12 +16324,12 @@ class Test2Parser {
             break;
           case 189:
             $286 = $288.value;
-            final $386 = state.ok;
-            if (!$386) {
+            final $392 = state.ok;
+            if (!$392) {
               $3 = 190;
               break;
             }
-            $290 = fastParseZeroOrMore$Async(state);
+            $290 = fastParseVerify$Async(state);
             if (!$290.isComplete) {
               $290.onComplete = $1;
               $3 = 191;
@@ -16182,13 +16341,55 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($287);
             }
-            $3 = 188;
+            final $393 = !state.ok && state.isRecoverable;
+            if (!$393) {
+              $3 = 192;
+              break;
+            }
+            $293 = state.pos;
+            $294 = parseZeroOrMore$Async(state);
+            if (!$294.isComplete) {
+              $294.onComplete = $1;
+              $3 = 193;
+              return;
+            }
+            $3 = 193;
             break;
           case 191:
             if (state.ok) {
               $2 = $286;
             }
             $3 = 190;
+            break;
+          case 192:
+            $3 = 188;
+            break;
+          case 193:
+            $292 = $294.value;
+            final $394 = state.ok;
+            if (!$394) {
+              $3 = 194;
+              break;
+            }
+            $296 = fastParseZeroOrMore$Async(state);
+            if (!$296.isComplete) {
+              $296.onComplete = $1;
+              $3 = 195;
+              return;
+            }
+            $3 = 195;
+            break;
+          case 194:
+            if (!state.ok) {
+              state.backtrack($293);
+            }
+            $3 = 192;
+            break;
+          case 195:
+            if (state.ok) {
+              $2 = $292;
+            }
+            $3 = 194;
             break;
           default:
             throw StateError('Invalid state: ${$3}');
@@ -16311,8 +16512,7 @@ class Test2Parser {
     String? $8;
     String? $4;
     late int $9;
-    late bool $10;
-    late bool $11;
+    late int $14;
     String? $5;
     void $1() {
       while (true) {
@@ -16339,13 +16539,35 @@ class Test2Parser {
           case 2:
             $9 = state.pos;
             state.input.beginBuffering();
-            $11 = false;
-            $10 = state.ignoreErrors;
-            $3 = 4;
+            $14 = 0;
+            $3 = 3;
             break;
           case 3:
-            state.ignoreErrors = $10;
-            state.setOk($11);
+            final $12 = state.input;
+            var $15 = false;
+            while (state.pos < $12.end) {
+              final $10 = $12.data.codeUnitAt(state.pos - $12.start);
+              final $11 = $10 >= 48 && $10 <= 57;
+              if (!$11) {
+                $15 = true;
+                break;
+              }
+              state.pos++;
+              $14++;
+            }
+            if (!$15 && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
+              $3 = 3;
+              return;
+            }
+            if ($14 != 0) {
+              state.setOk(true);
+            } else {
+              $12.isClosed
+                  ? state.fail(const ErrorUnexpectedEndOfInput())
+                  : state.fail(const ErrorUnexpectedCharacter());
+            }
             state.input.endBuffering();
             if (state.ok) {
               final input = state.input;
@@ -16363,49 +16585,18 @@ class Test2Parser {
               }
             }
             $7 = state.pos;
-            $3 = 6;
-            break;
-          case 4:
-            state.ignoreErrors = $11;
-            $3 = 5;
-            break;
-          case 5:
-            final $12 = state.input;
-            if (state.pos >= $12.end && !$12.isClosed) {
-              $12.sleep = true;
-              $12.handle = $1;
-              $3 = 5;
-              return;
-            }
-            if (state.pos < $12.end) {
-              final c = $12.data.codeUnitAt(state.pos - $12.start);
-              final $13 = c >= 48 && c <= 57;
-              if ($13) {
-                state.pos++;
-                state.setOk(true);
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              $3 = 3;
-              break;
-            }
-            $11 = true;
             $3 = 4;
             break;
-          case 6:
-            final $15 = state.input;
-            if (state.pos >= $15.end && !$15.isClosed) {
-              $15.sleep = true;
-              $15.handle = $1;
-              $3 = 6;
+          case 4:
+            final $16 = state.input;
+            if (state.pos >= $16.end && !$16.isClosed) {
+              $16.sleep = true;
+              $16.handle = $1;
+              $3 = 4;
               return;
             }
-            if (state.pos < $15.end) {
-              final ok = $15.data.codeUnitAt(state.pos - $15.start) == 92;
+            if (state.pos < $16.end) {
+              final ok = $16.data.codeUnitAt(state.pos - $16.start) == 92;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -16419,18 +16610,18 @@ class Test2Parser {
               $3 = 1;
               break;
             }
-            $3 = 7;
+            $3 = 5;
             break;
-          case 7:
-            final $17 = state.input;
-            if (state.pos >= $17.end && !$17.isClosed) {
-              $17.sleep = true;
-              $17.handle = $1;
-              $3 = 7;
+          case 5:
+            final $18 = state.input;
+            if (state.pos >= $18.end && !$18.isClosed) {
+              $18.sleep = true;
+              $18.handle = $1;
+              $3 = 5;
               return;
             }
-            if (state.pos < $17.end) {
-              final ok = $17.data.codeUnitAt(state.pos - $17.start) == 116;
+            if (state.pos < $18.end) {
+              final ok = $18.data.codeUnitAt(state.pos - $18.start) == 116;
               if (ok) {
                 state.pos++;
                 state.setOk(true);
@@ -16458,6 +16649,203 @@ class Test2Parser {
               $6!.add($5!);
             }
             $3 = 2;
+            break;
+          default:
+            throw StateError('Invalid state: ${$3}');
+        }
+      }
+    }
+
+    $1();
+    return $0;
+  }
+
+  /// Tag =
+  ///   @tag('FOR', $([Ff] [Oo] [Rr]))
+  ///   ;
+  String? parseTag(State<String> state) {
+    String? $0;
+    // @tag('FOR', $([Ff] [Oo] [Rr]))
+    final $2 = state.pos;
+    final $3 = state.ignoreErrors;
+    state.ignoreErrors = true;
+    // $([Ff] [Oo] [Rr])
+    final $5 = state.pos;
+    // [Ff] [Oo] [Rr]
+    final $6 = state.pos;
+    if (state.pos < state.input.length) {
+      final $7 = state.input.codeUnitAt(state.pos);
+      final $8 = $7 == 70 || $7 == 102;
+      if ($8) {
+        state.pos++;
+        state.setOk(true);
+      } else {
+        state.fail(const ErrorUnexpectedCharacter());
+      }
+    } else {
+      state.fail(const ErrorUnexpectedEndOfInput());
+    }
+    if (state.ok) {
+      if (state.pos < state.input.length) {
+        final $9 = state.input.codeUnitAt(state.pos);
+        final $10 = $9 == 79 || $9 == 111;
+        if ($10) {
+          state.pos++;
+          state.setOk(true);
+        } else {
+          state.fail(const ErrorUnexpectedCharacter());
+        }
+      } else {
+        state.fail(const ErrorUnexpectedEndOfInput());
+      }
+      if (state.ok) {
+        if (state.pos < state.input.length) {
+          final $11 = state.input.codeUnitAt(state.pos);
+          final $12 = $11 == 82 || $11 == 114;
+          if ($12) {
+            state.pos++;
+            state.setOk(true);
+          } else {
+            state.fail(const ErrorUnexpectedCharacter());
+          }
+        } else {
+          state.fail(const ErrorUnexpectedEndOfInput());
+        }
+      }
+    }
+    if (!state.ok) {
+      state.backtrack($6);
+    }
+    if (state.ok) {
+      $0 = state.input.substring($5, state.pos);
+    }
+    state.ignoreErrors = $3;
+    if (!state.ok) {
+      state.failAt($2, const ErrorExpectedTags(['FOR']));
+    }
+    return $0;
+  }
+
+  /// Tag =
+  ///   @tag('FOR', $([Ff] [Oo] [Rr]))
+  ///   ;
+  AsyncResult<String> parseTag$Async(State<ChunkedParsingSink> state) {
+    final $0 = AsyncResult<String>();
+    String? $2;
+    var $3 = 0;
+    late int $4;
+    late bool $5;
+    late int $6;
+    late int $7;
+    void $1() {
+      while (true) {
+        switch ($3) {
+          case 0:
+            $4 = state.pos;
+            $5 = state.ignoreErrors;
+            state.ignoreErrors = true;
+            $6 = state.pos;
+            state.input.beginBuffering();
+            $7 = state.pos;
+            $3 = 1;
+            break;
+          case 1:
+            final $8 = state.input;
+            if (state.pos >= $8.end && !$8.isClosed) {
+              $8.sleep = true;
+              $8.handle = $1;
+              $3 = 1;
+              return;
+            }
+            if (state.pos < $8.end) {
+              final $9 = $8.data.codeUnitAt(state.pos - $8.start);
+              final $10 = $9 == 70 || $9 == 102;
+              if ($10) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            final $20 = state.ok;
+            if (!$20) {
+              $3 = 2;
+              break;
+            }
+            $3 = 3;
+            break;
+          case 2:
+            if (!state.ok) {
+              state.backtrack($7);
+            }
+            state.input.endBuffering();
+            if (state.ok) {
+              final input = state.input;
+              final start = input.start;
+              $2 = input.data.substring($6 - start, state.pos - start);
+            }
+            state.ignoreErrors = $5;
+            if (!state.ok) {
+              state.failAt($4, const ErrorExpectedTags(['FOR']));
+            }
+            $0.value = $2;
+            $0.isComplete = true;
+            state.input.handle = $0.onComplete;
+            $3 = -1;
+            return;
+          case 3:
+            final $12 = state.input;
+            if (state.pos >= $12.end && !$12.isClosed) {
+              $12.sleep = true;
+              $12.handle = $1;
+              $3 = 3;
+              return;
+            }
+            if (state.pos < $12.end) {
+              final $13 = $12.data.codeUnitAt(state.pos - $12.start);
+              final $14 = $13 == 79 || $13 == 111;
+              if ($14) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            final $21 = state.ok;
+            if (!$21) {
+              $3 = 4;
+              break;
+            }
+            $3 = 5;
+            break;
+          case 4:
+            $3 = 2;
+            break;
+          case 5:
+            final $16 = state.input;
+            if (state.pos >= $16.end && !$16.isClosed) {
+              $16.sleep = true;
+              $16.handle = $1;
+              $3 = 5;
+              return;
+            }
+            if (state.pos < $16.end) {
+              final $17 = $16.data.codeUnitAt(state.pos - $16.start);
+              final $18 = $17 == 82 || $17 == 114;
+              if ($18) {
+                state.pos++;
+                state.setOk(true);
+              } else {
+                state.fail(const ErrorUnexpectedCharacter());
+              }
+            } else {
+              state.fail(const ErrorUnexpectedEndOfInput());
+            }
+            $3 = 4;
             break;
           default:
             throw StateError('Invalid state: ${$3}');
@@ -16612,8 +17000,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorExpectedTags([$5]));
             }
-            final $23 = !state.ok && state.isRecoverable;
-            if (!$23) {
+            final $24 = !state.ok && state.isRecoverable;
+            if (!$24) {
               $3 = 1;
               break;
             }
@@ -16646,8 +17034,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $24 = state.ok;
-            if (!$24) {
+            final $25 = state.ok;
+            if (!$25) {
               $3 = 3;
               break;
             }
@@ -16657,8 +17045,8 @@ class Test2Parser {
             if (!state.ok) {
               state.backtrack($11);
             }
-            final $26 = !state.ok && state.isRecoverable;
-            if (!$26) {
+            final $27 = !state.ok && state.isRecoverable;
+            if (!$27) {
               $3 = 7;
               break;
             }
@@ -16686,8 +17074,8 @@ class Test2Parser {
             } else {
               state.fail(const ErrorUnexpectedEndOfInput());
             }
-            final $25 = state.ok;
-            if (!$25) {
+            final $26 = state.ok;
+            if (!$26) {
               $3 = 5;
               break;
             }
@@ -16733,11 +17121,11 @@ class Test2Parser {
               return;
             }
             if (state.pos < $20.end) {
-              final c = $20.data.codeUnitAt(state.pos - $20.start);
-              final $21 = c >= 48 && c <= 49;
-              if ($21) {
+              final $21 = $20.data.codeUnitAt(state.pos - $20.start);
+              final $22 = $21 >= 48 && $21 <= 49;
+              if ($22) {
                 state.pos++;
-                $2 = c;
+                $2 = $21;
                 state.setOk(true);
               } else {
                 state.fail(const ErrorUnexpectedCharacter());
@@ -16797,56 +17185,42 @@ class Test2Parser {
     final $0 = AsyncResult<List<int>>();
     List<int>? $2;
     var $3 = 0;
-    late bool $5;
-    late List<int> $6;
-    int? $4;
+    late List<int> $8;
     void $1() {
       while (true) {
         switch ($3) {
           case 0:
-            $6 = <int>[];
-            $5 = state.ignoreErrors;
-            state.ignoreErrors = true;
-            $3 = 2;
+            $8 = <int>[];
+            $3 = 1;
             break;
           case 1:
-            state.ignoreErrors = $5;
+            final $6 = state.input;
+            var $9 = false;
+            while (state.pos < $6.end) {
+              final $4 = $6.data.codeUnitAt(state.pos - $6.start);
+              final $5 = $4 == 48;
+              if (!$5) {
+                $9 = true;
+                break;
+              }
+              state.pos++;
+              $8.add($4);
+            }
+            if (!$9 && !$6.isClosed) {
+              $6.sleep = true;
+              $6.handle = $1;
+              $3 = 1;
+              return;
+            }
             state.setOk(true);
             if (state.ok) {
-              $2 = $6;
+              $2 = $8;
             }
             $0.value = $2;
             $0.isComplete = true;
             state.input.handle = $0.onComplete;
             $3 = -1;
             return;
-          case 2:
-            final $7 = state.input;
-            if (state.pos >= $7.end && !$7.isClosed) {
-              $7.sleep = true;
-              $7.handle = $1;
-              $3 = 2;
-              return;
-            }
-            if (state.pos < $7.end) {
-              final ok = $7.data.codeUnitAt(state.pos - $7.start) == 48;
-              if (ok) {
-                state.pos++;
-                state.setOk(true);
-                $4 = 48;
-              } else {
-                state.fail(const ErrorUnexpectedCharacter());
-              }
-            } else {
-              state.fail(const ErrorUnexpectedEndOfInput());
-            }
-            if (!state.ok) {
-              $3 = 1;
-              break;
-            }
-            $6.add($4!);
-            $3 = 2;
-            break;
           default:
             throw StateError('Invalid state: ${$3}');
         }

@@ -25,6 +25,7 @@ void main() {
   _testSequence();
   _testSlice();
   _testStringChars();
+  _testTag();
   _testVerify();
   _testZeroOrMore();
 }
@@ -634,40 +635,6 @@ void _testEof() {
   });
 }
 
-void _testIndicate() {
-  test('Indicate', () async {
-    {
-      const source = '012';
-      await __testSuccess(
-        fastParse: _parser.fastParseIndicate,
-        fastParseAsync: _parser.fastParseIndicate$Async,
-        parse: _parser.parseIndicate,
-        parseAsync: _parser.parseIndicate$Async,
-        pos: 3,
-        result: [0x30, 0x31, 0x32],
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      const failPos = 2;
-      await __testFailure(
-        errors: {
-          ErrorMessage(-2, 'error').getErrorMessage(source, failPos),
-        },
-        failPos: failPos,
-        fastParse: _parser.fastParseIndicate,
-        fastParseAsync: _parser.fastParseIndicate$Async,
-        parse: _parser.parseIndicate,
-        parseAsync: _parser.parseIndicate$Async,
-        pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
 void _testExpected() {
   test('Expected', () async {
     {
@@ -712,6 +679,40 @@ void _testExpected() {
         fastParseAsync: _parser.fastParseExpected$Async,
         parse: _parser.parseExpected,
         parseAsync: _parser.parseExpected$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testIndicate() {
+  test('Indicate', () async {
+    {
+      const source = '012';
+      await __testSuccess(
+        fastParse: _parser.fastParseIndicate,
+        fastParseAsync: _parser.fastParseIndicate$Async,
+        parse: _parser.parseIndicate,
+        parseAsync: _parser.parseIndicate$Async,
+        pos: 3,
+        result: [0x30, 0x31, 0x32],
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      const failPos = 2;
+      await __testFailure(
+        errors: {
+          ErrorMessage(-2, 'error').getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseIndicate,
+        fastParseAsync: _parser.fastParseIndicate$Async,
+        parse: _parser.parseIndicate,
+        parseAsync: _parser.parseIndicate$Async,
         pos: 0,
         source: source,
       );
@@ -1149,127 +1150,6 @@ void _testMatchString() {
         parse: _parser.parseMatchString,
         parseAsync: _parser.parseMatchString$Async,
         pos: 0,
-        source: source,
-      );
-    }
-  });
-}
-
-void _testStringChars() {
-  test('StringChars', () async {
-    {
-      const source = '';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 0,
-        result: '',
-        source: source,
-      );
-    }
-
-    {
-      const source = '0';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 1,
-        result: '0',
-        source: source,
-      );
-    }
-
-    {
-      const source = '01';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 2,
-        result: '01',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'\t';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 2,
-        result: '\t',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'\t\t';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 4,
-        result: '\t\t',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'0\t';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 3,
-        result: '0\t',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'01\t';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 4,
-        result: '01\t',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'0\t1';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 4,
-        result: '0\t1',
-        source: source,
-      );
-    }
-
-    {
-      const source = r'0\t10';
-      await __testSuccess(
-        fastParse: _parser.fastParseStringChars,
-        fastParseAsync: _parser.fastParseStringChars$Async,
-        parse: _parser.parseStringChars,
-        parseAsync: _parser.parseStringChars$Async,
-        pos: 5,
-        result: '0\t10',
         source: source,
       );
     }
@@ -2620,6 +2500,178 @@ void _testSlice() {
         fastParseAsync: _parser.fastParseSlice$Async,
         parse: _parser.parseSlice,
         parseAsync: _parser.parseSlice$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+  });
+}
+
+void _testStringChars() {
+  test('StringChars', () async {
+    {
+      const source = '';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 0,
+        result: '',
+        source: source,
+      );
+    }
+
+    {
+      const source = '0';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 1,
+        result: '0',
+        source: source,
+      );
+    }
+
+    {
+      const source = '01';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 2,
+        result: '01',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'\t';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 2,
+        result: '\t',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'\t\t';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 4,
+        result: '\t\t',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'0\t';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 3,
+        result: '0\t',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'01\t';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 4,
+        result: '01\t',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'0\t1';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 4,
+        result: '0\t1',
+        source: source,
+      );
+    }
+
+    {
+      const source = r'0\t10';
+      await __testSuccess(
+        fastParse: _parser.fastParseStringChars,
+        fastParseAsync: _parser.fastParseStringChars$Async,
+        parse: _parser.parseStringChars,
+        parseAsync: _parser.parseStringChars$Async,
+        pos: 5,
+        result: '0\t10',
+        source: source,
+      );
+    }
+  });
+}
+
+void _testTag() {
+  test('Tag', () async {
+    {
+      const source = 'FoR';
+      await __testSuccess(
+        fastParse: _parser.fastParseTag,
+        fastParseAsync: _parser.fastParseTag$Async,
+        parse: _parser.parseTag,
+        parseAsync: _parser.parseTag$Async,
+        pos: 3,
+        result: source,
+        source: source,
+      );
+    }
+
+    {
+      const source = '';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['FOR']).getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseTag,
+        fastParseAsync: _parser.fastParseTag$Async,
+        parse: _parser.parseTag,
+        parseAsync: _parser.parseTag$Async,
+        pos: 0,
+        source: source,
+      );
+    }
+
+    {
+      const source = 'Fo';
+      const failPos = 0;
+      await __testFailure(
+        errors: {
+          ErrorExpectedTags(['FOR']).getErrorMessage(source, failPos),
+        },
+        failPos: failPos,
+        fastParse: _parser.fastParseTag,
+        fastParseAsync: _parser.fastParseTag$Async,
+        parse: _parser.parseTag,
+        parseAsync: _parser.parseTag$Async,
         pos: 0,
         source: source,
       );

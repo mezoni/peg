@@ -144,6 +144,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitTag(TagExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitVerify(VerifyExpression node) {
     _initializeNode(node);
   }

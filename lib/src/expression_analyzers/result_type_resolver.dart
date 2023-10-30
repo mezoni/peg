@@ -228,6 +228,13 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitTag(TagExpression node) {
+    node.visitChildren(this);
+    final child = node.expression;
+    _setResultType(node, _getResultType(child));
+  }
+
+  @override
   void visitVerify(VerifyExpression node) {
     node.visitChildren(this);
     final child = node.expression;

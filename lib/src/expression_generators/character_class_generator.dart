@@ -82,13 +82,14 @@ if (state.pos < state.input.length) {
     final asyncGenerator = ruleGenerator.asyncGenerator;
     final handle = asyncGenerator.functionName;
     final input = allocateName();
+    final c = allocateName();
     final ok = allocateName();
-    final adjustStatePos = helper.adjustStatePos('c', ranges, negate);
+    final adjustStatePos = helper.adjustStatePos(c, ranges, negate);
     final charAt = helper.charAt(ranges, negate);
-    final predicate = helper.rangesToPredicate('c', ranges, negate);
+    final predicate = helper.rangesToPredicate(c, ranges, negate);
     var assignResult = '';
     if (variable != null) {
-      assignResult = '$variable = c;';
+      assignResult = '$variable = $c;';
     }
 
     final label = allocateName();
@@ -100,7 +101,7 @@ if (state.pos < state.input.length) {
       block.return_(label);
     });
     block.if_('state.pos < $input.end', (block) {
-      block << 'final c = $input.data.$charAt(state.pos - $input.start);';
+      block << 'final $c = $input.data.$charAt(state.pos - $input.start);';
       block << 'final $ok = $predicate;';
       block.if_(ok, (block) {
         block << '$adjustStatePos;';

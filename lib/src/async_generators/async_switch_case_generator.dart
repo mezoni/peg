@@ -206,7 +206,7 @@ class AsyncSwitchCaseGenerator extends ActionNodeVisitor<void> {
     final loopStart = _loopStart;
     _loop = node;
     if (!node.hasGaps) {
-      _writeln('if ($condition) {');
+      _writeln('while ($condition) {');
       body.accept(this);
       _writeln('}');
       _loop = loop;

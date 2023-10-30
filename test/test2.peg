@@ -53,6 +53,7 @@ Start =
   / (v:Sequence2WithVariablesWithAction Sequence2WithVariablesWithAction)
   / (v:Slice Slice)
   / (v:StringChars StringChars)
+  / (v:Tag Tag)
   / (v:Verify Verify)
   / (v:ZeroOrMore ZeroOrMore)
   ;
@@ -158,6 +159,8 @@ Sequence2WithVariablesWithAction = v1:[0] v2:[1] <int>{ $$ = v1 + v2; } ;
 Slice = $([0] [1] [2]) / $([0] [1]) ;
 
 StringChars = @stringChars($[0-9]+, [\\], [t] <String>{ $$ = '\t'; }) ;
+
+Tag = @tag('FOR', $([Ff] [Oo] [Rr])) ;
 
 Verify =
     'abc'

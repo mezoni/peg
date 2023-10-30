@@ -211,6 +211,7 @@ MetaExpression =
     / MatchString
     / Message
     / StringChars
+    / Tag
     / Verify
   ) ;
 
@@ -237,6 +238,9 @@ Message = '@message' Spaces LeftParenthesis s:String Comma e:Expression RightPar
 
 Expression
 StringChars = '@stringChars' Spaces LeftParenthesis n:Expression Comma c:Expression Comma e:Expression RightParenthesis { $$ = StringCharsExpression(normalCharacters: n, escapeCharacter:c, escape: e); } ;
+
+Expression
+Tag = '@tag' Spaces LeftParenthesis t:String Comma e:Expression RightParenthesis { $$ = TagExpression(expression: e, tag: t); } ;
 
 Expression
 Verify = '@verify' Spaces LeftParenthesis m:String Comma e:Expression Comma b:Block RightParenthesis { $$ = VerifyExpression(expression: e, message:m, predicate: b); } ;
@@ -269,7 +273,21 @@ Identifier = i:$([a-zA-Z] [a-zA-Z_0-9]*) Spaces ;
 String
 MetaName = !ReservedMetaName v:$('@' [a-zA-Z] [a-zA-Z_0-9]*) Spaces ;
 
-ReservedMetaName = $('@' ('eof' / 'expected' / 'indicate' / 'list1' / 'list' / 'matchString' / 'message' / 'stringChars' / 'verify')) ![a-zA-Z_0-9]+;
+@indicate
+ReservedMetaNames =
+    'eof'
+  / 'expected'
+  / 'indicate'
+  / 'list1'
+  / 'list'
+  / 'matchString'
+  / 'message'
+  / 'stringChars'
+  / 'tag'
+  / 'verify'
+  ;
+
+ReservedMetaName = $('@' ReservedMetaNames ![a-zA-Z_0-9]+) ;
 
 (int?, int?)
 MinMax =
