@@ -317,7 +317,7 @@ Name: `AndPredicate`
 Operator: `&`  
 Number of operands: 1
 
-Executes the operand and, if the execution of the operand succeeds, returns the result of the execution of the operand. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed).
+Executes the operand and, if the execution of the operand succeeds, then the execution of this expression completes successfully. Upon completion of the operand execution, this expression restores the current position of the input data (that is, the input data is not consumed). All errors that occur during operand execution are registered and and are not cleared after the execution of this predicate is completed.
 
 Example:
 

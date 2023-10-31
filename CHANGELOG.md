@@ -1,3 +1,7 @@
+# 5.0.2
+
+- Changes in the file `README.md`.
+
 # 5.0.1
 
 - Changes in the grammar file `bin/peg.peg`.
