@@ -1,6 +1,7 @@
 # 5.0.2
 
 - Changes in the file `README.md`.
+- Changes in the file `src/helper.dart`.
 
 # 5.0.1
 

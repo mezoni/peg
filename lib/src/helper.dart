@@ -1,4 +1,6 @@
+import 'dart:collection';
 import 'dart:convert';
+import 'dart:math';
 
 import 'binary_search/binary_search.dart';
 
@@ -79,6 +81,125 @@ bool isTypeNullable(String? type) {
   return type.endsWith('?') || type == 'dynamic';
 }
 
+List<((int, int), Set<T>)> makeTransitions<T>(Map<T, List<(int, int)>> map) {
+  if (map.isEmpty) {
+    return [];
+  }
+
+  if (map.values.any((e) => e.isEmpty)) {
+    throw ArgumentError.value(
+        map, 'map', 'Must not contain empty list of ranges');
+  }
+
+  _Transition<T> createTransition(int start, int end, Set<T> list) {
+    return _ListEntry(((start, end), list));
+  }
+
+  bool intersect((int, int) r1, (int, int) r2) {
+    return (r1.$1 <= r2.$1 && r1.$2 >= r2.$1) ||
+        (r2.$1 <= r1.$1 && r2.$2 >= r1.$1);
+  }
+
+  final linkedList = LinkedList<_Transition<T>>();
+  (_Transition<T>?, List<_Transition<T>>, _Transition<T>?) findTransitions(
+      (int, int) range) {
+    final list = <_Transition<T>>[];
+    _Transition<T>? previous;
+    _Transition<T>? next;
+    for (final element in linkedList) {
+      final r2 = element.value.$1;
+      if (intersect(range, r2)) {
+        list.add(element);
+      } else if (r2.$1 > range.$2) {
+        next = element;
+        break;
+      } else {
+        previous = element;
+      }
+    }
+
+    if (list.isNotEmpty) {
+      previous = list.first.previous;
+      next = list.last.next;
+    }
+
+    return (previous, list, next);
+  }
+
+  map = map.map((key, value) => MapEntry(key, normalizeRanges(value)));
+  for (final key in map.keys) {
+    final ranges = map[key]!;
+    for (final range in ranges) {
+      final found = findTransitions(range);
+      final transitions = found.$2;
+      final newTransitions = <_Transition<T>>[];
+      var last = range.$1;
+      for (final element in transitions) {
+        final elementValue = element.value;
+        final elementRange = elementValue.$1;
+        final elementSet = elementValue.$2;
+        if (last > elementRange.$1) {
+          final end = min(range.$2, last - 1);
+          final t = createTransition(elementRange.$1, end, {...elementSet});
+          newTransitions.add(t);
+          last = end + 1;
+        } else if (last < elementRange.$1) {
+          final end = min(range.$2, elementRange.$1 - 1);
+          final t = createTransition(last, end, {key});
+          newTransitions.add(t);
+          last = end + 1;
+        }
+
+        final end = min(range.$2, elementRange.$2);
+        final t = createTransition(last, end, {...elementSet, key});
+        newTransitions.add(t);
+        last = end + 1;
+        if (last < elementRange.$2) {
+          final t = createTransition(last, elementRange.$2, {...elementSet});
+          newTransitions.add(t);
+          last = elementRange.$2 + 1;
+        }
+      }
+
+      if (last <= range.$2) {
+        final t = createTransition(last, range.$2, {key});
+        newTransitions.add(t);
+      }
+
+      final previous = found.$1;
+      final next = found.$3;
+      if (previous != null) {
+        for (var i = newTransitions.length - 1; i >= 0; i--) {
+          final t = newTransitions[i];
+          previous.insertAfter(t);
+        }
+      } else {
+        if (linkedList.isEmpty) {
+          linkedList.addAll(newTransitions);
+        } else if (next != null) {
+          for (var i = newTransitions.length - 1; i >= 0; i--) {
+            final t = newTransitions[i];
+            next.insertBefore(t);
+          }
+        } else {
+          linkedList.addAll(newTransitions);
+        }
+      }
+
+      for (final element in transitions) {
+        element.unlink();
+      }
+    }
+  }
+
+  return linkedList
+      .map((e) => (
+            e.value.$1,
+            e.value.$2,
+          ))
+      .toList();
+}
+
 List<(int, int)> normalizeRanges(List<(int, int)> ranges) {
   final binarySearch = BinarySearch();
   final result = binarySearch.normalizeRanges(ranges);
@@ -149,4 +270,12 @@ String testLiteral({
   }
 
   return buffer.toString();
+}
+
+typedef _Transition<T> = _ListEntry<((int, int), Set<T>)>;
+
+final class _ListEntry<T> extends LinkedListEntry<_ListEntry<T>> {
+  final T value;
+
+  _ListEntry(this.value);
 }
