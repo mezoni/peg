@@ -1,0 +1,22 @@
+name: peg
+description: Command line tool for generating a PEG parsers (with some synthetic sugar)
+version: 6.0.0
+homepage: https://github.com/mezoni/peg
+topics:
+  - parser
+  - parser-generator
+  - peg
+  - top-down-parser
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  args: ^2.4.2
+  path: ^1.8.3
+  simple_sparse_list: ^0.1.4
+  source_span: ^1.10.1
+  strings: ^3.1.2
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.8
+executables:
+  peg:

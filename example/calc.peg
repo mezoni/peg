@@ -1,0 +1,102 @@
+%{
+// ignore_for_file: prefer_final_locals
+
+import 'package:source_span/source_span.dart';
+
+void main() {
+  const source = ' 1 + 2 * 3 + x ';
+  final result = calc(source, {'x': 5});
+  print(result);
+}
+
+int calc(String source, Map<String, int> vars) {
+  final parser = CalcParser(vars);
+  final state = State(source);
+  final result = parser.parseStart(state);
+  if (!state.isSuccess) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n'));
+  }
+
+  return result as int;
+}
+
+}%
+
+%%
+
+CalcParser(this.vars);
+
+Map<String, int> vars = {};
+
+%%
+
+`int`
+Start =>
+  S
+  e = Expr
+  EOF
+
+`int`
+Expr('expression') =>
+  Sum
+
+`int`
+Sum =>
+  l = Product
+  @while (*) {
+    [+] S
+    r = Product
+    { l += r; }
+    ----
+    [-] S
+    r = Product
+    { l -= r; }
+  }
+
+`int`
+Product =>
+  l = Value
+  @while (*) {
+    [*] S
+    r = Value
+    { l *= r; }
+    ----
+    [/] S
+    r = Value
+    { l ~/= r; }
+  }
+
+`int`
+Value('expression') => (
+  NUMBER
+  ----
+  i = ID
+  $ = { $$ = vars[i]!; }
+  ----
+  '(' S
+  i = Expr
+  ')' S
+)
+
+`int`
+NUMBER =>
+  n = <[0-9]+>
+  S
+  $ = { $$ = int.parse(n); }
+
+`String`
+ID =>
+  n = <[a-zA-Z]>
+  S
+  $ = { $$ = n; }
+
+`void`
+EOF('end of file') =>
+  ! .
+
+`void`
+S => [ \t\r\n]*

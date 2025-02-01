@@ -1,0 +1,132 @@
+%{
+// ignore_for_file: prefer_final_locals
+
+}%
+
+`Object?`
+A =>
+  $ = (
+    $ = '' AndAbc
+    ----
+    $ = AnyChar AnyCharVoid
+    ----
+    $ = Char16 Char16Void
+    ----
+    $ = Chars16 Chars16Void
+    ----
+    $ = Char32 Char32Void
+    ----
+    $ = Chars32 Chars32Void
+    ----
+    $ = Literal0 Literal0Void
+    ----
+    $ = Literal1 Literal1Void
+    ----
+    $ = Literal2 Literal2Void
+    ----
+    $ = Match MatchVoid
+    ----
+    $ = NotDigits NotDigitsVoid
+    ----
+    $ = '' NotAbc
+    ----
+    $ = OneOrMore OneOrMoreVoid
+    ----
+    $ = Optional OptionalVoid
+    ----
+    $ = OrderedChoice OrderedChoiceVoid
+    ----
+    $ = Ranges RangesVoid
+    ----
+    $ = Seq2 Seq2Void
+    ----
+    $ = Seq3 Seq3Void
+    ----
+    $ = TakeWhile TakeWhileVoid
+    ----
+    $ = TakeWhile1 TakeWhile1Void
+    ----
+    $ = ZeroOrMore ZeroOrMoreVoid
+    )
+
+AndAbc => &'abc'
+
+AnyChar => $ = .
+
+AnyCharVoid =>  $ = .
+
+Char16 => $ = [a]
+
+Char16Void => [a]
+
+Chars16 => $ = [a-zA-Z]
+
+Chars16Void => [a-zA-Z]
+
+Char32 => $ = [\u{1f800}]
+
+Char32Void => $ = [\u{1f800}]
+
+Chars32 => $ = [\u{1f800}-\u{1f803}]
+
+Chars32Void =>[\u{1f800}-\u{1f803}]
+
+Literal0 => $ = ''
+
+Literal0Void =>''
+
+Literal1 => $ = 'a'
+
+Literal1Void =>'a'
+
+Literal2 => $ = 'ab'
+
+Literal2Void =>'ab'
+
+Match => $ = < [a]+ >
+
+MatchVoid => < [a]+ >
+
+NotAbc => !'abc'
+
+NotDigits => $ = [^0-9]
+
+NotDigitsVoid => [^0-9]
+
+OneOrMore => $ = 'abc'+
+
+OneOrMoreVoid => 'abc'+
+
+Optional => $ = 'abc'?
+
+OptionalVoid => 'abc'?
+
+OrderedChoice =>  $ = ($ = 'a' / $ = 'b' / $ = 'c')
+
+OrderedChoiceVoid =>  ($ = 'a' / $ = 'b' / $ = 'c')
+
+Ranges => $ = < [{30-39}{41-5A}{61-7A}] >
+
+RangesVoid => < [{30-39}{41-5A}{61-7A}] >
+
+Seq2 => a:'a' b:'b' $ = { $$ = a + b; } as `String`
+
+`void`
+Seq2Void => 'a' 'b'
+
+Seq3 => a:'a' b:'b' c:'c' $ = { $$ = a + b + c; } as `String`
+
+`void`
+Seq3Void => 'a' 'b' 'c'
+
+TakeWhile => $ = <[a]*>
+
+TakeWhileVoid => <[a]*>
+
+TakeWhile1 => $ = <[a]+>
+
+TakeWhile1Void => <[a]+>
+
+ZeroOrMore => $ = 'abc'*
+
+ZeroOrMoreVoid => 'abc'*

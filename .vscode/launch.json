@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "bin/peg.dart",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/peg.dart",
+            "args": [
+                "bin/peg.peg"
+            ]
+        }
+    ]
+}

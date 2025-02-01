@@ -1,0 +1,396 @@
+%{
+// ignore_for_file: prefer_final_locals
+
+import 'package:peg/src/expressions/expressions.dart';
+import 'package:peg/src/grammar/grammar.dart';
+import 'package:peg/src/grammar/production_rule.dart';
+
+}%
+
+`Grammar`
+Start =>
+  S
+  g = Globals?
+  m = Members?
+  r = ProductionRule+ !.
+  $ = { $$ = Grammar(globals: g, members: m, rules: r); }
+
+`String`
+Globals =>
+  '%{'
+  n = <
+    @while (*) {
+      ! "}%" .
+    }
+  >
+  '}%' S
+
+`String`
+Members =>
+  '%%'
+  n = <
+    @while (*) {
+      ! "%%" .
+    }
+  >
+  '%%' S
+
+`ProductionRule`
+ProductionRule =>
+  t = Type?
+  i = Identifier
+  a = ProductionRuleArguments?
+  '=>' S
+  e = Expression
+  [;]? S
+  $ = { $$ = ProductionRule(expression: e, expected: a, name: i, resultType: t ?? ''); }
+
+`String`
+ProductionRuleArguments =>
+  '(' S
+  n = String
+  ')' S
+
+`Expression`
+Expression('expression') =>
+  OrderedChoice
+
+`Expression`
+OrderedChoice =>
+  n = Sequence
+  { final l = [n]; }
+  @while (*) {
+    ('/' / '-'*) S
+    n = Sequence
+    { l.add(n); }
+  }
+  $ = { $$ = OrderedChoiceExpression(expressions: l); }
+
+`Expression`
+Sequence =>
+  n = TypeConversion+
+  b = ('~' S b:Block)?
+  $ = {
+    final e = SequenceExpression(expressions: n);
+    $$ = b == null ? e : CatchExpression(expression: e, catchBlock: b);
+  }
+
+`Expression`
+TypeConversion =>
+  $ = Assignment
+  t = ('as' S n = Type)?
+  { $.resultType = t ?? ''; }
+
+`Expression`
+Assignment =>
+  i = (Identifier / n:'$' S)
+  ('=' S / ':' S)
+  e = Prefix
+  $ = { $$ = e..semanticVariable = i; }
+  ----
+  Prefix
+
+`Expression`
+Prefix =>
+  p = (n:'!' S / n:'&' S)?
+  $ = Suffix
+  { switch(p) {
+    case '!':
+      $ = NotPredicateExpression(expression: $);
+      break;
+    case '&':
+      $ = AndPredicateExpression(expression: $);
+      break;
+  }
+}
+
+`Expression`
+Suffix =>
+  n = Primary
+  (
+    '*' S { n = ZeroOrMoreExpression(expression: n); }
+    ----
+    '+' S { n = OneOrMoreExpression(expression: n); }
+    ----
+    '?' S { n = OptionalExpression(expression: n); }
+  )?
+
+`Expression`
+Primary('expression') =>
+  CharacterClass
+  ----
+  Literal
+  ----
+  Group
+  ----
+  Repeater
+  ----
+  Nonterminal
+  ----
+  Action
+  ----
+  AnyCharacter
+  ----
+  Match
+
+`Expression`
+Action =>
+  b = Block
+  $ = { $$ = ActionExpression(code: b); }
+
+`Expression`
+AnyCharacter =>
+  '.' S
+  n = { $$ = AnyCharacterExpression(); }
+
+`Expression`
+CharacterClass =>
+  { var negate = false; }
+  (
+    '[^' { negate = true; }
+    ----
+    '['
+  )
+  r = @while (+) {
+    ! "]"
+    n = Range
+  }
+  ']' S
+  $ = { $$ = CharacterClassExpression(ranges: r, negate: negate); }
+
+`Expression`
+Group =>
+  '(' S
+  n = Expression
+  ')' S
+  { n.isGrouped = true; }
+
+`Expression`
+Literal =>
+  s = SQString
+  $ = { $$ = LiteralExpression(literal: s); }
+  ----
+  s = DQString
+  $ = { $$ = LiteralExpression(literal: s, silent: true); }
+
+`Expression`
+Match =>
+  '<' S
+  e = Expression
+  '>' S
+  $ = { $$ = MatchExpression(expression: e); }
+
+`Expression`
+Nonterminal =>
+  i = RuleName !(ProductionRuleArguments? '=>' S)
+  $ = { $$ = NonterminalExpression(name: i); }
+
+`Expression`
+Repeater =>
+  '@while' S
+  '(' S '*' S ')' S
+  '{' S
+  e = Expression
+  '}' S
+  $ = { $$ = ZeroOrMoreExpression(expression: e); }
+  ----
+  '@while' S
+  '(' S '+' S ')' S
+  '{' S
+  e = Expression
+  '}' S
+  $ = { $$ = OneOrMoreExpression(expression: e); }
+
+Type('type') =>
+  '`'
+  n = <
+    @while (*) {
+      ! [`] [a-zA-Z0-9_$<({,:})>? ]
+    }
+  >
+  '`' S
+
+`String`
+String('string') =>
+  DQString
+  ----
+  SQString
+
+`String`
+DQString =>
+  '"'
+  n = @while (*) {
+    ! ["]
+    n = DQChar
+  }
+  '"' S
+  $ = { $$ = String.fromCharCodes(n); }
+
+`int`
+DQChar =>
+  ! "\\"
+  n = [{20-21}{23-5B}{5D-10FFFF}]
+  ----
+  "\\"
+  n = (
+    EscapedValue
+    ----
+    EscapedHexValue
+  )
+
+`String`
+SQString =>
+  '\''
+  n = @while (*) {
+    ! [']
+    n = SQChar
+  }
+  '\'' S
+  $ = { $$ = String.fromCharCodes(n); }
+
+`int`
+SQChar =>
+  ! "\\"
+  n = [{20-26}{28-5B}{5D-10FFFF}]
+  ----
+  "\\"
+  n = (
+    EscapedValue
+    ----
+    EscapedHexValue
+  )
+
+`int`
+EscapedValue =>
+  n = [abefnrtv'"\\]
+  {
+    n = switch (n) {
+      97 => 0x07,  // a
+      98 => 0x08,  // b
+      101 => 0x1B, // e
+      102 => 0x0C, // f
+      110 => 0x0A, // n
+      114 => 0x0D, // r
+      116 => 0x09, // t
+      118 => 0x0B, // v
+      _ => n,
+    };
+  }
+  ~ { state.error('Unexpected escape character'); }
+
+`int`
+EscapedHexValue =>
+  "u"
+  '{'
+  n = HexValue
+  '}'
+  ~ { state.malformed('Malformed escape sequence'); }
+
+`int`
+RangeChar =>
+  ! "\\"
+  n = [{20-5A}{5E-10FFFF}]
+  ---
+  "\\"
+  n = (
+    "u"
+    '{'
+    n = HexValue
+    '}'
+    ----
+    n = [-abefnrtv\[\]\\]
+    {
+      n = switch (n) {
+        97 => 0x07,  // a
+        98 => 0x08,  // b
+        101 => 0x1B, // e
+        102 => 0x0C, // f
+        110 => 0x0A, // n
+        114 => 0x0D, // r
+        116 => 0x09, // t
+        118 => 0x0B, // v
+        _ => n,
+      };
+    }
+  )
+
+`int`
+HexValue('hex number') =>
+  n = <[a-fA-F0-9]+>
+  $ = { $$ = int.parse(n, radix: 16); }
+
+`(int, int)`
+Range('range') =>
+  "{"
+  s = HexValue
+  "-"
+  e = HexValue
+  '}'
+  $ = { $$ = (s, e); }
+  ----
+  "{"
+  n = HexValue
+  '}'
+  $ = { $$ = (n, n); }
+  ---
+  s = RangeChar
+  "-"
+  e = RangeChar
+  $ = { $$ = (s, e); }
+  ----
+  n = RangeChar
+  $ = { $$ = (n, n); }
+;
+
+Block =>
+  '{'
+  n = <BlockBody*>
+  '}' S
+
+`void`
+BlockBody =>
+  "{"
+  BlockBody*
+  '}'
+  ----
+  ! "}" .
+
+Identifier('identifier') =>
+  n = <[a-zA-Z] [a-zA-Z0-9_]*>
+  S
+
+RuleName('production rule name') =>
+  n = <[A-Z] [a-zA-Z0-9_]*>
+  S
+;
+
+S => @while (*) {
+  Space
+  ----
+  Comment
+}
+;
+
+`void`
+Comment =>
+  "#"
+  @while (*) {
+    ! EndOfLine
+    .
+  }
+  EndOfLine?
+;
+
+`void`
+Space =>
+  [ \t]
+  ----
+  EndOfLine
+;
+
+`void`
+EndOfLine =>
+  "\r\n"
+  ----
+  [\n\r]
+;
