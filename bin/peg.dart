@@ -28,6 +28,8 @@ Specifies that detailed comments should be generated for each expression.''',
     exit(-1);
   }
 
+  final comment = argResults['comment'] as bool;
+
   final inputFilename = rest[0];
   final basename = path.basenameWithoutExtension(inputFilename);
   final outputDir = path.dirname(inputFilename);
@@ -58,7 +60,9 @@ Specifies that detailed comments should be generated for each expression.''',
     exit(-1);
   }
 
-  final options = ParserGeneratorOptions();
+  final options = ParserGeneratorOptions(
+    addComments: comment,
+  );
   final parserGenerator = ParserGenerator(
     options: options,
     classname: parserName,

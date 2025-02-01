@@ -6,6 +6,7 @@
             "request": "launch",
             "program": "bin/peg.dart",
             "args": [
+                "--no-comment",
                 "bin/peg.peg"
             ]
         }

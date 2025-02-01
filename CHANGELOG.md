@@ -1,3 +1,7 @@
+# 6.0.1
+
+- The `comment` option was not taken into account
+
 # 6.0.0
 
 - Everything was implemented from scratch. There are breaking changes.
