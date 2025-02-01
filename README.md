@@ -412,7 +412,7 @@ Decimal
 
 **Sematic variables**
 
-Semantic variables allow to assign the results of expressions to variables for later use.
+Semantic variables allow to assign the results of expressions to variables for later use.  
 Syntax: `n:`Expression or `n =` Expression
 
 ```
@@ -480,9 +480,9 @@ Additional features:
 
 **Syntactic sugar**
 
-The `@while` expressions is syntactic sugar.  
-`@while(*)` `{` e `}` => e`*`
-`@while(+)` `{` e `}` => e`+`
+The `@while` expressions is syntactic sugar:
+- `@while(*)` `{` e `}` it is syntactic sugar for e`*`
+- `@while(+)` `{` e `}` it is syntactic sugar for e`+`
 
 ```
 `List<Object?>`
@@ -497,8 +497,8 @@ Values =>
   $ = { $$ = l; }
 ```
 
-The `-` expression is syntactic sugar.  
-e1 `----` e2 => e1 / e2
+The `-` expression is syntactic sugar for `/`  
+The `-` character can be repeated as many times as necessary.
 
 ```
 `Expression`
