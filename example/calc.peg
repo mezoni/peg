@@ -92,7 +92,6 @@ NUMBER =>
 ID =>
   n = <[a-zA-Z]>
   S
-  $ = { $$ = n; }
 
 `void`
 EOF('end of file') =>

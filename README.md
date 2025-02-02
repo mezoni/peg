@@ -1,8 +1,8 @@
 # peg
 
-Command line tool for generating a PEG (with some synthetic sugar) parsers
+Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 6.0.1
+Version: 6.0.2
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -84,6 +84,65 @@ Main characteristics:
 - Performance optimized source code of generated parsers
 - Automatic generation of standard errors
 - Additional useful features using syntactic sugar
+
+## Naming convention for expression result types
+
+**Important information**
+
+The description of the grammar implies the division of native types into two incompatible types:
+- Nullable types
+- Non-nullable types
+
+The grammar analyzer can judge the kind of a type only by its representation.
+
+From the point of view of the grammar analyzer, the determination of a type variety occurs according to the following principle.
+If a type definition ends with `?`, it is considered `nullable`.  
+If a type is included in the specified list, it is considered `nullable`:
+- `Null`
+- `dynamic`
+- `void`
+
+Additionally, if a type is not defined, it is considered `nullable`.
+In other cases, the type is considered `non-nullable`.
+
+This won't work.
+
+```dart
+typedef TypeA = TypeB?;
+```
+
+Type `TypeA` will be considered `non-nullable` by the grammar parser, because the analyzer analyzes the grammar and does not know anything about the programming language.
+
+Why is this necessary?  
+
+The generated code does not use result value `wrapping` as in the following examples.
+
+```
+var result = Result(value);
+```
+
+```
+var result = (value,);
+```
+
+The `wrapper` is the `nullable` type value.  
+The `unwrapping` operation is the process of converting a value to its original form.  
+
+Example:
+
+```
+int? nullableResult;
+int? nonNullableResult;
+
+/// Some code...
+
+final nullableResultValue = nullableResult;
+final nonNullableResultValue = nonNullableResult?;
+```
+
+All this happens automatically, based on information about whether the result value can be `null` or cannot be `null`.
+
+If this principle is not followed, **errors are inevitable** when converting values ​​to a non-nullable value.
 
 ## Automatic and programmatic error generation
 
@@ -642,7 +701,6 @@ NUMBER =>
 ID =>
   n = <[a-zA-Z]>
   S
-  $ = { $$ = n; }
 
 `void`
 EOF('end of file') =>
@@ -652,3 +710,81 @@ EOF('end of file') =>
 S => [ \t\r\n]*
 
 ```
+
+## Errors when generating a parser from a grammar
+
+When developing grammar, mistakes are inevitable.  
+To minimize errors, the parser generator analyzes the grammar for errors.  
+Errors can be of the following kinds:
+- Syntax error
+- Errors in determining the type of the expression result
+- Errors in determining the starting rule
+- Errors when there are no rules to which references are given
+- Type mismatch errors in source code
+
+**Syntax error**
+
+This type of error is occurred when the syntax is not followed. To correct it, it is required to follow the syntax.
+
+**Errors in determining the type of the expression result**
+
+To generate a strongly typed parser, the analyzer determines the types of expressions.  
+If it is impossible to do it explicitly, then it is necessary to correct this error manually. It can also happen because of errors in the semantics of grammar and then it will say that it is unacceptable and something needs to be corrected.
+
+An example where the analyzer cannot determine the type of an expression.
+
+```
+LuckyNumber =>
+  '41' S
+  $ = { $$ = 41; }
+```
+
+The analyzer knows nothing about the native programming language. For it, the result of the expression is the assignment of a certain value to the variable `$$` in the code block.  
+
+The following ways are possible to correct the error:
+- Specifying the result type for a production rule
+- Using a type conversion expression
+
+Using a type conversion expression is strongly discouraged. It breaks the readability of the grammar, although the generated code is completely identical to that if you specify a result type for the production rule.
+
+```
+`int`
+LuckyNumber =>
+  '41' S
+  $ = { $$ = 41; }
+```
+
+```
+LuckyNumber =>
+  '41' S
+  $ = { $$ = 41; } as `int`
+```
+
+Another example.
+
+```
+Expression =>
+  A
+  ---
+  B
+
+`ExpressionA`
+A => Some Expressions
+
+`ExpressionB`
+B => Some Expressions
+```
+
+In the choice expression, in the "Expression" rule, the alternatives have two different result types.
+The analyzer cannot solve this problem. Manual correction is required.  
+It is required to specify the common parent type as the type of the production rule.
+
+```
+`Expression`
+Expression =>
+  A
+  ---
+  B
+```
+
+And so on.

@@ -77,7 +77,7 @@ class CalcParser {
   ///```code
   /// `String`
   /// ID =
-  ///    n = <[a-zA-Z]> S $ = { }
+  ///    n = <[a-zA-Z]> S
   ///```
   String? parseID(State state) {
     String? $0;
@@ -98,17 +98,7 @@ class CalcParser {
     if (state.isSuccess) {
       String n = $1!;
       parseS(state);
-      if (state.isSuccess) {
-        late String $$;
-        String? $2;
-        state.isSuccess = true;
-        $$ = n;
-        $2 = $$;
-        if (state.isSuccess) {
-          String $ = $2;
-          $0 = $;
-        }
-      }
+      $0 = n;
     }
     if (!state.isSuccess) {
       state.position = $pos;

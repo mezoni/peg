@@ -1,3 +1,8 @@
+# 6.0.2
+
+- Some typos have been corrected.
+- Added information about the naming convention for expression result types
+
 # 6.0.1
 
 - The `comment` option was not taken into account
