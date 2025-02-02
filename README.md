@@ -103,7 +103,7 @@ If a type is included in the specified list, it is considered `nullable`:
 - `void`
 
 In other cases, the type is considered `non-nullable`.  
-Additionally, if a type is not defined, it is considered `nullable`type `Object`.
+Additionally, if a type is not defined, it is considered `non-nullable`type `Object`.
 
 The use of types defined by type alias is not allowed.  
 
