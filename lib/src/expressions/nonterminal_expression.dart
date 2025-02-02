@@ -27,21 +27,19 @@ class NonterminalExpression extends Expression {
     if (variable != null) {
       final isVariableDeclared = context.isExpressionVariableDeclared(variable);
       var canDeclare = false;
+      var declare = '';
       if (!isVariableDeclared) {
         canDeclare = this == context.getExpressionVariableDeclarator(variable);
         if (canDeclare) {
           context.setExpressionVariableDeclared(variable);
+          declare = 'final ';
         }
       }
 
+      values['declare'] = declare;
       values['variable'] = variable;
-      if (canDeclare) {
-        template = '''
-final {{variable}} = {{name}}(state);''';
-      } else {
-        template = '''
-{{variable}} = {{name}}(state);''';
-      }
+      template = '''
+{{declare}}{{variable}} = {{name}}(state);''';
     } else {
       template = '''
 {{name}}(state);''';

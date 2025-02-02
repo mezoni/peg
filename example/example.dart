@@ -24,9 +24,9 @@ int calc(String source, Map<String, int> vars) {
 }
 
 class CalcParser {
-  CalcParser(this.vars);
-
   Map<String, int> vars = {};
+
+  CalcParser(this.vars);
 
   /// **EOF** ('end of file')
   ///
@@ -40,12 +40,7 @@ class CalcParser {
     final $pos = state.position;
     final $0 = state.notPredicate;
     state.notPredicate = true;
-    if (state.isSuccess = state.position < state.input.length) {
-      final c = state.input.readChar(state.position);
-      state.position += c > 0xffff ? 2 : 1;
-    } else {
-      state.fail();
-    }
+    state.matchAny();
     state.notPredicate = $0;
     if (!(state.isSuccess = !state.isSuccess)) {
       state.fail(state.position - $pos);
@@ -83,17 +78,7 @@ class CalcParser {
     String? $0;
     final $pos = state.position;
     String? $1;
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 65 && c <= 90 || c >= 97 && c <= 122;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    state.matchChars16((int c) => c >= 65 && c <= 90 || c >= 97 && c <= 122);
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
       String n = $1!;
@@ -117,17 +102,7 @@ class CalcParser {
     int? $0;
     final $pos = state.position;
     String? $1;
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 48 && c <= 57;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) => c >= 48 && c <= 57);
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
       String n = $1!;
@@ -158,7 +133,6 @@ class CalcParser {
   ///    l = Value [*] S r = Value { } / [/] S r = Value { }*
   ///```
   int? parseProduct(State state) {
-    final $input = state.input;
     int? $0;
     final $pos1 = state.position;
     final $1 = parseValue(state);
@@ -166,10 +140,8 @@ class CalcParser {
       int l = $1!;
       while (true) {
         final $pos = state.position;
-        // *
-        state.isSuccess = state.position < $input.length &&
-            $input.codeUnitAt(state.position) == 42;
-        state.isSuccess ? state.position++ : state.fail();
+        // '*'
+        state.matchChar16(42);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
@@ -185,10 +157,8 @@ class CalcParser {
           state.position = $pos;
         }
         if (!state.isSuccess) {
-          // /
-          state.isSuccess = state.position < $input.length &&
-              $input.codeUnitAt(state.position) == 47;
-          state.isSuccess ? state.position++ : state.fail();
+          // '/'
+          state.matchChar16(47);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -225,15 +195,8 @@ class CalcParser {
   ///    [ \t\r\n]*
   ///```
   void parseS(State state) {
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    state.isSuccess = true;
+    state.skip16While(
+        (int c) => c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10);
   }
 
   /// **Start**
@@ -269,7 +232,6 @@ class CalcParser {
   ///    l = Product [+] S r = Product { } / [\-] S r = Product { }*
   ///```
   int? parseSum(State state) {
-    final $input = state.input;
     int? $0;
     final $pos1 = state.position;
     final $1 = parseProduct(state);
@@ -277,10 +239,8 @@ class CalcParser {
       int l = $1!;
       while (true) {
         final $pos = state.position;
-        // +
-        state.isSuccess = state.position < $input.length &&
-            $input.codeUnitAt(state.position) == 43;
-        state.isSuccess ? state.position++ : state.fail();
+        // '+'
+        state.matchChar16(43);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
@@ -296,10 +256,8 @@ class CalcParser {
           state.position = $pos;
         }
         if (!state.isSuccess) {
-          // -
-          state.isSuccess = state.position < $input.length &&
-              $input.codeUnitAt(state.position) == 45;
-          state.isSuccess ? state.position++ : state.fail();
+          // '-'
+          state.matchChar16(45);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -336,7 +294,6 @@ class CalcParser {
   ///    (NUMBER / i = ID $ = { } / '(' S i = Expr ')' S)
   ///```
   int? parseValue(State state) {
-    final $input = state.input;
     final $4 = state.enter();
     int? $0;
     final $pos = state.position;
@@ -359,22 +316,14 @@ class CalcParser {
         state.position = $pos;
       }
       if (!state.isSuccess) {
-        const $literal = '(';
-        state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 40;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal, $pos);
+        state.match1('(', 40);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
             final $3 = parseExpr(state);
             if (state.isSuccess) {
               int i = $3!;
-              final $pos1 = state.position;
-              const $literal1 = ')';
-              state.isSuccess =
-                  $pos1 < $input.length && $input.codeUnitAt($pos1) == 41;
-              state.isSuccess ? state.position++ : state.fail();
-              state.expected($literal1, $pos1);
+              state.match1(')', 41);
               if (state.isSuccess) {
                 parseS(state);
                 $0 = i;
@@ -616,6 +565,185 @@ class State {
   @pragma('dart2js:tryInline')
   void malformed(String message, {bool? location}) =>
       failure != position ? error(message, location: location) : null;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match(String string, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position < input.length &&
+        input.codeUnitAt(position) == string.codeUnitAt(0)) {
+      if (isSuccess = input.startsWith(string, position)) {
+        position += string.length;
+        result = string;
+      }
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match1(String string, int char, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess =
+        position < input.length && input.codeUnitAt(position) == char) {
+      position++;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match2(String string, int char, int char2, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position + 1 < input.length &&
+        input.codeUnitAt(position) == char &&
+        input.codeUnitAt(position + 1) == char2) {
+      position += 2;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchAny() {
+    var c = 0;
+    if (isSuccess = position + 1 < input.length) {
+      c = input.readChar(position);
+    }
+
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(int char) {
+    isSuccess = position < input.length && input.codeUnitAt(position) == char;
+    isSuccess ? position++ : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(int char) {
+    isSuccess = position + 1 < input.length && input.readChar(position) == char;
+    isSuccess ? position += 2 : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars16(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.codeUnitAt(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position++ : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars32(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
 
   @override
   String toString() {

@@ -1,8 +1,8 @@
-import '../../parser_generator.dart';
 import '../allocator.dart';
 import '../expressions/expression.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
+import '../parser_generator.dart';
 
 class ProductionRuleGenerator {
   final List<String> errors;

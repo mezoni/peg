@@ -1,5 +1,21 @@
 // ignore_for_file: prefer_final_locals
 
+import 'package:source_span/source_span.dart';
+
+Object? parse(String source) {
+  final state = State(source);
+  final parser = TestParser();
+  final result = parser.parseA(state);
+  if (!state.isSuccess) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n'));
+  }
+  return result as Object?;
+}
+
 class TestParser {
   /// **A**
   ///
@@ -389,20 +405,12 @@ class TestParser {
   ///    &'abc'
   ///```
   void parseAndAbc(State state) {
-    final $input = state.input;
     // >> &'abc'
-    final $pos1 = state.position;
+    final $pos = state.position;
     // >> 'abc'
-    const $literal = 'abc';
-    var $pos = $pos1;
-    state.isSuccess = state.position + 3 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98 &&
-        $input.codeUnitAt($pos++) == 99;
-    state.isSuccess ? state.position += 3 : state.fail();
-    state.expected($literal, $pos1);
+    state.match('abc');
     // << 'abc'
-    state.position = $pos1;
+    state.position = $pos;
     // << &'abc'
   }
 
@@ -417,13 +425,7 @@ class TestParser {
     int? $0;
     // >> $ = .
     final $pos = state.position;
-    int? $1;
-    if (state.isSuccess = state.position < state.input.length) {
-      $1 = state.input.readChar(state.position);
-      state.position += $1 > 0xffff ? 2 : 1;
-    } else {
-      state.fail();
-    }
+    final $1 = state.matchAny();
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -446,13 +448,7 @@ class TestParser {
     int? $0;
     // >> $ = .
     final $pos = state.position;
-    int? $1;
-    if (state.isSuccess = state.position < state.input.length) {
-      $1 = state.input.readChar(state.position);
-      state.position += $1 > 0xffff ? 2 : 1;
-    } else {
-      state.fail();
-    }
+    final $1 = state.matchAny();
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -472,19 +468,11 @@ class TestParser {
   ///    $ = [a]
   ///```
   int? parseChar16(State state) {
-    final $input = state.input;
     int? $0;
     // >> $ = [a]
     final $pos = state.position;
-    int? $1;
-    // a
-    if (state.isSuccess = state.position < $input.length &&
-        $input.codeUnitAt(state.position) == 97) {
-      $1 = 97;
-      state.position++;
-    } else {
-      state.fail();
-    }
+    // 'a'
+    final $1 = state.matchChar16(97);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -504,17 +492,10 @@ class TestParser {
   ///    [a]
   ///```
   int? parseChar16Void(State state) {
-    final $input = state.input;
     int? $0;
     // >> [a]
-    // a
-    if (state.isSuccess = state.position < $input.length &&
-        $input.codeUnitAt(state.position) == 97) {
-      $0 = 97;
-      state.position++;
-    } else {
-      state.fail();
-    }
+    // 'a'
+    $0 = state.matchChar16(97);
     // << [a]
     return $0;
   }
@@ -527,19 +508,11 @@ class TestParser {
   ///    $ = [{1f800}]
   ///```
   int? parseChar32(State state) {
-    final $input = state.input;
     int? $0;
     // >> $ = [{1f800}]
     final $pos = state.position;
-    int? $1;
-    // 🠀
-    if (state.isSuccess = state.position < $input.length &&
-        $input.readChar(state.position) == 129024) {
-      $1 = 129024;
-      state.position += 2;
-    } else {
-      state.fail();
-    }
+    // '🠀'
+    final $1 = state.matchChar32(129024);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -559,19 +532,11 @@ class TestParser {
   ///    $ = [{1f800}]
   ///```
   int? parseChar32Void(State state) {
-    final $input = state.input;
     int? $0;
     // >> $ = [{1f800}]
     final $pos = state.position;
-    int? $1;
-    // 🠀
-    if (state.isSuccess = state.position < $input.length &&
-        $input.readChar(state.position) == 129024) {
-      $1 = 129024;
-      state.position += 2;
-    } else {
-      state.fail();
-    }
+    // '🠀'
+    final $1 = state.matchChar32(129024);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -594,19 +559,8 @@ class TestParser {
     int? $0;
     // >> $ = [a-zA-Z]
     final $pos = state.position;
-    int? $1;
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 65 && c <= 90 || c >= 97 && c <= 122;
-      if (state.isSuccess) {
-        $1 = c;
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    final $1 = state
+        .matchChars16((int c) => c >= 65 && c <= 90 || c >= 97 && c <= 122);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -628,18 +582,8 @@ class TestParser {
   int? parseChars16Void(State state) {
     int? $0;
     // >> [a-zA-Z]
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 65 && c <= 90 || c >= 97 && c <= 122;
-      if (state.isSuccess) {
-        $0 = c;
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    $0 = state
+        .matchChars16((int c) => c >= 65 && c <= 90 || c >= 97 && c <= 122);
     // << [a-zA-Z]
     return $0;
   }
@@ -655,19 +599,7 @@ class TestParser {
     int? $0;
     // >> $ = [{1f800-1f803}]
     final $pos = state.position;
-    int? $1;
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.readChar(state.position);
-      state.isSuccess = c >= 129024 && c <= 129027;
-      if (state.isSuccess) {
-        $1 = c;
-        state.position += c > 0xffff ? 2 : 1;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    final $1 = state.matchChars32((int c) => c >= 129024 && c <= 129027);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -689,18 +621,7 @@ class TestParser {
   int? parseChars32Void(State state) {
     int? $0;
     // >> [{1f800-1f803}]
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.readChar(state.position);
-      state.isSuccess = c >= 129024 && c <= 129027;
-      if (state.isSuccess) {
-        $0 = c;
-        state.position += c > 0xffff ? 2 : 1;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    $0 = state.matchChars32((int c) => c >= 129024 && c <= 129027);
     // << [{1f800-1f803}]
     return $0;
   }
@@ -753,20 +674,10 @@ class TestParser {
   ///    $ = 'a'
   ///```
   String? parseLiteral1(State state) {
-    final $input = state.input;
     String? $0;
     // >> $ = 'a'
     final $pos = state.position;
-    String? $1;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $1 = state.match1('a', 97);
     if (state.isSuccess) {
       String $ = $1!;
       $0 = $;
@@ -786,19 +697,9 @@ class TestParser {
   ///    'a'
   ///```
   String? parseLiteral1Void(State state) {
-    final $input = state.input;
     String? $0;
     // >> 'a'
-    final $pos = state.position;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $0 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    $0 = state.match1('a', 97);
     // << 'a'
     return $0;
   }
@@ -811,28 +712,16 @@ class TestParser {
   ///    $ = 'ab'
   ///```
   String? parseLiteral2(State state) {
-    final $input = state.input;
     String? $0;
     // >> $ = 'ab'
-    final $pos1 = state.position;
-    String? $1;
-    const $literal = 'ab';
-    var $pos = $pos1;
-    if (state.isSuccess = state.position + 2 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98) {
-      state.position += 2;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos1);
+    final $pos = state.position;
+    final $1 = state.match2('ab', 97, 98);
     if (state.isSuccess) {
       String $ = $1!;
       $0 = $;
     }
     if (!state.isSuccess) {
-      state.position = $pos1;
+      state.position = $pos;
     }
     // << $ = 'ab'
     return $0;
@@ -846,21 +735,9 @@ class TestParser {
   ///    'ab'
   ///```
   String? parseLiteral2Void(State state) {
-    final $input = state.input;
     String? $0;
     // >> 'ab'
-    final $pos1 = state.position;
-    const $literal = 'ab';
-    var $pos = $pos1;
-    if (state.isSuccess = state.position + 2 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98) {
-      state.position += 2;
-      $0 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos1);
+    $0 = state.match2('ab', 97, 98);
     // << 'ab'
     return $0;
   }
@@ -878,17 +755,7 @@ class TestParser {
     final $pos = state.position;
     String? $1;
     // >> [a]+
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) => c == 97);
     // << [a]+
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
@@ -914,17 +781,7 @@ class TestParser {
     // >> <[a]+>
     final $pos = state.position;
     // >> [a]+
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) => c == 97);
     // << [a]+
     $0 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     // << <[a]+>
@@ -939,25 +796,17 @@ class TestParser {
   ///    !'abc'
   ///```
   void parseNotAbc(State state) {
-    final $input = state.input;
     // >> !'abc'
-    final $pos1 = state.position;
+    final $pos = state.position;
     final $0 = state.notPredicate;
     state.notPredicate = true;
     // >> 'abc'
-    const $literal = 'abc';
-    var $pos = $pos1;
-    state.isSuccess = state.position + 3 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98 &&
-        $input.codeUnitAt($pos++) == 99;
-    state.isSuccess ? state.position += 3 : state.fail();
-    state.expected($literal, $pos1);
+    state.match('abc');
     // << 'abc'
     state.notPredicate = $0;
     if (!(state.isSuccess = !state.isSuccess)) {
-      state.fail(state.position - $pos1);
-      state.position = $pos1;
+      state.fail(state.position - $pos);
+      state.position = $pos;
     }
     // << !'abc'
   }
@@ -973,19 +822,7 @@ class TestParser {
     int? $0;
     // >> $ = [0-9]
     final $pos = state.position;
-    int? $1;
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c < 48 || c > 57;
-      if (state.isSuccess) {
-        $1 = c;
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    final $1 = state.matchChars16((int c) => c < 48 || c > 57);
     if (state.isSuccess) {
       int $ = $1!;
       $0 = $;
@@ -1007,18 +844,7 @@ class TestParser {
   int? parseNotDigitsVoid(State state) {
     int? $0;
     // >> [0-9]
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c < 48 || c > 57;
-      if (state.isSuccess) {
-        $0 = c;
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    $0 = state.matchChars16((int c) => c < 48 || c > 57);
     // << [0-9]
     return $0;
   }
@@ -1031,28 +857,14 @@ class TestParser {
   ///    $ = 'abc'+
   ///```
   List<String>? parseOneOrMore(State state) {
-    final $input = state.input;
     List<String>? $0;
     // >> $ = 'abc'+
-    final $pos2 = state.position;
+    final $pos = state.position;
     List<String>? $1;
     final $list = <String>[];
     while (true) {
       // >> 'abc'
-      final $pos1 = state.position;
-      String? $2;
-      const $literal = 'abc';
-      var $pos = $pos1;
-      if (state.isSuccess = state.position + 3 <= $input.length &&
-          $input.codeUnitAt($pos++) == 97 &&
-          $input.codeUnitAt($pos++) == 98 &&
-          $input.codeUnitAt($pos++) == 99) {
-        state.position += 3;
-        $2 = $literal;
-      } else {
-        state.fail();
-      }
-      state.expected($literal, $pos1);
+      final $2 = state.match('abc');
       // << 'abc'
       if (!state.isSuccess) {
         break;
@@ -1067,7 +879,7 @@ class TestParser {
       $0 = $;
     }
     if (!state.isSuccess) {
-      state.position = $pos2;
+      state.position = $pos;
     }
     // << $ = 'abc'+
     return $0;
@@ -1081,26 +893,12 @@ class TestParser {
   ///    'abc'+
   ///```
   List<String>? parseOneOrMoreVoid(State state) {
-    final $input = state.input;
     List<String>? $0;
     // >> 'abc'+
     final $list = <String>[];
     while (true) {
       // >> 'abc'
-      final $pos1 = state.position;
-      String? $1;
-      const $literal = 'abc';
-      var $pos = $pos1;
-      if (state.isSuccess = state.position + 3 <= $input.length &&
-          $input.codeUnitAt($pos++) == 97 &&
-          $input.codeUnitAt($pos++) == 98 &&
-          $input.codeUnitAt($pos++) == 99) {
-        state.position += 3;
-        $1 = $literal;
-      } else {
-        state.fail();
-      }
-      state.expected($literal, $pos1);
+      final $1 = state.match('abc');
       // << 'abc'
       if (!state.isSuccess) {
         break;
@@ -1122,24 +920,12 @@ class TestParser {
   ///    $ = 'abc'?
   ///```
   String? parseOptional(State state) {
-    final $input = state.input;
     String? $0;
     // >> $ = 'abc'?
-    final $pos1 = state.position;
+    final $pos = state.position;
     String? $1;
     // >> 'abc'
-    const $literal = 'abc';
-    var $pos = $pos1;
-    if (state.isSuccess = state.position + 3 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98 &&
-        $input.codeUnitAt($pos++) == 99) {
-      state.position += 3;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos1);
+    $1 = state.match('abc');
     // << 'abc'
     state.isSuccess = true;
     if (state.isSuccess) {
@@ -1147,7 +933,7 @@ class TestParser {
       $0 = $;
     }
     if (!state.isSuccess) {
-      state.position = $pos1;
+      state.position = $pos;
     }
     // << $ = 'abc'?
     return $0;
@@ -1161,23 +947,10 @@ class TestParser {
   ///    'abc'?
   ///```
   String? parseOptionalVoid(State state) {
-    final $input = state.input;
     String? $0;
     // >> 'abc'?
-    final $pos1 = state.position;
     // >> 'abc'
-    const $literal = 'abc';
-    var $pos = $pos1;
-    if (state.isSuccess = state.position + 3 <= $input.length &&
-        $input.codeUnitAt($pos++) == 97 &&
-        $input.codeUnitAt($pos++) == 98 &&
-        $input.codeUnitAt($pos++) == 99) {
-      state.position += 3;
-      $0 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos1);
+    $0 = state.match('abc');
     // << 'abc'
     state.isSuccess = true;
     // << 'abc'?
@@ -1192,22 +965,12 @@ class TestParser {
   ///    $ = ($ = 'a' / $ = 'b' / $ = 'c')
   ///```
   String? parseOrderedChoice(State state) {
-    final $input = state.input;
     String? $0;
     // >> $ = ($ = 'a' / $ = 'b' / $ = 'c')
     final $pos = state.position;
     String? $1;
     // >> $ = 'a'
-    String? $2;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $2 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $2 = state.match1('a', 97);
     if (state.isSuccess) {
       String $ = $2!;
       $1 = $;
@@ -1218,16 +981,7 @@ class TestParser {
     // << $ = 'a'
     if (!state.isSuccess) {
       // >> $ = 'b'
-      String? $3;
-      const $literal1 = 'b';
-      if (state.isSuccess =
-          $pos < $input.length && $input.codeUnitAt($pos) == 98) {
-        state.position++;
-        $3 = $literal1;
-      } else {
-        state.fail();
-      }
-      state.expected($literal1, $pos);
+      final $3 = state.match1('b', 98);
       if (state.isSuccess) {
         String $ = $3!;
         $1 = $;
@@ -1238,16 +992,7 @@ class TestParser {
       // << $ = 'b'
       if (!state.isSuccess) {
         // >> $ = 'c'
-        String? $4;
-        const $literal2 = 'c';
-        if (state.isSuccess =
-            $pos < $input.length && $input.codeUnitAt($pos) == 99) {
-          state.position++;
-          $4 = $literal2;
-        } else {
-          state.fail();
-        }
-        state.expected($literal2, $pos);
+        final $4 = state.match1('c', 99);
         if (state.isSuccess) {
           String $ = $4!;
           $1 = $;
@@ -1277,21 +1022,11 @@ class TestParser {
   ///    ($ = 'a' / $ = 'b' / $ = 'c')
   ///```
   String? parseOrderedChoiceVoid(State state) {
-    final $input = state.input;
     String? $0;
     // >> ($ = 'a' / $ = 'b' / $ = 'c')
     final $pos = state.position;
     // >> $ = 'a'
-    String? $1;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $1 = state.match1('a', 97);
     if (state.isSuccess) {
       String $ = $1!;
       $0 = $;
@@ -1302,16 +1037,7 @@ class TestParser {
     // << $ = 'a'
     if (!state.isSuccess) {
       // >> $ = 'b'
-      String? $2;
-      const $literal1 = 'b';
-      if (state.isSuccess =
-          $pos < $input.length && $input.codeUnitAt($pos) == 98) {
-        state.position++;
-        $2 = $literal1;
-      } else {
-        state.fail();
-      }
-      state.expected($literal1, $pos);
+      final $2 = state.match1('b', 98);
       if (state.isSuccess) {
         String $ = $2!;
         $0 = $;
@@ -1322,16 +1048,7 @@ class TestParser {
       // << $ = 'b'
       if (!state.isSuccess) {
         // >> $ = 'c'
-        String? $3;
-        const $literal2 = 'c';
-        if (state.isSuccess =
-            $pos < $input.length && $input.codeUnitAt($pos) == 99) {
-          state.position++;
-          $3 = $literal2;
-        } else {
-          state.fail();
-        }
-        state.expected($literal2, $pos);
+        final $3 = state.match1('c', 99);
         if (state.isSuccess) {
           String $ = $3!;
           $0 = $;
@@ -1359,18 +1076,8 @@ class TestParser {
     final $pos = state.position;
     String? $1;
     // >> [0-9A-Za-z]
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess =
-          c >= 65 ? c <= 90 || c >= 97 && c <= 122 : c >= 48 && c <= 57;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    state.matchChars16((int c) =>
+        c >= 65 ? c <= 90 || c >= 97 && c <= 122 : c >= 48 && c <= 57);
     // << [0-9A-Za-z]
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
@@ -1396,18 +1103,8 @@ class TestParser {
     // >> <[0-9A-Za-z]>
     final $pos = state.position;
     // >> [0-9A-Za-z]
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess =
-          c >= 65 ? c <= 90 || c >= 97 && c <= 122 : c >= 48 && c <= 57;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    state.matchChars16((int c) =>
+        c >= 65 ? c <= 90 || c >= 97 && c <= 122 : c >= 48 && c <= 57);
     // << [0-9A-Za-z]
     $0 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     // << <[0-9A-Za-z]>
@@ -1422,36 +1119,16 @@ class TestParser {
   ///    a = 'a' b = 'b' $ = { }
   ///```
   String? parseSeq2(State state) {
-    final $input = state.input;
     String? $0;
     // >> a = 'a' b = 'b' $ = { }
     final $pos = state.position;
     // >> a = 'a'
-    String? $1;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $1 = state.match1('a', 97);
     // << a = 'a'
     if (state.isSuccess) {
       String a = $1!;
       // >> b = 'b'
-      final $pos1 = state.position;
-      String? $2;
-      const $literal1 = 'b';
-      if (state.isSuccess =
-          $pos1 < $input.length && $input.codeUnitAt($pos1) == 98) {
-        state.position++;
-        $2 = $literal1;
-      } else {
-        state.fail();
-      }
-      state.expected($literal1, $pos1);
+      final $2 = state.match1('b', 98);
       // << b = 'b'
       if (state.isSuccess) {
         String b = $2!;
@@ -1483,22 +1160,14 @@ class TestParser {
   ///    'a' 'b'
   ///```
   void parseSeq2Void(State state) {
-    final $input = state.input;
     // >> 'a' 'b'
     final $pos = state.position;
     // >> 'a'
-    const $literal = 'a';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 97;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('a', 97);
     // << 'a'
     if (state.isSuccess) {
       // >> 'b'
-      final $pos1 = state.position;
-      const $literal1 = 'b';
-      state.isSuccess = $pos1 < $input.length && $input.codeUnitAt($pos1) == 98;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal1, $pos1);
+      state.match1('b', 98);
       // << 'b'
     }
     if (!state.isSuccess) {
@@ -1515,51 +1184,21 @@ class TestParser {
   ///    a = 'a' b = 'b' c = 'c' $ = { }
   ///```
   String? parseSeq3(State state) {
-    final $input = state.input;
     String? $0;
     // >> a = 'a' b = 'b' c = 'c' $ = { }
     final $pos = state.position;
     // >> a = 'a'
-    String? $1;
-    const $literal = 'a';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 97) {
-      state.position++;
-      $1 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $1 = state.match1('a', 97);
     // << a = 'a'
     if (state.isSuccess) {
       String a = $1!;
       // >> b = 'b'
-      final $pos1 = state.position;
-      String? $2;
-      const $literal1 = 'b';
-      if (state.isSuccess =
-          $pos1 < $input.length && $input.codeUnitAt($pos1) == 98) {
-        state.position++;
-        $2 = $literal1;
-      } else {
-        state.fail();
-      }
-      state.expected($literal1, $pos1);
+      final $2 = state.match1('b', 98);
       // << b = 'b'
       if (state.isSuccess) {
         String b = $2!;
         // >> c = 'c'
-        final $pos2 = state.position;
-        String? $3;
-        const $literal2 = 'c';
-        if (state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 99) {
-          state.position++;
-          $3 = $literal2;
-        } else {
-          state.fail();
-        }
-        state.expected($literal2, $pos2);
+        final $3 = state.match1('c', 99);
         // << c = 'c'
         if (state.isSuccess) {
           String c = $3!;
@@ -1592,31 +1231,18 @@ class TestParser {
   ///    'a' 'b' 'c'
   ///```
   void parseSeq3Void(State state) {
-    final $input = state.input;
     // >> 'a' 'b' 'c'
     final $pos = state.position;
     // >> 'a'
-    const $literal = 'a';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 97;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('a', 97);
     // << 'a'
     if (state.isSuccess) {
       // >> 'b'
-      final $pos1 = state.position;
-      const $literal1 = 'b';
-      state.isSuccess = $pos1 < $input.length && $input.codeUnitAt($pos1) == 98;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal1, $pos1);
+      state.match1('b', 98);
       // << 'b'
       if (state.isSuccess) {
         // >> 'c'
-        final $pos2 = state.position;
-        const $literal2 = 'c';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 99;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal2, $pos2);
+        state.match1('c', 99);
         // << 'c'
       }
     }
@@ -1639,15 +1265,7 @@ class TestParser {
     final $pos = state.position;
     String? $1;
     // >> [a]*
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    state.isSuccess = true;
+    state.skip16While((int c) => c == 97);
     // << [a]*
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
@@ -1674,17 +1292,7 @@ class TestParser {
     final $pos = state.position;
     String? $1;
     // >> [a]+
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) => c == 97);
     // << [a]+
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
@@ -1710,17 +1318,7 @@ class TestParser {
     // >> <[a]+>
     final $pos = state.position;
     // >> [a]+
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) => c == 97);
     // << [a]+
     $0 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     // << <[a]+>
@@ -1739,15 +1337,7 @@ class TestParser {
     // >> <[a]*>
     final $pos = state.position;
     // >> [a]*
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 97;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    state.isSuccess = true;
+    state.skip16While((int c) => c == 97);
     // << [a]*
     $0 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     // << <[a]*>
@@ -1762,28 +1352,14 @@ class TestParser {
   ///    $ = 'abc'*
   ///```
   List<String>? parseZeroOrMore(State state) {
-    final $input = state.input;
     List<String>? $0;
     // >> $ = 'abc'*
-    final $pos2 = state.position;
+    final $pos = state.position;
     List<String>? $1;
     final $list = <String>[];
     while (true) {
       // >> 'abc'
-      final $pos1 = state.position;
-      String? $2;
-      const $literal = 'abc';
-      var $pos = $pos1;
-      if (state.isSuccess = state.position + 3 <= $input.length &&
-          $input.codeUnitAt($pos++) == 97 &&
-          $input.codeUnitAt($pos++) == 98 &&
-          $input.codeUnitAt($pos++) == 99) {
-        state.position += 3;
-        $2 = $literal;
-      } else {
-        state.fail();
-      }
-      state.expected($literal, $pos1);
+      final $2 = state.match('abc');
       // << 'abc'
       if (!state.isSuccess) {
         break;
@@ -1796,7 +1372,7 @@ class TestParser {
       $0 = $;
     }
     if (!state.isSuccess) {
-      state.position = $pos2;
+      state.position = $pos;
     }
     // << $ = 'abc'*
     return $0;
@@ -1810,26 +1386,12 @@ class TestParser {
   ///    'abc'*
   ///```
   List<String>? parseZeroOrMoreVoid(State state) {
-    final $input = state.input;
     List<String>? $0;
     // >> 'abc'*
     final $list = <String>[];
     while (true) {
       // >> 'abc'
-      final $pos1 = state.position;
-      String? $1;
-      const $literal = 'abc';
-      var $pos = $pos1;
-      if (state.isSuccess = state.position + 3 <= $input.length &&
-          $input.codeUnitAt($pos++) == 97 &&
-          $input.codeUnitAt($pos++) == 98 &&
-          $input.codeUnitAt($pos++) == 99) {
-        state.position += 3;
-        $1 = $literal;
-      } else {
-        state.fail();
-      }
-      state.expected($literal, $pos1);
+      final $1 = state.match('abc');
       // << 'abc'
       if (!state.isSuccess) {
         break;
@@ -2065,6 +1627,185 @@ class State {
   @pragma('dart2js:tryInline')
   void malformed(String message, {bool? location}) =>
       failure != position ? error(message, location: location) : null;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match(String string, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position < input.length &&
+        input.codeUnitAt(position) == string.codeUnitAt(0)) {
+      if (isSuccess = input.startsWith(string, position)) {
+        position += string.length;
+        result = string;
+      }
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match1(String string, int char, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess =
+        position < input.length && input.codeUnitAt(position) == char) {
+      position++;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match2(String string, int char, int char2, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position + 1 < input.length &&
+        input.codeUnitAt(position) == char &&
+        input.codeUnitAt(position + 1) == char2) {
+      position += 2;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchAny() {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+    }
+
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(int char) {
+    isSuccess = position < input.length && input.codeUnitAt(position) == char;
+    isSuccess ? position++ : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(int char) {
+    isSuccess = position + 1 < input.length && input.readChar(position) == char;
+    isSuccess ? position += 2 : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars16(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.codeUnitAt(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position++ : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars32(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
 
   @override
   String toString() {

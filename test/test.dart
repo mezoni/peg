@@ -1102,17 +1102,3 @@ void _testZeroOrMore() {
     });
   });
 }
-
-String _unexpectedChar(String s) {
-  final ch = s.runes.first;
-  final str = ch < 32 ? '' : ': \'${String.fromCharCode(ch)}\'';
-  var size = 6;
-  if (ch <= 0xff) {
-    size = 2;
-  } else if (ch <= 0xffff) {
-    size = 4;
-  }
-
-  final hex = ch.toRadixString(16).padLeft(size, '0').toUpperCase();
-  return 'Unexpected character (0x$hex)$str';
-}

@@ -48,26 +48,28 @@ Expr('expression') =>
 Sum =>
   l = Product
   @while (*) {
-    [+] S
+    n = [-+] S
     r = Product
-    { l += r; }
-    ----
-    [-] S
-    r = Product
-    { l -= r; }
+    { l = switch(n) {
+        43 => l + r,
+        45 => l - r,
+        _ => l,
+      };
+    }
   }
 
 `int`
 Product =>
   l = Value
   @while (*) {
-    [*] S
-    r = Value
-    { l *= r; }
-    ----
-    [/] S
-    r = Value
-    { l ~/= r; }
+    n = [*/] S
+    r = Product
+    { l = switch(n) {
+        42 => l * r,
+        47 => l ~/ r,
+        _ => l,
+      };
+    }
   }
 
 `int`

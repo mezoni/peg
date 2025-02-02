@@ -66,7 +66,6 @@ state.isSuccess = {{ok}};''';
 
   String _generateTakeWhile1(
       ProductionRuleContext context, CharacterClassExpression child) {
-    const pos = Expression.positionVariableKey;
     final ranges = helper.normalizeRanges(child.ranges, child.negate);
     final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
     final matcher = MatcherGenerator().generate('c', ranges);
@@ -76,30 +75,10 @@ state.isSuccess = {{ok}};''';
     var template = '';
     if (is32Bit) {
       template = '''
-while (state.position < state.input.length) {
-  final c = state.input.readChar(state.position);
-  state.isSuccess = {{predicate}};
-  if (!state.isSuccess) {
-    break;
-  }
-  state.position += c > 0xffff ? 2 : 1;
-}
-if (!(state.isSuccess = {{$pos}} != state.position)) {
-  state.fail();
-}''';
+state.skip32While1((int c) => {{predicate}});''';
     } else {
       template = '''
-while (state.position < state.input.length) {
-  final c = state.input.codeUnitAt(state.position);
-  state.isSuccess = {{predicate}};
-  if (!state.isSuccess) {
-    break;
-  }
-  state.position++;
-}
-if (!(state.isSuccess = {{$pos}} != state.position)) {
-  state.fail();
-}''';
+state.skip16While1((int c) => {{predicate}});''';
     }
 
     return render(context, this, template, values);

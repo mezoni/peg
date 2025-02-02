@@ -1,40 +1,36 @@
 import 'dart:io';
 
-import 'package:peg/parser_generator.dart';
-import 'package:source_span/source_span.dart';
-
-import '../bin/peg_parser.dart';
+import 'package:peg/src/parser_generator.dart';
 
 void main(List<String> args) {
-  final source = File('example/calc.peg').readAsStringSync();
-  final parser = PegParser();
-  final state = State(source);
-  final result = parser.parseStart(state);
-  if (!state.isSuccess) {
-    final file = SourceFile.fromString(source);
-    throw FormatException(state
-        .getErrors()
-        .map((e) => file.span(e.start, e.end).message(e.message))
-        .join('\n'));
-  }
-
-  final grammar = result!;
-  final errors = <String>[];
-  final options = ParserGeneratorOptions(
-    addComments: false,
-  );
-  final generator = ParserGenerator(
-      classname: 'CalcParser',
+  final files = [
+    ('example/calc.peg', 'example/example.dart'),
+    ('example/realtime_calc.peg', 'example/realtime_calc.dart'),
+  ];
+  final outputFiles = <String>[];
+  for (final element in files) {
+    final inputFile = element.$1;
+    final outputFile = element.$2;
+    final source = File(inputFile).readAsStringSync();
+    final options = ParserGeneratorOptions(
+      addComments: false,
+      name: 'CalcParser',
+    );
+    final errors = <String>[];
+    final generator = ParserGenerator(
       errors: errors,
-      grammar: grammar,
-      options: options);
-  final code = generator.generate();
-  if (errors.isNotEmpty) {
-    print(errors.join('\n\n'));
-    exit(-1);
+      options: options,
+      source: source,
+    );
+    final result = generator.generate();
+    if (errors.isNotEmpty) {
+      print(errors.join('\n\n'));
+      exit(-1);
+    }
+
+    outputFiles.add(outputFile);
+    File(outputFile).writeAsStringSync(result);
   }
 
-  const outputFile = 'example/example.dart';
-  File(outputFile).writeAsStringSync(code);
-  Process.runSync(Platform.executable, ['format', outputFile]);
+  Process.runSync(Platform.executable, ['format', ...outputFiles]);
 }

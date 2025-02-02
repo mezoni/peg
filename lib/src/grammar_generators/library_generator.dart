@@ -1,53 +1,47 @@
-import '../../parser_generator_options.dart';
-import '../grammar/production_rule.dart';
+import '../grammar/grammar.dart';
 import '../helper.dart' as helper;
+import '../parser_generator_options.dart';
 import 'class_generator.dart';
-
+import 'parse_function_generator.dart';
 import 'runtime_generator.dart';
 
 class LibraryGenerator {
-  final bool addReader;
-
-  final String classname;
-
   final List<String> errors;
-
-  final String? globals;
-
-  final String? members;
 
   final ParserGeneratorOptions options;
 
-  final List<ProductionRule> rules;
+  final Grammar grammar;
 
   LibraryGenerator({
-    this.addReader = true,
-    required this.classname,
     required this.errors,
-    this.globals,
-    this.members,
+    required this.grammar,
     required this.options,
-    required this.rules,
   });
 
   String generate() {
     final classGenerator = ClassGenerator(
       errors: errors,
-      members: members,
-      name: classname,
+      grammar: grammar,
       options: options,
-      rules: rules,
     );
 
     final runtimeGenerator = RuntimeGenerator();
+    final parseFunctionGenerator = ParseFunctionGenerator(
+      errors: errors,
+      grammar: grammar,
+      options: options,
+    );
     final values = {
-      'globals': globals ?? '',
+      'globals': grammar.globals ?? '',
       'parser': classGenerator.generate(),
       'runtime': runtimeGenerator.generate(),
+      'top_level': parseFunctionGenerator.generate(),
     };
 
     const template = '''
 {{globals}}
+
+{{top_level}}
 
 {{parser}}
 

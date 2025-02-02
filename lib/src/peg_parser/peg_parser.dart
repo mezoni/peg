@@ -1,8 +1,24 @@
 // ignore_for_file: prefer_final_locals
 
-import 'package:peg/src/expressions/expressions.dart';
-import 'package:peg/src/grammar/grammar.dart';
-import 'package:peg/src/grammar/production_rule.dart';
+import 'package:source_span/source_span.dart';
+
+import '../expressions/expressions.dart';
+import '../grammar/grammar.dart';
+import '../grammar/production_rule.dart';
+
+Grammar parse(String source) {
+  final state = State(source);
+  final parser = PegParser();
+  final result = parser.parseStart(state);
+  if (!state.isSuccess) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n'));
+  }
+  return result as Grammar;
+}
 
 class PegParser {
   /// **Action**
@@ -42,13 +58,9 @@ class PegParser {
   ///    '.' S n = { }
   ///```
   Expression? parseAnyCharacter(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos = state.position;
-    const $literal = '.';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 46;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('.', 46);
     if (state.isSuccess) {
       parseS(state);
       if (state.isSuccess) {
@@ -78,22 +90,12 @@ class PegParser {
   ///   / Prefix
   ///```
   Expression? parseAssignment(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos = state.position;
     String? $1;
     $1 = parseIdentifier(state);
     if (!state.isSuccess) {
-      String? $2;
-      const $literal = '\$';
-      if (state.isSuccess =
-          $pos < $input.length && $input.codeUnitAt($pos) == 36) {
-        state.position++;
-        $2 = $literal;
-      } else {
-        state.fail();
-      }
-      state.expected($literal, $pos);
+      final $2 = state.match1('\$', 36);
       if (state.isSuccess) {
         String n = $2!;
         parseS(state);
@@ -106,10 +108,7 @@ class PegParser {
     if (state.isSuccess) {
       String i = $1!;
       final $pos1 = state.position;
-      const $literal1 = '=';
-      state.isSuccess = $pos1 < $input.length && $input.codeUnitAt($pos1) == 61;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal1, $pos1);
+      state.match1('=', 61);
       if (state.isSuccess) {
         parseS(state);
       }
@@ -118,11 +117,7 @@ class PegParser {
       }
       if (!state.isSuccess) {
         final $pos2 = state.position;
-        const $literal2 = ':';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 58;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal2, $pos2);
+        state.match1(':', 58);
         if (state.isSuccess) {
           parseS(state);
         }
@@ -163,15 +158,11 @@ class PegParser {
   ///    '{' n = <BlockBody*> '}' S
   ///```
   String? parseBlock(State state) {
-    final $input = state.input;
     String? $0;
-    final $pos = state.position;
-    const $literal = '{';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 123;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    final $pos1 = state.position;
+    state.match1('{', 123);
     if (state.isSuccess) {
-      final $pos1 = state.position;
+      final $pos = state.position;
       String? $1;
       while (true) {
         parseBlockBody(state);
@@ -180,16 +171,10 @@ class PegParser {
         }
       }
       state.isSuccess = true;
-      $1 =
-          state.isSuccess ? state.input.substring($pos1, state.position) : null;
+      $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
       if (state.isSuccess) {
         String n = $1!;
-        final $pos2 = state.position;
-        const $literal1 = '}';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 125;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos2);
+        state.match1('}', 125);
         if (state.isSuccess) {
           parseS(state);
           $0 = n;
@@ -197,7 +182,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos;
+      state.position = $pos1;
     }
     return $0;
   }
@@ -211,10 +196,8 @@ class PegParser {
   ///   / !"}" .
   ///```
   void parseBlockBody(State state) {
-    final $input = state.input;
     final $pos = state.position;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 123;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('{', 123, true);
     if (state.isSuccess) {
       while (true) {
         parseBlockBody(state);
@@ -224,12 +207,7 @@ class PegParser {
       }
       state.isSuccess = true;
       if (state.isSuccess) {
-        final $pos1 = state.position;
-        const $literal1 = '}';
-        state.isSuccess =
-            $pos1 < $input.length && $input.codeUnitAt($pos1) == 125;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos1);
+        state.match1('}', 125);
       }
     }
     if (!state.isSuccess) {
@@ -238,20 +216,14 @@ class PegParser {
     if (!state.isSuccess) {
       final $0 = state.notPredicate;
       state.notPredicate = true;
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 125;
-      state.isSuccess ? state.position++ : state.fail();
+      state.match1('}', 125, true);
       state.notPredicate = $0;
       if (!(state.isSuccess = !state.isSuccess)) {
         state.fail(state.position - $pos);
         state.position = $pos;
       }
       if (state.isSuccess) {
-        if (state.isSuccess = state.position < state.input.length) {
-          final c = state.input.readChar(state.position);
-          state.position += c > 0xffff ? 2 : 1;
-        } else {
-          state.fail();
-        }
+        state.matchAny();
       }
       if (!state.isSuccess) {
         state.position = $pos;
@@ -267,50 +239,36 @@ class PegParser {
   ///    { } ('[^' { } / '[') r = !"]" n = Range+ ']' S $ = { }
   ///```
   Expression? parseCharacterClass(State state) {
-    final $input = state.input;
     Expression? $0;
-    final $pos5 = state.position;
+    final $pos2 = state.position;
     state.isSuccess = true;
     var negate = false;
     if (state.isSuccess) {
-      final $pos1 = state.position;
-      const $literal = '[^';
-      var $pos = $pos1;
-      state.isSuccess = state.position + 2 <= $input.length &&
-          $input.codeUnitAt($pos++) == 91 &&
-          $input.codeUnitAt($pos++) == 94;
-      state.isSuccess ? state.position += 2 : state.fail();
-      state.expected($literal, $pos1);
+      final $pos = state.position;
+      state.match2('[^', 91, 94);
       if (state.isSuccess) {
         state.isSuccess = true;
         negate = true;
       }
       if (!state.isSuccess) {
-        state.position = $pos1;
+        state.position = $pos;
       }
       if (!state.isSuccess) {
-        final $pos2 = state.position;
-        const $literal1 = '[';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 91;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos2);
+        state.match1('[', 91);
       }
       if (state.isSuccess) {
         List<(int, int)>? $1;
         final $list = <(int, int)>[];
         while (true) {
-          final $pos3 = state.position;
+          final $pos1 = state.position;
           (int, int)? $2;
           final $3 = state.notPredicate;
           state.notPredicate = true;
-          state.isSuccess =
-              $pos3 < $input.length && $input.codeUnitAt($pos3) == 93;
-          state.isSuccess ? state.position++ : state.fail();
+          state.match1(']', 93, true);
           state.notPredicate = $3;
           if (!(state.isSuccess = !state.isSuccess)) {
-            state.fail(state.position - $pos3);
-            state.position = $pos3;
+            state.fail(state.position - $pos1);
+            state.position = $pos1;
           }
           if (state.isSuccess) {
             final $4 = parseRange(state);
@@ -320,7 +278,7 @@ class PegParser {
             }
           }
           if (!state.isSuccess) {
-            state.position = $pos3;
+            state.position = $pos1;
           }
           if (!state.isSuccess) {
             break;
@@ -332,12 +290,7 @@ class PegParser {
         }
         if (state.isSuccess) {
           List<(int, int)> r = $1!;
-          final $pos4 = state.position;
-          const $literal3 = ']';
-          state.isSuccess =
-              $pos4 < $input.length && $input.codeUnitAt($pos4) == 93;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal3, $pos4);
+          state.match1(']', 93);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -356,7 +309,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos5;
+      state.position = $pos2;
     }
     return $0;
   }
@@ -369,31 +322,24 @@ class PegParser {
   ///    "#" !EndOfLine .* EndOfLine?
   ///```
   void parseComment(State state) {
-    final $input = state.input;
-    final $pos = state.position;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 35;
-    state.isSuccess ? state.position++ : state.fail();
+    final $pos1 = state.position;
+    state.match1('#', 35, true);
     if (state.isSuccess) {
       while (true) {
-        final $pos1 = state.position;
+        final $pos = state.position;
         final $0 = state.notPredicate;
         state.notPredicate = true;
         parseEndOfLine(state);
         state.notPredicate = $0;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos1);
-          state.position = $pos1;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
-          if (state.isSuccess = state.position < state.input.length) {
-            final c = state.input.readChar(state.position);
-            state.position += c > 0xffff ? 2 : 1;
-          } else {
-            state.fail();
-          }
+          state.matchAny();
         }
         if (!state.isSuccess) {
-          state.position = $pos1;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -406,7 +352,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos;
+      state.position = $pos1;
     }
   }
 
@@ -419,33 +365,19 @@ class PegParser {
   ///   / "\\" n = (EscapedValue / EscapedHexValue)
   ///```
   int? parseDQChar(State state) {
-    final $input = state.input;
     int? $0;
     final $pos = state.position;
     final $1 = state.notPredicate;
     state.notPredicate = true;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('\\', 92, true);
     state.notPredicate = $1;
     if (!(state.isSuccess = !state.isSuccess)) {
       state.fail(state.position - $pos);
       state.position = $pos;
     }
     if (state.isSuccess) {
-      int? $2;
-      state.isSuccess = state.position < state.input.length;
-      if (state.isSuccess) {
-        final c = state.input.readChar(state.position);
-        state.isSuccess =
-            c >= 35 ? c <= 91 || c >= 93 && c <= 1114111 : c >= 32 && c <= 33;
-        if (state.isSuccess) {
-          $2 = c;
-          state.position += c > 0xffff ? 2 : 1;
-        }
-      }
-      if (!state.isSuccess) {
-        state.fail();
-      }
+      final $2 = state.matchChars32((int c) =>
+          c >= 35 ? c <= 91 || c >= 93 && c <= 1114111 : c >= 32 && c <= 33);
       if (state.isSuccess) {
         int n = $2!;
         $0 = n;
@@ -455,8 +387,7 @@ class PegParser {
       state.position = $pos;
     }
     if (!state.isSuccess) {
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-      state.isSuccess ? state.position++ : state.fail();
+      state.match1('\\', 92, true);
       if (state.isSuccess) {
         int? $3;
         $3 = parseEscapedValue(state);
@@ -483,29 +414,23 @@ class PegParser {
   ///    '"' n = !["] n = DQChar* '"' S $ = { }
   ///```
   String? parseDQString(State state) {
-    final $input = state.input;
     String? $0;
-    final $pos = state.position;
-    const $literal = '"';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 34;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    final $pos1 = state.position;
+    state.match1('"', 34);
     if (state.isSuccess) {
       List<int>? $1;
       final $list = <int>[];
       while (true) {
-        final $pos1 = state.position;
+        final $pos = state.position;
         int? $2;
         final $3 = state.notPredicate;
         state.notPredicate = true;
-        // "
-        state.isSuccess = state.position < $input.length &&
-            $input.codeUnitAt(state.position) == 34;
-        state.isSuccess ? state.position++ : state.fail();
+        // '"'
+        state.matchChar16(34);
         state.notPredicate = $3;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos1);
-          state.position = $pos1;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
           final $4 = parseDQChar(state);
@@ -515,7 +440,7 @@ class PegParser {
           }
         }
         if (!state.isSuccess) {
-          state.position = $pos1;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -525,12 +450,7 @@ class PegParser {
       $1 = (state.isSuccess = true) ? $list : null;
       if (state.isSuccess) {
         List<int> n = $1!;
-        final $pos2 = state.position;
-        const $literal1 = '"';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 34;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos2);
+        state.match1('"', 34);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
@@ -548,7 +468,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos;
+      state.position = $pos1;
     }
     return $0;
   }
@@ -562,25 +482,9 @@ class PegParser {
   ///   / [\n\r]
   ///```
   void parseEndOfLine(State state) {
-    final $input = state.input;
-    final $pos1 = state.position;
-    var $pos = $pos1;
-    state.isSuccess = state.position + 2 <= $input.length &&
-        $input.codeUnitAt($pos++) == 13 &&
-        $input.codeUnitAt($pos++) == 10;
-    state.isSuccess ? state.position += 2 : state.fail();
+    state.match2('\r\n', 13, 10, true);
     if (!state.isSuccess) {
-      state.isSuccess = state.position < state.input.length;
-      if (state.isSuccess) {
-        final c = state.input.codeUnitAt(state.position);
-        state.isSuccess = c == 10 || c == 13;
-        if (state.isSuccess) {
-          state.position++;
-        }
-      }
-      if (!state.isSuccess) {
-        state.fail();
-      }
+      state.matchChars16((int c) => c == 10 || c == 13);
     }
   }
 
@@ -592,29 +496,17 @@ class PegParser {
   ///    "u" '{' n = HexValue '}' ~ { }
   ///```
   int? parseEscapedHexValue(State state) {
-    final $input = state.input;
     int? $0;
     final $pos = state.position;
     final $failure = state.enter();
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 117;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('u', 117, true);
     if (state.isSuccess) {
-      final $pos1 = state.position;
-      const $literal1 = '{';
-      state.isSuccess =
-          $pos1 < $input.length && $input.codeUnitAt($pos1) == 123;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal1, $pos1);
+      state.match1('{', 123);
       if (state.isSuccess) {
         final $1 = parseHexValue(state);
         if (state.isSuccess) {
           int n = $1!;
-          final $pos2 = state.position;
-          const $literal2 = '}';
-          state.isSuccess =
-              $pos2 < $input.length && $input.codeUnitAt($pos2) == 125;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal2, $pos2);
+          state.match1('}', 125);
           $0 = n;
         }
       }
@@ -640,25 +532,13 @@ class PegParser {
     int? $0;
     final $pos = state.position;
     final $failure = state.enter();
-    int? $1;
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 101
-          ? c <= 102 || c >= 114
-              ? c <= 114 || c == 116 || c == 118
-              : c == 110
-          : c >= 39
-              ? c <= 39 || c == 92 || c >= 97 && c <= 98
-              : c == 34;
-      if (state.isSuccess) {
-        $1 = c;
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    final $1 = state.matchChars16((int c) => c >= 101
+        ? c <= 102 || c >= 114
+            ? c <= 114 || c == 116 || c == 118
+            : c == 110
+        : c >= 39
+            ? c <= 39 || c == 92 || c >= 97 && c <= 98
+            : c == 34);
     if (state.isSuccess) {
       int n = $1!;
       state.isSuccess = true;
@@ -710,43 +590,27 @@ class PegParser {
   ///    '%{' n = <!"}%" .*> '}%' S
   ///```
   String? parseGlobals(State state) {
-    final $input = state.input;
     String? $0;
-    final $pos1 = state.position;
-    const $literal = '%{';
-    var $pos = $pos1;
-    state.isSuccess = state.position + 2 <= $input.length &&
-        $input.codeUnitAt($pos++) == 37 &&
-        $input.codeUnitAt($pos++) == 123;
-    state.isSuccess ? state.position += 2 : state.fail();
-    state.expected($literal, $pos1);
+    final $pos2 = state.position;
+    state.match2('%{', 37, 123);
     if (state.isSuccess) {
-      final $pos4 = state.position;
+      final $pos1 = state.position;
       String? $1;
       while (true) {
-        final $pos3 = state.position;
+        final $pos = state.position;
         final $2 = state.notPredicate;
         state.notPredicate = true;
-        var $pos2 = $pos3;
-        state.isSuccess = state.position + 2 <= $input.length &&
-            $input.codeUnitAt($pos2++) == 125 &&
-            $input.codeUnitAt($pos2++) == 37;
-        state.isSuccess ? state.position += 2 : state.fail();
+        state.match2('}%', 125, 37, true);
         state.notPredicate = $2;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos3);
-          state.position = $pos3;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
-          if (state.isSuccess = state.position < state.input.length) {
-            final c = state.input.readChar(state.position);
-            state.position += c > 0xffff ? 2 : 1;
-          } else {
-            state.fail();
-          }
+          state.matchAny();
         }
         if (!state.isSuccess) {
-          state.position = $pos3;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -754,17 +618,10 @@ class PegParser {
       }
       state.isSuccess = true;
       $1 =
-          state.isSuccess ? state.input.substring($pos4, state.position) : null;
+          state.isSuccess ? state.input.substring($pos1, state.position) : null;
       if (state.isSuccess) {
         String n = $1!;
-        final $pos6 = state.position;
-        const $literal2 = '}%';
-        var $pos5 = $pos6;
-        state.isSuccess = state.position + 2 <= $input.length &&
-            $input.codeUnitAt($pos5++) == 125 &&
-            $input.codeUnitAt($pos5++) == 37;
-        state.isSuccess ? state.position += 2 : state.fail();
-        state.expected($literal2, $pos6);
+        state.match2('}%', 125, 37);
         if (state.isSuccess) {
           parseS(state);
           $0 = n;
@@ -772,7 +629,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos1;
+      state.position = $pos2;
     }
     return $0;
   }
@@ -785,25 +642,16 @@ class PegParser {
   ///    '(' S n = Expression ')' S { }
   ///```
   Expression? parseGroup(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos = state.position;
-    const $literal = '(';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 40;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('(', 40);
     if (state.isSuccess) {
       parseS(state);
       if (state.isSuccess) {
         final $1 = parseExpression(state);
         if (state.isSuccess) {
           Expression n = $1!;
-          final $pos1 = state.position;
-          const $literal1 = ')';
-          state.isSuccess =
-              $pos1 < $input.length && $input.codeUnitAt($pos1) == 41;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal1, $pos1);
+          state.match1(')', 41);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -833,18 +681,8 @@ class PegParser {
     int? $0;
     final $pos = state.position;
     String? $1;
-    while (state.position < state.input.length) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess =
-          c >= 65 ? c <= 70 || c >= 97 && c <= 102 : c >= 48 && c <= 57;
-      if (!state.isSuccess) {
-        break;
-      }
-      state.position++;
-    }
-    if (!(state.isSuccess = $pos != state.position)) {
-      state.fail();
-    }
+    state.skip16While1((int c) =>
+        c >= 65 ? c <= 70 || c >= 97 && c <= 102 : c >= 48 && c <= 57);
     $1 = state.isSuccess ? state.input.substring($pos, state.position) : null;
     if (state.isSuccess) {
       String n = $1!;
@@ -878,29 +716,11 @@ class PegParser {
     String? $0;
     final $pos = state.position;
     String? $1;
-    state.isSuccess = state.position < state.input.length;
+    state.matchChars16((int c) => c >= 65 && c <= 90 || c >= 97 && c <= 122);
     if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 65 && c <= 90 || c >= 97 && c <= 122;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
-    if (state.isSuccess) {
-      while (state.position < state.input.length) {
-        final c = state.input.codeUnitAt(state.position);
-        state.isSuccess = c >= 65
-            ? c <= 90 || c == 95 || c >= 97 && c <= 122
-            : c >= 48 && c <= 57;
-        if (!state.isSuccess) {
-          break;
-        }
-        state.position++;
-      }
-      state.isSuccess = true;
+      state.skip16While((int c) => c >= 65
+          ? c <= 90 || c == 95 || c >= 97 && c <= 122
+          : c >= 48 && c <= 57);
     }
     if (!state.isSuccess) {
       state.position = $pos;
@@ -975,25 +795,16 @@ class PegParser {
   ///    '<' S e = Expression '>' S $ = { }
   ///```
   Expression? parseMatch(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos = state.position;
-    const $literal = '<';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 60;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('<', 60);
     if (state.isSuccess) {
       parseS(state);
       if (state.isSuccess) {
         final $1 = parseExpression(state);
         if (state.isSuccess) {
           Expression e = $1!;
-          final $pos1 = state.position;
-          const $literal1 = '>';
-          state.isSuccess =
-              $pos1 < $input.length && $input.codeUnitAt($pos1) == 62;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal1, $pos1);
+          state.match1('>', 62);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -1025,43 +836,27 @@ class PegParser {
   ///    '%%' n = <!"%%" .*> '%%' S
   ///```
   String? parseMembers(State state) {
-    final $input = state.input;
     String? $0;
-    final $pos1 = state.position;
-    const $literal = '%%';
-    var $pos = $pos1;
-    state.isSuccess = state.position + 2 <= $input.length &&
-        $input.codeUnitAt($pos++) == 37 &&
-        $input.codeUnitAt($pos++) == 37;
-    state.isSuccess ? state.position += 2 : state.fail();
-    state.expected($literal, $pos1);
+    final $pos2 = state.position;
+    state.match2('%%', 37, 37);
     if (state.isSuccess) {
-      final $pos4 = state.position;
+      final $pos1 = state.position;
       String? $1;
       while (true) {
-        final $pos3 = state.position;
+        final $pos = state.position;
         final $2 = state.notPredicate;
         state.notPredicate = true;
-        var $pos2 = $pos3;
-        state.isSuccess = state.position + 2 <= $input.length &&
-            $input.codeUnitAt($pos2++) == 37 &&
-            $input.codeUnitAt($pos2++) == 37;
-        state.isSuccess ? state.position += 2 : state.fail();
+        state.match2('%%', 37, 37, true);
         state.notPredicate = $2;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos3);
-          state.position = $pos3;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
-          if (state.isSuccess = state.position < state.input.length) {
-            final c = state.input.readChar(state.position);
-            state.position += c > 0xffff ? 2 : 1;
-          } else {
-            state.fail();
-          }
+          state.matchAny();
         }
         if (!state.isSuccess) {
-          state.position = $pos3;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -1069,17 +864,10 @@ class PegParser {
       }
       state.isSuccess = true;
       $1 =
-          state.isSuccess ? state.input.substring($pos4, state.position) : null;
+          state.isSuccess ? state.input.substring($pos1, state.position) : null;
       if (state.isSuccess) {
         String n = $1!;
-        final $pos6 = state.position;
-        const $literal2 = '%%';
-        var $pos5 = $pos6;
-        state.isSuccess = state.position + 2 <= $input.length &&
-            $input.codeUnitAt($pos5++) == 37 &&
-            $input.codeUnitAt($pos5++) == 37;
-        state.isSuccess ? state.position += 2 : state.fail();
-        state.expected($literal2, $pos6);
+        state.match2('%%', 37, 37);
         if (state.isSuccess) {
           parseS(state);
           $0 = n;
@@ -1087,7 +875,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos1;
+      state.position = $pos2;
     }
     return $0;
   }
@@ -1100,38 +888,30 @@ class PegParser {
   ///    i = RuleName !(ProductionRuleArguments? '=>' S) $ = { }
   ///```
   Expression? parseNonterminal(State state) {
-    final $input = state.input;
     Expression? $0;
-    final $pos4 = state.position;
+    final $pos2 = state.position;
     final $1 = parseRuleName(state);
     if (state.isSuccess) {
       String i = $1!;
-      final $pos3 = state.position;
+      final $pos1 = state.position;
       final $2 = state.notPredicate;
       state.notPredicate = true;
-      final $pos2 = state.position;
+      final $pos = state.position;
       parseProductionRuleArguments(state);
       state.isSuccess = true;
       if (state.isSuccess) {
-        final $pos1 = state.position;
-        const $literal = '=>';
-        var $pos = $pos1;
-        state.isSuccess = state.position + 2 <= $input.length &&
-            $input.codeUnitAt($pos++) == 61 &&
-            $input.codeUnitAt($pos++) == 62;
-        state.isSuccess ? state.position += 2 : state.fail();
-        state.expected($literal, $pos1);
+        state.match2('=>', 61, 62);
         if (state.isSuccess) {
           parseS(state);
         }
       }
       if (!state.isSuccess) {
-        state.position = $pos2;
+        state.position = $pos;
       }
       state.notPredicate = $2;
       if (!(state.isSuccess = !state.isSuccess)) {
-        state.fail(state.position - $pos3);
-        state.position = $pos3;
+        state.fail(state.position - $pos1);
+        state.position = $pos1;
       }
       if (state.isSuccess) {
         late Expression $$;
@@ -1146,7 +926,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos4;
+      state.position = $pos2;
     }
     return $0;
   }
@@ -1159,9 +939,8 @@ class PegParser {
   ///    n = Sequence { } ('/' / '-'*) S n = Sequence { }* $ = { }
   ///```
   Expression? parseOrderedChoice(State state) {
-    final $input = state.input;
     Expression? $0;
-    final $pos2 = state.position;
+    final $pos1 = state.position;
     final $1 = parseSequence(state);
     if (state.isSuccess) {
       Expression n = $1!;
@@ -1170,19 +949,10 @@ class PegParser {
       if (state.isSuccess) {
         while (true) {
           final $pos = state.position;
-          const $literal = '/';
-          state.isSuccess =
-              $pos < $input.length && $input.codeUnitAt($pos) == 47;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal, $pos);
+          state.match1('/', 47);
           if (!state.isSuccess) {
             while (true) {
-              final $pos1 = state.position;
-              const $literal1 = '-';
-              state.isSuccess =
-                  $pos1 < $input.length && $input.codeUnitAt($pos1) == 45;
-              state.isSuccess ? state.position++ : state.fail();
-              state.expected($literal1, $pos1);
+              state.match1('-', 45);
               if (!state.isSuccess) {
                 break;
               }
@@ -1222,7 +992,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos2;
+      state.position = $pos1;
     }
     return $0;
   }
@@ -1235,20 +1005,10 @@ class PegParser {
   ///    p = (n = '!' S / n = '&' S)? $ = Suffix { }
   ///```
   Expression? parsePrefix(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos = state.position;
     String? $1;
-    String? $2;
-    const $literal = '!';
-    if (state.isSuccess =
-        $pos < $input.length && $input.codeUnitAt($pos) == 33) {
-      state.position++;
-      $2 = $literal;
-    } else {
-      state.fail();
-    }
-    state.expected($literal, $pos);
+    final $2 = state.match1('!', 33);
     if (state.isSuccess) {
       String n = $2!;
       parseS(state);
@@ -1258,16 +1018,7 @@ class PegParser {
       state.position = $pos;
     }
     if (!state.isSuccess) {
-      String? $3;
-      const $literal1 = '&';
-      if (state.isSuccess =
-          $pos < $input.length && $input.codeUnitAt($pos) == 38) {
-        state.position++;
-        $3 = $literal1;
-      } else {
-        state.fail();
-      }
-      state.expected($literal1, $pos);
+      final $3 = state.match1('&', 38);
       if (state.isSuccess) {
         String n = $3!;
         parseS(state);
@@ -1354,9 +1105,8 @@ class PegParser {
   ///    t = Type? i = Identifier a = ProductionRuleArguments? '=>' S e = Expression [;]? S $ = { }
   ///```
   ProductionRule? parseProductionRule(State state) {
-    final $input = state.input;
     ProductionRule? $0;
-    final $pos2 = state.position;
+    final $pos = state.position;
     String? $1;
     $1 = parseType(state);
     state.isSuccess = true;
@@ -1370,24 +1120,15 @@ class PegParser {
         state.isSuccess = true;
         if (state.isSuccess) {
           String? a = $3;
-          final $pos1 = state.position;
-          const $literal = '=>';
-          var $pos = $pos1;
-          state.isSuccess = state.position + 2 <= $input.length &&
-              $input.codeUnitAt($pos++) == 61 &&
-              $input.codeUnitAt($pos++) == 62;
-          state.isSuccess ? state.position += 2 : state.fail();
-          state.expected($literal, $pos1);
+          state.match2('=>', 61, 62);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
               final $4 = parseExpression(state);
               if (state.isSuccess) {
                 Expression e = $4!;
-                // ;
-                state.isSuccess = state.position < $input.length &&
-                    $input.codeUnitAt(state.position) == 59;
-                state.isSuccess ? state.position++ : state.fail();
+                // ';'
+                state.matchChar16(59);
                 state.isSuccess = true;
                 if (state.isSuccess) {
                   parseS(state);
@@ -1414,7 +1155,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos2;
+      state.position = $pos;
     }
     return $0;
   }
@@ -1427,25 +1168,16 @@ class PegParser {
   ///    '(' S n = String ')' S
   ///```
   String? parseProductionRuleArguments(State state) {
-    final $input = state.input;
     String? $0;
     final $pos = state.position;
-    const $literal = '(';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 40;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    state.match1('(', 40);
     if (state.isSuccess) {
       parseS(state);
       if (state.isSuccess) {
         final $1 = parseString(state);
         if (state.isSuccess) {
           String n = $1!;
-          final $pos1 = state.position;
-          const $literal1 = ')';
-          state.isSuccess =
-              $pos1 < $input.length && $input.codeUnitAt($pos1) == 41;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal1, $pos1);
+          state.match1(')', 41);
           if (state.isSuccess) {
             parseS(state);
             $0 = n;
@@ -1470,30 +1202,20 @@ class PegParser {
   ///   / n = RangeChar $ = { }
   ///```
   (int, int)? parseRange(State state) {
-    final $input = state.input;
     final $11 = state.enter();
     (int, int)? $0;
     final $pos = state.position;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 123;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('{', 123, true);
     if (state.isSuccess) {
       final $1 = parseHexValue(state);
       if (state.isSuccess) {
         int s = $1!;
-        final $pos1 = state.position;
-        state.isSuccess =
-            $pos1 < $input.length && $input.codeUnitAt($pos1) == 45;
-        state.isSuccess ? state.position++ : state.fail();
+        state.match1('-', 45, true);
         if (state.isSuccess) {
           final $2 = parseHexValue(state);
           if (state.isSuccess) {
             int e = $2!;
-            final $pos2 = state.position;
-            const $literal2 = '}';
-            state.isSuccess =
-                $pos2 < $input.length && $input.codeUnitAt($pos2) == 125;
-            state.isSuccess ? state.position++ : state.fail();
-            state.expected($literal2, $pos2);
+            state.match1('}', 125);
             if (state.isSuccess) {
               late (int, int) $$;
               (int, int)? $3;
@@ -1513,18 +1235,12 @@ class PegParser {
       state.position = $pos;
     }
     if (!state.isSuccess) {
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 123;
-      state.isSuccess ? state.position++ : state.fail();
+      state.match1('{', 123, true);
       if (state.isSuccess) {
         final $4 = parseHexValue(state);
         if (state.isSuccess) {
           int n = $4!;
-          final $pos3 = state.position;
-          const $literal4 = '}';
-          state.isSuccess =
-              $pos3 < $input.length && $input.codeUnitAt($pos3) == 125;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal4, $pos3);
+          state.match1('}', 125);
           if (state.isSuccess) {
             late (int, int) $$;
             (int, int)? $5;
@@ -1545,10 +1261,7 @@ class PegParser {
         final $6 = parseRangeChar(state);
         if (state.isSuccess) {
           int s = $6!;
-          final $pos4 = state.position;
-          state.isSuccess =
-              $pos4 < $input.length && $input.codeUnitAt($pos4) == 45;
-          state.isSuccess ? state.position++ : state.fail();
+          state.match1('-', 45, true);
           if (state.isSuccess) {
             final $7 = parseRangeChar(state);
             if (state.isSuccess) {
@@ -1602,32 +1315,19 @@ class PegParser {
   ///   / "\\" n = ("u" '{' n = HexValue '}' / n = [\-abefnrtv\[\]\\] { })
   ///```
   int? parseRangeChar(State state) {
-    final $input = state.input;
     int? $0;
     final $pos = state.position;
     final $1 = state.notPredicate;
     state.notPredicate = true;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('\\', 92, true);
     state.notPredicate = $1;
     if (!(state.isSuccess = !state.isSuccess)) {
       state.fail(state.position - $pos);
       state.position = $pos;
     }
     if (state.isSuccess) {
-      int? $2;
-      state.isSuccess = state.position < state.input.length;
-      if (state.isSuccess) {
-        final c = state.input.readChar(state.position);
-        state.isSuccess = c >= 32 && c <= 90 || c >= 94 && c <= 1114111;
-        if (state.isSuccess) {
-          $2 = c;
-          state.position += c > 0xffff ? 2 : 1;
-        }
-      }
-      if (!state.isSuccess) {
-        state.fail();
-      }
+      final $2 = state.matchChars32(
+          (int c) => c >= 32 && c <= 90 || c >= 94 && c <= 1114111);
       if (state.isSuccess) {
         int n = $2!;
         $0 = n;
@@ -1637,31 +1337,18 @@ class PegParser {
       state.position = $pos;
     }
     if (!state.isSuccess) {
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-      state.isSuccess ? state.position++ : state.fail();
+      state.match1('\\', 92, true);
       if (state.isSuccess) {
         int? $3;
         final $pos1 = state.position;
-        state.isSuccess =
-            $pos1 < $input.length && $input.codeUnitAt($pos1) == 117;
-        state.isSuccess ? state.position++ : state.fail();
+        state.match1('u', 117, true);
         if (state.isSuccess) {
-          final $pos2 = state.position;
-          const $literal3 = '{';
-          state.isSuccess =
-              $pos2 < $input.length && $input.codeUnitAt($pos2) == 123;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal3, $pos2);
+          state.match1('{', 123);
           if (state.isSuccess) {
             final $4 = parseHexValue(state);
             if (state.isSuccess) {
               int n = $4!;
-              final $pos3 = state.position;
-              const $literal4 = '}';
-              state.isSuccess =
-                  $pos3 < $input.length && $input.codeUnitAt($pos3) == 125;
-              state.isSuccess ? state.position++ : state.fail();
-              state.expected($literal4, $pos3);
+              state.match1('}', 125);
               $3 = n;
             }
           }
@@ -1670,26 +1357,14 @@ class PegParser {
           state.position = $pos1;
         }
         if (!state.isSuccess) {
-          final $pos4 = state.position;
-          int? $5;
-          state.isSuccess = state.position < state.input.length;
-          if (state.isSuccess) {
-            final c = state.input.codeUnitAt(state.position);
-            state.isSuccess = c >= 101
-                ? c <= 102 || c >= 114
-                    ? c <= 114 || c == 116 || c == 118
-                    : c == 110
-                : c >= 91
-                    ? c <= 93 || c >= 97 && c <= 98
-                    : c == 45;
-            if (state.isSuccess) {
-              $5 = c;
-              state.position++;
-            }
-          }
-          if (!state.isSuccess) {
-            state.fail();
-          }
+          final $pos2 = state.position;
+          final $5 = state.matchChars16((int c) => c >= 101
+              ? c <= 102 || c >= 114
+                  ? c <= 114 || c == 116 || c == 118
+                  : c == 110
+              : c >= 91
+                  ? c <= 93 || c >= 97 && c <= 98
+                  : c == 45);
           if (state.isSuccess) {
             int n = $5!;
             state.isSuccess = true;
@@ -1707,7 +1382,7 @@ class PegParser {
             $3 = n;
           }
           if (!state.isSuccess) {
-            state.position = $pos4;
+            state.position = $pos2;
           }
         }
         if (state.isSuccess) {
@@ -1731,68 +1406,32 @@ class PegParser {
   ///   / '@while' S '(' S '+' S ')' S '{' S e = Expression '}' S $ = { }
   ///```
   Expression? parseRepeater(State state) {
-    final $input = state.input;
     Expression? $0;
-    final $pos1 = state.position;
-    const $literal = '@while';
-    var $pos = $pos1;
-    state.isSuccess = state.position + 6 <= $input.length &&
-        $input.codeUnitAt($pos++) == 64 &&
-        $input.codeUnitAt($pos++) == 119 &&
-        $input.codeUnitAt($pos++) == 104 &&
-        $input.codeUnitAt($pos++) == 105 &&
-        $input.codeUnitAt($pos++) == 108 &&
-        $input.codeUnitAt($pos++) == 101;
-    state.isSuccess ? state.position += 6 : state.fail();
-    state.expected($literal, $pos1);
+    final $pos = state.position;
+    state.match('@while');
     if (state.isSuccess) {
       parseS(state);
       if (state.isSuccess) {
-        final $pos2 = state.position;
-        const $literal1 = '(';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 40;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos2);
+        state.match1('(', 40);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
-            final $pos3 = state.position;
-            const $literal2 = '*';
-            state.isSuccess =
-                $pos3 < $input.length && $input.codeUnitAt($pos3) == 42;
-            state.isSuccess ? state.position++ : state.fail();
-            state.expected($literal2, $pos3);
+            state.match1('*', 42);
             if (state.isSuccess) {
               parseS(state);
               if (state.isSuccess) {
-                final $pos4 = state.position;
-                const $literal3 = ')';
-                state.isSuccess =
-                    $pos4 < $input.length && $input.codeUnitAt($pos4) == 41;
-                state.isSuccess ? state.position++ : state.fail();
-                state.expected($literal3, $pos4);
+                state.match1(')', 41);
                 if (state.isSuccess) {
                   parseS(state);
                   if (state.isSuccess) {
-                    final $pos5 = state.position;
-                    const $literal4 = '{';
-                    state.isSuccess = $pos5 < $input.length &&
-                        $input.codeUnitAt($pos5) == 123;
-                    state.isSuccess ? state.position++ : state.fail();
-                    state.expected($literal4, $pos5);
+                    state.match1('{', 123);
                     if (state.isSuccess) {
                       parseS(state);
                       if (state.isSuccess) {
                         final $1 = parseExpression(state);
                         if (state.isSuccess) {
                           Expression e = $1!;
-                          final $pos6 = state.position;
-                          const $literal5 = '}';
-                          state.isSuccess = $pos6 < $input.length &&
-                              $input.codeUnitAt($pos6) == 125;
-                          state.isSuccess ? state.position++ : state.fail();
-                          state.expected($literal5, $pos6);
+                          state.match1('}', 125);
                           if (state.isSuccess) {
                             parseS(state);
                             if (state.isSuccess) {
@@ -1819,68 +1458,33 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos1;
+      state.position = $pos;
     }
     if (!state.isSuccess) {
-      const $literal6 = '@while';
-      var $pos7 = $pos1;
-      state.isSuccess = state.position + 6 <= $input.length &&
-          $input.codeUnitAt($pos7++) == 64 &&
-          $input.codeUnitAt($pos7++) == 119 &&
-          $input.codeUnitAt($pos7++) == 104 &&
-          $input.codeUnitAt($pos7++) == 105 &&
-          $input.codeUnitAt($pos7++) == 108 &&
-          $input.codeUnitAt($pos7++) == 101;
-      state.isSuccess ? state.position += 6 : state.fail();
-      state.expected($literal6, $pos1);
+      state.match('@while');
       if (state.isSuccess) {
         parseS(state);
         if (state.isSuccess) {
-          final $pos8 = state.position;
-          const $literal7 = '(';
-          state.isSuccess =
-              $pos8 < $input.length && $input.codeUnitAt($pos8) == 40;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal7, $pos8);
+          state.match1('(', 40);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
-              final $pos9 = state.position;
-              const $literal8 = '+';
-              state.isSuccess =
-                  $pos9 < $input.length && $input.codeUnitAt($pos9) == 43;
-              state.isSuccess ? state.position++ : state.fail();
-              state.expected($literal8, $pos9);
+              state.match1('+', 43);
               if (state.isSuccess) {
                 parseS(state);
                 if (state.isSuccess) {
-                  final $pos10 = state.position;
-                  const $literal9 = ')';
-                  state.isSuccess =
-                      $pos10 < $input.length && $input.codeUnitAt($pos10) == 41;
-                  state.isSuccess ? state.position++ : state.fail();
-                  state.expected($literal9, $pos10);
+                  state.match1(')', 41);
                   if (state.isSuccess) {
                     parseS(state);
                     if (state.isSuccess) {
-                      final $pos11 = state.position;
-                      const $literal10 = '{';
-                      state.isSuccess = $pos11 < $input.length &&
-                          $input.codeUnitAt($pos11) == 123;
-                      state.isSuccess ? state.position++ : state.fail();
-                      state.expected($literal10, $pos11);
+                      state.match1('{', 123);
                       if (state.isSuccess) {
                         parseS(state);
                         if (state.isSuccess) {
                           final $3 = parseExpression(state);
                           if (state.isSuccess) {
                             Expression e = $3!;
-                            final $pos12 = state.position;
-                            const $literal11 = '}';
-                            state.isSuccess = $pos12 < $input.length &&
-                                $input.codeUnitAt($pos12) == 125;
-                            state.isSuccess ? state.position++ : state.fail();
-                            state.expected($literal11, $pos12);
+                            state.match1('}', 125);
                             if (state.isSuccess) {
                               parseS(state);
                               if (state.isSuccess) {
@@ -1907,7 +1511,7 @@ class PegParser {
         }
       }
       if (!state.isSuccess) {
-        state.position = $pos1;
+        state.position = $pos;
       }
     }
     return $0;
@@ -1925,29 +1529,11 @@ class PegParser {
     String? $0;
     final $pos = state.position;
     String? $1;
-    state.isSuccess = state.position < state.input.length;
+    state.matchChars16((int c) => c >= 65 && c <= 90);
     if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c >= 65 && c <= 90;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
-    if (state.isSuccess) {
-      while (state.position < state.input.length) {
-        final c = state.input.codeUnitAt(state.position);
-        state.isSuccess = c >= 65
-            ? c <= 90 || c == 95 || c >= 97 && c <= 122
-            : c >= 48 && c <= 57;
-        if (!state.isSuccess) {
-          break;
-        }
-        state.position++;
-      }
-      state.isSuccess = true;
+      state.skip16While((int c) => c >= 65
+          ? c <= 90 || c == 95 || c >= 97 && c <= 122
+          : c >= 48 && c <= 57);
     }
     if (!state.isSuccess) {
       state.position = $pos;
@@ -2000,33 +1586,19 @@ class PegParser {
   ///   / "\\" n = (EscapedValue / EscapedHexValue)
   ///```
   int? parseSQChar(State state) {
-    final $input = state.input;
     int? $0;
     final $pos = state.position;
     final $1 = state.notPredicate;
     state.notPredicate = true;
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-    state.isSuccess ? state.position++ : state.fail();
+    state.match1('\\', 92, true);
     state.notPredicate = $1;
     if (!(state.isSuccess = !state.isSuccess)) {
       state.fail(state.position - $pos);
       state.position = $pos;
     }
     if (state.isSuccess) {
-      int? $2;
-      state.isSuccess = state.position < state.input.length;
-      if (state.isSuccess) {
-        final c = state.input.readChar(state.position);
-        state.isSuccess =
-            c >= 40 ? c <= 91 || c >= 93 && c <= 1114111 : c >= 32 && c <= 38;
-        if (state.isSuccess) {
-          $2 = c;
-          state.position += c > 0xffff ? 2 : 1;
-        }
-      }
-      if (!state.isSuccess) {
-        state.fail();
-      }
+      final $2 = state.matchChars32((int c) =>
+          c >= 40 ? c <= 91 || c >= 93 && c <= 1114111 : c >= 32 && c <= 38);
       if (state.isSuccess) {
         int n = $2!;
         $0 = n;
@@ -2036,8 +1608,7 @@ class PegParser {
       state.position = $pos;
     }
     if (!state.isSuccess) {
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 92;
-      state.isSuccess ? state.position++ : state.fail();
+      state.match1('\\', 92, true);
       if (state.isSuccess) {
         int? $3;
         $3 = parseEscapedValue(state);
@@ -2064,29 +1635,23 @@ class PegParser {
   ///    '\'' n = !['] n = SQChar* '\'' S $ = { }
   ///```
   String? parseSQString(State state) {
-    final $input = state.input;
     String? $0;
-    final $pos = state.position;
-    const $literal = '\'';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 39;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    final $pos1 = state.position;
+    state.match1('\'', 39);
     if (state.isSuccess) {
       List<int>? $1;
       final $list = <int>[];
       while (true) {
-        final $pos1 = state.position;
+        final $pos = state.position;
         int? $2;
         final $3 = state.notPredicate;
         state.notPredicate = true;
-        // '
-        state.isSuccess = state.position < $input.length &&
-            $input.codeUnitAt(state.position) == 39;
-        state.isSuccess ? state.position++ : state.fail();
+        // '''
+        state.matchChar16(39);
         state.notPredicate = $3;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos1);
-          state.position = $pos1;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
           final $4 = parseSQChar(state);
@@ -2096,7 +1661,7 @@ class PegParser {
           }
         }
         if (!state.isSuccess) {
-          state.position = $pos1;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -2106,12 +1671,7 @@ class PegParser {
       $1 = (state.isSuccess = true) ? $list : null;
       if (state.isSuccess) {
         List<int> n = $1!;
-        final $pos2 = state.position;
-        const $literal1 = '\'';
-        state.isSuccess =
-            $pos2 < $input.length && $input.codeUnitAt($pos2) == 39;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos2);
+        state.match1('\'', 39);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
@@ -2129,7 +1689,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos;
+      state.position = $pos1;
     }
     return $0;
   }
@@ -2142,7 +1702,6 @@ class PegParser {
   ///    n = TypeConversion+ b = ('~' S b = Block)? $ = { }
   ///```
   Expression? parseSequence(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos1 = state.position;
     List<Expression>? $1;
@@ -2161,10 +1720,7 @@ class PegParser {
       List<Expression> n = $1!;
       String? $3;
       final $pos = state.position;
-      const $literal = '~';
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 126;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal, $pos);
+      state.match1('~', 126);
       if (state.isSuccess) {
         parseS(state);
         if (state.isSuccess) {
@@ -2208,17 +1764,7 @@ class PegParser {
   ///   / EndOfLine
   ///```
   void parseSpace(State state) {
-    state.isSuccess = state.position < state.input.length;
-    if (state.isSuccess) {
-      final c = state.input.codeUnitAt(state.position);
-      state.isSuccess = c == 9 || c == 32;
-      if (state.isSuccess) {
-        state.position++;
-      }
-    }
-    if (!state.isSuccess) {
-      state.fail();
-    }
+    state.matchChars16((int c) => c == 9 || c == 32);
     if (!state.isSuccess) {
       parseEndOfLine(state);
     }
@@ -2263,12 +1809,7 @@ class PegParser {
             final $pos = state.position;
             final $5 = state.notPredicate;
             state.notPredicate = true;
-            if (state.isSuccess = state.position < state.input.length) {
-              final c = state.input.readChar(state.position);
-              state.position += c > 0xffff ? 2 : 1;
-            } else {
-              state.fail();
-            }
+            state.matchAny();
             state.notPredicate = $5;
             if (!(state.isSuccess = !state.isSuccess)) {
               state.fail(state.position - $pos);
@@ -2324,17 +1865,13 @@ class PegParser {
   ///    n = Primary ('*' S { } / '+' S { } / '?' S { })?
   ///```
   Expression? parseSuffix(State state) {
-    final $input = state.input;
     Expression? $0;
     final $pos1 = state.position;
     final $1 = parsePrimary(state);
     if (state.isSuccess) {
       Expression n = $1!;
       final $pos = state.position;
-      const $literal = '*';
-      state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 42;
-      state.isSuccess ? state.position++ : state.fail();
-      state.expected($literal, $pos);
+      state.match1('*', 42);
       if (state.isSuccess) {
         parseS(state);
         if (state.isSuccess) {
@@ -2346,10 +1883,7 @@ class PegParser {
         state.position = $pos;
       }
       if (!state.isSuccess) {
-        const $literal1 = '+';
-        state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 43;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos);
+        state.match1('+', 43);
         if (state.isSuccess) {
           parseS(state);
           if (state.isSuccess) {
@@ -2361,11 +1895,7 @@ class PegParser {
           state.position = $pos;
         }
         if (!state.isSuccess) {
-          const $literal2 = '?';
-          state.isSuccess =
-              $pos < $input.length && $input.codeUnitAt($pos) == 63;
-          state.isSuccess ? state.position++ : state.fail();
-          state.expected($literal2, $pos);
+          state.match1('?', 63);
           if (state.isSuccess) {
             parseS(state);
             if (state.isSuccess) {
@@ -2395,51 +1925,35 @@ class PegParser {
   ///    '`' n = <![`] [a-zA-Z0-9_$<(\{,:\})>? ]*> '`' S
   ///```
   String? parseType(State state) {
-    final $input = state.input;
     final $3 = state.enter();
     String? $0;
-    final $pos = state.position;
-    const $literal = '`';
-    state.isSuccess = $pos < $input.length && $input.codeUnitAt($pos) == 96;
-    state.isSuccess ? state.position++ : state.fail();
-    state.expected($literal, $pos);
+    final $pos2 = state.position;
+    state.match1('`', 96);
     if (state.isSuccess) {
-      final $pos2 = state.position;
+      final $pos1 = state.position;
       String? $1;
       while (true) {
-        final $pos1 = state.position;
+        final $pos = state.position;
         final $2 = state.notPredicate;
         state.notPredicate = true;
-        // `
-        state.isSuccess = state.position < $input.length &&
-            $input.codeUnitAt(state.position) == 96;
-        state.isSuccess ? state.position++ : state.fail();
+        // '`'
+        state.matchChar16(96);
         state.notPredicate = $2;
         if (!(state.isSuccess = !state.isSuccess)) {
-          state.fail(state.position - $pos1);
-          state.position = $pos1;
+          state.fail(state.position - $pos);
+          state.position = $pos;
         }
         if (state.isSuccess) {
-          state.isSuccess = state.position < state.input.length;
-          if (state.isSuccess) {
-            final c = state.input.codeUnitAt(state.position);
-            state.isSuccess = c >= 60
-                ? c <= 60 || c >= 95
-                    ? c <= 95 || c >= 97 && c <= 123 || c == 125
-                    : c >= 62 && c <= 63 || c >= 65 && c <= 90
-                : c >= 40
-                    ? c <= 41 || c == 44 || c >= 48 && c <= 58
-                    : c == 32 || c == 36;
-            if (state.isSuccess) {
-              state.position++;
-            }
-          }
-          if (!state.isSuccess) {
-            state.fail();
-          }
+          state.matchChars16((int c) => c >= 60
+              ? c <= 60 || c >= 95
+                  ? c <= 95 || c >= 97 && c <= 123 || c == 125
+                  : c >= 62 && c <= 63 || c >= 65 && c <= 90
+              : c >= 40
+                  ? c <= 41 || c == 44 || c >= 48 && c <= 58
+                  : c == 32 || c == 36);
         }
         if (!state.isSuccess) {
-          state.position = $pos1;
+          state.position = $pos;
         }
         if (!state.isSuccess) {
           break;
@@ -2447,15 +1961,10 @@ class PegParser {
       }
       state.isSuccess = true;
       $1 =
-          state.isSuccess ? state.input.substring($pos2, state.position) : null;
+          state.isSuccess ? state.input.substring($pos1, state.position) : null;
       if (state.isSuccess) {
         String n = $1!;
-        final $pos3 = state.position;
-        const $literal1 = '`';
-        state.isSuccess =
-            $pos3 < $input.length && $input.codeUnitAt($pos3) == 96;
-        state.isSuccess ? state.position++ : state.fail();
-        state.expected($literal1, $pos3);
+        state.match1('`', 96);
         if (state.isSuccess) {
           parseS(state);
           $0 = n;
@@ -2463,9 +1972,9 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos;
+      state.position = $pos2;
     }
-    state.expected('type', $pos, false);
+    state.expected('type', $pos2, false);
     state.leave($3);
     return $0;
   }
@@ -2478,21 +1987,14 @@ class PegParser {
   ///    $ = Assignment t = ('as' S n = Type)? { }
   ///```
   Expression? parseTypeConversion(State state) {
-    final $input = state.input;
     Expression? $0;
-    final $pos2 = state.position;
+    final $pos1 = state.position;
     final $1 = parseAssignment(state);
     if (state.isSuccess) {
       Expression $ = $1!;
       String? $2;
-      final $pos1 = state.position;
-      const $literal = 'as';
-      var $pos = $pos1;
-      state.isSuccess = state.position + 2 <= $input.length &&
-          $input.codeUnitAt($pos++) == 97 &&
-          $input.codeUnitAt($pos++) == 115;
-      state.isSuccess ? state.position += 2 : state.fail();
-      state.expected($literal, $pos1);
+      final $pos = state.position;
+      state.match2('as', 97, 115);
       if (state.isSuccess) {
         parseS(state);
         if (state.isSuccess) {
@@ -2504,7 +2006,7 @@ class PegParser {
         }
       }
       if (!state.isSuccess) {
-        state.position = $pos1;
+        state.position = $pos;
       }
       state.isSuccess = true;
       if (state.isSuccess) {
@@ -2515,7 +2017,7 @@ class PegParser {
       }
     }
     if (!state.isSuccess) {
-      state.position = $pos2;
+      state.position = $pos1;
     }
     return $0;
   }
@@ -2744,6 +2246,185 @@ class State {
   @pragma('dart2js:tryInline')
   void malformed(String message, {bool? location}) =>
       failure != position ? error(message, location: location) : null;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match(String string, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position < input.length &&
+        input.codeUnitAt(position) == string.codeUnitAt(0)) {
+      if (isSuccess = input.startsWith(string, position)) {
+        position += string.length;
+        result = string;
+      }
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match1(String string, int char, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess =
+        position < input.length && input.codeUnitAt(position) == char) {
+      position++;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match2(String string, int char, int char2, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position + 1 < input.length &&
+        input.codeUnitAt(position) == char &&
+        input.codeUnitAt(position + 1) == char2) {
+      position += 2;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchAny() {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+    }
+
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(int char) {
+    isSuccess = position < input.length && input.codeUnitAt(position) == char;
+    isSuccess ? position++ : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(int char) {
+    isSuccess = position + 1 < input.length && input.readChar(position) == char;
+    isSuccess ? position += 2 : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars16(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.codeUnitAt(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position++ : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars32(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
 
   @override
   String toString() {

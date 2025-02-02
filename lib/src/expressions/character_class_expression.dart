@@ -41,63 +41,33 @@ class CharacterClassExpression extends Expression {
 
     var template = '';
     if (variable != null) {
+      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
+      var canDeclare = false;
+      var declare = '';
+      if (!isVariableDeclared) {
+        canDeclare = this == context.getExpressionVariableDeclarator(variable);
+        if (canDeclare) {
+          context.setExpressionVariableDeclared(variable);
+          declare = 'final ';
+        }
+      }
+
+      values['declare'] = declare;
       values['variable'] = variable;
       if (is32Bit) {
         template = '''
-state.isSuccess = state.position < state.input.length;
-if (state.isSuccess) {
-  final c = state.input.readChar(state.position);
-  state.isSuccess = {{predicate}};
-  if (state.isSuccess) {
-    {{variable}} =  c;
-    state.position += c > 0xffff ? 2 : 1;
-  }
-}
-if (!state.isSuccess) {
-  state.fail();
-}''';
+{{declare}}{{variable}} = state.matchChars32((int c) => {{predicate}});''';
       } else {
         template = '''
-state.isSuccess = state.position < state.input.length;
-if (state.isSuccess) {
-  final c = state.input.codeUnitAt(state.position);
-  state.isSuccess = {{predicate}};
-  if (state.isSuccess) {
-    {{variable}} =  c;
-    state.position++;
-  }
-}
-if (!state.isSuccess) {
-  state.fail();
-}''';
+{{declare}}{{variable}} = state.matchChars16((int c) => {{predicate}});''';
       }
     } else {
       if (is32Bit) {
         template = '''
-state.isSuccess = state.position < state.input.length;
-if (state.isSuccess) {
-  final c = state.input.readChar(state.position);
-  state.isSuccess = {{predicate}};
-  if (state.isSuccess) {
-    state.position += c > 0xffff ? 2 : 1;
-  }
-}
-if (!state.isSuccess) {
-  state.fail();
-}''';
+state.matchChars32((int c) => {{predicate}});''';
       } else {
         template = '''
-state.isSuccess = state.position < state.input.length;
-if (state.isSuccess) {
-  final c = state.input.codeUnitAt(state.position);
-  state.isSuccess = {{predicate}};
-  if (state.isSuccess) {
-    state.position++;
-  }
-}
-if (!state.isSuccess) {
-  state.fail();
-}''';
+state.matchChars16((int c) => {{predicate}});''';
       }
     }
 
@@ -108,42 +78,41 @@ if (!state.isSuccess) {
     final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
     final values = {
       'char': '$char',
-      'comment': ' // ${String.fromCharCode(char)}',
-      'input': context.allocateInputVariable(),
+      'comment': " // '${String.fromCharCode(char)}'",
     };
     var template = '';
     if (variable != null) {
+      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
+      var canDeclare = false;
+      var declare = '';
+      if (!isVariableDeclared) {
+        canDeclare = this == context.getExpressionVariableDeclarator(variable);
+        if (canDeclare) {
+          context.setExpressionVariableDeclared(variable);
+          declare = 'final ';
+        }
+      }
+
+      values['declare'] = declare;
       values['variable'] = variable;
       if (is32Bit) {
         template = '''
 {{comment}}
-if (state.isSuccess = state.position < {{input}}.length && {{input}}.readChar(state.position) == {{char}}) {
-  {{variable}} = {{char}};
-  state.position += 2;
-} else {
-  state.fail();
-}''';
+{{declare}}{{variable}} = state.matchChar32({{char}});''';
       } else {
         template = '''
 {{comment}}
-if (state.isSuccess = state.position < {{input}}.length && {{input}}.codeUnitAt(state.position) == {{char}}) {
-  {{variable}} = {{char}};
-  state.position++;
-} else {
-  state.fail();
-}''';
+{{declare}}{{variable}} = state.matchChar16({{char}});''';
       }
     } else {
       if (is32Bit) {
         template = '''
 {{comment}}
-state.isSuccess = state.position < {{input}}.length && {{input}}.readChar(state.position) == {{char}};
-state.isSuccess ? state.position += 2 : state.fail();''';
+state.matchChar32({{char}});''';
       } else {
         template = '''
 {{comment}}
-state.isSuccess = state.position < {{input}}.length && {{input}}.codeUnitAt(state.position) == {{char}};
-state.isSuccess ? state.position++ : state.fail();''';
+state.matchChar16({{char}});''';
       }
     }
 

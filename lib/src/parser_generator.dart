@@ -1,34 +1,28 @@
+import 'grammar_generators/library_generator.dart';
 import 'parser_generator_options.dart';
-import 'src/grammar/grammar.dart';
-import 'src/grammar_generators/library_generator.dart';
+import 'peg_parser/peg_parser.dart' as peg_parser;
 
 export 'parser_generator_options.dart';
 
 class ParserGenerator {
-  final String classname;
-
   final List<String> errors;
-
-  final Grammar grammar;
 
   final ParserGeneratorOptions options;
 
+  final String source;
+
   ParserGenerator({
-    required this.options,
-    required this.classname,
     required this.errors,
-    required this.grammar,
+    required this.options,
+    required this.source,
   });
 
   String generate() {
-    final rules = grammar.rules;
+    final grammar = peg_parser.parse(source);
     final libraryGenerator = LibraryGenerator(
-      options: options,
-      classname: classname,
       errors: errors,
-      globals: grammar.globals,
-      members: grammar.members,
-      rules: rules,
+      grammar: grammar,
+      options: options,
     );
 
     errors.addAll(grammar.errors);

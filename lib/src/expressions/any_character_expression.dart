@@ -14,22 +14,24 @@ class AnyCharacterExpression extends Expression {
     final values = <String, String>{};
     var template = '';
     if (variable != null) {
+      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
+      var canDeclare = false;
+      var declare = '';
+      if (!isVariableDeclared) {
+        canDeclare = this == context.getExpressionVariableDeclarator(variable);
+        if (canDeclare) {
+          context.setExpressionVariableDeclared(variable);
+          declare = 'final ';
+        }
+      }
+
+      values['declare'] = declare;
       values['variable'] = variable;
       template = '''
-if (state.isSuccess = state.position < state.input.length) {
-  {{variable}} = state.input.readChar(state.position);
-  state.position += {{variable}} > 0xffff ? 2 : 1;
-} else {
-  state.fail();
-}''';
+{{declare}}{{variable}} = state.matchAny();''';
     } else {
       template = '''
-if (state.isSuccess = state.position < state.input.length) {
-  final c = state.input.readChar(state.position);
-  state.position += c > 0xffff ? 2 : 1;
-} else {
-  state.fail();
-}''';
+state.matchAny();''';
     }
     return render(context, this, template, values);
   }

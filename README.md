@@ -34,7 +34,7 @@ dart pub global run peg
 
 This generator generates itself from a grammar written using its own syntax.  
 For a more detailed familiarization with the syntax, it is recommended to familiarize yourself with the syntax of the grammar used to generate this PEG parser.  
-[bin/peg.peg](https://github.com/mezoni/peg/blob/main/bin/peg.peg)
+[peg.peg](https://github.com/mezoni/peg/blob/main/lib/src/peg_parser/peg.peg)
 
 Grammar declaration is made using sections, like sections for a preprocessor, but at the same time, it should be noted that preprocessing is not performed and grammar processing (parsing) occurs in one stage.  
 
@@ -79,7 +79,7 @@ More detailed information can also be found on the Bryan Ford website.
 ## Main characteristics
 
 Main characteristics:
-- Small runtime code size (less than 200 lines of code)
+- Small runtime code size (less than 350 lines of code)
 - Small size of generated parsers (from 10 lines of code)
 - Performance optimized source code of generated parsers
 - Automatic generation of standard errors
@@ -87,15 +87,15 @@ Main characteristics:
 
 ## Naming convention for expression result types
 
-**Important information**
+⚠ **Important information**
 
 The description of the grammar implies the division of native types into two incompatible types:
 - Nullable types
 - Non-nullable types
 
-The grammar analyzer can judge the kind of a type only by its representation.
+The grammar analyzer can determine the kind of a type only by its representation.
 
-From the point of view of the grammar analyzer, the determination of a type variety occurs according to the following principle.
+From the point of view of the grammar analyzer, the type identification is performed literally, according to the following principle.
 If a type definition ends with `?`, it is considered `nullable`.  
 If a type is included in the specified list, it is considered `nullable`:
 - `Null`
@@ -105,7 +105,7 @@ If a type is included in the specified list, it is considered `nullable`:
 Additionally, if a type is not defined, it is considered `nullable`.
 In other cases, the type is considered `non-nullable`.
 
-This won't work.
+The use of types defined by type alias is not allowed.  
 
 ```dart
 typedef TypeA = TypeB?;
@@ -125,8 +125,8 @@ var result = Result(value);
 var result = (value,);
 ```
 
-The `wrapper` is the `nullable` type value.  
-The `unwrapping` operation is the process of converting a value to its original form.  
+The `nullable` type value is used as a `wrapper`.  
+The `unwrapping` operation is the process of converting a `wrapped` value to its original type.
 
 Example:
 
@@ -137,12 +137,12 @@ int? nonNullableResult;
 /// Some code...
 
 final nullableResultValue = nullableResult;
-final nonNullableResultValue = nonNullableResult?;
+final nonNullableResultValue = nonNullableResult!;
 ```
 
-All this happens automatically, based on information about whether the result value can be `null` or cannot be `null`.
+All this happens automatically, based on information about whether the result value can be `null` or not.
 
-If this principle is not followed, **errors are inevitable** when converting values ​​to a non-nullable value.
+If this principle is not followed (about not using type aliases), **errors are inevitable** when converting values ​​to a `non-nullable` values.
 
 ## Automatic and programmatic error generation
 
@@ -788,3 +788,52 @@ Expression =>
 ```
 
 And so on.
+
+## Generating a parser programmatically
+
+Generating a parser programmatically is possible, but it is not recommended.  
+Only in exceptional cases. For example, for testing purposes.  
+It is not recommended to include this package in the list of `dependencies`.  
+It is acceptable to include this package in the list of `dev_dependencies`.
+
+Below is an example of how this can be done.
+
+```dart
+import 'dart:io';
+
+import 'package:peg/src/parser_generator.dart';
+
+void main(List<String> args) {
+  final files = [
+    ('example/calc.peg', 'example/example.dart'),
+    ('example/realtime_calc.peg', 'example/realtime_calc.dart'),
+  ];
+  final outputFiles = <String>[];
+  for (final element in files) {
+    final inputFile = element.$1;
+    final outputFile = element.$2;
+    final source = File(inputFile).readAsStringSync();
+    final options = ParserGeneratorOptions(
+      addComments: false,
+      name: 'CalcParser',
+    );
+    final errors = <String>[];
+    final generator = ParserGenerator(
+      errors: errors,
+      options: options,
+      source: source,
+    );
+    final result = generator.generate();
+    if (errors.isNotEmpty) {
+      print(errors.join('\n\n'));
+      exit(-1);
+    }
+
+    outputFiles.add(outputFile);
+    File(outputFile).writeAsStringSync(result);
+  }
+
+  Process.runSync(Platform.executable, ['format', ...outputFiles]);
+}
+
+```

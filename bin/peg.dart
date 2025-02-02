@@ -4,12 +4,8 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
-import 'package:peg/parser_generator.dart';
-import 'package:peg/src/grammar/grammar.dart';
-import 'package:source_span/source_span.dart';
+import 'package:peg/src/parser_generator.dart';
 import 'package:strings/strings.dart';
-
-import 'peg_parser.dart';
 
 Future<void> main(List<String> args) async {
   final argParser = ArgParser();
@@ -18,6 +14,23 @@ Future<void> main(List<String> args) async {
     help: '''
 Specifies that detailed comments should be generated for each expression.''',
     defaultsTo: false,
+  );
+
+  argParser.addOption(
+    'name',
+    help: '''
+Specifies the class name of the generated  parser.''',
+  );
+
+  argParser.addOption(
+    'parse',
+    help: '''
+Specifies the name of the top-level function that will be generated for parsing.
+This function will include code that performs the following operations:
+- Create the parser
+- Call starting production rule
+- Return the parsing result or throw an 'FormatException' exception
+This function requires importing the `source_span` package.''',
   );
 
   final argResults = argParser.parse(args);
@@ -38,39 +51,40 @@ Specifies that detailed comments should be generated for each expression.''',
   final converterFilename = '${basename}_converter.dart';
   path.join(outputDir, converterFilename);
 
-  var name = basename.toLowerCase();
-  name = name.toCamelCase();
-  final parserName = '${name}Parser';
+  var name = argResults.option('name');
+  if (name == null) {
+    name = basename.toLowerCase();
+    name = name.toCamelCase();
+    name = '${name}Parser';
+  }
+
+  final parse = argResults.option('parse');
+
   final file = File(inputFilename);
   if (!file.existsSync()) {
     print('File not found: $inputFilename');
     exit(-1);
   }
 
-  final input = file.readAsStringSync();
-  final grammar = _parse(input);
-  if (grammar == null) {
-    exit(-1);
-  }
-
-  final errors = grammar.errors;
+  final source = file.readAsStringSync();
+  final errors = <String>[];
+  final options = ParserGeneratorOptions(
+    addComments: comment,
+    name: name,
+    parseFunction: parse,
+  );
+  final parserGenerator = ParserGenerator(
+    errors: errors,
+    options: options,
+    source: source,
+  );
+  final parserSource = parserGenerator.generate();
   if (errors.isNotEmpty) {
     print('Errors were found while analyzing the grammar:');
     print(errors.join('\n'));
     exit(-1);
   }
 
-  final options = ParserGeneratorOptions(
-    addComments: comment,
-  );
-  final parserGenerator = ParserGenerator(
-    options: options,
-    classname: parserName,
-    errors: errors,
-    grammar: grammar,
-  );
-
-  final parserSource = parserGenerator.generate();
   File(parserFilePath).writeAsStringSync(parserSource);
   final files = [parserFilePath];
   files.sort();
@@ -78,23 +92,8 @@ Specifies that detailed comments should be generated for each expression.''',
 }
 
 Future<void> _format(List<String> filenames) async {
-  final process2 =
+  final process =
       await Process.start(Platform.executable, ['format', ...filenames]);
-  unawaited(process2.stdout.transform(utf8.decoder).forEach(print));
-  unawaited(process2.stderr.transform(utf8.decoder).forEach(print));
-}
-
-Grammar? _parse(String source) {
-  final state = State(source);
-  final parser = PegParser();
-  final result = parser.parseStart(state);
-  if (!state.isSuccess) {
-    final file = SourceFile.fromString(source);
-    throw FormatException(state
-        .getErrors()
-        .map((e) => file.span(e.start, e.end).message(e.message))
-        .join('\n'));
-  }
-
-  return result as Grammar;
+  unawaited(process.stdout.transform(utf8.decoder).forEach(print));
+  unawaited(process.stderr.transform(utf8.decoder).forEach(print));
 }

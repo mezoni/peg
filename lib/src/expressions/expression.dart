@@ -1,7 +1,7 @@
-import '../../parser_generator.dart';
 import '../allocator.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart' as helper;
+import '../parser_generator.dart';
 import 'expression_printer.dart';
 import 'expression_visitors.dart';
 

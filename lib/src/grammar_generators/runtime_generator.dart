@@ -224,6 +224,185 @@ class State {
   void malformed(String message, {bool? location}) =>
       failure != position ? error(message, location: location) : null;
 
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match(String string, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position < input.length &&
+        input.codeUnitAt(position) == string.codeUnitAt(0)) {
+      if (isSuccess = input.startsWith(string, position)) {
+        position += string.length;
+        result = string;
+      }
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match1(String string, int char, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess =
+        position < input.length && input.codeUnitAt(position) == char) {
+      position++;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  String? match2(String string, int char, int char2, [bool silent = false]) {
+    final start = position;
+    String? result;
+    if (isSuccess = position + 1 < input.length &&
+        input.codeUnitAt(position) == char &&
+        input.codeUnitAt(position + 1) == char2) {
+      position += 2;
+      result = string;
+    } else {
+      fail();
+    }
+
+    silent ? null : expected(string, start);
+    return result;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchAny() {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+    }
+
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar16(int char) {
+    isSuccess = position < input.length && input.codeUnitAt(position) == char;
+    isSuccess ? position++ : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChar32(int char) {
+    isSuccess = position + 1 < input.length && input.readChar(position) == char;
+    isSuccess ? position += 2 : fail();
+    return isSuccess ? char : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars16(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.codeUnitAt(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position++ : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int? matchChars32(bool Function(int c) f) {
+    var c = 0;
+    if (isSuccess = position < input.length) {
+      c = input.readChar(position);
+      isSuccess = f(c);
+    }
+    isSuccess ? position += c > 0xffff ? 2 : 1 : fail();
+    return isSuccess ? c : null;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip16While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.codeUnitAt(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position++;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While(bool Function(int c) f) {
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    isSuccess = true;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void skip32While1(bool Function(int c) f) {
+    final start = position;
+    while (position < input.length) {
+      final c = input.readChar(position);
+      if (!(isSuccess = f(c))) {
+        break;
+      }
+      position += c > 0xffff ? 2 : 1;
+    }
+
+    (isSuccess = start != position) ? null : fail();
+  }
+
   @override
   String toString() {
     var rest = input.length - position;

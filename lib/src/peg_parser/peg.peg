@@ -1,9 +1,11 @@
 %{
 // ignore_for_file: prefer_final_locals
 
-import 'package:peg/src/expressions/expressions.dart';
-import 'package:peg/src/grammar/grammar.dart';
-import 'package:peg/src/grammar/production_rule.dart';
+import 'package:source_span/source_span.dart';
+
+import '../expressions/expressions.dart';
+import '../grammar/grammar.dart';
+import '../grammar/production_rule.dart';
 
 }%
 

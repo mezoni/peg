@@ -1,7 +1,9 @@
 # 6.0.2
 
 - Some typos have been corrected.
-- Added information about the naming convention for expression result types
+- Added information about the naming convention for expression result types.
+- Added information on how to generate the parser programmatically.
+- The `State` class has been updated with many functions for parsing strings and characters.
 
 # 6.0.1
 

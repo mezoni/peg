@@ -70,26 +70,10 @@ state.isSuccess = true;''';
     var template = '';
     if (is32Bit) {
       template = '''
-while (state.position < state.input.length) {
-  final c = state.input.readChar(state.position);
-  state.isSuccess = {{predicate}};
-  if (!state.isSuccess) {
-    break;
-  }
-  state.position += c > 0xffff ? 2 : 1;
-}
-state.isSuccess = true;''';
+state.skip32While((int c) => {{predicate}});''';
     } else {
       template = '''
-while (state.position < state.input.length) {
-  final c = state.input.codeUnitAt(state.position);
-  state.isSuccess = {{predicate}};
-  if (!state.isSuccess) {
-    break;
-  }
-  state.position++;
-}
-state.isSuccess = true;''';
+state.skip16While((int c) => {{predicate}});''';
     }
 
     return render(context, this, template, values);
