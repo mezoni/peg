@@ -30,7 +30,7 @@ class CharacterClassExpression extends Expression {
     final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
     if (ranges.length == 1) {
       final range = ranges[0];
-      if (range.$1 == range.$2) {
+      if (range.$1 == range.$2 && !negate) {
         return _generate1(context, variable, range.$1);
       }
     }
