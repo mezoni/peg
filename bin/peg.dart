@@ -81,7 +81,7 @@ This function requires importing the `source_span` package.''',
   final parserSource = parserGenerator.generate();
   if (errors.isNotEmpty) {
     print('Errors were found while analyzing the grammar:');
-    print(errors.join('\n'));
+    print(errors.join('\n\n'));
     exit(-1);
   }
 

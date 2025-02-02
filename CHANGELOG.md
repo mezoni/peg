@@ -1,3 +1,7 @@
+# 6.0.3
+
+- To make it easier to find rules for which the result type was not determined automatically, a non-nullable result type `Object` will be assigned.
+
 # 6.0.2
 
 - Some typos have been corrected.

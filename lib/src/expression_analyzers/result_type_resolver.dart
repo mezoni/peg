@@ -5,7 +5,7 @@ import '../helper.dart' as helper;
 class ResultTypesResolver extends ExpressionVisitor<void> {
   bool _hasChanges = false;
 
-  void resolve(List<ProductionRule> rules, List<String> errors) {
+  void resolve(List<ProductionRule> rules) {
     final predefinedResultTypesResolver = _PredefinedResultTypesResolver();
     predefinedResultTypesResolver.resolve(rules);
     while (true) {
@@ -32,8 +32,8 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
       }
     }
 
-    final resultTypeErrorCollector = _ResultTypeErrorCollector();
-    resultTypeErrorCollector.collect(rules, errors);
+    final resultTypeErrorCollector = _DefaultResultTypeAssigner();
+    resultTypeErrorCollector.assign(rules);
   }
 
   @override
@@ -233,6 +233,31 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 }
 
+class _DefaultResultTypeAssigner with ExpressionVisitorMixin<void> {
+  static const unresolvedType = 'Object';
+
+  void assign(List<ProductionRule> rules) {
+    for (var i = 0; i < rules.length; i++) {
+      final rule = rules[i];
+      if (rule.resultType.isEmpty) {
+        rule.resultType = unresolvedType;
+      }
+
+      final expression = rule.expression;
+      expression.accept(this);
+    }
+  }
+
+  @override
+  void visitNode(Expression node) {
+    if (node.resultType.isEmpty) {
+      node.resultType = unresolvedType;
+    }
+
+    node.visitChildren(this);
+  }
+}
+
 class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
   bool _hasChanges = false;
 
@@ -390,178 +415,5 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
 
   void _visitChildren(Expression node) {
     node.visitChildren(this);
-  }
-}
-
-class _ResultTypeErrorCollector extends ExpressionVisitor<void> {
-  final _errors = <String>[];
-
-  void collect(List<ProductionRule> rules, List<String> errors) {
-    _errors.clear();
-    for (var i = 0; i < rules.length; i++) {
-      final rule = rules[i];
-      final expression = rule.expression;
-      expression.accept(this);
-    }
-
-    if (_errors.isNotEmpty) {
-      errors.addAll(_errors);
-    }
-  }
-
-  @override
-  void visitAction(ActionExpression node) {
-    _checkType(node);
-  }
-
-  @override
-  void visitAndPredicate(AndPredicateExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitAnyCharacter(AnyCharacterExpression node) {
-    _checkType(node);
-  }
-
-  @override
-  void visitCatch(CatchExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitCharacterClass(CharacterClassExpression node) {
-    _checkType(node);
-  }
-
-  @override
-  void visitGroup(GroupExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitLiteral(LiteralExpression node) {
-    _checkType(node);
-  }
-
-  @override
-  void visitMatch(MatchExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitNonterminal(NonterminalExpression node) {
-    _checkType(node);
-  }
-
-  @override
-  void visitNotPredicate(NotPredicateExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitOneOrMore(OneOrMoreExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitOptional(OptionalExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  @override
-  void visitOrderedChoice(OrderedChoiceExpression node) {
-    node.visitChildren(this);
-    final children = node.expressions;
-    final nullableChildren = <Expression>[];
-    for (var i = 0; i < children.length; i++) {
-      final child = children[i];
-      final isChildNullable = helper.isTypeNullable(child.resultType);
-      if (isChildNullable) {
-        nullableChildren.add(child);
-      }
-    }
-
-    final isNullable = helper.isTypeNullable(node.resultType);
-    if (!isNullable && nullableChildren.isNotEmpty) {
-      final rule = node.rule!;
-      _errors.add('''
-The ordered choice expression has a non-nullable result type, but some of the child expressions have a nullable result type.
-Ordered choice: $node
-Ordered choice type: `${node.resultType}`
-Children:
-- ${nullableChildren.map((e) => '`${e.resultType}` $e').join('\n')}
-Production rule: ${rule.name}''');
-    }
-
-    _checkType(node);
-  }
-
-  @override
-  void visitSequence(SequenceExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-    final children = node.expressions;
-    final semanticVariables = children
-        .where((e) => e.semanticVariable != null)
-        .map((e) => e.semanticVariable!)
-        .toList();
-    if (semanticVariables.toSet().length != semanticVariables.length) {
-      final rule = node.rule!;
-      final processed = <String>{};
-      for (var i = 0; i < semanticVariables.length; i++) {
-        final semanticVariable = semanticVariables[i];
-        if (!processed.add(semanticVariable)) {
-          _errors.add('''
-Duplicate semantic variable name.
-Sematic variable: $semanticVariable
-Sequence expression: $node
-Production rule: ${rule.name}''');
-        }
-      }
-    }
-  }
-
-  @override
-  void visitZeroOrMore(ZeroOrMoreExpression node) {
-    node.visitChildren(this);
-    _checkType(node);
-  }
-
-  void _checkType(Expression node) {
-    final rule = node.rule;
-    final resultType = node.resultType;
-    if (resultType.isEmpty) {
-      _errors.add('''
-Unable to resolve expression type.
-Expression kind: ${node.runtimeType}
-Expression: $node
-Production rule: ${rule!.name}''');
-    }
-
-    final semanticVariable = node.semanticVariable;
-    if (semanticVariable != null) {
-      final dst = node.semanticVariableType;
-      final dstIsNullable = helper.isTypeNullable(dst);
-      final src = node.resultType;
-      final srcIsNullable = helper.isTypeNullable(src);
-      if (!dstIsNullable && srcIsNullable) {
-        _errors.add('''
-The semantic variable has a non-nullable type, but the expression has a nullable result type.
-Semantic variable: $semanticVariable
-Semantic variable type: `$dst``
-Expression kind: ${node.runtimeType}
-Expression: $node
-Expression result type: `$src``
-Production rule: ${rule!.name}''');
-      }
-    }
   }
 }

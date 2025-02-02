@@ -20,23 +20,8 @@ class ProductionRuleGenerator {
   String generate() {
     final expression = rule.expression;
     final name = 'parse${rule.name}';
-    final returnType = rule.resultType;
-    final resultType = expression.resultType;
-    if (resultType.isEmpty) {
-      errors.add('''
-Unresolved result type for expression
-Expression: $expression''');
-    }
-    if (returnType.isEmpty) {
-      errors.add('''
-Unresolved return type for production rule
-Production rule: $name''');
-    }
-
-    if (errors.isNotEmpty) {
-      return '';
-    }
-
+    final returnType = rule.getResultType();
+    final resultType = expression.getResultType();
     final context = ProductionRuleContext(
       allocator: Allocator(),
       options: options,

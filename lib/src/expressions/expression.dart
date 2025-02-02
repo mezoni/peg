@@ -45,7 +45,7 @@ abstract class Expression {
 
   String getResultType() {
     if (resultType.isEmpty) {
-      return 'Never';
+      return 'Object';
     } else {
       return resultType;
     }

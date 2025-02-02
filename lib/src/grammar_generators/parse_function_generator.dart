@@ -30,7 +30,7 @@ class ParseFunctionGenerator {
 
     final ruleName = start.name.toUpperCase().toCamelCase();
     final expression = start.expression;
-    final resultType = expression.resultType;
+    final resultType = expression.getResultType();
     if (resultType.isEmpty) {
       return '';
     }

@@ -78,7 +78,7 @@ class SequenceExpression extends MultiExpression {
         actionAssignsValue =
             expression.semanticVariable != null || expressions.length == 1;
         if (actionAssignsValue) {
-          final resultType = _getType(expression.getResultType());
+          final resultType = expression.getResultType();
           block.writeln('late $resultType \$\$;');
         }
       }
@@ -173,10 +173,5 @@ class SequenceExpression extends MultiExpression {
     }
 
     return '$template';
-  }
-
-  // TODO
-  String _getType(String type) {
-    return type.isNotEmpty ? type : 'Never';
   }
 }

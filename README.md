@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 6.0.2
+Version: 6.0.3
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -102,8 +102,8 @@ If a type is included in the specified list, it is considered `nullable`:
 - `dynamic`
 - `void`
 
-Additionally, if a type is not defined, it is considered `nullable`.
-In other cases, the type is considered `non-nullable`.
+In other cases, the type is considered `non-nullable`.  
+Additionally, if a type is not defined, it is considered `nullable`type `Object`.
 
 The use of types defined by type alias is not allowed.  
 
@@ -728,66 +728,24 @@ This type of error is occurred when the syntax is not followed. To correct it, i
 
 **Errors in determining the type of the expression result**
 
-To generate a strongly typed parser, the analyzer determines the types of expressions.  
-If it is impossible to do it explicitly, then it is necessary to correct this error manually. It can also happen because of errors in the semantics of grammar and then it will say that it is unacceptable and something needs to be corrected.
+In certain cases, the grammar analyzer can determine the type of an expression or production rule.  
+But this is not possible in all cases.  
 
-An example where the analyzer cannot determine the type of an expression.
+There are several cases when this cannot be done:
+- Expression `Action`: always
+- Expression `Ordered choice`: alternatives have different types
+- Expression `Sequence`: the number of elements in the sequence is greater than one and the semantic variable is not specified
+- Expression `Sequence`: the number of elements in the sequence is greater than one and more than one semantic variable is specified
 
-```
-LuckyNumber =>
-  '41' S
-  $ = { $$ = 41; }
-```
+In all such cases, the result value type will be assigned a non-null type `Object`.  
 
-The analyzer knows nothing about the native programming language. For it, the result of the expression is the assignment of a certain value to the variable `$$` in the code block.  
+All this needs to be corrected.  
+The easiest way is to specify types for all problematic `rules` for which the type is not determined automatically.  
+But this can be done a little more complicated, but more correctly.  
+Start specifying types for those rules on which the types of other rules depend.  
+That is, from the bottom up.  
 
-The following ways are possible to correct the error:
-- Specifying the result type for a production rule
-- Using a type conversion expression
-
-Using a type conversion expression is strongly discouraged. It breaks the readability of the grammar, although the generated code is completely identical to that if you specify a result type for the production rule.
-
-```
-`int`
-LuckyNumber =>
-  '41' S
-  $ = { $$ = 41; }
-```
-
-```
-LuckyNumber =>
-  '41' S
-  $ = { $$ = 41; } as `int`
-```
-
-Another example.
-
-```
-Expression =>
-  A
-  ---
-  B
-
-`ExpressionA`
-A => Some Expressions
-
-`ExpressionB`
-B => Some Expressions
-```
-
-In the choice expression, in the "Expression" rule, the alternatives have two different result types.
-The analyzer cannot solve this problem. Manual correction is required.  
-It is required to specify the common parent type as the type of the production rule.
-
-```
-`Expression`
-Expression =>
-  A
-  ---
-  B
-```
-
-And so on.
+But if you don't want to do this, then just specify all the types of rules that are not defined (and nit determined) manually.
 
 ## Generating a parser programmatically
 

@@ -7,6 +7,14 @@ class ProductionRule {
 
   final String name;
 
+  String getResultType() {
+    if (resultType.isEmpty) {
+      return 'Object';
+    } else {
+      return resultType;
+    }
+  }
+
   String resultType;
 
   final Set<ProductionRule> allCallees = {};
