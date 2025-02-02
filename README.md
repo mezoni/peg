@@ -747,6 +747,14 @@ That is, from the bottom up.
 
 But if you don't want to do this, then just specify all the types of rules that are not defined (and nit determined) manually.
 
+**Errors when there are no rules to which references are given**
+
+This indicates that such a rule does not exist or the rule name is misspelled.
+
+**Type mismatch errors in source code**
+
+This means that either the result type was not determined automatically, or it was specified manually incorrectly.
+
 ## Generating a parser programmatically
 
 Generating a parser programmatically is possible, but it is not recommended.  
