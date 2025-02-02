@@ -1,5 +1,6 @@
+import 'package:simple_sparse_list/ranges_helper.dart';
+
 import '../binary_search_generator/matcher_generator.dart';
-import '../helper.dart' as helper;
 import 'expression.dart';
 
 class OneOrMoreExpression extends SingleExpression {
@@ -66,9 +67,10 @@ state.isSuccess = {{ok}};''';
 
   String _generateTakeWhile1(
       ProductionRuleContext context, CharacterClassExpression child) {
-    final ranges = helper.normalizeRanges(child.ranges, child.negate);
+    final ranges = normalizeRanges(child.ranges);
     final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
-    final matcher = MatcherGenerator().generate('c', ranges);
+    final matcher =
+        MatcherGenerator().generate('c', ranges, negate: child.negate);
     final values = {
       'predicate': matcher,
     };

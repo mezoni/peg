@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 6.0.3
+Version: 6.0.4
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -718,7 +718,6 @@ To minimize errors, the parser generator analyzes the grammar for errors.
 Errors can be of the following kinds:
 - Syntax error
 - Errors in determining the type of the expression result
-- Errors in determining the starting rule
 - Errors when there are no rules to which references are given
 - Type mismatch errors in source code
 
@@ -740,6 +739,16 @@ There are several cases when this cannot be done:
 In all such cases, the result value type will be assigned a non-null type `Object`.  
 
 All this needs to be corrected.  
+
+If this happens for some other reason, then it is required to solve it in a radical way, by explicitly specifying the type of result for the rule.  
+
+Example:
+
+```
+`RuleType`
+Rule => Expr
+```
+
 The easiest way is to specify types for all problematic `rules` for which the type is not determined automatically.  
 But this can be done a little more complicated, but more correctly.  
 Start specifying types for those rules on which the types of other rules depend.  

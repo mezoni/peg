@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:simple_sparse_list/ranges_helper.dart' as ranges_helper;
-
 String escapeString(String text, [String? quote = '\'']) {
   if (quote != null && !((quote != '\'') || quote != '"')) {
     throw ArgumentError.value(quote, 'quote', 'Unknown quote');
@@ -60,23 +58,6 @@ bool isTypeNullable(String type) {
       type == 'void' ||
       type == 'Null' ||
       type == '';
-}
-
-List<(int, int)> normalizeRanges(List<(int, int)> ranges, bool negate) {
-  ranges = ranges_helper.normalizeRanges(ranges);
-  if (!negate) {
-    return ranges;
-  }
-
-  var triads = <(int, int, Set<bool>)>[];
-  triads.add((0, 0x10ffff, {true}));
-  triads.addAll(ranges.map((e) => (e.$1, e.$2, {false})));
-  triads = ranges_helper.combineRanges<Set<bool>>(triads,
-      combine: (x, y) {
-        return {...x, ...y};
-      },
-      compare: (x, y) => x == y);
-  return triads.map((e) => (e.$1, e.$2)).toList();
 }
 
 String render(String template, Map<String, String> values,

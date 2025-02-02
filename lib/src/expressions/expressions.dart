@@ -13,4 +13,4 @@ export 'one_or_more_expression.dart';
 export 'optional_expression.dart';
 export 'ordered_choice_expression.dart';
 export 'sequence_expression.dart';
-export 'zero_or_more.dart';
+export 'zero_or_more_expression.dart';

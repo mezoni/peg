@@ -1,3 +1,7 @@
+# 6.0.4
+
+- Fixed a bug in generating negated character classes.
+
 # 6.0.3
 
 - To make it easier to find rules for which the result type was not determined automatically, a non-nullable result type `Object` will be assigned.
