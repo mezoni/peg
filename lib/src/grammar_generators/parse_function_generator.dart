@@ -47,14 +47,14 @@ class ParseFunctionGenerator {
   final state = State(source);
   final parser = {{parser_name}}();
   final result = parser.{{parse_start}}(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
         .map((e) => file.span(e.start, e.end).message(e.message))
         .join('\n'));
   }
-  return result as {{type}};
+  return result.$1;
 }
 ''';
 

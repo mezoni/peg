@@ -22,41 +22,38 @@ class SequenceExpression extends MultiExpression {
       return 0;
     }
 
-    var resultIndex = -1;
-    var count = 0;
     for (var i = expressions.length - 1; i >= 0; i--) {
       final expression = expressions[i];
       final semanticVariable = expression.semanticVariable;
       if (semanticVariable == '\$') {
         return i;
       }
-
-      if (semanticVariable != null) {
-        resultIndex = i;
-        count++;
-      }
     }
 
-    return count == 1 ? resultIndex : -1;
+    return -1;
   }
 
   @override
   String generate(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
     final values = <String, String>{};
-    final resultIndex = findResultIndex();
-    for (var i = 0; i < expressions.length; i++) {
-      final expression = expressions[i];
-      final childVariable = expression.semanticVariable;
-      if (childVariable != null) {
-        context.allocateExpressionVariable(expression);
-      } else {
-        if (i == resultIndex && variable != null) {
-          context.setExpressionVariable(expression, variable);
-        }
+    if (expressions.length == 1) {
+      final variable = context.getExpressionVariable(this);
+      final expression = expressions[0];
+      context.setExpressionVariable(expression, variable);
+      context.copyExpressionResultUsage(this, expression);
+      if (expression.semanticVariable == null) {
+        context.changeExpressionVariableDeclarator(variable, this, expression);
       }
 
-      values['p$i'] = expression.generate(context);
+      values['p0'] = expression.generate(context);
+    } else {
+      for (var i = 0; i < expressions.length; i++) {
+        final expression = expressions[i];
+        final semanticVariable = expression.semanticVariable;
+        context.allocateExpressionVariable(expression);
+        context.setExpressionResultUsage(expression, semanticVariable != null);
+        values['p$i'] = expression.generate(context);
+      }
     }
 
     final template = _generateTemplate(context);
@@ -69,25 +66,11 @@ class SequenceExpression extends MultiExpression {
     final blocks = <StringBuffer>[];
     final semanticVariables = <int>[];
     final resultIndex = findResultIndex();
+    context.getExpressionResultUsage(this);
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
       final block = StringBuffer();
-      final childVariable = context.getExpressionVariable(expression);
-      var actionAssignsValue = false;
-      if (expression is ActionExpression) {
-        actionAssignsValue =
-            expression.semanticVariable != null || expressions.length == 1;
-        if (actionAssignsValue) {
-          final resultType = expression.getResultType();
-          block.writeln('late $resultType \$\$;');
-        }
-      }
-
       block.writeln('{{p$i}}');
-      if (actionAssignsValue) {
-        block.writeln('$childVariable = \$\$;');
-      }
-
       blocks.add(block);
       final semanticVariable = expression.semanticVariable;
       if (semanticVariable != null) {
@@ -95,57 +78,61 @@ class SequenceExpression extends MultiExpression {
       }
     }
 
-    if (expressions.last.semanticVariable != null) {
+    /*
+    if (expressions.length > 1) {
+      final last = StringBuffer();
+      blocks.add(last);
+    }
+    */
+
+    if (expressions.length > 1 || expressions.last.semanticVariable != null) {
       final last = StringBuffer();
       blocks.add(last);
     }
 
-    if (variable != null) {
+    if (true) {
       final last = blocks.last;
-      String? resultVariable;
+      String? resultValue;
       if (resultIndex != -1) {
         final resultExpression = expressions[resultIndex];
         final semanticVariable = resultExpression.semanticVariable;
         if (semanticVariable != null) {
-          resultVariable = semanticVariable;
+          resultValue = '($semanticVariable,)';
         } else {
-          resultVariable = context.getExpressionVariable(resultExpression);
+          resultValue = context.getExpressionVariable(resultExpression);
         }
+      } else {
+        resultValue = 'const (null,)';
       }
 
-      if (resultVariable == null) {
-        resultVariable = context.allocate();
-        last.writeln(' // Fictive result of expression: $this');
-        last.writeln('void $resultVariable;');
-      }
-
-      if (variable != resultVariable) {
-        last.writeln('$variable = $resultVariable;');
+      if (variable != resultValue) {
+        last.writeln('$variable = $resultValue;');
       }
     }
 
     for (var i = 0; i < semanticVariables.length; i++) {
       final index = semanticVariables[i];
       final expression = expressions[index];
-      final childVariable = context.getExpressionVariable(expression)!;
+      final childVariable = context.getExpressionVariable(expression);
       final childResultValue = expression.getResultValue(childVariable);
       final semanticVariable = expression.semanticVariable!;
       var block = blocks[index + 1];
       final code = '$block';
       final childType = expression.getResultType();
       block = StringBuffer();
-      var value = childResultValue;
-      if (expression is ActionExpression) {
-        value = childVariable;
-      }
-
-      block.writeln('$childType $semanticVariable = $value;');
+      block.writeln('$childType $semanticVariable = $childResultValue;');
       block.writeln(code);
       blocks[index + 1] = block;
     }
 
     var template = StringBuffer();
     for (var i = blocks.length - 1; i >= 0; i--) {
+      var r = '';
+      if (i > 0) {
+        final expression = expressions[i - 1];
+        r = context.getExpressionVariable(expression);
+      }
+
       final block = blocks[i];
       if (i == 0) {
         final inner = '$template';
@@ -155,18 +142,18 @@ class SequenceExpression extends MultiExpression {
       } else if (i < blocks.length - 1) {
         final inner = '$template';
         template = StringBuffer();
-        template.writeln('if (state.isSuccess) {');
+        template.writeln('if ($r != null) {');
         template.writeln(block);
         template.writeln(inner);
         template.writeln('}');
       } else {
-        template.writeln('if (state.isSuccess) {');
+        template.writeln('if ($r != null) {');
         template.writeln(block);
         template.writeln('}');
       }
 
       if (i == 1) {
-        template.writeln('if (!state.isSuccess) {');
+        template.writeln('if ($variable == null) {');
         template.writeln('state.position = {{$pos}};');
         template.writeln('}');
       }

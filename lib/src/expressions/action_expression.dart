@@ -11,9 +11,21 @@ class ActionExpression extends Expression {
       'code': code,
     };
 
-    final template = '''
-state.isSuccess = true;
-$code''';
+    var template = '';
+    if (semanticVariable != null) {
+      final assignment = assignResult(context, 'state.opt((\$\$,))');
+      values['type'] = getResultType();
+      template = '''
+late {{type}} \$\$;
+{{code}}
+$assignment''';
+    } else {
+      final assignment = assignResult(context, 'state.opt((null,))');
+      template = '''
+{{code}}
+$assignment''';
+    }
+
     return render(context, this, template, values);
   }
 

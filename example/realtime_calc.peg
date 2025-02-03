@@ -13,7 +13,7 @@ int calc(String source, Map<String, int> vars) {
   final parser = CalcParser(vars);
   final state = State(source);
   final result = parser.parseStart(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
@@ -21,7 +21,7 @@ int calc(String source, Map<String, int> vars) {
         .join('\n'));
   }
 
-  return result as int;
+  return result.$1;
 }
 
 }%
@@ -37,7 +37,7 @@ CalcParser(this.vars);
 `int`
 Start =>
   S
-  e = Expr
+  $ = Expr
   EOF
 
 `int`
@@ -46,28 +46,28 @@ Expr('expression') =>
 
 `int`
 Sum =>
-  l = Product
+  $ = Product
   @while (*) {
     n = [-+] S
     r = Product
-    { l = switch(n) {
-        43 => l + r,
-        45 => l - r,
-        _ => l,
+    { $ = switch(n) {
+        43 => $ + r,
+        45 => $ - r,
+        _ => $,
       };
     }
   }
 
 `int`
 Product =>
-  l = Value
+  $ = Value
   @while (*) {
     n = [*/] S
     r = Product
-    { l = switch(n) {
-        42 => l * r,
-        47 => l ~/ r,
-        _ => l,
+    { $ = switch(n) {
+        42 => $ * r,
+        47 => $ ~/ r,
+        _ => $,
       };
     }
   }
@@ -80,7 +80,7 @@ Value('expression') => (
   $ = { $$ = vars[i]!; }
   ----
   '(' S
-  i = Expr
+  $ = Expr
   ')' S
 )
 
@@ -92,7 +92,7 @@ NUMBER =>
 
 `String`
 ID =>
-  n = <[a-zA-Z]>
+  $ = <[a-zA-Z]>
   S
 
 `void`

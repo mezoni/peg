@@ -1,3 +1,9 @@
+# 7.0.0
+
+- Breaking change:
+  - Improved reliability by using records for result return.
+  - Changed the behavior of semantic variables, Only the special variable `$` can return a result. This allows to slightly increase the speed by explicitly defining the need for the result.
+
 # 6.0.4
 
 - Fixed a bug in generating negated character classes.

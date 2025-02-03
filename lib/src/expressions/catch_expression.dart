@@ -16,20 +16,18 @@ class CatchExpression extends SingleExpression {
   @override
   String generate(ProductionRuleContext context) {
     final variable = context.getExpressionVariable(this);
-    if (variable != null) {
-      context.setExpressionVariable(expression, variable);
-    }
-
-    final p = expression.generate(context);
+    context.setExpressionVariable(expression, variable);
+    context.copyExpressionResultUsage(this, expression);
     final values = {
       'failure': context.allocate('failure'),
       'catchBlock': catchBlock,
-      'p': p,
+      'p': expression.generate(context),
+      'r': variable,
     };
     const template = '''
 final {{failure}} = state.enter();
 {{p}}
-if (!state.isSuccess) {
+if ({{variable}} == null) {
   {{catchBlock}}
 }
 state.leave({{failure}});''';

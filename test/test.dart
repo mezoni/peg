@@ -24,16 +24,13 @@ void _testAnd() {
       final parse = _p.parseAndAbc;
       {
         const input = 'abc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -42,8 +39,8 @@ void _testAnd() {
       {
         const input = 'ab';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -59,11 +56,7 @@ void _testAnyChar() {
       final parse = _p.parseAnyChar;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 97, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
     });
 
@@ -71,10 +64,7 @@ void _testAnyChar() {
       final parse = _p.parseAnyCharVoid;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
     });
 
@@ -82,11 +72,7 @@ void _testAnyChar() {
       final parse = _p.parseAnyChar;
       {
         const input = '🠀';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 129024, reason: 'Input $input');
+        _testSuccess(parse, input, 129024, 2);
       }
     });
 
@@ -94,16 +80,13 @@ void _testAnyChar() {
       final parse = _p.parseAnyCharVoid;
       {
         const input = '🠀';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, 129024, 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -116,8 +99,8 @@ void _testAnyChar() {
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -131,8 +114,8 @@ void _testAnyChar() {
     {
       const input = '';
       final state = State(input);
-      parse(state);
-      expect(state.isSuccess, isFalse, reason: 'Input $input');
+      final r = parse(state);
+      expect(r, isNull, reason: 'Input $input');
       expect(state.position, 0, reason: 'Input $input');
       expect(state.getErrors(),
           [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -147,17 +130,13 @@ void _testCharacterClass() {
       final parse = _p.parseChar16;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 97, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -166,8 +145,8 @@ void _testCharacterClass() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -179,16 +158,13 @@ void _testCharacterClass() {
       final parse = _p.parseChar16Void;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -197,8 +173,8 @@ void _testCharacterClass() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -210,17 +186,13 @@ void _testCharacterClass() {
       final parse = _p.parseChar32;
       {
         const input = '🠀';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 129024, reason: 'Input $input');
+        _testSuccess(parse, input, 129024, 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -229,8 +201,8 @@ void _testCharacterClass() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -242,16 +214,13 @@ void _testCharacterClass() {
       final parse = _p.parseChar32Void;
       {
         const input = '🠀';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, 129024, 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -260,8 +229,8 @@ void _testCharacterClass() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -273,17 +242,13 @@ void _testCharacterClass() {
       final parse = _p.parseNotDigits;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.position, 1, reason: 'Input $input');
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(r, 97, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -292,8 +257,8 @@ void _testCharacterClass() {
       {
         const input = '3';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -305,16 +270,13 @@ void _testCharacterClass() {
       final parse = _p.parseNotDigitsVoid;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.position, 1, reason: 'Input $input');
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
+        _testSuccess(parse, input, 97, 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -323,8 +285,8 @@ void _testCharacterClass() {
       {
         const input = '3';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -340,19 +302,11 @@ void _testLiteral() {
       final parse = _p.parseLiteral0;
       {
         const input = '';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, '', reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, '', reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
     });
 
@@ -360,17 +314,11 @@ void _testLiteral() {
       final parse = _p.parseLiteral0Void;
       {
         const input = '';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
     });
 
@@ -378,17 +326,13 @@ void _testLiteral() {
       final parse = _p.parseLiteral1;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'a', reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -397,8 +341,8 @@ void _testLiteral() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -410,16 +354,13 @@ void _testLiteral() {
       final parse = _p.parseLiteral1Void;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -428,8 +369,8 @@ void _testLiteral() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -441,17 +382,13 @@ void _testLiteral() {
       final parse = _p.parseLiteral2;
       {
         const input = 'ab';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 'ab', reason: 'Input $input');
+        _testSuccess(parse, input, 'ab', 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -460,8 +397,8 @@ void _testLiteral() {
       {
         const input = 'a';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -470,8 +407,8 @@ void _testLiteral() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -483,16 +420,13 @@ void _testLiteral() {
       final parse = _p.parseLiteral2Void;
       {
         const input = 'ab';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, 'ab', 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -501,8 +435,8 @@ void _testLiteral() {
       {
         const input = 'a';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -511,8 +445,8 @@ void _testLiteral() {
       {
         const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'ab'")],
@@ -528,16 +462,13 @@ void _testNot() {
       final parse = _p.parseNotAbc;
       {
         const input = 'abd';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
       {
         const input = 'abc';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 3, message: "Unexpected 'abc'")],
@@ -553,25 +484,17 @@ void _testOneOrMore() {
       final parse = _p.parseOneOrMore;
       {
         const input = 'abc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, ['abc'], reason: 'Input $input');
+        _testSuccess(parse, input, ['abc'], 3);
       }
       {
         const input = 'abcabc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 6, reason: 'Input $input');
-        expect(r, ['abc', 'abc'], reason: 'Input $input');
+        _testSuccess(parse, input, ['abc', 'abc'], 6);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -580,8 +503,8 @@ void _testOneOrMore() {
       {
         const input = 'ab';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -593,23 +516,17 @@ void _testOneOrMore() {
       final parse = _p.parseOneOrMoreVoid;
       {
         const input = 'abc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, ['abc'], 3);
       }
       {
         const input = 'abcabc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 6, reason: 'Input $input');
+        _testSuccess(parse, input, ['abc', 'abc'], 6);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -618,8 +535,8 @@ void _testOneOrMore() {
       {
         const input = 'ab';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'abc'")],
@@ -631,36 +548,24 @@ void _testOneOrMore() {
       final parse = _p.parseTakeWhile1;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'a', reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'aa';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 'aa', reason: 'Input $input');
+        _testSuccess(parse, input, 'aa', 2);
       }
       {
         const input = 'aaa';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, 'aaa', reason: 'Input $input');
+        _testSuccess(parse, input, 'aaa', 3);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
-            [(start: 0, end: 0, message: 'Unexpected input data')],
+            [(start: 0, end: 0, message: "Unexpected input data")],
             reason: 'Input $input');
       }
     });
@@ -669,30 +574,21 @@ void _testOneOrMore() {
       final parse = _p.parseTakeWhile1Void;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'aa';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, 'aa', 2);
       }
       {
         const input = 'aaa';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, 'aaa', 3);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: 'Unexpected input data')],
@@ -708,27 +604,15 @@ void _testOptional() {
       final parse = _p.parseOptional;
       {
         const input = 'abc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, 'abc', reason: 'Input $input');
+        _testSuccess(parse, input, 'abc', 3);
       }
       {
         const input = '';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, null, reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
       {
         const input = 'ab';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, null, reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
     });
 
@@ -736,56 +620,15 @@ void _testOptional() {
       final parse = _p.parseOptionalVoid;
       {
         const input = 'abc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, 'abc', 3);
       }
       {
         const input = '';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
       {
         const input = 'ab';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-      }
-    });
-  });
-}
-
-void _testRanges() {
-  group('Ranges', () {
-    test('[]', () {
-      final parse = _p.parseRanges;
-      {
-        const input = '0';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, '0', reason: 'Input $input');
-      }
-      {
-        const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'a', reason: 'Input $input');
-      }
-      {
-        const input = 'A';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'A', reason: 'Input $input');
+        _testSuccess(parse, input, null, 0);
       }
     });
   });
@@ -797,43 +640,31 @@ void _testOrderChoice() {
       final parse = _p.parseOrderedChoice;
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'a', reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'b';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'b', reason: 'Input $input');
+        _testSuccess(parse, input, 'b', 1);
       }
       {
         const input = 'c';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'c', reason: 'Input $input');
+        _testSuccess(parse, input, 'c', 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: "Expected: 'a', 'b', 'c'")],
             reason: 'Input $input');
       }
       {
-        const input = '';
+        const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: "Expected: 'a', 'b', 'c'")],
@@ -845,43 +676,64 @@ void _testOrderChoice() {
       final parse = _p.parseOrderedChoiceVoid;
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'b';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'b', 1);
       }
       {
         const input = 'c';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'c', 1);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: "Expected: 'a', 'b', 'c'")],
             reason: 'Input $input');
       }
       {
-        const input = '';
+        const input = '1';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
             [(start: 0, end: 0, message: "Expected: 'a', 'b', 'c'")],
+            reason: 'Input $input');
+      }
+    });
+  });
+}
+
+void _testRanges() {
+  group('Ranges', () {
+    test('[]', () {
+      final parse = _p.parseRanges;
+      {
+        const input = '0';
+        _testSuccess(parse, input, '0', 1);
+      }
+      {
+        const input = 'a';
+        _testSuccess(parse, input, 'a', 1);
+      }
+      {
+        const input = 'A';
+        _testSuccess(parse, input, 'A', 1);
+      }
+      {
+        const input = '!';
+        final state = State(input);
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
+        expect(state.position, 0, reason: 'Input $input');
+        expect(state.getErrors(),
+            [(start: 0, end: 0, message: "Unexpected input data")],
             reason: 'Input $input');
       }
     });
@@ -894,17 +746,13 @@ void _testSequence() {
       final parse = _p.parseSeq2;
       {
         const input = 'ab';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 'ab', reason: 'Input $input');
+        _testSuccess(parse, input, 'ab', 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -916,16 +764,13 @@ void _testSequence() {
       final parse = _p.parseSeq2Void;
       {
         const input = 'ab';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, null, 2);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -937,17 +782,13 @@ void _testSequence() {
       final parse = _p.parseSeq3;
       {
         const input = 'abc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, 'abc', reason: 'Input $input');
+        _testSuccess(parse, input, 'abc', 3);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -959,16 +800,13 @@ void _testSequence() {
       final parse = _p.parseSeq3Void;
       {
         const input = 'abc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, null, 3);
       }
       {
         const input = '';
         final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isFalse, reason: 'Input $input');
+        final r = parse(state);
+        expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(
             state.getErrors(), [(start: 0, end: 0, message: "Expected: 'a'")],
@@ -978,33 +816,30 @@ void _testSequence() {
   });
 }
 
+void _testSuccess<T>(
+    (T,)? Function(State state) parse, String input, T expected, int position) {
+  final state = State(input);
+  final result = parse(state);
+  expect(result, isNotNull, reason: 'Input $input');
+  expect(state.position, position, reason: 'Input $input');
+  expect(result!.$1, expected, reason: 'Input $input');
+}
+
 void _testZeroOrMore() {
   group('ZeroOrMore', () {
     test('*', () {
       final parse = _p.parseZeroOrMore;
       {
         const input = '';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, <String>[], reason: 'Input $input');
+        _testSuccess(parse, input, <String>[], 0);
       }
       {
         const input = 'abc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, ['abc'], reason: 'Input $input');
+        _testSuccess(parse, input, ['abc'], 3);
       }
       {
         const input = 'abcabc';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 6, reason: 'Input $input');
-        expect(r, ['abc', 'abc'], reason: 'Input $input');
+        _testSuccess(parse, input, ['abc', 'abc'], 6);
       }
     });
 
@@ -1012,24 +847,15 @@ void _testZeroOrMore() {
       final parse = _p.parseZeroOrMoreVoid;
       {
         const input = '';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, <String>[], 0);
       }
       {
         const input = 'abc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, ['abc'], 3);
       }
       {
         const input = 'abcabc';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 6, reason: 'Input $input');
+        _testSuccess(parse, input, ['abc', 'abc'], 6);
       }
     });
 
@@ -1037,35 +863,19 @@ void _testZeroOrMore() {
       final parse = _p.parseTakeWhile;
       {
         const input = '';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
-        expect(r, '', reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
       {
         const input = 'a';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
-        expect(r, 'a', reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'aa';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
-        expect(r, 'aa', reason: 'Input $input');
+        _testSuccess(parse, input, 'aa', 2);
       }
       {
         const input = 'aaa';
-        final state = State(input);
-        final r = parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
-        expect(r, 'aaa', reason: 'Input $input');
+        _testSuccess(parse, input, 'aaa', 3);
       }
     });
 
@@ -1073,31 +883,19 @@ void _testZeroOrMore() {
       final parse = _p.parseTakeWhileVoid;
       {
         const input = '';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 0, reason: 'Input $input');
+        _testSuccess(parse, input, '', 0);
       }
       {
         const input = 'a';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 1, reason: 'Input $input');
+        _testSuccess(parse, input, 'a', 1);
       }
       {
         const input = 'aa';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 2, reason: 'Input $input');
+        _testSuccess(parse, input, 'aa', 2);
       }
       {
         const input = 'aaa';
-        final state = State(input);
-        parse(state);
-        expect(state.isSuccess, isTrue, reason: 'Input $input');
-        expect(state.position, 3, reason: 'Input $input');
+        _testSuccess(parse, input, 'aaa', 3);
       }
     });
   });

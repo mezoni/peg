@@ -7,24 +7,20 @@ class MatchExpression extends SingleExpression {
   @override
   String generate(ProductionRuleContext context) {
     const pos = Expression.positionVariableKey;
-    final variable = context.getExpressionVariable(this);
+    final isResultUsed = context.getExpressionResultUsage(this);
+    context.setExpressionResultUsage(expression, false);
+    final r = context.allocateExpressionVariable(expression);
     final values = {
       'p': expression.generate(context),
+      'r': r,
     };
-    var template = '';
-    if (variable != null) {
-      values.addAll({
-        'variable': variable,
-      });
-
-      template = '''
+    final assignment = !isResultUsed
+        ? ''
+        : assignResult(context,
+            '$r != null ? (state.input.substring({{$pos}}, state.position),) : null');
+    final template = '''
 {{p}}
-{{variable}} = state.isSuccess ? state.input.substring({{$pos}}, state.position) : null;''';
-    } else {
-      template = '''
-{{p}}''';
-    }
-
+$assignment''';
     return render(context, this, template, values);
   }
 

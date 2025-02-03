@@ -11,10 +11,8 @@ class GroupExpression extends SingleExpression {
   @override
   String generate(ProductionRuleContext context) {
     final variable = context.getExpressionVariable(this);
-    if (variable != null) {
-      context.setExpressionVariable(expression, variable);
-    }
-
+    context.setExpressionVariable(expression, variable);
+    context.copyExpressionResultUsage(this, expression);
     final p = expression.generate(context);
     final values = {
       'p': p,

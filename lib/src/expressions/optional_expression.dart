@@ -11,16 +11,15 @@ class OptionalExpression extends SingleExpression {
   @override
   String generate(ProductionRuleContext context) {
     final variable = context.getExpressionVariable(this);
-    if (variable != null) {
-      context.setExpressionVariable(expression, variable);
-    }
-
+    context.setExpressionVariable(expression, variable);
+    context.copyExpressionResultUsage(this, expression);
     final values = {
       'p': expression.generate(context),
+      'variable': variable,
     };
     const template = '''
 {{p}}
-state.isSuccess = true;''';
+{{variable}} ??= state.opt((null,));''';
     return render(context, this, template, values);
   }
 }

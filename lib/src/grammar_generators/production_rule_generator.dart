@@ -21,16 +21,13 @@ class ProductionRuleGenerator {
     final expression = rule.expression;
     final name = 'parse${rule.name}';
     final returnType = rule.getResultType();
-    final resultType = expression.getResultType();
     final context = ProductionRuleContext(
       allocator: Allocator(),
       options: options,
     );
-    if (returnType != 'void') {
-      final variable = context.allocateExpressionVariable(expression);
-      context.setExpressionVariableDeclared(variable);
-    }
 
+    final variable = context.allocateExpressionVariable(expression);
+    context.setExpressionResultUsage(expression, returnType != 'void');
     final code = expression.generate(context);
     final expected = rule.expected;
     var prologue = '';
@@ -57,7 +54,7 @@ final $pos = state.position;''';
 $prologue
 final $failure = state.enter();''';
       epilogue = '''
-state.expected($escaped, $pos, false);
+state.expected($variable, $escaped, $pos, false);
 state.leave($failure);
 $epilogue''';
     }
@@ -67,29 +64,17 @@ $epilogue''';
       'epilogue': epilogue,
       'name': name,
       'prologue': prologue,
-      'return_type': helper.getNullableType(returnType),
-      'result_type': helper.getNullableType(resultType),
+      'return_type': returnType,
+      'variable': variable,
     };
     var template = '';
-    if (returnType != 'void') {
-      final variable = context.getExpressionVariable(expression)!;
-      values['variable'] = variable;
-      template = '''
-{{return_type}} {{name}}(State state) {
+    template = '''
+({{return_type}},)? {{name}}(State state) {
   {{prologue}}
-  {{result_type}} {{variable}};
   {{code}}
   {{epilogue}}
   return {{variable}};
 }''';
-    } else {
-      template = '''
-void {{name}}(State state) {
-  {{prologue}}
-  {{code}}
-  {{epilogue}}
-}''';
-    }
 
     errors.addAll(context.errors.map((e) {
       final expression = e.$1;

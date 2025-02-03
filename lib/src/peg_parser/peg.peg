@@ -20,7 +20,7 @@ Start =>
 `String`
 Globals =>
   '%{'
-  n = <
+  $ = <
     @while (*) {
       ! "}%" .
     }
@@ -30,7 +30,7 @@ Globals =>
 `String`
 Members =>
   '%%'
-  n = <
+  $ = <
     @while (*) {
       ! "%%" .
     }
@@ -50,7 +50,7 @@ ProductionRule =>
 `String`
 ProductionRuleArguments =>
   '(' S
-  n = String
+  $ = String
   ')' S
 
 `Expression`
@@ -70,31 +70,28 @@ OrderedChoice =>
 
 `Expression`
 Sequence =>
-  n = TypeConversion+
-  b = ('~' S b:Block)?
+  n = Assignment+
+  b = ('~' S $:Block)?
   $ = {
     final e = SequenceExpression(expressions: n);
     $$ = b == null ? e : CatchExpression(expression: e, catchBlock: b);
   }
 
 `Expression`
-TypeConversion =>
-  $ = Assignment
-  t = ('as' S n = Type)?
-  { $.resultType = t ?? ''; }
-
-`Expression`
 Assignment =>
-  i = (Identifier / n:'$' S)
+  v = (Identifier / $:'$' S)
   ('=' S / ':' S)
+  t = Type?
   e = Prefix
-  $ = { $$ = e..semanticVariable = i; }
+  $ = { $$ = e..semanticVariable = v..resultType = t ?? ''; }
   ----
-  Prefix
+  t = Type?
+  e = Prefix
+  $ = { $$ = e..resultType = t ?? ''; }
 
 `Expression`
 Prefix =>
-  p = (n:'!' S / n:'&' S)?
+  p = ($:'!' S / $:'&' S)?
   $ = Suffix
   { switch(p) {
     case '!':
@@ -108,13 +105,13 @@ Prefix =>
 
 `Expression`
 Suffix =>
-  n = Primary
+  $ = Primary
   (
-    '*' S { n = ZeroOrMoreExpression(expression: n); }
+    '*' S { $ = ZeroOrMoreExpression(expression: $); }
     ----
-    '+' S { n = OneOrMoreExpression(expression: n); }
+    '+' S { $ = OneOrMoreExpression(expression: $); }
     ----
-    '?' S { n = OptionalExpression(expression: n); }
+    '?' S { $ = OptionalExpression(expression: $); }
   )?
 
 `Expression`
@@ -143,7 +140,7 @@ Action =>
 `Expression`
 AnyCharacter =>
   '.' S
-  n = { $$ = AnyCharacterExpression(); }
+  $ = { $$ = AnyCharacterExpression(); }
 
 `Expression`
 CharacterClass =>
@@ -155,7 +152,7 @@ CharacterClass =>
   )
   r = @while (+) {
     ! "]"
-    n = Range
+    $ = Range
   }
   ']' S
   $ = { $$ = CharacterClassExpression(ranges: r, negate: negate); }
@@ -163,9 +160,9 @@ CharacterClass =>
 `Expression`
 Group =>
   '(' S
-  n = Expression
+  $ = Expression
   ')' S
-  { n.isGrouped = true; }
+  { $.isGrouped = true; }
 
 `Expression`
 Literal =>
@@ -205,9 +202,9 @@ Repeater =>
 
 Type('type') =>
   '`'
-  n = <
+  $ = <
     @while (*) {
-      ! [`] [a-zA-Z0-9_$<({,:})>? ]
+      ! [`] [a-zA-Z0-9_$<(\{,:\})>? ]
     }
   >
   '`' S
@@ -223,7 +220,7 @@ DQString =>
   '"'
   n = @while (*) {
     ! ["]
-    n = DQChar
+    $ = DQChar
   }
   '"' S
   $ = { $$ = String.fromCharCodes(n); }
@@ -231,10 +228,10 @@ DQString =>
 `int`
 DQChar =>
   ! "\\"
-  n = [{20-21}{23-5B}{5D-10FFFF}]
+  $ = [{20-21}{23-5B}{5D-10FFFF}]
   ----
   "\\"
-  n = (
+  $ = (
     EscapedValue
     ----
     EscapedHexValue
@@ -245,7 +242,7 @@ SQString =>
   '\''
   n = @while (*) {
     ! [']
-    n = SQChar
+    $ = SQChar
   }
   '\'' S
   $ = { $$ = String.fromCharCodes(n); }
@@ -253,10 +250,10 @@ SQString =>
 `int`
 SQChar =>
   ! "\\"
-  n = [{20-26}{28-5B}{5D-10FFFF}]
+  $ = [{20-26}{28-5B}{5D-10FFFF}]
   ----
   "\\"
-  n = (
+  $ = (
     EscapedValue
     ----
     EscapedHexValue
@@ -264,9 +261,9 @@ SQChar =>
 
 `int`
 EscapedValue =>
-  n = [abefnrtv'"\\]
+  $ = [abefnrtv'"\\]
   {
-    n = switch (n) {
+    $ = switch ($) {
       97 => 0x07,  // a
       98 => 0x08,  // b
       101 => 0x1B, // e
@@ -275,7 +272,7 @@ EscapedValue =>
       114 => 0x0D, // r
       116 => 0x09, // t
       118 => 0x0B, // v
-      _ => n,
+      _ => $,
     };
   }
   ~ { state.error('Unexpected escape character'); }
@@ -284,25 +281,25 @@ EscapedValue =>
 EscapedHexValue =>
   "u"
   '{'
-  n = HexValue
+  $ = HexValue
   '}'
   ~ { state.malformed('Malformed escape sequence'); }
 
 `int`
 RangeChar =>
   ! "\\"
-  n = [{20-5A}{5E-10FFFF}]
+  $ = [{20-5A}{5E-10FFFF}]
   ---
   "\\"
-  n = (
+  $ = (
     "u"
     '{'
-    n = HexValue
+    $ = HexValue
     '}'
     ----
-    n = [-abefnrtv\[\]\\]
+    $ = [-abefnrtv\{\}\[\]\\]
     {
-      n = switch (n) {
+      $ = switch ($) {
         97 => 0x07,  // a
         98 => 0x08,  // b
         101 => 0x1B, // e
@@ -311,7 +308,7 @@ RangeChar =>
         114 => 0x0D, // r
         116 => 0x09, // t
         118 => 0x0B, // v
-        _ => n,
+        _ => $,
       };
     }
   )
@@ -346,7 +343,7 @@ Range('range') =>
 
 Block =>
   '{'
-  n = <BlockBody*>
+  $ = <BlockBody*>
   '}' S
 
 `void`
@@ -358,11 +355,11 @@ BlockBody =>
   ! "}" .
 
 Identifier('identifier') =>
-  n = <[a-zA-Z] [a-zA-Z0-9_]*>
+  $ = <[a-zA-Z] [a-zA-Z0-9_]*>
   S
 
 RuleName('production rule name') =>
-  n = <[A-Z] [a-zA-Z0-9_]*>
+  $ = <[A-Z] [a-zA-Z0-9_]*>
   S
 ;
 

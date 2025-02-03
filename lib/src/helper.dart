@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+int bitDepth(List<(int, int)> ranges) =>
+    ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff) ? 32 : 16;
+
 String escapeString(String text, [String? quote = '\'']) {
   if (quote != null && !((quote != '\'') || quote != '"')) {
     throw ArgumentError.value(quote, 'quote', 'Unknown quote');
@@ -12,7 +15,6 @@ String escapeString(String text, [String? quote = '\'']) {
   text = text.replaceAll('\r', r'\r');
   text = text.replaceAll('\t', r'\t');
   text = text.replaceAll('\v', r'\v');
-
   text = text.replaceAll('\$', r'\$');
   if (quote == '\'') {
     text = text.replaceAll('\'', '\\\'');
@@ -35,29 +37,12 @@ String getNullableType(String type) {
   return '$type?';
 }
 
-(int, int) getUnicodeRange() {
-  return const (0, 0x10ffff);
-}
-
-bool is32BitRanges(List<(int, int)> ranges, bool negate) {
-  if (ranges.isEmpty) {
-    throw ArgumentError('Must not be empty', 'ranges');
-  }
-
-  if (negate) {
-    return true;
-  }
-
-  return ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
-}
-
 bool isTypeNullable(String type) {
   type = type.trim();
   return type.endsWith('?') ||
       type == 'dynamic' ||
       type == 'void' ||
-      type == 'Null' ||
-      type == '';
+      type == 'Null';
 }
 
 String render(String template, Map<String, String> values,

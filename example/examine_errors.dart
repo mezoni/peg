@@ -21,7 +21,7 @@ int parse(String source) {
   final parser = CalcParser(const {});
   final state = State(source);
   final result = parser.parseStart(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
@@ -29,5 +29,5 @@ int parse(String source) {
         .join('\n'));
   }
 
-  return result as int;
+  return result.$1;
 }

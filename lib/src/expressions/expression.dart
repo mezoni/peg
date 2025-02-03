@@ -32,48 +32,49 @@ abstract class Expression {
 
   T accept<T>(ExpressionVisitor<T> visitor);
 
-  String generate(ProductionRuleContext context);
-
-  String getNullableType() {
-    final resultType = getResultType();
-    if (helper.isTypeNullable(resultType)) {
-      return resultType;
+  String assignResult(ProductionRuleContext context, String value) {
+    final variable = context.getExpressionVariable(this);
+    final isVariableDeclared = context.isExpressionVariableDeclared(variable);
+    var canDeclare = false;
+    var code = '$variable = $value;';
+    if (!isVariableDeclared) {
+      canDeclare = this == context.getExpressionVariableDeclarator(variable);
+      if (canDeclare) {
+        context.setExpressionVariableDeclared(variable);
+        code = '''
+final $code''';
+      }
     }
 
-    return '$resultType?';
+    return code;
   }
+
+  String generate(ProductionRuleContext context);
 
   String getResultType() {
     if (resultType.isEmpty) {
-      return 'Object';
+      return 'void';
     } else {
       return resultType;
     }
   }
 
   String getResultValue(String name) {
-    final resultType = getResultType();
-    if (helper.isTypeNullable(resultType)) {
-      return name;
-    }
-
-    return '$name!';
+    return '$name.\$1';
   }
 
   String render(ProductionRuleContext context, Expression expression,
       String template, Map<String, String> values) {
     final variable = context.getExpressionVariable(expression);
     final options = context.options;
-    if (variable != null) {
-      if (!context.isExpressionVariableDeclared(variable)) {
-        final declarator = context.getExpressionVariableDeclarator(variable);
-        if (expression == declarator) {
-          context.setExpressionVariableDeclared(variable);
-          final type = expression.getNullableType();
-          template = '''
-$type $variable;
+    if (!context.isExpressionVariableDeclared(variable)) {
+      final declarator = context.getExpressionVariableDeclarator(variable);
+      if (expression == declarator) {
+        context.setExpressionVariableDeclared(variable);
+        final type = expression.getResultType();
+        template = '''
+($type,)? $variable;
 $template ''';
-        }
       }
     }
 
@@ -192,6 +193,8 @@ class ProductionRuleContext {
 
   final Set<String> _declaredExpressionVariables = {};
 
+  final Map<Expression, bool> _expressionResultUsage = {};
+
   final Map<String, Expression> _expressionVariableDeclarators = {};
 
   final Map<Expression, String> _expressionVariables = {};
@@ -224,8 +227,43 @@ class ProductionRuleContext {
     return inputVariable!;
   }
 
-  String? getExpressionVariable(Expression expression) {
-    return _expressionVariables[expression];
+  bool changeExpressionVariableDeclarator(
+      String variable, Expression oldDeclarator, Expression newDeclarator) {
+    final isVariableDeclared = isExpressionVariableDeclared(variable);
+    if (isVariableDeclared) {
+      return false;
+    }
+
+    final declarator = _expressionVariableDeclarators[variable];
+    if (oldDeclarator != declarator) {
+      return false;
+    }
+
+    _expressionVariableDeclarators[variable] = newDeclarator;
+    return true;
+  }
+
+  bool copyExpressionResultUsage(Expression parent, Expression child) {
+    final used = getExpressionResultUsage(parent);
+    setExpressionResultUsage(child, used);
+    return used;
+  }
+
+  bool getExpressionResultUsage(Expression expression) {
+    if (!_expressionResultUsage.containsKey(expression)) {
+      throw StateError(
+          'The expression result usage has not been set\n$expression');
+    }
+
+    return _expressionResultUsage[expression] ?? true;
+  }
+
+  String getExpressionVariable(Expression expression) {
+    if (!_expressionVariables.containsKey(expression)) {
+      throw StateError('The expression variable has not been set\n$expression');
+    }
+
+    return _expressionVariables[expression]!;
   }
 
   Expression getExpressionVariableDeclarator(String variable) {
@@ -239,6 +277,15 @@ class ProductionRuleContext {
 
   bool isExpressionVariableDeclared(String variable) {
     return _declaredExpressionVariables.contains(variable);
+  }
+
+  void setExpressionResultUsage(Expression expression, bool used) {
+    if (_expressionResultUsage.containsKey(expression)) {
+      throw StateError(
+          'The expression result usage has already been set\n$expression');
+    }
+
+    _expressionResultUsage[expression] = used;
   }
 
   void setExpressionVariable(Expression expression, String result) {

@@ -30,130 +30,47 @@ class LiteralExpression extends Expression {
   }
 
   String _generate1(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    final values = {
-      'char': '${literal.codeUnitAt(0)}',
-      'escaped': helper.escapeString(literal),
-      'silent_arg': silent ? ', true' : '',
-    };
-
+    final escaped = helper.escapeString(literal);
+    final char = literal.codeUnitAt(0);
     var template = '';
-    if (variable != null) {
-      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
-      var canDeclare = false;
-      var declare = '';
-      if (!isVariableDeclared) {
-        canDeclare = this == context.getExpressionVariableDeclarator(variable);
-        if (canDeclare) {
-          context.setExpressionVariableDeclared(variable);
-          declare = 'final ';
-        }
-      }
-
-      values['declare'] = declare;
-      values['variable'] = variable;
-      template = '''
-{{declare}}{{variable}} = state.match1({{escaped}}, {{char}}{{silent_arg}});''';
+    if (silent) {
+      template = assignResult(context, 'state.match1($escaped, $char, true)');
     } else {
-      template = '''
-state.match1({{escaped}}, {{char}}{{silent_arg}});''';
+      template = assignResult(context, 'state.match1($escaped, $char)');
     }
 
-    return render(context, this, template, values);
+    return render(context, this, template, const {});
   }
 
   String _generate2(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    final values = {
-      'char': '${literal.codeUnitAt(0)}',
-      'char2': '${literal.codeUnitAt(1)}',
-      'escaped': helper.escapeString(literal),
-      'silent_arg': silent ? ', true' : '',
-    };
-
+    final escaped = helper.escapeString(literal);
+    final char = literal.codeUnitAt(0);
+    final char2 = literal.codeUnitAt(1);
     var template = '';
-    if (variable != null) {
-      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
-      var canDeclare = false;
-      var declare = '';
-      if (!isVariableDeclared) {
-        canDeclare = this == context.getExpressionVariableDeclarator(variable);
-        if (canDeclare) {
-          context.setExpressionVariableDeclared(variable);
-          declare = 'final ';
-        }
-      }
-
-      values['declare'] = declare;
-      values['variable'] = variable;
-      template = '''
-{{declare}}{{variable}} = state.match2({{escaped}}, {{char}}, {{char2}}{{silent_arg}});''';
+    if (silent) {
+      template =
+          assignResult(context, 'state.match2($escaped, $char, $char2, true)');
     } else {
-      template = '''
-state.match2({{escaped}}, {{char}}, {{char2}}{{silent_arg}});''';
+      template = assignResult(context, 'state.match2($escaped, $char, $char2)');
     }
 
-    return render(context, this, template, values);
+    return render(context, this, template, const {});
   }
 
   String _generateEmpty(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    final values = <String, String>{};
-    var template = '';
-    if (variable != null) {
-      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
-      var canDeclare = false;
-      var declare = '';
-      if (!isVariableDeclared) {
-        canDeclare = this == context.getExpressionVariableDeclarator(variable);
-        if (canDeclare) {
-          context.setExpressionVariableDeclared(variable);
-          declare = 'final ';
-        }
-      }
-
-      values['declare'] = declare;
-      values['variable'] = variable;
-      template = '''
-state.isSuccess = true;
-{{declare}}{{variable}} = state.isSuccess ? '' : null;''';
-    } else {
-      template = '''
-state.isSuccess = true;''';
-    }
-
-    return render(context, this, template, values);
+    final template = assignResult(context, 'state.opt((\'\',))');
+    return render(context, this, template, const {});
   }
 
   String _generate(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    final values = {
-      'escaped': helper.escapeString(literal),
-      'silent_arg': silent ? ', true' : '',
-    };
-
+    final escaped = helper.escapeString(literal);
     var template = '';
-    if (variable != null) {
-      final isVariableDeclared = context.isExpressionVariableDeclared(variable);
-      var canDeclare = false;
-      var declare = '';
-      if (!isVariableDeclared) {
-        canDeclare = this == context.getExpressionVariableDeclarator(variable);
-        if (canDeclare) {
-          context.setExpressionVariableDeclared(variable);
-          declare = 'final ';
-        }
-      }
-
-      values['declare'] = declare;
-      values['variable'] = variable;
-      template = '''
-{{declare}}{{variable}} = state.match({{escaped}}{{silent_arg}});''';
+    if (silent) {
+      template = assignResult(context, 'state.match($escaped, true)');
     } else {
-      template = '''
-state.match({{escaped}}{{silent_arg}});''';
+      template = assignResult(context, 'state.match($escaped)');
     }
 
-    return render(context, this, template, values);
+    return render(context, this, template, const {});
   }
 }

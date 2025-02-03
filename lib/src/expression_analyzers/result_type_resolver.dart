@@ -137,7 +137,7 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final childType = child.resultType;
     if (childType.isNotEmpty) {
-      _setResultType(node, child.getNullableType());
+      _setResultType(node, helper.getNullableType(childType));
     }
 
     _postprocess(node);

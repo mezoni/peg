@@ -111,12 +111,12 @@ Ranges => $ = < [{30-39}{41-5A}{61-7A}] >
 
 RangesVoid => < [{30-39}{41-5A}{61-7A}] >
 
-Seq2 => a:'a' b:'b' $ = { $$ = a + b; } as `String`
+Seq2 => a:'a' b:'b' $ = `String` { $$ = a + b; }
 
 `void`
 Seq2Void => 'a' 'b'
 
-Seq3 => a:'a' b:'b' c:'c' $ = { $$ = a + b + c; } as `String`
+Seq3 => a:'a' b:'b' c:'c' $ = `String` { $$ = a + b + c; }
 
 `void`
 Seq3Void => 'a' 'b' 'c'

@@ -1,6 +1,5 @@
-import 'package:simple_sparse_list/ranges_helper.dart';
-
 import '../binary_search_generator/matcher_generator.dart';
+import '../helper.dart' as helper;
 import 'expression.dart';
 
 class ZeroOrMoreExpression extends SingleExpression {
@@ -13,71 +12,61 @@ class ZeroOrMoreExpression extends SingleExpression {
 
   @override
   String generate(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    var childVariable = '';
-    if (variable != null) {
-      childVariable = context.allocateExpressionVariable(expression);
-    } else {
+    final isResultUsed = context.getExpressionResultUsage(this);
+    context.copyExpressionResultUsage(this, expression);
+    if (!isResultUsed) {
       if (expression case final CharacterClassExpression expression) {
-        return _generateTakeWhile(context, expression);
+        return _generateSkipWhile(context, expression);
       }
     }
 
-    final p = expression.generate(context);
+    final r = context.allocateExpressionVariable(expression);
     final values = {
-      'p': p,
+      'E': expression.getResultType(),
+      'p': expression.generate(context),
+      'r': r,
     };
     var template = '';
-    if (variable != null) {
+    if (isResultUsed) {
+      final list = context.allocate('list');
+      final assignment = assignResult(context, 'state.opt(($list,))');
       values.addAll({
-        'E': expression.getResultType(),
-        'r1': childVariable,
-        'list': context.allocate('list'),
-        'rv1': expression.getResultValue(childVariable),
-        'variable': variable,
+        'list': list,
       });
       template = '''
 final {{list}} = <{{E}}>[];
 while (true) {
   {{p}}
-  if (!state.isSuccess) {
+  if ({{r}} == null) {
     break;
   }
-  {{list}}.add({{rv1}});
+  {{list}}.add({{r}}.\$1);
 }
-{{variable}} = (state.isSuccess = true) ? {{list}} : null;''';
+$assignment''';
     } else {
+      final assignment = assignResult(context, 'state.opt((const <{{E}}>[],))');
       template = '''
 while (true) {
   {{p}}
-  if (!state.isSuccess) {
+  if ({{r}} == null) {
     break;
   }
 }
-state.isSuccess = true;''';
+$assignment''';
     }
 
     return render(context, this, template, values);
   }
 
-  String _generateTakeWhile(
+  String _generateSkipWhile(
       ProductionRuleContext context, CharacterClassExpression child) {
-    final ranges = normalizeRanges(child.ranges);
-    final is32Bit = ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff);
-    final matcher =
+    final ranges = child.ranges;
+    final bitDepth = helper.bitDepth(ranges);
+    var predicate =
         MatcherGenerator().generate('c', ranges, negate: child.negate);
-    final values = {
-      'predicate': matcher,
-    };
-    var template = '';
-    if (is32Bit) {
-      template = '''
-state.skip32While((int c) => {{predicate}});''';
-    } else {
-      template = '''
-state.skip16While((int c) => {{predicate}});''';
-    }
-
-    return render(context, this, template, values);
+    predicate = '(int c) => $predicate';
+    final template =
+        assignResult(context, 'state.skip${bitDepth}While($predicate)');
+    return render(context, this, template, const {});
   }
 }

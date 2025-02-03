@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 6.0.4
+Version: 7.0.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -85,65 +85,6 @@ Main characteristics:
 - Automatic generation of standard errors
 - Additional useful features using syntactic sugar
 
-## Naming convention for expression result types
-
-⚠ **Important information**
-
-The description of the grammar implies the division of native types into two incompatible types:
-- Nullable types
-- Non-nullable types
-
-The grammar analyzer can determine the kind of a type only by its representation.
-
-From the point of view of the grammar analyzer, the type identification is performed literally, according to the following principle.
-If a type definition ends with `?`, it is considered `nullable`.  
-If a type is included in the specified list, it is considered `nullable`:
-- `Null`
-- `dynamic`
-- `void`
-
-In other cases, the type is considered `non-nullable`.  
-Additionally, if a type is not defined, it is considered `non-nullable`type `Object`.
-
-The use of types defined by type alias is not allowed.  
-
-```dart
-typedef TypeA = TypeB?;
-```
-
-Type `TypeA` will be considered `non-nullable` by the grammar parser, because the analyzer analyzes the grammar and does not know anything about the programming language.
-
-Why is this necessary?  
-
-The generated code does not use result value `wrapping` as in the following examples.
-
-```
-var result = Result(value);
-```
-
-```
-var result = (value,);
-```
-
-The `nullable` type value is used as a `wrapper`.  
-The `unwrapping` operation is the process of converting a `wrapped` value to its original type.
-
-Example:
-
-```
-int? nullableResult;
-int? nonNullableResult;
-
-/// Some code...
-
-final nullableResultValue = nullableResult;
-final nonNullableResultValue = nonNullableResult!;
-```
-
-All this happens automatically, based on information about whether the result value can be `null` or not.
-
-If this principle is not followed (about not using type aliases), **errors are inevitable** when converting values ​​to a `non-nullable` values.
-
 ## Automatic and programmatic error generation
 
 Automatic error generation occurs when parsing the following grammar elements:
@@ -213,7 +154,6 @@ import 'example.dart';
 
 void main(List<String> args) {
   final strings = ['', '1`', '1+', '(1+', '(1'];
-
   for (final element in strings) {
     print('Input: \'$element\'');
     print('-' * 40);
@@ -289,7 +229,9 @@ FormatException: line 1, column 3: Expected: ')'
 Another example:
 
 ```
-Start => n = Number ! .
+Start =>
+  $ = Number
+  ! .
 
 `void`
 Decimal('decimal digit') =>
@@ -408,7 +350,7 @@ This implementation adds additional features.
 Below is a short list of additional features:
 - Action expressions
 - Match expressions
-- Sequence expression error handlers
+- Catch expressions (error handlers)
 - Sematic variables
 - Special semantic result variable `$`
 - Modified character class
@@ -449,7 +391,7 @@ Syntax: `<` recognition expression `>`
 ```
 Type('type') =>
   '`'
-  n = <
+  $ = <
     @while (*) {
       ! [`] [a-zA-Z0-9_$<({,:})>? ]
     }
@@ -457,16 +399,32 @@ Type('type') =>
   '`' S
 ```
 
-**Sequence expression error handlers**
+**Catch expressions (error handlers)**
 
-The sequence expression error handler allows arbitrary code to be executed if the given expression is not parsed successfully. The main purpose is to register errors.  
+The `Catch` expression allows arbitrary code to be executed if one of the preceding expressions was not successfully parsed.  
+The main purpose is to register errors.  
 Syntax: sequence expression `~ {` error handler `}`
+
+Example:
 
 ```
 [eE]
 [-+]
 Decimal
 ~ { state.malformed('Malformed exponent'); isFatal = true; }
+```
+
+How it works?  
+Example:
+
+```
+A B C ~ { handler1 } D E ~ { handler2 } F
+```
+
+This expression will be executed as follows:
+
+```
+(((A B C ~ { handler1 }) D E ~ { handler2 }) F)
 ```
 
 **Sematic variables**
@@ -483,7 +441,7 @@ Action =>
 
 **Special semantic result variable `$`**
 
-Special semantic result variable `$` allow to assign the results of expressions and have the highest priority over other variables.
+Special semantic result variable `$` allow to assign the results of expressions.
 
 Below is an example of what the result of the sequence expression will be.
 
@@ -491,16 +449,16 @@ Below is an example of what the result of the sequence expression will be.
 # B
 A = B
 
-# b
+# B
 A = b:B
 
 # No result
 A = B C
 
-# b
+# No result
 A = b:B C
 
-# c
+# No result
 A = B c:C
 
 # No result
@@ -524,7 +482,7 @@ The `negated` character class `[^]` is equivalent to the following sequence of e
 
 ```
 ! [some ranges]
-n = .
+$ = .
 ```
 
 Additional features:
@@ -573,13 +531,13 @@ Assignment =>
 ```
 `Expression`
 Suffix =>
-  n = Primary
+  $ = Primary
   (
-    '*' S { n = ZeroOrMoreExpression(expression: n); }
+    '*' S { $ = ZeroOrMoreExpression(expression: $); }
     ----
-    '+*' S { n = OneOrMoreExpression(expression: n); }
+    '+*' S { $ = OneOrMoreExpression(expression: $); }
     ----
-    '?' S { n = OptionalExpression(expression: n); }
+    '?' S { $ = OptionalExpression(expression: $); }
   )?
 ```
 
@@ -622,7 +580,7 @@ int calc(String source, Map<String, int> vars) {
   final parser = CalcParser(vars);
   final state = State(source);
   final result = parser.parseStart(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
@@ -630,23 +588,23 @@ int calc(String source, Map<String, int> vars) {
         .join('\n'));
   }
 
-  return result as int;
+  return result.$1;
 }
 
 }%
 
 %%
 
-CalcParser(this.vars);
-
 Map<String, int> vars = {};
+
+CalcParser(this.vars);
 
 %%
 
 `int`
 Start =>
   S
-  e = Expr
+  $ = Expr
   EOF
 
 `int`
@@ -655,28 +613,28 @@ Expr('expression') =>
 
 `int`
 Sum =>
-  l = Product
+  $ = Product
   @while (*) {
     [+] S
     r = Product
-    { l += r; }
+    { $ += r; }
     ----
     [-] S
     r = Product
-    { l -= r; }
+    { $ -= r; }
   }
 
 `int`
 Product =>
-  l = Value
+  $ = Value
   @while (*) {
     [*] S
     r = Value
-    { l *= r; }
+    { $ *= r; }
     ----
     [/] S
     r = Value
-    { l ~/= r; }
+    { $ ~/= r; }
   }
 
 `int`
@@ -687,7 +645,7 @@ Value('expression') => (
   $ = { $$ = vars[i]!; }
   ----
   '(' S
-  i = Expr
+  $ = Expr
   ')' S
 )
 
@@ -699,7 +657,7 @@ NUMBER =>
 
 `String`
 ID =>
-  n = <[a-zA-Z]>
+  $ = <[a-zA-Z]>
   S
 
 `void`
@@ -736,11 +694,11 @@ There are several cases when this cannot be done:
 - Expression `Sequence`: the number of elements in the sequence is greater than one and the semantic variable is not specified
 - Expression `Sequence`: the number of elements in the sequence is greater than one and more than one semantic variable is specified
 
-In all such cases, the result value type will be assigned a non-null type `Object`.  
+If the result value is not specified, the default value is `void`.
 
 All this needs to be corrected.  
 
-If this happens for some other reason, then it is required to solve it in a radical way, by explicitly specifying the type of result for the rule.  
+If this happens for some other reason, then it is required to solve it in a radical way, by explicitly specifying the return type for the production rule.  
 
 Example:
 
