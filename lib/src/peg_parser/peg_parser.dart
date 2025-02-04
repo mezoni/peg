@@ -1514,7 +1514,8 @@ class PegParser {
                             final $13 = parseS(state);
                             if ($13 != null) {
                               late Expression $$;
-                              $$ = ZeroOrMoreExpression(expression: e);
+                              $$ = ZeroOrMoreExpression(
+                                  expression: e..isGrouped = true);
                               final $14 = state.opt(($$,));
                               if ($14 != null) {
                                 Expression $ = $14.$1;
@@ -1565,7 +1566,8 @@ class PegParser {
                               final $27 = parseS(state);
                               if ($27 != null) {
                                 late Expression $$;
-                                $$ = OneOrMoreExpression(expression: e);
+                                $$ = OneOrMoreExpression(
+                                    expression: e..isGrouped = true);
                                 final $28 = state.opt(($$,));
                                 if ($28 != null) {
                                   Expression $ = $28.$1;

@@ -1,2 +1,1 @@
-Bug in Expression printer
-Undocumented Expression type
+Not documented Expression type annotation

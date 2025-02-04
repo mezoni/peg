@@ -191,14 +191,14 @@ Repeater =>
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = ZeroOrMoreExpression(expression: e); }
+  $ = { $$ = ZeroOrMoreExpression(expression: e..isGrouped = true); }
   ----
   '@while' S
   '(' S '+' S ')' S
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = OneOrMoreExpression(expression: e); }
+  $ = { $$ = OneOrMoreExpression(expression: e..isGrouped = true); }
 
 Type('type') =>
   '`'

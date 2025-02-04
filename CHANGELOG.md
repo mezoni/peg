@@ -1,3 +1,7 @@
+# 7.0.1
+
+- Fixed a bug in printing repetition expressions created using syntactic sugar.
+
 # 7.0.0
 
 - Breaking change:

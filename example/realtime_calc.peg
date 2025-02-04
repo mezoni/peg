@@ -99,5 +99,4 @@ ID =>
 EOF('end of file') =>
   ! .
 
-`void`
-S => [ \t\r\n]*
+S => `void `[ \t\r\n]*

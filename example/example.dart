@@ -132,7 +132,7 @@ class CalcParser {
   ///```code
   /// `int`
   /// Product =
-  ///    $ = Value [*] S r = Value { } / [/] S r = Value { }*
+  ///    $ = Value ([*] S r = Value { } / [/] S r = Value { })*
   ///```
   (int,)? parseProduct(State state) {
     final $pos1 = state.position;
@@ -241,7 +241,7 @@ class CalcParser {
   ///```code
   /// `int`
   /// Sum =
-  ///    $ = Product [+] S r = Product { } / [\-] S r = Product { }*
+  ///    $ = Product ([+] S r = Product { } / [\-] S r = Product { })*
   ///```
   (int,)? parseSum(State state) {
     final $pos1 = state.position;

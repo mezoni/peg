@@ -132,7 +132,7 @@ class CalcParser {
   ///```code
   /// `int`
   /// Product =
-  ///    $ = Value n = [*/] S r = Product { }*
+  ///    $ = Value (n = [*/] S r = Product { })*
   ///```
   (int,)? parseProduct(State state) {
     final $pos1 = state.position;
@@ -184,13 +184,21 @@ class CalcParser {
   /// **S**
   ///
   ///```code
-  /// `void`
+  /// `void `
   /// S =
   ///    [ \t\r\n]*
   ///```
   (void,)? parseS(State state) {
-    final $0 = state.skip16While(
-        (int c) => c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10);
+    final $list = <int>[];
+    while (true) {
+      final $1 = state.matchChars16(
+          (int c) => c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10);
+      if ($1 == null) {
+        break;
+      }
+      $list.add($1.$1);
+    }
+    final $0 = state.opt(($list,));
     return $0;
   }
 
@@ -226,7 +234,7 @@ class CalcParser {
   ///```code
   /// `int`
   /// Sum =
-  ///    $ = Product n = [\-+] S r = Product { }*
+  ///    $ = Product (n = [\-+] S r = Product { })*
   ///```
   (int,)? parseSum(State state) {
     final $pos1 = state.position;
