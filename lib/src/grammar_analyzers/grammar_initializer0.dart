@@ -1,23 +1,31 @@
 import '../expression_analyzers/expression_initializer0.dart';
 import '../grammar/grammar.dart';
+import '../parser_generator_diagnostics.dart';
 import 'invocations_resolver.dart';
 import 'starting_rule_resolver.dart';
 
 class GrammarInitializer0 {
-  void initialize(Grammar grammar) {
-    if (grammar.errors.isNotEmpty) {
+  final ParserGeneratorDiagnostics diagnostics;
+
+  final Grammar grammar;
+
+  GrammarInitializer0({
+    required this.diagnostics,
+    required this.grammar,
+  });
+
+  void initialize() {
+    final expressionInitializer0 = ExpressionInitializer0(
+      diagnostics: diagnostics,
+      grammar: grammar,
+    );
+    expressionInitializer0.initialize();
+    if (diagnostics.hasErrors) {
       return;
     }
 
-    final expressionInitializer0 = ExpressionInitializer0();
-    expressionInitializer0.initialize(grammar);
-    if (expressionInitializer0.errors.isNotEmpty) {
-      grammar.errors.addAll(expressionInitializer0.errors);
-      return;
-    }
-
-    final invocationsResolver = InvocationsResolver();
-    invocationsResolver.resolve(grammar);
+    final invocationsResolver = InvocationsResolver(grammar: grammar);
+    invocationsResolver.resolve();
     final startingRulesFinder = StartingRuleResolver();
     final startingRules = startingRulesFinder.find(grammar);
     if (startingRules.isEmpty) {
@@ -25,7 +33,9 @@ class GrammarInitializer0 {
       grammar.start = start;
     } else if (startingRules.length > 1) {
       final names = startingRules.map((e) => e.name);
-      grammar.errors.add('Found several starting rules: ${names.join(', ')}');
+      final error =
+          diagnostics.error('Found several starting production rules');
+      error.description('Starting production rules', names.join(', '));
     } else {
       grammar.start = startingRules.first;
     }

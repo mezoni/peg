@@ -14,6 +14,10 @@ void main(List<String> args) {
 }
 
 final _strings = [
+  '''
+
+A => < B =>
+''',
   '',
   '''
 

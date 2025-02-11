@@ -1,8 +1,6 @@
 %{
 // ignore_for_file: prefer_final_locals
 
-import 'package:source_span/source_span.dart';
-
 }%
 
 `Object?`
@@ -39,15 +37,17 @@ A =>
     $ = OrderedChoice OrderedChoiceVoid
     ----
     $ = Ranges RangesVoid
-    ----
-    $ = Seq2 Seq2Void
-    ----
-    $ = Seq3 Seq3Void
+    #----
+    #$ = Seq2 Seq2Void
+    #----
+    #$ = Seq3 Seq3Void
     ----
     $ = TakeWhile TakeWhileVoid
     ----
     $ = TakeWhile1 TakeWhile1Void
     ----
+#    $ = Verify
+#    ----
     $ = ZeroOrMore ZeroOrMoreVoid
     )
 
@@ -111,15 +111,15 @@ Ranges => $ = < [{30-39}{41-5A}{61-7A}] >
 
 RangesVoid => < [{30-39}{41-5A}{61-7A}] >
 
-Seq2 => a:'a' b:'b' $ = `String` { $$ = a + b; }
+#Seq2 => a:'a' b:'b' $ = `String` { $$ = a + b; }
 
-`void`
-Seq2Void => 'a' 'b'
+#`void`
+#Seq2Void => 'a' 'b'
 
-Seq3 => a:'a' b:'b' c:'c' $ = `String` { $$ = a + b + c; }
+#Seq3 => a:'a' b:'b' c:'c' $ = `String` { $$ = a + b + c; }
 
-`void`
-Seq3Void => 'a' 'b' 'c'
+#`void`
+#Seq3Void => 'a' 'b' 'c'
 
 TakeWhile => $ = <[a]*>
 
@@ -128,6 +128,8 @@ TakeWhileVoid => <[a]*>
 TakeWhile1 => $ = <[a]+>
 
 TakeWhile1Void => <[a]+>
+
+#Verify => &{ true }
 
 ZeroOrMore => $ = 'abc'*
 

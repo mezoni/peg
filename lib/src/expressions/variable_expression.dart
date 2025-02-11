@@ -1,12 +1,16 @@
-import '../helper.dart';
 import 'build_context.dart';
 
-class OptionalExpression extends SingleExpression {
-  OptionalExpression({required super.expression});
+class VariableExpression extends SingleExpression {
+  final String name;
+
+  VariableExpression({
+    required super.expression,
+    required this.name,
+  });
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
-    return visitor.visitOptional(this);
+    return visitor.visitVariable(this);
   }
 
   @override
@@ -18,11 +22,8 @@ class OptionalExpression extends SingleExpression {
       }
     }
 
+    expression.isVariableNeedForTestState();
     sink.writeln(expression.generate(context, variable, isFast));
-    if (variable != null) {
-      sink.statement('$variable ??= (null,)');
-    }
-
     return postprocess(context, sink);
   }
 }

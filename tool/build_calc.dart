@@ -4,27 +4,34 @@ import 'package:peg/src/parser_generator.dart';
 
 void main(List<String> args) {
   final files = [
-    ('example/calc.peg', 'example/example.dart'),
-    ('example/realtime_calc.peg', 'example/realtime_calc.dart'),
+    ('example/calc.peg', 'example/example.dart', 'CalcParser'),
+    ('example/realtime_calc.peg', 'example/realtime_calc.dart', 'CalcParser'),
   ];
   final outputFiles = <String>[];
   for (final element in files) {
     final inputFile = element.$1;
     final outputFile = element.$2;
+    final name = element.$3;
     final source = File(inputFile).readAsStringSync();
     final options = ParserGeneratorOptions(
       addComments: false,
-      name: 'CalcParser',
+      name: name,
     );
-    final errors = <String>[];
     final generator = ParserGenerator(
-      errors: errors,
       options: options,
       source: source,
     );
     final result = generator.generate();
-    if (errors.isNotEmpty) {
-      print(errors.join('\n\n'));
+    final diagnostics = generator.diagnostics;
+    for (final error in diagnostics.errors) {
+      print('$error\n');
+    }
+
+    for (final warning in diagnostics.warnings) {
+      print('$warning\n');
+    }
+
+    if (diagnostics.hasErrors) {
       exit(-1);
     }
 

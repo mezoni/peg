@@ -29,7 +29,13 @@ abstract class ExpressionVisitor<T> {
 
   T visitOrderedChoice(OrderedChoiceExpression node);
 
+  T visitPredicate(PredicateExpression node);
+
   T visitSequence(SequenceExpression node);
+
+  T visitTyping(TypingExpression node);
+
+  T visitVariable(VariableExpression node);
 
   T visitZeroOrMore(ZeroOrMoreExpression node);
 }
@@ -103,7 +109,22 @@ mixin ExpressionVisitorMixin<T> implements ExpressionVisitor<T> {
   }
 
   @override
+  T visitPredicate(PredicateExpression node) {
+    return visitNode(node);
+  }
+
+  @override
   T visitSequence(SequenceExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitTyping(TypingExpression node) {
+    return visitNode(node);
+  }
+
+  @override
+  T visitVariable(VariableExpression node) {
     return visitNode(node);
   }
 

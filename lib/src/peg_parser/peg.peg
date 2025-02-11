@@ -3,7 +3,6 @@
 
 import 'package:source_span/source_span.dart';
 
-import '../expressions/expressions.dart';
 import '../grammar/grammar.dart';
 import '../grammar/production_rule.dart';
 
@@ -70,7 +69,7 @@ OrderedChoice =>
 
 `Expression`
 Sequence =>
-  n = Assignment+
+  n = Typing+
   b = ('~' S $:Block)?
   $ = {
     final e = SequenceExpression(expressions: n);
@@ -78,16 +77,19 @@ Sequence =>
   }
 
 `Expression`
+Typing =>
+  t = Type?
+  e = Assignment
+  $ = { $$ = t == null ? e : TypingExpression(expression: e, type: t); }
+
+`Expression`
 Assignment =>
   v = (Identifier / $:'$' S)
   ('=' S / ':' S)
-  t = Type?
   e = Prefix
-  $ = { $$ = e..semanticVariable = v..resultType = t ?? ''; }
+  $ = { $$ = VariableExpression(expression: e, name: v); }
   ----
-  t = Type?
-  e = Prefix
-  $ = { $$ = e..resultType = t ?? ''; }
+  Prefix
 
 `Expression`
 Prefix =>
@@ -95,10 +97,18 @@ Prefix =>
   $ = Suffix
   { switch(p) {
     case '!':
-      $ = NotPredicateExpression(expression: $);
+      if ($ is ActionExpression) {
+        $ = PredicateExpression(code: $.code, negate: true);
+      } else {
+        $ = NotPredicateExpression(expression: $);
+      }
       break;
     case '&':
-      $ = AndPredicateExpression(expression: $);
+    if ($ is ActionExpression) {
+        $ = PredicateExpression(code: $.code, negate: false);
+      } else {
+        $ = AndPredicateExpression(expression: $);
+      }
       break;
   }
 }
@@ -151,7 +161,7 @@ CharacterClass =>
     '['
   )
   r = @while (+) {
-    ! "]"
+    ! ']'
     $ = Range
   }
   ']' S
@@ -162,7 +172,7 @@ Group =>
   '(' S
   $ = Expression
   ')' S
-  { $.isGrouped = true; }
+  { $ = GroupExpression(expression: $); }
 
 `Expression`
 Literal =>
@@ -191,14 +201,14 @@ Repeater =>
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = ZeroOrMoreExpression(expression: e..isGrouped = true); }
+  $ = { $$ = ZeroOrMoreExpression(expression: e); }
   ----
   '@while' S
   '(' S '+' S ')' S
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = OneOrMoreExpression(expression: e..isGrouped = true); }
+  $ = { $$ = OneOrMoreExpression(expression: e); }
 
 Type('type') =>
   '`'
@@ -288,7 +298,7 @@ EscapedHexValue =>
 `int`
 RangeChar =>
   ! "\\"
-  $ = [{20-5A}{5E-10FFFF}]
+  ![\{\}\[\]\\] $ = [{20-5A}{5E-10FFFF}]
   ---
   "\\"
   $ = (

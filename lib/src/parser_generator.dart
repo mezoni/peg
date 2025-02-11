@@ -1,18 +1,22 @@
+import 'grammar/grammar.dart';
+import 'grammar/production_rule.dart';
+import 'grammar_analyzers/grammar_initializer0.dart';
+import 'grammar_analyzers/grammar_initializer1.dart';
 import 'grammar_generators/library_generator.dart';
+import 'parser_generator_diagnostics.dart';
 import 'parser_generator_options.dart';
 import 'peg_parser/peg_parser.dart' as peg_parser;
 
 export 'parser_generator_options.dart';
 
 class ParserGenerator {
-  final List<String> errors;
+  final ParserGeneratorDiagnostics diagnostics = ParserGeneratorDiagnostics();
 
   final ParserGeneratorOptions options;
 
   final String source;
 
   ParserGenerator({
-    required this.errors,
     required this.options,
     required this.source,
   });
@@ -20,16 +24,61 @@ class ParserGenerator {
   String generate() {
     final grammar = peg_parser.parse(source);
     final libraryGenerator = LibraryGenerator(
-      errors: errors,
+      diagnostics: diagnostics,
       grammar: grammar,
       options: options,
     );
 
-    errors.addAll(grammar.errors);
-    if (errors.isNotEmpty) {
+    _initializeGrammar(grammar);
+    if (diagnostics.hasErrors) {
       return '';
     }
 
-    return libraryGenerator.generate();
+    var result = '';
+    result = libraryGenerator.generate();
+    if (diagnostics.hasErrors) {
+      return '';
+    }
+
+    return result;
+  }
+
+  void _initializeGrammar(Grammar grammar) {
+    final ruleSet = <ProductionRule>{};
+    final rules = grammar.rules;
+    for (var rule in rules) {
+      final name = rule.name;
+      if (!ruleSet.add(rule)) {
+        final error = diagnostics.error('Duplicate production rule name');
+        error.description('Name', name);
+        return;
+      }
+
+      rule.resultType = rule.resultType.trim();
+    }
+
+    if (rules.isEmpty) {
+      diagnostics.error('No rule definitions found');
+      return;
+    }
+
+    final grammarInitializer0 = GrammarInitializer0(
+      grammar: grammar,
+      diagnostics: diagnostics,
+    );
+    grammarInitializer0.initialize();
+    if (diagnostics.hasErrors) {
+      return;
+    }
+
+    final grammarInitializer1 = GrammarInitializer1(
+      grammar: grammar,
+      diagnostics: diagnostics,
+    );
+    grammarInitializer1.initialize();
+
+    if (diagnostics.hasErrors) {
+      return;
+    }
   }
 }

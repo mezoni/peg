@@ -1,5 +1,5 @@
-import '../helper.dart' as helper;
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class LiteralExpression extends Expression {
   final String literal;
@@ -17,60 +17,90 @@ class LiteralExpression extends Expression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    if (literal.isEmpty) {
-      return _generateEmpty(context);
-    } else if (literal.length == 1) {
-      return _generate1(context);
-    } else if (literal.length == 2) {
-      return _generate2(context);
-    } else {
-      return _generate(context);
-    }
-  }
-
-  String _generate1(ProductionRuleContext context) {
-    final escaped = helper.escapeString(literal);
-    final char = literal.codeUnitAt(0);
-    var template = '';
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final sink = preprocess(context);
+    final length = literal.length;
     if (silent) {
-      template = assignResult(context, 'state.match1($escaped, $char, true)');
-    } else {
-      template = assignResult(context, 'state.match1($escaped, $char)');
+      if (length == 0) {
+        return _generateEmpty(context, variable, sink);
+      } else if (literal.length <= 5) {
+        return _generateMatchN(context, variable, sink);
+      } else {
+        return _generateMatch(context, variable, sink);
+      }
     }
 
-    return render(context, this, template, const {});
+    if (length > 0 && length <= 5) {
+      return _generateLiteralN(context, variable, sink);
+    } else {
+      return _generateLiteral(context, variable, sink);
+    }
   }
 
-  String _generate2(ProductionRuleContext context) {
-    final escaped = helper.escapeString(literal);
-    final char = literal.codeUnitAt(0);
-    final char2 = literal.codeUnitAt(1);
-    var template = '';
-    if (silent) {
-      template =
-          assignResult(context, 'state.match2($escaped, $char, $char2, true)');
-    } else {
-      template = assignResult(context, 'state.match2($escaped, $char, $char2)');
+  String _generateEmpty(
+      BuildContext context, Variable? variable, StringSink sink) {
+    if (variable != null) {
+      variable.assign(sink, "('',)");
     }
 
-    return render(context, this, template, const {});
+    return postprocess(context, sink);
   }
 
-  String _generateEmpty(ProductionRuleContext context) {
-    final template = assignResult(context, 'state.opt((\'\',))');
-    return render(context, this, template, const {});
-  }
-
-  String _generate(ProductionRuleContext context) {
-    final escaped = helper.escapeString(literal);
-    var template = '';
-    if (silent) {
-      template = assignResult(context, 'state.match($escaped, true)');
+  String _generateLiteral(
+      BuildContext context, Variable? variable, StringSink sink) {
+    final escaped = escapeString(literal);
+    final value = 'state.matchLiteral(($escaped,), $escaped)';
+    if (variable != null) {
+      variable.assign(sink, value);
     } else {
-      template = assignResult(context, 'state.match($escaped)');
+      sink.statement(value);
     }
 
-    return render(context, this, template, const {});
+    return postprocess(context, sink);
+  }
+
+  String _generateLiteralN(
+      BuildContext context, Variable? variable, StringSink sink) {
+    final escaped = escapeString(literal);
+    final codeUnits = literal.codeUnits;
+    final length = codeUnits.length;
+    final sequence = codeUnits.join(', ');
+    final value = 'state.matchLiteral$length(($escaped,), $escaped, $sequence)';
+    if (variable != null) {
+      variable.assign(sink, value);
+    } else {
+      sink.statement(value);
+    }
+
+    return postprocess(context, sink);
+  }
+
+  String _generateMatch(
+      BuildContext context, Variable? variable, StringSink sink) {
+    final escaped = escapeString(literal);
+    final value = 'state.match(($escaped,), $escaped)';
+    if (variable != null) {
+      variable.assign(sink, value);
+    } else {
+      sink.statement(value);
+    }
+
+    return postprocess(context, sink);
+  }
+
+  String _generateMatchN(
+      BuildContext context, Variable? variable, StringSink sink) {
+    final escaped = escapeString(literal);
+    final codeUnits = literal.codeUnits;
+    final length = codeUnits.length;
+    final sequence = codeUnits.join(', ');
+    final value = 'state.match$length(($escaped,), $sequence)';
+    if (variable != null) {
+      variable.assign(sink, value);
+    } else {
+      sink.statement(value);
+    }
+
+    return postprocess(context, sink);
   }
 }

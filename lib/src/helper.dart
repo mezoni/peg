@@ -1,7 +1,19 @@
 import 'dart:convert';
 
-int bitDepth(List<(int, int)> ranges) =>
+int calculateBitDepth(List<(int, int)> ranges) =>
     ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff) ? 32 : 16;
+
+String conditional(String condition, String ifTrue, String ifFalse) {
+  if (condition == 'true') {
+    return ifTrue;
+  }
+
+  if (condition == 'false') {
+    return ifFalse;
+  }
+
+  return '$condition ? $ifTrue : $ifFalse';
+}
 
 String escapeString(String text, [String? quote = '\'']) {
   if (quote != null && !((quote != '\'') || quote != '"')) {
@@ -69,4 +81,33 @@ String render(String template, Map<String, String> values,
   }
 
   return buffer.toString();
+}
+
+extension StringSinkExt on StringSink {
+  void statement(String code) {
+    writeln('$code;');
+  }
+
+  void ifStatement(String condition, void Function(StringBuffer block) f) {
+    condition = condition.trim();
+    if (condition.isEmpty) {
+      throw ArgumentError('Must not be empty', 'condition');
+    }
+
+    if (condition == 'false') {
+      return;
+    }
+
+    final buffer = StringBuffer();
+    if (condition != 'true') {
+      buffer.writeln('if ($condition) {');
+    }
+
+    f(buffer);
+    if (condition != 'true') {
+      buffer.writeln('}');
+    }
+
+    writeln(buffer);
+  }
 }

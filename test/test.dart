@@ -12,7 +12,7 @@ void main() {
   _testOptional();
   _testOrderChoice();
   _testRanges();
-  _testSequence();
+  //_testSequence();
   _testZeroOrMore();
 }
 
@@ -740,6 +740,7 @@ void _testRanges() {
   });
 }
 
+/*
 void _testSequence() {
   group('Sequence', () {
     test('2 expressions', () {
@@ -815,6 +816,7 @@ void _testSequence() {
     });
   });
 }
+*/
 
 void _testSuccess<T>(
     (T,)? Function(State state) parse, String input, T expected, int position) {

@@ -1,24 +1,24 @@
-import '../allocator.dart';
 import '../grammar/production_rule.dart';
-import '../helper.dart' as helper;
-import '../parser_generator.dart';
+import '../helper.dart';
+import 'build_context.dart';
 import 'expression_printer.dart';
-import 'expression_visitors.dart';
 
 export 'expression_visitors.dart';
 
 abstract class Expression {
-  static const positionVariableKey = '__pos__';
-
   int? id;
 
   int? index;
 
+  bool isAlwaysSuccessful = false;
+
   bool isLast = false;
 
-  bool isGrouped = false;
+  bool isNulled = true;
 
   int level = 0;
+
+  bool mayNotConsume = false;
 
   Expression? parent;
 
@@ -26,30 +26,11 @@ abstract class Expression {
 
   ProductionRule? rule;
 
-  String? semanticVariable;
-
-  String semanticVariableType = '';
+  Map<String, SharedValue> sharedValues = {};
 
   T accept<T>(ExpressionVisitor<T> visitor);
 
-  String assignResult(ProductionRuleContext context, String value) {
-    final variable = context.getExpressionVariable(this);
-    final isVariableDeclared = context.isExpressionVariableDeclared(variable);
-    var canDeclare = false;
-    var code = '$variable = $value;';
-    if (!isVariableDeclared) {
-      canDeclare = this == context.getExpressionVariableDeclarator(variable);
-      if (canDeclare) {
-        context.setExpressionVariableDeclared(variable);
-        code = '''
-final $code''';
-      }
-    }
-
-    return code;
-  }
-
-  String generate(ProductionRuleContext context);
+  String generate(BuildContext context, Variable? variable, bool isFast);
 
   String getResultType() {
     if (resultType.isEmpty) {
@@ -59,94 +40,58 @@ final $code''';
     }
   }
 
-  String getResultValue(String name) {
-    return '$name.\$1';
+  String getReturnType() {
+    final type = getResultType();
+    return '($type,)?';
   }
 
-  String render(ProductionRuleContext context, Expression expression,
-      String template, Map<String, String> values) {
-    final variable = context.getExpressionVariable(expression);
-    final options = context.options;
-    if (!context.isExpressionVariableDeclared(variable)) {
-      final declarator = context.getExpressionVariableDeclarator(variable);
-      if (expression == declarator) {
-        context.setExpressionVariableDeclared(variable);
-        final type = expression.getResultType();
-        template = '''
-($type,)? $variable;
-$template ''';
-      }
+  String getSharedValue(BuildContext context, String value) {
+    var sharedValue = sharedValues[value];
+    if (sharedValue == null) {
+      sharedValue = SharedValue(declarator: this, value: value);
+      sharedValue.name = context.allocate();
+      sharedValues[value] = sharedValue;
+    } else if (sharedValue.name.isEmpty) {
+      sharedValue.name = context.allocate();
     }
 
-    var positionDeclaration = '';
-    var positionVariable = '';
-    const positionKeyText = '{{$positionVariableKey}}';
-    final hasPositionVariable = template.contains(positionKeyText);
-    if (hasPositionVariable) {
-      if (expression.index == 0) {
-        // TODO
-        String plunge(Expression expression) {
-          final parent = expression.parent;
-          if (parent != null) {
-            if (parent is! OneOrMoreExpression) {
-              if (parent is! ZeroOrMoreExpression) {
-                if (parent.index == 0) {
-                  return plunge(parent);
-                }
-              }
-            }
-          }
+    return sharedValue.name;
+  }
 
-          final position = context.positionVariables[expression];
-          if (position == null) {
-            positionVariable = context.allocate('pos');
-            context.positionVariables[expression] = positionVariable;
-            context.positionVariableDeclarators.add(expression);
-          } else {
-            positionVariable = position;
-          }
+  String getStateTest(Variable? variable, bool isSuccess) {
+    if (variable != null && isNulled) {
+      return isSuccess ? '$variable != null' : '$variable == null';
+    }
 
-          return positionVariable;
+    return '$isSuccess';
+  }
+
+  bool isFastOrVoid(bool isFast) => isFast || resultType == 'void';
+
+  bool isVariableNeedForTestState() {
+    return !isAlwaysSuccessful;
+  }
+
+  String postprocess(BuildContext context, StringSink sink) {
+    for (final sharedValue in sharedValues.values) {
+      final name = sharedValue.name;
+      if (name.isNotEmpty) {
+        if (sharedValue.declarator == this) {
+          final value = sharedValue.value;
+          final temp = '$sink';
+          sink = StringBuffer();
+          sink.statement('final $name = $value');
+          sink.write(temp);
         }
-
-        positionVariable = plunge(expression);
-      } else {
-        positionVariable = context.allocate('pos');
-        context.positionVariables[expression] = positionVariable;
-        context.positionVariableDeclarators.add(expression);
-      }
-
-      values[positionVariableKey] = positionVariable;
-    }
-
-    if (context.positionVariableDeclarators.contains(expression)) {
-      final position = context.positionVariables[expression]!;
-      positionDeclaration = 'final $position = state.position;';
-    }
-
-    var code = helper.render(template, values);
-    if (positionDeclaration.isNotEmpty) {
-      code = '''
-$positionDeclaration
-$code''';
-    }
-
-    if (options.addComments) {
-      var skip = false;
-      final parent = expression.parent;
-      if (parent != null) {
-        skip = '$parent' == '$expression';
-      }
-
-      if (!skip) {
-        code = '''
- // >> $expression
-$code
- // << $expression''';
       }
     }
 
-    return code;
+    return '$sink';
+  }
+
+  StringSink preprocess(BuildContext context) {
+    final sink = StringBuffer();
+    return sink;
   }
 
   @override
@@ -178,138 +123,25 @@ abstract class MultiExpression extends Expression {
   }
 }
 
-class ProductionRuleContext {
-  Allocator allocator;
+class SharedValue {
+  final Expression declarator;
 
-  final List<(Expression, String)> errors = [];
+  String name = '';
 
-  String? inputVariable;
+  final String value;
 
-  final ParserGeneratorOptions options;
-
-  final Map<Expression, String> positionVariables = {};
-
-  final Set<Expression> positionVariableDeclarators = {};
-
-  final Set<String> _declaredExpressionVariables = {};
-
-  final Map<Expression, bool> _expressionResultUsage = {};
-
-  final Map<String, Expression> _expressionVariableDeclarators = {};
-
-  final Map<Expression, String> _expressionVariables = {};
-
-  ProductionRuleContext({
-    required this.allocator,
-    required this.options,
+  SharedValue({
+    required this.declarator,
+    required this.value,
   });
 
-  void addError(Expression expression, String message) {
-    errors.add((expression, message));
-  }
-
-  String allocate([String name = '']) => allocator.allocate(name);
-
-  String allocateExpressionVariable(Expression expression) {
-    if (_expressionVariables.containsKey(expression)) {
-      throw StateError(
-          'The expression variable has already been set\n$expression');
+  @override
+  String toString() {
+    if (name.isNotEmpty) {
+      return name;
     }
 
-    final variable = allocate();
-    _expressionVariables[expression] = variable;
-    _expressionVariableDeclarators[variable] = expression;
-    return variable;
-  }
-
-  String allocateInputVariable() {
-    inputVariable ??= allocate('input');
-    return inputVariable!;
-  }
-
-  bool changeExpressionVariableDeclarator(
-      String variable, Expression oldDeclarator, Expression newDeclarator) {
-    final isVariableDeclared = isExpressionVariableDeclared(variable);
-    if (isVariableDeclared) {
-      return false;
-    }
-
-    final declarator = _expressionVariableDeclarators[variable];
-    if (oldDeclarator != declarator) {
-      return false;
-    }
-
-    _expressionVariableDeclarators[variable] = newDeclarator;
-    return true;
-  }
-
-  bool copyExpressionResultUsage(Expression parent, Expression child) {
-    final used = getExpressionResultUsage(parent);
-    setExpressionResultUsage(child, used);
-    return used;
-  }
-
-  bool getExpressionResultUsage(Expression expression) {
-    if (!_expressionResultUsage.containsKey(expression)) {
-      throw StateError(
-          'The expression result usage has not been set\n$expression');
-    }
-
-    return _expressionResultUsage[expression] ?? true;
-  }
-
-  String getExpressionVariable(Expression expression) {
-    if (!_expressionVariables.containsKey(expression)) {
-      throw StateError('The expression variable has not been set\n$expression');
-    }
-
-    return _expressionVariables[expression]!;
-  }
-
-  Expression getExpressionVariableDeclarator(String variable) {
-    if (!_expressionVariableDeclarators.containsKey(variable)) {
-      throw StateError(
-          'The expression variable declarator has not been set\n$variable');
-    }
-
-    return _expressionVariableDeclarators[variable]!;
-  }
-
-  bool isExpressionVariableDeclared(String variable) {
-    return _declaredExpressionVariables.contains(variable);
-  }
-
-  void setExpressionResultUsage(Expression expression, bool used) {
-    if (_expressionResultUsage.containsKey(expression)) {
-      throw StateError(
-          'The expression result usage has already been set\n$expression');
-    }
-
-    _expressionResultUsage[expression] = used;
-  }
-
-  void setExpressionVariable(Expression expression, String result) {
-    if (_expressionVariables.containsKey(expression)) {
-      throw StateError(
-          'The expression variable has already been set\n$expression');
-    }
-
-    _expressionVariables[expression] = result;
-  }
-
-  void setExpressionVariableDeclared(String variable) {
-    if (!_declaredExpressionVariables.add(variable)) {
-      throw StateError('Expression variable already declared');
-    }
-  }
-
-  void setExpressionVariableType(Expression expression, String type) {
-    if (_expressionVariables.containsKey(expression)) {
-      throw StateError(
-          'The expression variable has already been set\n$expression');
-    }
-
-    _expressionVariables[expression] = type;
+    return super.toString();
   }
 }
 
@@ -321,5 +153,58 @@ abstract class SingleExpression extends Expression {
   @override
   void visitChildren<T>(ExpressionVisitor<T> visitor) {
     expression.accept(visitor);
+  }
+}
+
+class Variable {
+  bool needDeclare;
+
+  final String name;
+
+  String type;
+
+  Variable({
+    required this.name,
+    this.needDeclare = true,
+    this.type = '',
+  });
+
+  void assign(StringSink sink, String value) {
+    final buffer = StringBuffer();
+    if (needDeclare) {
+      needDeclare = false;
+      var type = this.type;
+      if (value.trimLeft().startsWith('const')) {
+        type = 'const';
+        value = value.trimLeft().substring('const'.length).trimLeft();
+      } else {
+        switch (value.trim()) {
+          case 'false':
+          case 'null':
+          case 'true':
+          case "''":
+          case '""':
+          case '(null,)':
+            type = 'const';
+            break;
+          default:
+        }
+      }
+
+      type = type.isEmpty ? 'final' : type;
+      buffer.write('$type $name');
+      if (value.isNotEmpty) {
+        buffer.write(' = $value');
+      }
+    } else {
+      buffer.write('$name = $value');
+    }
+
+    sink.statement('$buffer');
+  }
+
+  @override
+  String toString() {
+    return name;
   }
 }

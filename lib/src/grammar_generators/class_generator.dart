@@ -1,17 +1,18 @@
 import '../grammar/grammar.dart';
-import '../helper.dart' as helper;
+import '../helper.dart';
+import '../parser_generator_diagnostics.dart';
 import '../parser_generator_options.dart';
 import 'production_rule_generator.dart';
 
 class ClassGenerator {
-  final List<String> errors;
+  final ParserGeneratorDiagnostics diagnostics;
 
   final Grammar grammar;
 
   final ParserGeneratorOptions options;
 
   ClassGenerator({
-    required this.errors,
+    required this.diagnostics,
     required this.grammar,
     required this.options,
   });
@@ -23,12 +24,15 @@ class ClassGenerator {
     for (var i = 0; i < rules.length; i++) {
       final rule = rules[i];
       final generator = ProductionRuleGenerator(
-        errors: errors,
+        diagnostics: diagnostics,
         options: options,
         rule: rule,
       );
       final code = generator.generate();
       buffer.add(code);
+      if (diagnostics.hasErrors) {
+        return '';
+      }
     }
 
     final values = {
@@ -42,6 +46,6 @@ class {{name}} {
 
   {{code}}
 }''';
-    return helper.render(template, values, removeEmptyLines: false);
+    return render(template, values, removeEmptyLines: false);
   }
 }

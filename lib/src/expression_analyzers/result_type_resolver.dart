@@ -1,6 +1,5 @@
-import '../expressions/expressions.dart';
 import '../grammar/production_rule.dart';
-import '../helper.dart' as helper;
+import '../helper.dart';
 
 class ResultTypesResolver extends ExpressionVisitor<void> {
   bool _hasChanges = false;
@@ -39,29 +38,19 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   @override
   void visitAction(ActionExpression node) {
     node.visitChildren(this);
-    final semanticVariable = node.semanticVariable;
-    if (semanticVariable != null) {
-      final type = node.semanticVariableType;
-      _setResultType(node, type);
-    } else {
-      _setResultType(node, 'void');
-    }
-
-    _postprocess(node);
+    _setResultType(node, 'void');
   }
 
   @override
   void visitAndPredicate(AndPredicateExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'void');
-    _postprocess(node);
   }
 
   @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'int');
-    _postprocess(node);
   }
 
   @override
@@ -70,14 +59,12 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     _setResultType(child, node.resultType);
     node.visitChildren(this);
     _setResultType(node, child.resultType);
-    _postprocess(node);
   }
 
   @override
   void visitCharacterClass(CharacterClassExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'int');
-    _postprocess(node);
   }
 
   @override
@@ -86,35 +73,30 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     _setResultType(child, node.resultType);
     node.visitChildren(this);
     _setResultType(node, child.resultType);
-    _postprocess(node);
   }
 
   @override
   void visitLiteral(LiteralExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'String');
-    _postprocess(node);
   }
 
   @override
   void visitMatch(MatchExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'String');
-    _postprocess(node);
   }
 
   @override
   void visitNonterminal(NonterminalExpression node) {
     final reference = node.reference!;
     _setResultType(node, reference.resultType);
-    _postprocess(node);
   }
 
   @override
   void visitNotPredicate(NotPredicateExpression node) {
     node.visitChildren(this);
     _setResultType(node, 'void');
-    _postprocess(node);
   }
 
   @override
@@ -127,8 +109,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     if (childType.isNotEmpty) {
       _setResultType(node, 'List<${child.resultType}>');
     }
-
-    _postprocess(node);
   }
 
   @override
@@ -137,10 +117,8 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     node.visitChildren(this);
     final childType = child.resultType;
     if (childType.isNotEmpty) {
-      _setResultType(node, helper.getNullableType(childType));
+      _setResultType(node, getNullableType(childType));
     }
-
-    _postprocess(node);
   }
 
   @override
@@ -160,8 +138,12 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
         _setResultType(node, childTypes.first);
       }
     }
+  }
 
-    _postprocess(node);
+  @override
+  void visitPredicate(PredicateExpression node) {
+    node.visitChildren(this);
+    _setResultType(node, 'void');
   }
 
   @override
@@ -179,8 +161,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
         _setResultType(node, child.resultType);
       }
     }
-
-    _postprocess(node);
   }
 
   @override
@@ -193,8 +173,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     if (childType.isNotEmpty) {
       _setResultType(node, 'List<${child.resultType}>');
     }
-
-    _postprocess(node);
   }
 
   String _getListElementType(String type) {
@@ -206,14 +184,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     }
 
     return '';
-  }
-
-  void _postprocess(Expression node) {
-    final semanticVariable = node.semanticVariable;
-    if (semanticVariable != null) {
-      final type = node.semanticVariableType;
-      _setResultType(node, type);
-    }
   }
 
   void _setResultType(Expression node, String resultType) {
@@ -230,6 +200,23 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     }
 
     node.resultType = resultType;
+  }
+
+  @override
+  void visitTyping(TypingExpression node) {
+    final type = node.type;
+    _setResultType(node, type);
+    final child = node.expression;
+    child.accept(this);
+    _setResultType(child, type);
+  }
+
+  @override
+  void visitVariable(VariableExpression node) {
+    final child = node.expression;
+    _setResultType(child, node.resultType);
+    node.visitChildren(this);
+    _setResultType(node, child.resultType);
   }
 }
 
@@ -279,13 +266,6 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
   @override
   void visitAction(ActionExpression node) {
     _visitChildren(node);
-    final semanticVariable = node.semanticVariable;
-    if (semanticVariable != null) {
-      final type = node.semanticVariableType;
-      _setResultType(node, type);
-    } else {
-      _setResultType(node, 'void');
-    }
   }
 
   @override
@@ -356,7 +336,7 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
     final child = node.expression;
     final childType = child.resultType;
     if (childType.isNotEmpty) {
-      final resultType = helper.getNullableType(childType);
+      final resultType = getNullableType(childType);
       _setResultType(node, resultType);
     }
   }
@@ -369,6 +349,12 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
       final childType = childTypes.first;
       _setResultType(node, childType);
     }
+  }
+
+  @override
+  void visitPredicate(PredicateExpression node) {
+    _visitChildren(node);
+    _setResultType(node, 'void');
   }
 
   @override
@@ -385,11 +371,28 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
     final children = node.expressions;
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      final semanticVariable = child.semanticVariable;
-      if (semanticVariable == null && i != resultIndex) {
-        _setResultType(child, 'void');
+      if (child is! VariableExpression) {
+        if (i != resultIndex) {
+          _setResultType(child, 'void');
+        }
       }
     }
+  }
+
+  @override
+  void visitTyping(TypingExpression node) {
+    final type = node.type;
+    _setResultType(node, type);
+    final child = node.expression;
+    _setResultType(child, type);
+    _visitChildren(node);
+  }
+
+  @override
+  void visitVariable(VariableExpression node) {
+    _visitChildren(node);
+    final child = node.expression;
+    _setResultType(child, child.resultType);
   }
 
   @override

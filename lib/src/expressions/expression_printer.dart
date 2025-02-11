@@ -11,37 +11,36 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
 
   @override
   void visitAction(ActionExpression node) {
-    _beforeNode(node);
     _buffer.write('{ }');
-    _afterNode(node);
+  }
+
+  @override
+  void visitPredicate(PredicateExpression node) {
+    final negate = node.negate;
+    _buffer.write(negate ? '!' : '&');
+    _buffer.write('{ }');
+    node.visitChildren(this);
   }
 
   @override
   void visitAndPredicate(AndPredicateExpression node) {
-    _beforeNode(node);
     _buffer.write('&');
     node.visitChildren(this);
-    _afterNode(node);
   }
 
   @override
   void visitAnyCharacter(AnyCharacterExpression node) {
-    _beforeNode(node);
     _buffer.write('.');
-    _afterNode(node);
   }
 
   @override
   void visitCatch(CatchExpression node) {
-    _beforeNode(node);
     node.visitChildren(this);
     _buffer.write(' ~ { }');
-    _afterNode(node);
   }
 
   @override
   void visitCharacterClass(CharacterClassExpression node) {
-    _beforeNode(node);
     _buffer.write('[');
     final ranges = node.ranges;
     String escape(int char) {
@@ -88,16 +87,13 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
     }
 
     _buffer.write(']');
-    _afterNode(node);
   }
 
   @override
   void visitGroup(GroupExpression node) {
-    _beforeNode(node);
     _buffer.write('(');
     node.visitChildren(this);
     _buffer.write(')');
-    _afterNode(node);
   }
 
   @override
@@ -106,56 +102,43 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
     final silent = node.silent;
     final quote = silent ? '"' : '\'';
     final escaped = helper.escapeString(literal, quote);
-    _beforeNode(node);
     _buffer.write(escaped);
-    _afterNode(node);
   }
 
   @override
   void visitMatch(MatchExpression node) {
-    _beforeNode(node);
     _buffer.write('<');
     node.visitChildren(this);
     _buffer.write('>');
-    _afterNode(node);
   }
 
   @override
   void visitNonterminal(NonterminalExpression node) {
     final name = node.name;
-    _beforeNode(node);
     _buffer.write(name);
-    _afterNode(node);
   }
 
   @override
   void visitNotPredicate(NotPredicateExpression node) {
-    _beforeNode(node);
     _buffer.write('!');
     node.visitChildren(this);
-    _afterNode(node);
   }
 
   @override
   void visitOneOrMore(OneOrMoreExpression node) {
-    _beforeNode(node);
     node.visitChildren(this);
     _buffer.write('+');
-    _afterNode(node);
   }
 
   @override
   void visitOptional(OptionalExpression node) {
-    _beforeNode(node);
     node.visitChildren(this);
     _buffer.write('?');
-    _afterNode(node);
   }
 
   @override
   void visitOrderedChoice(OrderedChoiceExpression node) {
     final expressions = node.expressions;
-    _beforeNode(node);
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
       expression.accept(this);
@@ -163,15 +146,12 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
         _buffer.write(' / ');
       }
     }
-
-    _afterNode(node);
   }
 
   @override
   void visitSequence(SequenceExpression node) {
     final expressions = node.expressions;
     final errorHandler = node.errorHandler;
-    _beforeNode(node);
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
       expression.accept(this);
@@ -182,37 +162,25 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
     if (errorHandler != null) {
       _buffer.write('~{ }');
     }
-
-    _afterNode(node);
   }
 
   @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
-    _beforeNode(node);
     node.visitChildren(this);
     _buffer.write('*');
-    _afterNode(node);
   }
 
-  void _afterNode(Expression node) {
-    if (node.isGrouped) {
-      _buffer.write(')');
-    }
+  @override
+  void visitTyping(TypingExpression node) {
+    final type = node.type;
+    _buffer.write('`$type` ');
+    node.visitChildren(this);
   }
 
-  void _beforeNode(Expression node) {
-    final variable = node.semanticVariable;
-    if (variable != null) {
-      // TODO
-      _buffer.write('$variable = ');
-      final type = node.semanticVariableType;
-      if (type.isNotEmpty) {
-        _buffer.write('`$type`');
-      }
-    }
-
-    if (node.isGrouped) {
-      _buffer.write('(');
-    }
+  @override
+  void visitVariable(VariableExpression node) {
+    final name = node.name;
+    _buffer.write('$name = ');
+    node.visitChildren(this);
   }
 }

@@ -1,18 +1,19 @@
 import '../allocator.dart';
-import '../expressions/expression.dart';
+import '../expressions/build_context.dart';
 import '../grammar/production_rule.dart';
-import '../helper.dart' as helper;
+import '../helper.dart';
 import '../parser_generator.dart';
+import '../parser_generator_diagnostics.dart';
 
 class ProductionRuleGenerator {
-  final List<String> errors;
+  final ParserGeneratorDiagnostics diagnostics;
 
   final ParserGeneratorOptions options;
 
   final ProductionRule rule;
 
   ProductionRuleGenerator({
-    required this.errors,
+    required this.diagnostics,
     required this.options,
     required this.rule,
   });
@@ -20,41 +21,36 @@ class ProductionRuleGenerator {
   String generate() {
     final expression = rule.expression;
     final name = 'parse${rule.name}';
-    final returnType = rule.getResultType();
-    final context = ProductionRuleContext(
+    final resultType = rule.getResultType();
+    final context = BuildContext(
       allocator: Allocator(),
+      diagnostics: diagnostics,
       options: options,
     );
 
-    final variable = context.allocateExpressionVariable(expression);
-    context.setExpressionResultUsage(expression, returnType != 'void');
-    final code = expression.generate(context);
+    final isFast = resultType == 'void' ? true : false;
+    final variable = context.allocateVariable();
     final expected = rule.expected;
-    var prologue = '';
-    var epilogue = '';
-    final inputVariable = context.inputVariable;
-    if (inputVariable != null) {
-      prologue = '''
-$prologue
-final $inputVariable = state.input;''';
+    if (expected != null) {
+      expression.getSharedValue(context, 'state.position');
     }
 
-    if (expected != null) {
-      var pos = context.positionVariables[expression];
-      if (pos == null) {
-        pos = context.allocate('pos');
-        prologue = '''
-$prologue
-final $pos = state.position;''';
-      }
+    final code = expression.generate(context, variable, isFast);
+    if (diagnostics.hasErrors) {
+      return '';
+    }
 
-      final escaped = helper.escapeString(expected, "'");
+    var prologue = '';
+    var epilogue = '';
+    if (expected != null) {
+      final position = expression.getSharedValue(context, 'state.position');
+      final escaped = escapeString(expected, "'");
       final failure = context.allocate();
       prologue = '''
 $prologue
 final $failure = state.enter();''';
       epilogue = '''
-state.expected($variable, $escaped, $pos, false);
+state.expected($variable, $escaped, $position, false);
 state.leave($failure);
 $epilogue''';
     }
@@ -64,30 +60,19 @@ $epilogue''';
       'epilogue': epilogue,
       'name': name,
       'prologue': prologue,
-      'return_type': returnType,
-      'variable': variable,
+      'return_type': rule.getReturnType(),
+      'variable': variable.name,
     };
     var template = '';
     template = '''
-({{return_type}},)? {{name}}(State state) {
+{{return_type}} {{name}}(State state) {
   {{prologue}}
   {{code}}
   {{epilogue}}
   return {{variable}};
 }''';
 
-    errors.addAll(context.errors.map((e) {
-      final expression = e.$1;
-      final message = e.$2;
-      final rule = expression.rule!;
-      final name = rule.name;
-      return '''
-$message
-Expression: $expression
-Production rule: $name''';
-    }));
-
-    final rendered = helper.render(template, values);
+    final rendered = render(template, values);
     final comments = _generateComments(expression);
     template = '''
 $comments
@@ -100,7 +85,7 @@ $rendered''';
     declaration.write(' /// **${rule.name}**');
     final expected = rule.expected;
     if (expected != null) {
-      final escaped = helper.escapeString(expected, "'");
+      final escaped = escapeString(expected, "'");
       declaration.write(' ($escaped)');
     }
 

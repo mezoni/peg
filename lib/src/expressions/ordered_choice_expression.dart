@@ -1,4 +1,5 @@
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class OrderedChoiceExpression extends MultiExpression {
   OrderedChoiceExpression({required super.expressions});
@@ -9,39 +10,72 @@ class OrderedChoiceExpression extends MultiExpression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    final values = <String, String>{};
-    if (expressions.length == 1) {
-      final expression = expressions[0];
-      context.setExpressionVariable(expression, variable);
-      context.copyExpressionResultUsage(this, expression);
-      context.changeExpressionVariableDeclarator(variable, this, expression);
-      values['p0'] = expression.generate(context);
-    } else {
-      for (var i = 0; i < expressions.length; i++) {
-        final expression = expressions[i];
-        context.setExpressionVariable(expression, variable);
-        context.copyExpressionResultUsage(this, expression);
-        values['p$i'] = expression.generate(context);
-      }
-    }
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final sink = preprocess(context);
+    if (expressions.length > 1) {
+      if (variable != null) {
+        if (variable.needDeclare) {
+          if (variable.type.isEmpty) {
+            variable.type = getReturnType();
+          }
 
-    var code = '';
-    for (var i = expressions.length - 1; i >= 0; i--) {
-      final expression = expressions[i];
-      final r = context.getExpressionVariable(expression);
-      final p = '{{p$i}}';
-      if (i == 0) {
-        code = '$p\n$code';
-      } else if (i < expressions.length - 1) {
-        code = '\nif ($r == null) { $p\n $code }';
+          variable.assign(sink, '');
+        }
       } else {
-        code = '\nif ($r == null) { $p\n }';
+        variable = context.allocateVariable(type: getReturnType());
+        variable.assign(sink, '');
       }
     }
 
-    final template = code;
-    return render(context, this, template, values);
+    final blocks = <StringBuffer>[];
+    for (var i = 0; i < expressions.length; i++) {
+      final expression = expressions[i];
+      final block = StringBuffer();
+      blocks.add(block);
+      block.writeln(expression.generate(context, variable, isFast));
+    }
+
+    var buffer = StringBuffer();
+    for (var i = expressions.length - 1; i >= 0; i--) {
+      final isFailure = getStateTest(variable, false);
+      final block = blocks[i];
+      if (i == expressions.length - 1) {
+        buffer.write(block);
+      } else {
+        final inner = '$buffer';
+        buffer = StringBuffer();
+        buffer.writeln(block);
+        var optimized = false;
+        if (isFailure == '$variable == null') {
+          if (i == expressions.length - 2) {
+            var temp = inner.trim();
+            if (temp.endsWith(';')) {
+              if (inner.codeUnits.where((e) => e == 59).length == 1) {
+                temp = temp.replaceAll(' ', '');
+                temp = temp.replaceAll('\n', '');
+                temp = temp.replaceAll('\r', '');
+                temp = temp.replaceAll('\t', '');
+                if (temp.startsWith('$variable=')) {
+                  optimized = true;
+                  final index = inner.indexOf('=');
+                  buffer.writeln('$variable ??= ${inner.substring(index + 1)}');
+                }
+              }
+            }
+          }
+        }
+
+        if (optimized) {
+          continue;
+        }
+
+        buffer.ifStatement(isFailure, (b) {
+          b.writeln(inner);
+        });
+      }
+    }
+
+    sink.writeln(buffer);
+    return postprocess(context, sink);
   }
 }

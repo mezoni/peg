@@ -1,4 +1,5 @@
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class SequenceExpression extends MultiExpression {
   final String? errorHandler;
@@ -24,9 +25,10 @@ class SequenceExpression extends MultiExpression {
 
     for (var i = expressions.length - 1; i >= 0; i--) {
       final expression = expressions[i];
-      final semanticVariable = expression.semanticVariable;
-      if (semanticVariable == '\$') {
-        return i;
+      if (expression case final VariableExpression expression) {
+        if (expression.name == '\$') {
+          return i;
+        }
       }
     }
 
@@ -34,131 +36,148 @@ class SequenceExpression extends MultiExpression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final values = <String, String>{};
-    if (expressions.length == 1) {
-      final variable = context.getExpressionVariable(this);
-      final expression = expressions[0];
-      context.setExpressionVariable(expression, variable);
-      context.copyExpressionResultUsage(this, expression);
-      if (expression.semanticVariable == null) {
-        context.changeExpressionVariableDeclarator(variable, this, expression);
-      }
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final sink = preprocess(context);
+    if (expressions.length > 1) {
+      if (variable != null) {
+        if (variable.needDeclare) {
+          if (variable.type.isEmpty) {
+            variable.type = getReturnType();
+          }
 
-      values['p0'] = expression.generate(context);
+          variable.assign(sink, '');
+        }
+      }
+    }
+
+    final variables = <Variable?>[];
+    if (expressions.length == 1) {
+      variables.add(variable);
     } else {
       for (var i = 0; i < expressions.length; i++) {
         final expression = expressions[i];
-        final semanticVariable = expression.semanticVariable;
-        context.allocateExpressionVariable(expression);
-        context.setExpressionResultUsage(expression, semanticVariable != null);
-        values['p$i'] = expression.generate(context);
+        Variable? childVariable;
+        if (expression is VariableExpression) {
+          childVariable = context.allocateVariable();
+        }
+
+        if (childVariable == null && expression.isVariableNeedForTestState()) {
+          childVariable = context.allocateVariable();
+        }
+
+        variables.add(childVariable);
       }
     }
 
-    final template = _generateTemplate(context);
-    return render(context, this, template, values);
-  }
+    var numberOfBlocks = expressions.length;
+    if (expressions.length > 1 || expressions.last is VariableExpression) {
+      numberOfBlocks++;
+    }
 
-  String _generateTemplate(ProductionRuleContext context) {
-    const pos = Expression.positionVariableKey;
-    final variable = context.getExpressionVariable(this);
-    final blocks = <StringBuffer>[];
-    final semanticVariables = <int>[];
-    final resultIndex = findResultIndex();
-    context.getExpressionResultUsage(this);
+    final blocks = List.generate(numberOfBlocks, (i) => StringBuffer());
+    for (var i = 1; i < blocks.length; i++) {
+      final block = blocks[i];
+      final expression = expressions[i - 1];
+      if (expression is VariableExpression) {
+        final name = expression.name;
+        final type = expression.getResultType();
+        final variable = variables[i - 1];
+        block.statement('$type $name = $variable.\$1');
+      }
+    }
+
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
-      final block = StringBuffer();
-      block.writeln('{{p$i}}');
-      blocks.add(block);
-      final semanticVariable = expression.semanticVariable;
-      if (semanticVariable != null) {
-        semanticVariables.add(i);
-      }
+      final variable = variables[i];
+      final block = blocks[i];
+      block.writeln(
+          expression.generate(context, variable, isFast || variable == null));
     }
 
-    /*
-    if (expressions.length > 1) {
-      final last = StringBuffer();
-      blocks.add(last);
-    }
-    */
-
-    if (expressions.length > 1 || expressions.last.semanticVariable != null) {
-      final last = StringBuffer();
-      blocks.add(last);
-    }
-
-    if (true) {
-      final last = blocks.last;
-      String? resultValue;
+    final resultIndex = findResultIndex();
+    if (variable != null) {
+      final block = blocks.last;
+      String? value;
       if (resultIndex != -1) {
-        final resultExpression = expressions[resultIndex];
-        final semanticVariable = resultExpression.semanticVariable;
-        if (semanticVariable != null) {
-          resultValue = '($semanticVariable,)';
+        final variable = variables[resultIndex];
+        final expression = expressions[resultIndex];
+        if (expression is VariableExpression) {
+          final name = expression.name;
+          value = '($name,)';
         } else {
-          resultValue = context.getExpressionVariable(resultExpression);
+          value = '$variable';
         }
       } else {
-        resultValue = 'const (null,)';
+        value = '(null,)';
       }
 
-      if (variable != resultValue) {
-        last.writeln('$variable = $resultValue;');
+      if (value != variable.name) {
+        variable.assign(block, value);
       }
     }
 
-    for (var i = 0; i < semanticVariables.length; i++) {
-      final index = semanticVariables[i];
+    String getStateTestAtIndex(int index) {
+      if (index < 0) {
+        return 'true';
+      }
+
       final expression = expressions[index];
-      final childVariable = context.getExpressionVariable(expression);
-      final childResultValue = expression.getResultValue(childVariable);
-      final semanticVariable = expression.semanticVariable!;
-      var block = blocks[index + 1];
-      final code = '$block';
-      final childType = expression.getResultType();
-      block = StringBuffer();
-      block.writeln('$childType $semanticVariable = $childResultValue;');
-      block.writeln(code);
-      blocks[index + 1] = block;
+      final variable = variables[index];
+      return expression.getStateTest(variable, true);
     }
 
-    var template = StringBuffer();
+    var buffer = StringBuffer();
     for (var i = blocks.length - 1; i >= 0; i--) {
-      var r = '';
-      if (i > 0) {
-        final expression = expressions[i - 1];
-        r = context.getExpressionVariable(expression);
-      }
-
       final block = blocks[i];
       if (i == 0) {
-        final inner = '$template';
-        template = StringBuffer();
-        template.writeln(block);
-        template.writeln(inner);
+        final inner = '$buffer';
+        buffer = StringBuffer();
+        buffer.writeln(block);
+        buffer.writeln(inner);
       } else if (i < blocks.length - 1) {
-        final inner = '$template';
-        template = StringBuffer();
-        template.writeln('if ($r != null) {');
-        template.writeln(block);
-        template.writeln(inner);
-        template.writeln('}');
+        final isSuccess = getStateTestAtIndex(i - 1);
+        final inner = '$buffer';
+        buffer = StringBuffer();
+        buffer.ifStatement(isSuccess, (b) {
+          b.writeln(block);
+          b.writeln(inner);
+        });
       } else {
-        template.writeln('if ($r != null) {');
-        template.writeln(block);
-        template.writeln('}');
+        final isSuccess = getStateTestAtIndex(i - 1);
+        buffer.ifStatement(isSuccess, (b) {
+          b.writeln(block);
+        });
       }
 
       if (i == 1) {
-        template.writeln('if ($variable == null) {');
-        template.writeln('state.position = {{$pos}};');
-        template.writeln('}');
+        if (_isPositionRequired()) {
+          final position = getSharedValue(context, 'state.position');
+          final isFailure = getStateTest(variable, false);
+          buffer.ifStatement(isFailure, (b) {
+            b.statement('state.position = $position');
+          });
+        }
       }
     }
 
-    return '$template';
+    sink.writeln(buffer);
+    return postprocess(context, sink);
+  }
+
+  bool _isPositionRequired() {
+    if (expressions.length == 1) {
+      return false;
+    }
+
+    if (isAlwaysSuccessful) {
+      return false;
+    }
+
+    if (expressions.length == 2) {
+      final last = expressions.last;
+      return !last.isAlwaysSuccessful;
+    }
+
+    return true;
   }
 }

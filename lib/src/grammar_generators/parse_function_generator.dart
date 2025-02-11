@@ -1,18 +1,19 @@
 import 'package:strings/strings.dart';
 
 import '../grammar/grammar.dart';
-import '../helper.dart' as helper;
+import '../helper.dart';
 import '../parser_generator.dart';
+import '../parser_generator_diagnostics.dart';
 
 class ParseFunctionGenerator {
-  final List<String> errors;
+  final ParserGeneratorDiagnostics diagnostics;
 
   final Grammar grammar;
 
   final ParserGeneratorOptions options;
 
   ParseFunctionGenerator({
-    required this.errors,
+    required this.diagnostics,
     required this.grammar,
     required this.options,
   });
@@ -58,6 +59,6 @@ class ParseFunctionGenerator {
 }
 ''';
 
-    return helper.render(template, values);
+    return render(template, values);
   }
 }

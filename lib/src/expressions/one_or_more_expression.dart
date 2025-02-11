@@ -1,6 +1,6 @@
 import '../binary_search_generator/matcher_generator.dart';
-import '../helper.dart' as helper;
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class OneOrMoreExpression extends SingleExpression {
   OneOrMoreExpression({required super.expression});
@@ -11,67 +11,79 @@ class OneOrMoreExpression extends SingleExpression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final isResultUsed = context.getExpressionResultUsage(this);
-    context.copyExpressionResultUsage(this, expression);
-    if (!isResultUsed) {
-      if (expression case final CharacterClassExpression expression) {
-        return _generateSkipWhile1(context, expression);
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final optimized = _optimize(context, variable, isFast);
+    if (optimized != null) {
+      return optimized;
+    }
+
+    final sink = preprocess(context);
+    isFast = isFastOrVoid(isFast);
+    var list = '';
+    var ok = '';
+    final childVariable = context.allocateVariable();
+    final elementType = expression.getResultType();
+    if (!isFast) {
+      list = context.allocate('list');
+      sink.statement('final $list = <$elementType>[]');
+    } else {
+      ok = context.allocate('list');
+      sink.statement('var $ok = false');
+    }
+
+    sink.writeln('while (true) {');
+    sink.writeln(expression.generate(context, childVariable, isFast));
+    final isFailure = expression.getStateTest(childVariable, false);
+    sink.ifStatement(isFailure, (block) {
+      block.statement('break');
+    });
+    if (!isFast) {
+      sink.statement('$list.add($childVariable.\$1)');
+    } else {
+      sink.statement('$ok = true');
+    }
+
+    sink.writeln('}');
+    final value = !isFast
+        ? conditional('$list.isNotEmpty', '($list,)', 'null')
+        : conditional(ok, 'const ([],)', 'null');
+    if (variable != null) {
+      variable.assign(sink, value);
+    }
+
+    return postprocess(context, sink);
+  }
+
+  String? _optimize(BuildContext context, Variable? variable, bool isFast) {
+    if (isFast) {
+      if (expression case final CharacterClassExpression child) {
+        final sink = preprocess(context);
+        final ranges = child.ranges;
+        final bitDepth = calculateBitDepth(ranges);
+        final predicate =
+            MatcherGenerator().generate('c', ranges, negate: child.negate);
+        final position = getSharedValue(context, 'state.position');
+        sink.writeln('''
+while (state.position < state.length) {
+  final position = state.position;
+  final c = state.nextChar$bitDepth();
+  final ok = $predicate;
+  if (!ok) {
+    state.position = position;
+    break;
+  }
+}
+state.fail<List<void>>();''');
+        if (variable != null) {
+          final value = conditional(
+              'state.position != $position', 'const (<int>[],)', 'null');
+          variable.assign(sink, value);
+        }
+
+        return postprocess(context, sink);
       }
     }
 
-    final r = context.allocateExpressionVariable(expression);
-    final values = {
-      'p': expression.generate(context),
-      'r': r,
-    };
-    var template = '';
-    if (isResultUsed) {
-      final list = context.allocate('list');
-      final assignment =
-          assignResult(context, '$list.isNotEmpty ? ($list,) : null');
-      values.addAll({
-        'E': expression.getResultType(),
-        'list': list,
-      });
-      template = '''
-final {{list}} = <{{E}}>[];
-while (true) {
-  {{p}}
-  if ({{r}} == null) {
-    break;
-  }
-  {{list}}.add({{r}}.\$1);
-}
-$assignment''';
-    } else {
-      final ok = context.allocate('ok');
-      final assignment = assignResult(context, '$ok ? (null],) : null');
-      values['ok'] = ok;
-      template = '''
-var {{ok}} = false;
-while (true) {
-  {{p}}
-  if ({{r}} == null) {
-    break;
-  }
-  {{ok}} = true;
-}
-$assignment''';
-    }
-
-    return render(context, this, template, values);
-  }
-
-  String _generateSkipWhile1(
-      ProductionRuleContext context, CharacterClassExpression child) {
-    final ranges = child.ranges;
-    final bitDepth = helper.bitDepth(ranges);
-    var predicate =
-        MatcherGenerator().generate('c', ranges, negate: child.negate);
-    predicate = '(int c) => $predicate';
-    final template =
-        assignResult(context, 'state.skip${bitDepth}While1($predicate)');
-    return render(context, this, template, const {});
+    return null;
   }
 }

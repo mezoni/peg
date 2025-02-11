@@ -1,11 +1,13 @@
-import '../expressions/expressions.dart';
 import '../grammar/grammar.dart';
 import '../grammar/production_rule.dart';
+import '../parser_generator_diagnostics.dart';
 
 class ExpressionInitializer0 extends ExpressionVisitor<void> {
-  Expression? _current;
+  final ParserGeneratorDiagnostics diagnostics;
 
-  final List<String> errors = [];
+  final Grammar grammar;
+
+  Expression? _current;
 
   int _id = 0;
 
@@ -15,8 +17,12 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
 
   final Map<String, ProductionRule> _rules = {};
 
-  void initialize(Grammar grammar) {
-    errors.clear();
+  ExpressionInitializer0({
+    required this.grammar,
+    required this.diagnostics,
+  });
+
+  void initialize() {
     _rules.clear();
     final rules = grammar.rules;
     for (var rule in rules) {
@@ -103,6 +109,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitPredicate(PredicateExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitSequence(SequenceExpression node) {
     _initializeNode(node);
     final children = node.expressions;
@@ -110,6 +121,16 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
       final child = children[i];
       child.index = i;
     }
+  }
+
+  @override
+  void visitTyping(TypingExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
+  void visitVariable(VariableExpression node) {
+    _initializeNode(node);
   }
 
   @override
@@ -142,13 +163,17 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
     node.visitChildren(this);
     _level = level;
     _current = current;
+    node.resultType = node.resultType.trim();
   }
 
   void _initializeNonterminal(NonterminalExpression node) {
     _initializeNode(node);
-    final rule = _rules[node.name];
+    final name = node.name;
+    final rule = _rules[name];
     if (rule == null) {
-      errors.add('Production rule not found: ${node.name}\n$_rule');
+      final error = diagnostics.error(
+          "The expression 'Nonterminal' refers to an undefined production rule");
+      error.description('Production rule name', name);
       return;
     }
 

@@ -4,14 +4,14 @@ class State {
   /// The position of the parsing failure.
   int failure = 0;
 
-  /// Input data for parsing.
-  String input;
+  /// The length of the input data.
+  final int length;
 
   /// Indicates that parsing occurs within a `not' predicate`.
   ///
   /// When parsed within the `not predicate`, all `expected` errors are
   /// converted to `unexpected` errors.
-  bool notPredicate = false;
+  bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
@@ -30,6 +30,8 @@ class State {
 
   int _farthestUnexpected = 0;
 
+  final String _input;
+
   final List<bool?> _locations = List.filled(128, null);
 
   final List<String?> _messages = List.filled(128, null);
@@ -42,7 +44,9 @@ class State {
 
   final List<int?> _unexpectedPositions = List.filled(128, null);
 
-  State(this.input);
+  State(String input)
+      : _input = input,
+        length = input.length;
 
   /// This method is for internal use only.
   @pragma('vm:prefer-inline')
@@ -84,13 +88,13 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void expected(Object? result, String element, int start,
-      [bool nested = true]) {
+      [bool literal = true]) {
     if (_farthestError > position) {
       return;
     }
 
     if (result != null) {
-      if (!notPredicate || _farthestUnexpected > position) {
+      if (!predicate || _farthestUnexpected > position) {
         return;
       }
 
@@ -99,19 +103,29 @@ class State {
         _unexpectedIndex = 0;
       }
 
-      if (_unexpectedIndex < _unexpectedElements.length) {
-        _unexpectedElements[_unexpectedIndex] = element;
-        _unexpectedPositions[_unexpectedIndex] = start;
-        _unexpectedIndex++;
-      }
-    } else {
       if (_farthestError < position) {
         _farthestError = position;
         _errorIndex = 0;
         _expectedIndex = 0;
       }
 
-      if (!nested) {
+      if (_unexpectedIndex < _unexpectedElements.length) {
+        _unexpectedElements[_unexpectedIndex] = element;
+        _unexpectedPositions[_unexpectedIndex] = start;
+        _unexpectedIndex++;
+      }
+    } else {
+      if (!literal && failure != position) {
+        return;
+      }
+
+      if (_farthestError < position) {
+        _farthestError = position;
+        _errorIndex = 0;
+        _expectedIndex = 0;
+      }
+
+      if (!literal) {
         _expectedIndex = 0;
       }
 
@@ -125,10 +139,10 @@ class State {
   /// positions.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void fail([int length = 0]) {
+  (T,)? fail<T>([int length = 0]) {
     failure < position ? failure = position : null;
     if (_farthestFailure > position) {
-      return;
+      return null;
     }
 
     if (_farthestFailure < position) {
@@ -137,6 +151,15 @@ class State {
 
     _farthestFailureLength =
         _farthestFailureLength < length ? length : _farthestFailureLength;
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (T,)? failAndBacktrack<T>(int position) {
+    fail<void>(this.position - position);
+    this.position = position;
+    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -225,204 +248,211 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string, [bool silent = false]) {
+  (R,)? match<R>((R,) result, String string) {
     final start = position;
-    (String,)? result;
-    if (position < input.length &&
-        input.codeUnitAt(position) == string.codeUnitAt(0)) {
-      if (input.startsWith(string, position)) {
-        position += string.length;
-        result = (string,);
+    if (position + string.length <= length) {
+      for (var i = 0; i < string.length; i++) {
+        if (string.codeUnitAt(i) != nextChar16()) {
+          position = start;
+          return fail();
+        }
       }
-    } else {
-      fail();
     }
 
-    silent ? null : expected(result, string, start);
     return result;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match1(String string, int char, [bool silent = false]) {
+  (R,)? match1<R>((R,) result, int c) {
     final start = position;
-    (String,)? result;
-    if (position < input.length && input.codeUnitAt(position) == char) {
-      position++;
-      result = (string,);
-    } else {
-      fail();
+    if (position < length && c == nextChar16()) {
+      return result;
     }
 
-    silent ? null : expected(result, string, start);
-    return result;
+    position = start;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match2(String string, int char, int char2, [bool silent = false]) {
+  (R,)? match2<R>((R,) result, int c1, int c2) {
     final start = position;
-    (String,)? result;
-    if (position + 1 < input.length &&
-        input.codeUnitAt(position) == char &&
-        input.codeUnitAt(position + 1) == char2) {
-      position += 2;
-      result = (string,);
-    } else {
-      fail();
+    if (position + 1 < length && c1 == nextChar16() && c2 == nextChar16()) {
+      return result;
     }
 
-    silent ? null : expected(result, string, start);
-    return result;
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match3<R>((R,) result, int c1, int c2, int c3) {
+    final start = position;
+    if (position + 2 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match4<R>((R,) result, int c1, int c2, int c3, int c4) {
+    final start = position;
+    if (position + 3 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16() &&
+        c4 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match5<R>((R,) result, int c1, int c2, int c3, int c4, int c5) {
+    final start = position;
+    if (position + 4 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16() &&
+        c4 == nextChar16() &&
+        c5 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (int,)? matchAny() {
-    int? c;
-    if (position < input.length) {
-      c = input.readChar(position);
+    if (position < length) {
+      return (nextChar32(),);
     }
 
-    c != null ? position += c > 0xffff ? 2 : 1 : fail();
-    return c != null ? (c,) : null;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChar16(int char) {
-    final ok = position < input.length && input.codeUnitAt(position) == char;
-    ok ? position++ : fail();
-    return ok ? (char,) : null;
+  (void,)? matchEof() {
+    return position >= length ? (null,) : fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChar32(int char) {
-    final ok = position + 1 < input.length && input.readChar(position) == char;
-    ok ? position += 2 : fail();
-    return ok ? (char,) : null;
+  (R,)? matchLiteral<R>((R,) result, String literal) {
+    final start = position;
+    final actual = match(result, literal);
+    expected(actual, literal, start, true);
+    return actual;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChars16(bool Function(int c) f) {
-    (int,)? result;
-    if (position < input.length) {
-      final c = input.codeUnitAt(position);
-      result = f(c) ? (c,) : null;
-    }
-
-    result != null ? position++ : fail();
-    return result;
+  (R,)? matchLiteral1<R>((R,) result, String string, int c) {
+    final start = position;
+    final actual = match1(result, c);
+    expected(actual, string, start, true);
+    return actual;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChars32(bool Function(int c) f) {
-    (int,)? result;
-    var c = 0;
-    if (position < input.length) {
-      c = input.readChar(position);
-      result = f(c) ? (c,) : null;
-    }
+  (R,)? matchLiteral2<R>((R,) result, String string, int c1, int c2) {
+    final start = position;
+    final actual = match2(result, c1, c2);
+    expected(actual, string, start, true);
+    return actual;
+  }
 
-    result != null ? position += c > 0xffff ? 2 : 1 : fail();
-    return result;
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral3<R>((R,) result, String string, int c1, int c2, int c3) {
+    final start = position;
+    final actual = match3(result, c1, c2, c3);
+    expected(actual, string, start, true);
+    return actual;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral4<R>(
+      (R,) result, String string, int c1, int c2, int c3, int c4) {
+    final start = position;
+    final actual = match4(result, c1, c2, c3, c4);
+    expected(actual, string, start, true);
+    return actual;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral5<R>(
+      (R,) result, String string, int c1, int c2, int c3, int c4, int c5) {
+    final start = position;
+    final actual = match5(result, c1, c2, c3, c4, c5);
+    expected(actual, string, start, true);
+    return actual;
   }
 
   /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  T? opt<T>(T value) => value;
+  int nextChar16() => _input.codeUnitAt(position++);
 
-  /// Intended for internal use only.
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (List<int>,)? skip16While(bool Function(int c) f) {
-    while (position < input.length) {
-      final c = input.codeUnitAt(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position++;
-    }
-
-    return (const [],);
+  int nextChar32() {
+    final c = _input.readChar(position);
+    position += c > 0xffff ? 2 : 1;
+    return c;
   }
 
-  /// Intended for internal use only.
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (List<int>,)? skip16While1(bool Function(int c) f) {
-    final start = position;
-    while (position < input.length) {
-      final c = input.codeUnitAt(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position++;
-    }
-
-    final ok = start != position;
-    ok ? null : fail();
-    return ok ? (const [],) : null;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (List<int>,)? skip32While(bool Function(int c) f) {
-    while (position < input.length) {
-      final c = input.readChar(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position += c > 0xffff ? 2 : 1;
-    }
-
-    return (const [],);
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (List<int>,)? skip32While1(bool Function(int c) f) {
-    final start = position;
-    while (position < input.length) {
-      final c = input.readChar(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position += c > 0xffff ? 2 : 1;
-    }
-
-    final ok = start != position;
-    ok ? null : fail();
-    return ok ? (const [],) : null;
-  }
+  String substring(int start, int end) => _input.substring(start, end);
 
   @override
   String toString() {
-    var rest = input.length - position;
+    if (position >= length) {
+      return '';
+    }
+
+    var rest = length - position;
     if (rest > 80) {
       rest = 80;
     }
 
-    var line = input.substring(position, position + rest);
+    // Need to create the equivalent of 'substring'
+    var line = substring(position, position + rest);
     line = line.replaceAll('\n', '\n');
-    return '($position)$line';
+    return '|$position|$line';
   }
 }
 

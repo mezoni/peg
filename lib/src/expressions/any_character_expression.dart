@@ -1,4 +1,5 @@
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class AnyCharacterExpression extends Expression {
   AnyCharacterExpression();
@@ -9,8 +10,15 @@ class AnyCharacterExpression extends Expression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final template = assignResult(context, 'state.matchAny()');
-    return render(context, this, template, const {});
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final sink = preprocess(context);
+    const value = 'state.matchAny()';
+    if (variable == null) {
+      sink.statement(value);
+    } else {
+      variable.assign(sink, value);
+    }
+
+    return postprocess(context, sink);
   }
 }

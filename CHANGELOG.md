@@ -1,43 +1,47 @@
-# 7.0.1
+## 7.0.2
+
+- Fixed bugs and minor improvements have been made
+
+## 7.0.1
 
 - Fixed a bug in printing repetition expressions created using syntactic sugar.
 
-# 7.0.0
+## 7.0.0
 
 - Breaking change:
   - Improved reliability by using records for result return.
   - Changed the behavior of semantic variables, Only the special variable `$` can return a result. This allows to slightly increase the speed by explicitly defining the need for the result.
 
-# 6.0.4
+## 6.0.4
 
 - Fixed a bug in generating negated character classes.
 
-# 6.0.3
+## 6.0.3
 
 - To make it easier to find rules for which the result type was not determined automatically, a non-nullable result type `Object` will be assigned.
 
-# 6.0.2
+## 6.0.2
 
 - Some typos have been corrected.
 - Added information about the naming convention for expression result types.
 - Added information on how to generate the parser programmatically.
 - The `State` class has been updated with many functions for parsing strings and characters.
 
-# 6.0.1
+## 6.0.1
 
 - The `comment` option was not taken into account
 
-# 6.0.0
+## 6.0.0
 
 - Everything was implemented from scratch. There are breaking changes.
 
-# 5.0.1
+## 5.0.1
 
 - Changes in the grammar file `bin/peg.peg`.
 - Added meta expression `@tag()`
 - Changes in the file `README.md`.
 
-# 5.0.0
+## 5.0.0
 
 - Error generation algorithms have been slightly reworked.
 - Breaking change: Removed meta expression `@errorHandler()`.
@@ -46,41 +50,41 @@
 - Added meta expression `@message()`.
 - Changes in the file `README.md`.
 
-# 4.0.7
+## 4.0.7
 
 - Removed unnecessary code from file `helper.dart`.
 - Minor changes to the binary search source code.
 
-# 4.0.6
+## 4.0.6
 
 - The code generator for generating binary search expressions (for predicates and transitions) has been implemented in a new way. It generates reliable but not optimized code. The source code is then optimized to produce an optimal source code.
 
-# 4.0.5
+## 4.0.5
 
 - The source code for supporting the parser runtime has been reworked.
 - The generated code has been optimized for some cases of using the expressions `OneOrMoreGenerator` and `ZeroOrMoreGenerator`.
 - The error post-processing system has been slightly improved. With a few changes, it is now possible to reduce the number of errors generated at runtime when parsing characters, without losing information about the actual errors.  Because such errors can be recovered without any problems at the end of the parsing, if the parsing fails. This results in a slight increase in overall parsing performance (5-20%), especially in cases where increasing performance is almost impossible.
 - Code generation for parsing literals has been improved.
 
-# 4.0.4
+## 4.0.4
 
 - Fixed bug in method `matchLiteralAsync()`.
 - Code generation for `OrderedChoice` consisting of literals only has been improved.
 - Changes to the `csv.peg` grammar file.
 
-# 4.0.3
+## 4.0.3
 
- - The implementation of the generated code for the meta expression `@errorHandler` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
- - The implementation of the generated code for the meta expression `@expected` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
- - The source code for supporting the parser runtime has been changed. The no longer needed methods `canHandleError` and `rollbackErrors` have been removed. Added a new field `int lastFailPos` to the `State` class.
- - Changes to the `calc.peg` grammar file.
+- The implementation of the generated code for the meta expression `@errorHandler` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
+- The implementation of the generated code for the meta expression `@expected` has been reworked, all calculations are performed in the handler without accessing methods of the `State` class.
+- The source code for supporting the parser runtime has been changed. The no longer needed methods `canHandleError` and `rollbackErrors` have been removed. Added a new field `int lastFailPos` to the `State` class.
+- Changes to the `calc.peg` grammar file.
 
-# 4.0.2
+## 4.0.2
 
 - Fixed bugs in `CutExpression`. The correct behavior is to apply this expression only to the child expressions of the parent expression `SequenceExpression` and does not apply to child expressions of child expressions of the parent. Its scope is also limited by its parent.
 - Breaking changes: Meta expressions `@sepBy` and `@sepBy1` have been replaced with meta expressions `@list` and `@list1`. This was done for the reason that the old expressions did not allow the use of the expression `cut`.
 
-# 4.0.1
+## 4.0.1
 
 - Changes in the file `README.md`.
 - Changes to the `calc.peg` grammar file.
@@ -91,7 +95,7 @@
 - Added `@eof` meta expression.
 - Added `@expected` meta expression.
 
-# 4.0.0
+## 4.0.0
 
 - Now creating a stream parser will not be difficult. Buffering of input data occurs automatically. Clearing the buffer (during parsing) of unnecessary data also occurs automatically. The new `cut` expression serves as a marker to keep track of unnecessary input data. An attempt to parse inaccessible input data (removed from the buffer) is completely excluded at the grammar level, that is, at the parsing level. The grammar developer independently determines where (in what position of parsing the input data) it is useful to cut off the input data by inserting `cut` expressions into the grammar.
 - A new expression `cut` has been implemented.
@@ -117,6 +121,7 @@
 ## 3.0.0
 
 - Breaking and new features. Added implementation of automatic generation of converters. The converter is generated into a separate file. This required changes to the command line tools to unify the way classes and file names are named. To continue normal operation, it is need to rename the grammar file, removing the suffix `_parser` from the file name, if one would be used in the name of the grammar file (eg. rename `json_parser.peg` to `json.peg`).
+
 ## 2.0.2
 
 - Changes in the file `example_parse_from_stream.dart`.
@@ -300,7 +305,6 @@
 - Optimization of the code generated by the `ZeroOrMoreGenerator` generator.
 - Changes to the `json_parser.peg` grammar example file.
 
-
 ## 1.0.4
 
 - Added documentation for universal top-level parsing functions from `runtime` code.
@@ -346,7 +350,7 @@
 
 ## 0.0.49
 
-- In function` _failure` corrected the conditions of the detection of `unterminated` tokens 
+- In function`_failure` corrected the conditions of the detection of `unterminated` tokens
 
 ## 0.0.48
 
@@ -356,7 +360,7 @@
 
 ## 0.0.47
 
-- Removed `TODO` remarks in the generated parsers 
+- Removed `TODO` remarks in the generated parsers
 
 ## 0.0.46
 
@@ -449,7 +453,7 @@
 - Added recognition and error reporting of the `malformed tokens` (eg, number's)
 - Added recognition and error reporting of the `unterminated tokens` (eg, string's)
 - Added statistic information in the command `stat` about the `expected lexemes` in the non-terminals. Can be used for visual analyzing of the quality of the developed grammar and the proposed error messages on the failures
-- Fixed bugs in the grammar `example/json.peg` (thanks to the newly added recognition and error reporting of the `malformed tokens`) 
+- Fixed bugs in the grammar `example/json.peg` (thanks to the newly added recognition and error reporting of the `malformed tokens`)
 
 ## 0.0.23
 
@@ -475,7 +479,7 @@
 
 ## 0.0.18
 
-- Fixed bug in `AndPredicateExpressionGenerator` (was missed character `;` in the template after refactoring) 
+- Fixed bug in `AndPredicateExpressionGenerator` (was missed character `;` in the template after refactoring)
 
 ## 0.0.16
 
@@ -504,7 +508,7 @@
 ## 0.0.9
 
 - Fixed bugs (the character code units are not an Unicode characters)
-- Parser now supports the Unicode characters (uses 32-bit runes instead of 16-bit code units) 
+- Parser now supports the Unicode characters (uses 32-bit runes instead of 16-bit code units)
 
 ## 0.0.8
 

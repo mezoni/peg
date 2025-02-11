@@ -67,21 +67,27 @@ This function requires importing the `source_span` package.''',
   }
 
   final source = file.readAsStringSync();
-  final errors = <String>[];
   final options = ParserGeneratorOptions(
     addComments: comment,
     name: name,
     parseFunction: parse,
   );
   final parserGenerator = ParserGenerator(
-    errors: errors,
     options: options,
     source: source,
   );
   final parserSource = parserGenerator.generate();
-  if (errors.isNotEmpty) {
-    print('Errors were found while analyzing the grammar:');
-    print(errors.join('\n\n'));
+  final diagnostics = parserGenerator.diagnostics;
+  for (final error in diagnostics.errors) {
+    print('$error\n');
+  }
+
+  for (final warning in diagnostics.warnings) {
+    print('$warning\n');
+  }
+
+  if (diagnostics.hasErrors) {
+    stderr.writeln('Errors were found while analyzing the grammar:');
     exit(-1);
   }
 

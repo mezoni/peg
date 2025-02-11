@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 7.0.1
+Version: 7.0.2
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -39,13 +39,14 @@ For a more detailed familiarization with the syntax, it is recommended to famili
 Grammar declaration is made using sections, like sections for a preprocessor, but at the same time, it should be noted that preprocessing is not performed and grammar processing (parsing) occurs in one stage.  
 
 3 sections are used to declare the grammar:
+
 - Section for declaring directives and global members
 - Section for declaring members of instances of the parser class
 - Section for declaring grammar rules
 
 Example of a grammar declaration:
 
-```
+```text
 %{
 
 import 'foo.dart';
@@ -73,21 +74,24 @@ This information is from the Wikipedia website.
 Everything that can be found on the Wikipedia website will not be described in detail here.  
 Here will described only the additional features, the ways of their use and the implementation details.  
 
-More detailed information can also be found on the Bryan Ford website.   
+More detailed information can also be found on the Bryan Ford website.
 [Parsing Expression Grammars: A Recognition-Based Syntactic Foundation](https://bford.info/pub/lang/peg/)
 
 ## Main characteristics
 
 Main characteristics:
-- Small runtime code size (less than 350 lines of code)
-- Small size of generated parsers (from 10 lines of code)
+
+- Small size of runtime source code
+- Small size of the source code of generated parsers
+- Efficient built-in runtime parsing methods
 - Performance optimized source code of generated parsers
 - Automatic generation of standard errors
-- Additional useful features using syntactic sugar
+- Additional useful features, including the use of syntactic sugar
 
 ## Automatic and programmatic error generation
 
 Automatic error generation occurs when parsing the following grammar elements:
+
 - The `literal` expression with `single quotes`
 - Production rule that specifies the name of a `grammar element`
 
@@ -100,6 +104,7 @@ It performs the same operations, but silently (without generating errors).
 This is very convenient when the `expected` or `unexpected` error is out of place and even incorrect.  
 
 The most common and simple example when it is 100% necessary:
+
 - `"\r\n"`
 
 Because it is unlikely that a grammar element with such a name `'\r\n'` and action (`line break`) is `expected`, if it is parsed as `white space`.
@@ -125,6 +130,7 @@ Do not use `primitive terminals` for these purposes under any circumstances.
 Wrong use: `[,]`, `[(]`, `":"`, `";"` etc.
 
 Punctuation marks may include the following types (as an example):
+
 - Separators `:`, `,`,  `|`
 - Terminators `;`
 - Opening and closing marks `{`, `}`, `[`, `]`, `{`, `}`,
@@ -135,7 +141,7 @@ Good use: [+] [*] "~/" "??"
 
 The following example demonstrates the use of the `operand` and `separator`:
 
-```
+```text
 BooleanExpression "?" S Expression ':' S Expression
 ```
 
@@ -170,7 +176,7 @@ int parse(String source) {
   final parser = CalcParser(const {});
   final state = State(source);
   final result = parser.parseStart(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
@@ -183,7 +189,7 @@ int parse(String source) {
 
 ```
 
-```
+```text
 Input: ''
 ----------------------------------------
 FormatException: line 1, column 1: Expected: 'expression'
@@ -228,7 +234,7 @@ FormatException: line 1, column 3: Expected: ')'
 
 Another example:
 
-```
+```text
 Start =>
   $ = Number
   ! .
@@ -255,7 +261,7 @@ Number('number') =>
       Decimal
       ~ { state.malformed('Malformed exponent'); isFatal = true; }
     )?
-    { state.isSuccess = !isFatal; }
+    &{ !isFatal }
   >
   $ = {
     final isInt = pos == state.position;
@@ -266,7 +272,7 @@ Number('number') =>
 
 Error messages:
 
-```
+```text
 Input: ''
 ----------------------------------------
 FormatException: line 1, column 1: Expected: 'number'
@@ -348,47 +354,66 @@ By following these principles, you can ensure that error messages are of suffici
 
 This implementation adds additional features.  
 Below is a short list of additional features:
-- Action expressions
-- Match expressions
-- Catch expressions (error handlers)
-- Sematic variables
+
+- Action expression
+- Predicate expression
+- Match expression
+- Catch expression (error handler)
+- Sematic variable
 - Special semantic result variable `$`
 - Modified character class
+- Typing expression
 - Syntactic sugar
 
 Some small and simple examples of additional features.
 
-**Action expressions**
+### Action expressions
 
 Action expressions allow to execute any code and are also used to generate results.  
 Syntax: `{` block of statements `}`
 
-```
+```text
 `bool`
 Boolean('boolean') =>
-  n = { $$ = false; }
-  ('false' / 'true' { n = true; })
+  $ = { $$ = false; }
+  ('false' / 'true' { $ = true; })
   S
 ```
 
 This example demonstrates the use of 2 blocks of source code.
 
-```
+```text
 { $$ = false; }
 ```
 
-```
+```text
 { n = true; }
 ```
 
 This is the regular source code that will be embedded into the parser code.
 
-**Match expressions**
+### Predicate expressions
+
+Action predicate expressions allow to perform a conditional failure..  
+Syntax: &`{` conditional expression `}`
+
+Example:
+
+```text
+Rule =>
+  Expr1
+  &{ state.position == position }
+  Expr2
+```
+
+This expression will fail if the condition `state.position == position` is not met.
+
+### Match expressions
 
 Match expressions return a string that matches a recognized expression.  
 Syntax: `<` recognition expression `>`
 
-```
+```text
 Type('type') =>
   '`'
   $ = <
@@ -399,7 +424,7 @@ Type('type') =>
   '`' S
 ```
 
-**Catch expressions (error handlers)**
+### Catch expressions (error handlers)
 
 The `Catch` expression allows arbitrary code to be executed if one of the preceding expressions was not successfully parsed.  
 The main purpose is to register errors.  
@@ -407,7 +432,7 @@ Syntax: sequence expression `~ {` error handler `}`
 
 Example:
 
-```
+```text
 [eE]
 [-+]
 Decimal
@@ -417,35 +442,35 @@ Decimal
 How it works?  
 Example:
 
-```
+```text
 A B C ~ { handler1 } D E ~ { handler2 } F
 ```
 
 This expression will be executed as follows:
 
-```
+```text
 (((A B C ~ { handler1 }) D E ~ { handler2 }) F)
 ```
 
-**Sematic variables**
+### Sematic variables
 
 Semantic variables allow to assign the results of expressions to variables for later use.  
 Syntax: `n:`Expression or `n =` Expression
 
-```
+```text
 `Expression`
 Action =>
   b = Block
   $ = { $$ = ActionExpression(code: b); }
 ```
 
-**Special semantic result variable `$`**
+### Special semantic result variable `$`
 
 Special semantic result variable `$` allow to assign the results of expressions.
 
 Below is an example of what the result of the sequence expression will be.
 
-```
+```text
 # B
 A = B
 
@@ -473,21 +498,21 @@ A = b:B $:C
 
 If a special semantic result variable `$` is used, the value of this variable will be used as the result.
 
-**Modified character class**
+### Modified character class
 
 The modified character class allows for more readable character range specifications and inverting ranges (negation).
 Syntax: `[` ranges `]` or `[^` ranges `]`
 
 The `negated` character class `[^]` is equivalent to the following sequence of expressions but much more faster:
 
-```
+```text
 ! [some ranges]
 $ = .
 ```
 
 Additional features:
 
-```
+```text
 [^0-9]
 
 [{20-21}{23-5b}{5d-10ffff}]
@@ -495,13 +520,29 @@ Additional features:
 [\u{20}-\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}]
 ```
 
-**Syntactic sugar**
+### Typing expression
+
+The expression `Typing` allows you to explicitly specify the type of the expression's result.  
+Syntax:  `Type` expression
+
+Example:
+
+```text
+`Type` n = { $$ = 41; }
+
+`Type` { $$ = 41; }
+```
+
+This expression can be useful for nested expressions, to explicitly specify the type.
+
+### Syntactic sugar
 
 The `@while` expressions is syntactic sugar:
+
 - `@while(*)` `{` e `}` it is syntactic sugar for e`*`
 - `@while(+)` `{` e `}` it is syntactic sugar for e`+`
 
-```
+```text
 `List<Object?>`
 Values =>
   e = Value
@@ -517,7 +558,7 @@ Values =>
 The `-` expression is syntactic sugar for `/`  
 The `-` character can be repeated as many times as necessary.
 
-```
+```text
 `Expression`
 Assignment =>
   i = (Identifier / n:'$' S)
@@ -528,14 +569,14 @@ Assignment =>
   Prefix
 ```
 
-```
+```text
 `Expression`
 Suffix =>
   $ = Primary
   (
     '*' S { $ = ZeroOrMoreExpression(expression: $); }
     ----
-    '+*' S { $ = OneOrMoreExpression(expression: $); }
+    '+' S { $ = OneOrMoreExpression(expression: $); }
     ----
     '?' S { $ = OptionalExpression(expression: $); }
   )?
@@ -550,7 +591,7 @@ Expression? parse(String source) {
   final parser = MyParser();
   final state = State(source);
   final result = parser.parseStart(state);
-  if (!state.isSuccess) {
+  if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
         .getErrors()
@@ -558,13 +599,39 @@ Expression? parse(String source) {
         .join('\n'));
   }
 
-  return result as Expression;
+  return result .$1;
 }
 ```
 
+This requires the use of the `source_span` package.
+If it is not desirable to use third-party libraries, then it can be done this way.
+
+```dart
+Expression? parse(String source) {
+  final parser = MyParser();
+  final state = State(source);
+  final result = parser.parseStart(state);
+  if (result == null) {
+    final messages = <String>[];
+    for (final error in state.getErrors()) {
+      final message = error.message;
+      final start = error.start;
+      final exception = FormatException(message, source, start);
+      messages.add('$exception'.substring('FormatException'.length));
+    }
+
+    throw FormatException(messages.join('\n\n'));
+  }
+
+  return result .$1;
+}
+```
+
+Unfortunately `FormatException` only support `offset` and this does not allow the use of `start` and  `end` at the same time.
+
 ## Example of a simple calculator
 
-```
+```text
 %{
 // ignore_for_file: prefer_final_locals
 
@@ -674,21 +741,23 @@ S => [ \t\r\n]*
 When developing grammar, mistakes are inevitable.  
 To minimize errors, the parser generator analyzes the grammar for errors.  
 Errors can be of the following kinds:
+
 - Syntax error
 - Errors in determining the type of the expression result
 - Errors when there are no rules to which references are given
 - Type mismatch errors in source code
 
-**Syntax error**
+### Syntax error
 
 This type of error is occurred when the syntax is not followed. To correct it, it is required to follow the syntax.
 
-**Errors in determining the type of the expression result**
+### Errors in determining the type of the expression result
 
 In certain cases, the grammar analyzer can determine the type of an expression or production rule.  
 But this is not possible in all cases.  
 
 There are several cases when this cannot be done:
+
 - Expression `Action`: always
 - Expression `Ordered choice`: alternatives have different types
 - Expression `Sequence`: the number of elements in the sequence is greater than one and the semantic variable is not specified
@@ -702,7 +771,7 @@ If this happens for some other reason, then it is required to solve it in a radi
 
 Example:
 
-```
+```text
 `RuleType`
 Rule => Expr
 ```
@@ -714,11 +783,11 @@ That is, from the bottom up.
 
 But if you don't want to do this, then just specify all the types of rules that are not defined (and nit determined) manually.
 
-**Errors when there are no rules to which references are given**
+### Errors when there are no rules to which references are given
 
 This indicates that such a rule does not exist or the rule name is misspelled.
 
-**Type mismatch errors in source code**
+### Type mismatch errors in source code
 
 This means that either the result type was not determined automatically, or it was specified manually incorrectly.
 
@@ -738,27 +807,34 @@ import 'package:peg/src/parser_generator.dart';
 
 void main(List<String> args) {
   final files = [
-    ('example/calc.peg', 'example/example.dart'),
-    ('example/realtime_calc.peg', 'example/realtime_calc.dart'),
+    ('example/calc.peg', 'example/example.dart', 'CalcParser'),
+    ('example/realtime_calc.peg', 'example/realtime_calc.dart', 'CalcParser'),
   ];
   final outputFiles = <String>[];
   for (final element in files) {
     final inputFile = element.$1;
     final outputFile = element.$2;
+    final name = element.$3;
     final source = File(inputFile).readAsStringSync();
     final options = ParserGeneratorOptions(
       addComments: false,
-      name: 'CalcParser',
+      name: name,
     );
-    final errors = <String>[];
     final generator = ParserGenerator(
-      errors: errors,
       options: options,
       source: source,
     );
     final result = generator.generate();
-    if (errors.isNotEmpty) {
-      print(errors.join('\n\n'));
+    final diagnostics = generator.diagnostics;
+    for (final error in diagnostics.errors) {
+      print('$error\n');
+    }
+
+    for (final warning in diagnostics.warnings) {
+      print('$warning\n');
+    }
+
+    if (diagnostics.hasErrors) {
       exit(-1);
     }
 

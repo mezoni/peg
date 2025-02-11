@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_locals
+// ignore_for_file: prefer_conditional_assignment, prefer_final_locals
 
 import 'package:source_span/source_span.dart';
 
@@ -36,19 +36,11 @@ class CalcParser {
   ///    !.
   ///```
   (void,)? parseEOF(State state) {
-    final $3 = state.enter();
-    final $pos = state.position;
-    final $2 = state.notPredicate;
-    state.notPredicate = true;
-    final $1 = state.matchAny();
-    state.notPredicate = $2;
-    if ($1 != null) {
-      state.fail(state.position - $pos);
-      state.position = $pos;
-    }
-    final $0 = $1 == null ? const (null,) : null;
-    state.expected($0, 'end of file', $pos, false);
-    state.leave($3);
+    final $2 = state.enter();
+    final $1 = state.position;
+    final $0 = state.matchEof();
+    state.expected($0, 'end of file', $1, false);
+    state.leave($2);
     return $0;
   }
 
@@ -60,11 +52,11 @@ class CalcParser {
   ///    Sum
   ///```
   (int,)? parseExpr(State state) {
-    final $pos = state.position;
-    final $1 = state.enter();
+    final $2 = state.enter();
+    final $1 = state.position;
     final $0 = parseSum(state);
-    state.expected($0, 'expression', $pos, false);
-    state.leave($1);
+    state.expected($0, 'expression', $1, false);
+    state.leave($2);
     return $0;
   }
 
@@ -76,21 +68,21 @@ class CalcParser {
   ///    $ = <[a-zA-Z]> S
   ///```
   (String,)? parseID(State state) {
-    final $pos = state.position;
+    final $4 = state.position;
     (String,)? $0;
-    final $2 = state
-        .matchChars16((int c) => c >= 65 && c <= 90 || c >= 97 && c <= 122);
-    final $1 =
-        $2 != null ? (state.input.substring($pos, state.position),) : null;
+    (int,)? $3;
+    if (state.position < state.length) {
+      final c = state.nextChar16();
+      final ok = c >= 65 && c <= 90 || c >= 97 && c <= 122;
+      $3 = ok ? (c,) : null;
+      $3 ?? (state.position = $4);
+    }
+    final $2 = $3 ?? state.fail<int>();
+    (String,)? $1 = $2 != null ? (state.substring($4, state.position),) : null;
     if ($1 != null) {
       String $ = $1.$1;
-      final $3 = parseS(state);
-      if ($3 != null) {
-        $0 = ($,);
-      }
-    }
-    if ($0 == null) {
-      state.position = $pos;
+      parseS(state);
+      $0 = ($,);
     }
     return $0;
   }
@@ -103,26 +95,31 @@ class CalcParser {
   ///    n = <[0-9]+> S $ = { }
   ///```
   (int,)? parseNUMBER(State state) {
-    final $pos = state.position;
+    final $4 = state.position;
     (int,)? $0;
-    final $2 = state.skip16While1((int c) => c >= 48 && c <= 57);
-    final $1 =
-        $2 != null ? (state.input.substring($pos, state.position),) : null;
-    if ($1 != null) {
-      String n = $1.$1;
-      final $3 = parseS(state);
-      if ($3 != null) {
-        late int $$;
-        $$ = int.parse(n);
-        final $4 = state.opt(($$,));
-        if ($4 != null) {
-          int $ = $4.$1;
-          $0 = ($,);
-        }
+    while (state.position < state.length) {
+      final position = state.position;
+      final c = state.nextChar16();
+      final ok = c >= 48 && c <= 57;
+      if (!ok) {
+        state.position = position;
+        break;
       }
     }
+    state.fail<List<void>>();
+    final $3 = state.position != $4 ? const (<int>[],) : null;
+    (String,)? $1 = $3 != null ? (state.substring($4, state.position),) : null;
+    if ($1 != null) {
+      String n = $1.$1;
+      parseS(state);
+      late int $$;
+      $$ = int.parse(n);
+      (int,)? $2 = ($$,);
+      int $ = $2.$1;
+      $0 = ($,);
+    }
     if ($0 == null) {
-      state.position = $pos;
+      state.position = $4;
     }
     return $0;
   }
@@ -132,66 +129,61 @@ class CalcParser {
   ///```code
   /// `int`
   /// Product =
-  ///    $ = Value ([*] S r = Value { } / [/] S r = Value { })*
+  ///    $ = Value [*] S r = Value { } / [/] S r = Value { }*
   ///```
   (int,)? parseProduct(State state) {
-    final $pos1 = state.position;
     (int,)? $0;
-    final $1 = parseValue(state);
+    (int,)? $1 = parseValue(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
-        final $pos = state.position;
-        (void,)? $3;
-        final $4 = state.matchChar16(42);
-        if ($4 != null) {
-          final $5 = parseS(state);
-          if ($5 != null) {
-            final $6 = parseValue(state);
-            if ($6 != null) {
-              int r = $6.$1;
-              $ *= r;
-              final $7 = state.opt((null,));
-              if ($7 != null) {
-                $3 = const (null,);
-              }
+        final $6 = state.position;
+        (void,)? $2;
+        (int,)? $5;
+        if (state.position < state.length) {
+          final c = state.nextChar16();
+          $5 = c == 42 ? (c,) : null;
+          $5 ?? (state.position = $6);
+        }
+        final $3 = $5 ?? state.fail<int>();
+        if ($3 != null) {
+          parseS(state);
+          (int,)? $4 = parseValue(state);
+          if ($4 != null) {
+            int r = $4.$1;
+            $ *= r;
+            $2 = (null,);
+          }
+        }
+        if ($2 == null) {
+          state.position = $6;
+        }
+        if ($2 == null) {
+          (int,)? $9;
+          if (state.position < state.length) {
+            final c = state.nextChar16();
+            $9 = c == 47 ? (c,) : null;
+            $9 ?? (state.position = $6);
+          }
+          final $7 = $9 ?? state.fail<int>();
+          if ($7 != null) {
+            parseS(state);
+            (int,)? $8 = parseValue(state);
+            if ($8 != null) {
+              int r = $8.$1;
+              $ ~/= r;
+              $2 = (null,);
             }
           }
-        }
-        if ($3 == null) {
-          state.position = $pos;
-        }
-        if ($3 == null) {
-          final $8 = state.matchChar16(47);
-          if ($8 != null) {
-            final $9 = parseS(state);
-            if ($9 != null) {
-              final $10 = parseValue(state);
-              if ($10 != null) {
-                int r = $10.$1;
-                $ ~/= r;
-                final $11 = state.opt((null,));
-                if ($11 != null) {
-                  $3 = const (null,);
-                }
-              }
-            }
-          }
-          if ($3 == null) {
-            state.position = $pos;
+          if ($2 == null) {
+            state.position = $6;
           }
         }
-        if ($3 == null) {
+        if ($2 == null) {
           break;
         }
       }
-      final $2 = state.opt((const <void>[],));
-      if ($2 != null) {
-        $0 = ($,);
-      }
-    }
-    if ($0 == null) {
-      state.position = $pos1;
+      $0 = ($,);
     }
     return $0;
   }
@@ -204,8 +196,17 @@ class CalcParser {
   ///    [ \t\r\n]*
   ///```
   (void,)? parseS(State state) {
-    final $0 = state.skip16While(
-        (int c) => c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10);
+    while (state.position < state.length) {
+      final position = state.position;
+      final c = state.nextChar16();
+      final ok = c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;
+      if (!ok) {
+        state.position = position;
+        break;
+      }
+    }
+    state.fail<List<void>>();
+    const $0 = (<int>[],);
     return $0;
   }
 
@@ -217,21 +218,19 @@ class CalcParser {
   ///    S $ = Expr EOF
   ///```
   (int,)? parseStart(State state) {
-    final $pos = state.position;
+    final $3 = state.position;
     (int,)? $0;
-    final $1 = parseS(state);
+    parseS(state);
+    (int,)? $1 = parseExpr(state);
     if ($1 != null) {
-      final $2 = parseExpr(state);
+      int $ = $1.$1;
+      final $2 = parseEOF(state);
       if ($2 != null) {
-        int $ = $2.$1;
-        final $3 = parseEOF(state);
-        if ($3 != null) {
-          $0 = ($,);
-        }
+        $0 = ($,);
       }
     }
     if ($0 == null) {
-      state.position = $pos;
+      state.position = $3;
     }
     return $0;
   }
@@ -241,66 +240,61 @@ class CalcParser {
   ///```code
   /// `int`
   /// Sum =
-  ///    $ = Product ([+] S r = Product { } / [\-] S r = Product { })*
+  ///    $ = Product [+] S r = Product { } / [\-] S r = Product { }*
   ///```
   (int,)? parseSum(State state) {
-    final $pos1 = state.position;
     (int,)? $0;
-    final $1 = parseProduct(state);
+    (int,)? $1 = parseProduct(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
-        final $pos = state.position;
-        (void,)? $3;
-        final $4 = state.matchChar16(43);
-        if ($4 != null) {
-          final $5 = parseS(state);
-          if ($5 != null) {
-            final $6 = parseProduct(state);
-            if ($6 != null) {
-              int r = $6.$1;
-              $ += r;
-              final $7 = state.opt((null,));
-              if ($7 != null) {
-                $3 = const (null,);
-              }
+        final $6 = state.position;
+        (void,)? $2;
+        (int,)? $5;
+        if (state.position < state.length) {
+          final c = state.nextChar16();
+          $5 = c == 43 ? (c,) : null;
+          $5 ?? (state.position = $6);
+        }
+        final $3 = $5 ?? state.fail<int>();
+        if ($3 != null) {
+          parseS(state);
+          (int,)? $4 = parseProduct(state);
+          if ($4 != null) {
+            int r = $4.$1;
+            $ += r;
+            $2 = (null,);
+          }
+        }
+        if ($2 == null) {
+          state.position = $6;
+        }
+        if ($2 == null) {
+          (int,)? $9;
+          if (state.position < state.length) {
+            final c = state.nextChar16();
+            $9 = c == 45 ? (c,) : null;
+            $9 ?? (state.position = $6);
+          }
+          final $7 = $9 ?? state.fail<int>();
+          if ($7 != null) {
+            parseS(state);
+            (int,)? $8 = parseProduct(state);
+            if ($8 != null) {
+              int r = $8.$1;
+              $ -= r;
+              $2 = (null,);
             }
           }
-        }
-        if ($3 == null) {
-          state.position = $pos;
-        }
-        if ($3 == null) {
-          final $8 = state.matchChar16(45);
-          if ($8 != null) {
-            final $9 = parseS(state);
-            if ($9 != null) {
-              final $10 = parseProduct(state);
-              if ($10 != null) {
-                int r = $10.$1;
-                $ -= r;
-                final $11 = state.opt((null,));
-                if ($11 != null) {
-                  $3 = const (null,);
-                }
-              }
-            }
-          }
-          if ($3 == null) {
-            state.position = $pos;
+          if ($2 == null) {
+            state.position = $6;
           }
         }
-        if ($3 == null) {
+        if ($2 == null) {
           break;
         }
       }
-      final $2 = state.opt((const <void>[],));
-      if ($2 != null) {
-        $0 = ($,);
-      }
-    }
-    if ($0 == null) {
-      state.position = $pos1;
+      $0 = ($,);
     }
     return $0;
   }
@@ -313,50 +307,41 @@ class CalcParser {
   ///    (NUMBER / i = ID $ = { } / '(' S $ = Expr ')' S)
   ///```
   (int,)? parseValue(State state) {
-    final $8 = state.enter();
-    final $pos = state.position;
+    final $7 = state.enter();
+    final $1 = state.position;
     (int,)? $0;
     $0 = parseNUMBER(state);
     if ($0 == null) {
-      final $1 = parseID(state);
-      if ($1 != null) {
-        String i = $1.$1;
+      (String,)? $2 = parseID(state);
+      if ($2 != null) {
+        String i = $2.$1;
         late int $$;
         $$ = vars[i]!;
-        final $2 = state.opt(($$,));
-        if ($2 != null) {
-          int $ = $2.$1;
-          $0 = ($,);
-        }
+        (int,)? $3 = ($$,);
+        int $ = $3.$1;
+        $0 = ($,);
       }
       if ($0 == null) {
-        state.position = $pos;
-      }
-      if ($0 == null) {
-        final $3 = state.match1('(', 40);
-        if ($3 != null) {
-          final $4 = parseS(state);
-          if ($4 != null) {
-            final $5 = parseExpr(state);
-            if ($5 != null) {
-              int $ = $5.$1;
-              final $6 = state.match1(')', 41);
-              if ($6 != null) {
-                final $7 = parseS(state);
-                if ($7 != null) {
-                  $0 = ($,);
-                }
-              }
+        final $4 = state.matchLiteral1(('(',), '(', 40);
+        if ($4 != null) {
+          parseS(state);
+          (int,)? $5 = parseExpr(state);
+          if ($5 != null) {
+            int $ = $5.$1;
+            final $6 = state.matchLiteral1((')',), ')', 41);
+            if ($6 != null) {
+              parseS(state);
+              $0 = ($,);
             }
           }
         }
         if ($0 == null) {
-          state.position = $pos;
+          state.position = $1;
         }
       }
     }
-    state.expected($0, 'expression', $pos, false);
-    state.leave($8);
+    state.expected($0, 'expression', $1, false);
+    state.leave($7);
     return $0;
   }
 }
@@ -365,14 +350,14 @@ class State {
   /// The position of the parsing failure.
   int failure = 0;
 
-  /// Input data for parsing.
-  String input;
+  /// The length of the input data.
+  final int length;
 
   /// Indicates that parsing occurs within a `not' predicate`.
   ///
   /// When parsed within the `not predicate`, all `expected` errors are
   /// converted to `unexpected` errors.
-  bool notPredicate = false;
+  bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
@@ -391,6 +376,8 @@ class State {
 
   int _farthestUnexpected = 0;
 
+  final String _input;
+
   final List<bool?> _locations = List.filled(128, null);
 
   final List<String?> _messages = List.filled(128, null);
@@ -403,7 +390,9 @@ class State {
 
   final List<int?> _unexpectedPositions = List.filled(128, null);
 
-  State(this.input);
+  State(String input)
+      : _input = input,
+        length = input.length;
 
   /// This method is for internal use only.
   @pragma('vm:prefer-inline')
@@ -445,13 +434,17 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void expected(Object? result, String element, int start,
-      [bool nested = true]) {
+      [bool literal = true]) {
     if (_farthestError > position) {
       return;
     }
 
+    if (!literal && failure != position) {
+      return;
+    }
+
     if (result != null) {
-      if (!notPredicate || _farthestUnexpected > position) {
+      if (!predicate || _farthestUnexpected > position) {
         return;
       }
 
@@ -472,7 +465,7 @@ class State {
         _expectedIndex = 0;
       }
 
-      if (!nested) {
+      if (!literal) {
         _expectedIndex = 0;
       }
 
@@ -486,10 +479,10 @@ class State {
   /// positions.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void fail([int length = 0]) {
+  (T,)? fail<T>([int length = 0]) {
     failure < position ? failure = position : null;
     if (_farthestFailure > position) {
-      return;
+      return null;
     }
 
     if (_farthestFailure < position) {
@@ -498,6 +491,15 @@ class State {
 
     _farthestFailureLength =
         _farthestFailureLength < length ? length : _farthestFailureLength;
+    return null;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (T,)? failAndBacktrack<T>(int position) {
+    fail<void>(this.position - position);
+    this.position = position;
+    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -586,204 +588,211 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string, [bool silent = false]) {
+  (R,)? match<R>((R,) result, String string) {
     final start = position;
-    (String,)? result;
-    if (position < input.length &&
-        input.codeUnitAt(position) == string.codeUnitAt(0)) {
-      if (input.startsWith(string, position)) {
-        position += string.length;
-        result = (string,);
+    if (position + string.length <= length) {
+      for (var i = 0; i < string.length; i++) {
+        if (string.codeUnitAt(i) != nextChar16()) {
+          position = start;
+          return fail();
+        }
       }
-    } else {
-      fail();
     }
 
-    silent ? null : expected(result, string, start);
     return result;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match1(String string, int char, [bool silent = false]) {
+  (R,)? match1<R>((R,) result, int c) {
     final start = position;
-    (String,)? result;
-    if (position < input.length && input.codeUnitAt(position) == char) {
-      position++;
-      result = (string,);
-    } else {
-      fail();
+    if (position < length && c == nextChar16()) {
+      return result;
     }
 
-    silent ? null : expected(result, string, start);
-    return result;
+    position = start;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match2(String string, int char, int char2, [bool silent = false]) {
+  (R,)? match2<R>((R,) result, int c1, int c2) {
     final start = position;
-    (String,)? result;
-    if (position + 1 < input.length &&
-        input.codeUnitAt(position) == char &&
-        input.codeUnitAt(position + 1) == char2) {
-      position += 2;
-      result = (string,);
-    } else {
-      fail();
+    if (position + 1 < length && c1 == nextChar16() && c2 == nextChar16()) {
+      return result;
     }
 
-    silent ? null : expected(result, string, start);
-    return result;
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match3<R>((R,) result, int c1, int c2, int c3) {
+    final start = position;
+    if (position + 2 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match4<R>((R,) result, int c1, int c2, int c3, int c4) {
+    final start = position;
+    if (position + 3 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16() &&
+        c4 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? match5<R>((R,) result, int c1, int c2, int c3, int c4, int c5) {
+    final start = position;
+    if (position + 4 < length &&
+        c1 == nextChar16() &&
+        c2 == nextChar16() &&
+        c3 == nextChar16() &&
+        c4 == nextChar16() &&
+        c5 == nextChar16()) {
+      return result;
+    }
+
+    position = start;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (int,)? matchAny() {
-    int? c;
-    if (position < input.length) {
-      c = input.readChar(position);
+    if (position < length) {
+      return (nextChar32(),);
     }
 
-    c != null ? position += c > 0xffff ? 2 : 1 : fail();
-    return c != null ? (c,) : null;
+    return fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChar16(int char) {
-    final ok = position < input.length && input.codeUnitAt(position) == char;
-    ok ? position++ : fail();
-    return ok ? (char,) : null;
+  (void,)? matchEof() {
+    return position >= length ? (null,) : fail();
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChar32(int char) {
-    final ok = position + 1 < input.length && input.readChar(position) == char;
-    ok ? position += 2 : fail();
-    return ok ? (char,) : null;
+  (R,)? matchLiteral<R>((R,) result, String literal) {
+    final start = position;
+    final actual = match(result, literal);
+    expected(actual, literal, start, true);
+    return actual;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChars16(bool Function(int c) f) {
-    (int,)? result;
-    if (position < input.length) {
-      final c = input.codeUnitAt(position);
-      result = f(c) ? (c,) : null;
-    }
-
-    result != null ? position++ : fail();
-    return result;
+  (R,)? matchLiteral1<R>((R,) result, String string, int c) {
+    final start = position;
+    final actual = match1(result, c);
+    expected(actual, string, start, true);
+    return actual;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (int,)? matchChars32(bool Function(int c) f) {
-    (int,)? result;
-    var c = 0;
-    if (position < input.length) {
-      c = input.readChar(position);
-      result = f(c) ? (c,) : null;
-    }
+  (R,)? matchLiteral2<R>((R,) result, String string, int c1, int c2) {
+    final start = position;
+    final actual = match2(result, c1, c2);
+    expected(actual, string, start, true);
+    return actual;
+  }
 
-    result != null ? position += c > 0xffff ? 2 : 1 : fail();
-    return result;
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral3<R>((R,) result, String string, int c1, int c2, int c3) {
+    final start = position;
+    final actual = match3(result, c1, c2, c3);
+    expected(actual, string, start, true);
+    return actual;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral4<R>(
+      (R,) result, String string, int c1, int c2, int c3, int c4) {
+    final start = position;
+    final actual = match4(result, c1, c2, c3, c4);
+    expected(actual, string, start, true);
+    return actual;
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  (R,)? matchLiteral5<R>(
+      (R,) result, String string, int c1, int c2, int c3, int c4, int c5) {
+    final start = position;
+    final actual = match5(result, c1, c2, c3, c4, c5);
+    expected(actual, string, start, true);
+    return actual;
   }
 
   /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  T? opt<T>(T value) => value;
+  int nextChar16() => _input.codeUnitAt(position++);
 
-  /// Intended for internal use only.
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (List<int>,)? skip16While(bool Function(int c) f) {
-    while (position < input.length) {
-      final c = input.codeUnitAt(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position++;
-    }
-
-    return (const [],);
+  int nextChar32() {
+    final c = _input.readChar(position);
+    position += c > 0xffff ? 2 : 1;
+    return c;
   }
 
-  /// Intended for internal use only.
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (List<int>,)? skip16While1(bool Function(int c) f) {
-    final start = position;
-    while (position < input.length) {
-      final c = input.codeUnitAt(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position++;
-    }
-
-    final ok = start != position;
-    ok ? null : fail();
-    return ok ? (const [],) : null;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (List<int>,)? skip32While(bool Function(int c) f) {
-    while (position < input.length) {
-      final c = input.readChar(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position += c > 0xffff ? 2 : 1;
-    }
-
-    return (const [],);
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (List<int>,)? skip32While1(bool Function(int c) f) {
-    final start = position;
-    while (position < input.length) {
-      final c = input.readChar(position);
-      if (!f(c)) {
-        break;
-      }
-
-      position += c > 0xffff ? 2 : 1;
-    }
-
-    final ok = start != position;
-    ok ? null : fail();
-    return ok ? (const [],) : null;
-  }
+  String substring(int start, int end) => _input.substring(start, end);
 
   @override
   String toString() {
-    var rest = input.length - position;
+    if (position >= length) {
+      return '';
+    }
+
+    var rest = length - position;
     if (rest > 80) {
       rest = 80;
     }
 
-    var line = input.substring(position, position + rest);
+    // Need to create the equivalent of 'substring'
+    var line = substring(position, position + rest);
     line = line.replaceAll('\n', '\n');
-    return '($position)$line';
+    return '|$position|$line';
   }
 }
 

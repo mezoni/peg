@@ -1,13 +1,22 @@
 import '../expression_analyzers/expression_initializer1.dart';
 import '../grammar/grammar.dart';
+import '../parser_generator_diagnostics.dart';
 
 class GrammarInitializer1 {
-  void initialize(Grammar grammar) {
-    if (grammar.errors.isNotEmpty) {
-      return;
-    }
+  final ParserGeneratorDiagnostics diagnostics;
 
-    final expressionInitializer1 = ExpressionInitializer1();
-    expressionInitializer1.initialize(grammar);
+  final Grammar grammar;
+
+  GrammarInitializer1({
+    required this.diagnostics,
+    required this.grammar,
+  });
+
+  void initialize() {
+    final expressionInitializer1 = ExpressionInitializer1(
+      diagnostics: diagnostics,
+      grammar: grammar,
+    );
+    expressionInitializer1.initialize();
   }
 }

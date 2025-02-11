@@ -1,19 +1,13 @@
 import '../expressions/expression.dart';
 
+export '../expressions/expression.dart';
+
 class ProductionRule {
   final Expression expression;
 
   String? expected;
 
   final String name;
-
-  String getResultType() {
-    if (resultType.isEmpty) {
-      return 'Object';
-    } else {
-      return resultType;
-    }
-  }
 
   String resultType;
 
@@ -31,6 +25,19 @@ class ProductionRule {
     required this.name,
     String? resultType,
   }) : resultType = resultType ?? '';
+
+  String getResultType() {
+    if (resultType.isEmpty) {
+      return 'void';
+    } else {
+      return resultType;
+    }
+  }
+
+  String getReturnType() {
+    final type = getResultType();
+    return '($type,)?';
+  }
 
   @override
   String toString() {

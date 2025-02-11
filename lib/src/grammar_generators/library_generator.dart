@@ -1,42 +1,49 @@
 import '../grammar/grammar.dart';
-import '../helper.dart' as helper;
+import '../helper.dart';
+import '../parser_generator_diagnostics.dart';
 import '../parser_generator_options.dart';
 import 'class_generator.dart';
 import 'parse_function_generator.dart';
 import 'runtime_generator.dart';
 
 class LibraryGenerator {
-  final List<String> errors;
+  final ParserGeneratorDiagnostics diagnostics;
 
   final ParserGeneratorOptions options;
 
   final Grammar grammar;
 
   LibraryGenerator({
-    required this.errors,
+    required this.diagnostics,
     required this.grammar,
     required this.options,
   });
 
   String generate() {
     final classGenerator = ClassGenerator(
-      errors: errors,
+      diagnostics: diagnostics,
       grammar: grammar,
       options: options,
     );
 
+    final values = <String, String>{};
+
     final runtimeGenerator = RuntimeGenerator();
     final parseFunctionGenerator = ParseFunctionGenerator(
-      errors: errors,
+      diagnostics: diagnostics,
       grammar: grammar,
       options: options,
     );
-    final values = {
+    values.addAll({
       'globals': grammar.globals ?? '',
       'parser': classGenerator.generate(),
       'runtime': runtimeGenerator.generate(),
       'top_level': parseFunctionGenerator.generate(),
-    };
+    });
+
+    if (diagnostics.hasErrors) {
+      return '';
+    }
 
     const template = '''
 {{globals}}
@@ -46,6 +53,6 @@ class LibraryGenerator {
 {{parser}}
 
 {{runtime}}''';
-    return helper.render(template, values, removeEmptyLines: false);
+    return render(template, values, removeEmptyLines: false);
   }
 }

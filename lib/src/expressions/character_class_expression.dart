@@ -1,6 +1,8 @@
+import 'package:simple_sparse_list/ranges_helper.dart';
+
 import '../binary_search_generator/matcher_generator.dart';
-import '../helper.dart' as helper;
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class CharacterClassExpression extends Expression {
   final bool negate;
@@ -22,22 +24,66 @@ class CharacterClassExpression extends Expression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final bitDepth = helper.bitDepth(ranges);
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final ranges = normalizeRanges(this.ranges);
+    final bitDepth = calculateBitDepth(ranges);
     if (ranges.length == 1) {
       final range = ranges[0];
-      if (range.$1 == range.$2 && !negate) {
-        final template =
-            assignResult(context, 'state.matchChar$bitDepth(${range.$1})');
-        return render(context, this, template, const {});
+      if (range.$1 == range.$2) {
+        final char = range.$1;
+        return _generate1(context, variable, bitDepth, char);
       }
     }
 
-    var predicate =
+    return _generate(context, variable, bitDepth);
+  }
+
+  String _generate(BuildContext context, Variable? variable, int bitDepth) {
+    final sink = preprocess(context);
+    final result = context.allocate('');
+    final position = getSharedValue(context, 'state.position');
+    final predicate =
         const MatcherGenerator().generate('c', ranges, negate: negate);
-    predicate = '(int c) => $predicate';
-    final template =
-        assignResult(context, 'state.matchChars$bitDepth($predicate)');
-    return render(context, this, template, const {});
+    sink.writeln('''
+(int,)? $result;
+if (state.position < state.length) {
+  final c = state.nextChar$bitDepth();
+  final ok = $predicate;
+  $result = ok ? (c,) : null;
+  $result ?? (state.position = $position);
+}''');
+
+    final value = '$result ?? state.fail<int>()';
+    if (variable != null) {
+      variable.assign(sink, value);
+    } else {
+      sink.statement(value);
+    }
+
+    return postprocess(context, sink);
+  }
+
+  String _generate1(
+      BuildContext context, Variable? variable, int bitDepth, int char) {
+    final sink = preprocess(context);
+    final result = context.allocate('');
+    final position = getSharedValue(context, 'state.position');
+    final op = negate ? '!=' : '==';
+    sink.writeln('''
+(int,)? $result;
+if (state.position < state.length) {
+  final c = state.nextChar$bitDepth();
+  $result = c $op $char ? (c,) : null;
+  $result ?? (state.position = $position);
+}''');
+
+    final value = '$result ?? state.fail<int>()';
+    if (variable != null) {
+      variable.assign(sink, value);
+    } else {
+      sink.statement(value);
+    }
+
+    return postprocess(context, sink);
   }
 }

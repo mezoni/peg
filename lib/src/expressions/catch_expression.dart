@@ -1,4 +1,5 @@
-import 'expression.dart';
+import '../helper.dart';
+import 'build_context.dart';
 
 class CatchExpression extends SingleExpression {
   final String catchBlock;
@@ -14,23 +15,16 @@ class CatchExpression extends SingleExpression {
   }
 
   @override
-  String generate(ProductionRuleContext context) {
-    final variable = context.getExpressionVariable(this);
-    context.setExpressionVariable(expression, variable);
-    context.copyExpressionResultUsage(this, expression);
-    final values = {
-      'failure': context.allocate('failure'),
-      'catchBlock': catchBlock,
-      'p': expression.generate(context),
-      'r': variable,
-    };
-    const template = '''
-final {{failure}} = state.enter();
-{{p}}
-if ({{variable}} == null) {
-  {{catchBlock}}
-}
-state.leave({{failure}});''';
-    return render(context, this, template, values);
+  String generate(BuildContext context, Variable? variable, bool isFast) {
+    final sink = preprocess(context);
+    final failure = context.allocate('failure');
+    sink.statement('final $failure = state.enter()');
+    sink.writeln(expression.generate(context, variable, isFast));
+    final isFailure = expression.getStateTest(variable, false);
+    sink.ifStatement(isFailure, (block) {
+      block.writeln(catchBlock);
+    });
+    sink.statement('state.leave($failure)');
+    return postprocess(context, sink);
   }
 }

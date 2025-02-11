@@ -1,11 +1,16 @@
-import '../expressions/expression_visitors.dart';
 import '../grammar/grammar.dart';
 import '../grammar/production_rule.dart';
 
 class InvocationsResolver with ExpressionVisitorMixin<void> {
+  final Grammar grammar;
+
+  InvocationsResolver({
+    required this.grammar,
+  });
+
   bool _hasModifications = false;
 
-  void resolve(Grammar grammar) {
+  void resolve() {
     _hasModifications = true;
     final rules = grammar.rules;
     while (_hasModifications) {
