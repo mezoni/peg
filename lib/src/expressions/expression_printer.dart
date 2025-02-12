@@ -71,17 +71,17 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
       final range = ranges[i];
       final start = range.$1;
       final end = range.$2;
-      if (end > 127) {
-        if (start == end) {
-          _buffer.write('{${hex(start)}}');
-        } else {
-          _buffer.write('{${hex(start)}-${hex(end)}}');
-        }
-      } else {
+      if (start >= 32 && end < 127) {
         if (start == end) {
           _buffer.write(escape(start));
         } else {
           _buffer.write('${escape(start)}-${escape(end)}');
+        }
+      } else {
+        if (start == end) {
+          _buffer.write('{${hex(start)}}');
+        } else {
+          _buffer.write('{${hex(start)}-${hex(end)}}');
         }
       }
     }

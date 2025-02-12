@@ -73,7 +73,7 @@ class CalcParser {
     (int,)? $3;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      final ok = c >= 65 && c <= 90 || c >= 97 && c <= 122;
+      final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
       $3 = ok ? (c,) : null;
       $3 ?? (state.position = $4);
     }
@@ -178,7 +178,7 @@ class CalcParser {
   ///```code
   /// `void `
   /// S =
-  ///    `void ` [ \t\r\n]*
+  ///    `void ` [ {9}{d}{a}]*
   ///```
   (void,)? parseS(State state) {
     final $list = <int>[];
@@ -415,10 +415,6 @@ class State {
       return;
     }
 
-    if (!literal && failure != position) {
-      return;
-    }
-
     if (result != null) {
       if (!predicate || _farthestUnexpected > position) {
         return;
@@ -429,12 +425,22 @@ class State {
         _unexpectedIndex = 0;
       }
 
+      if (_farthestError < position) {
+        _farthestError = position;
+        _errorIndex = 0;
+        _expectedIndex = 0;
+      }
+
       if (_unexpectedIndex < _unexpectedElements.length) {
         _unexpectedElements[_unexpectedIndex] = element;
         _unexpectedPositions[_unexpectedIndex] = start;
         _unexpectedIndex++;
       }
     } else {
+      if (!literal && failure != position) {
+        return;
+      }
+
       if (_farthestError < position) {
         _farthestError = position;
         _errorIndex = 0;

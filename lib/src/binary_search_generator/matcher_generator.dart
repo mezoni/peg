@@ -42,20 +42,31 @@ class MatcherGenerator {
     return '$name >= $start && $name <= $end';
   }
 
-  String _compareRanges(String name, (int, int) prev, (int, int) next) {
-    final exp1 = _compareRange(name, prev);
-    final exp2 = _compareRange(name, next);
-    return '$exp1 || $exp2';
+  bool _isSimple((int, int) range) => range.$1 == range.$2;
+
+  String _compareRanges(String name, (int, int) prev, (int, int) next,
+      [bool quote = false]) {
+    final expr1 = _compareRange(name, prev);
+    if (_isSimple(prev) || _isSimple(next)) {
+      final expr2 = _compareRange(name, next);
+      if (prev.$1 == prev.$2) {
+        return '$expr1 || $expr2';
+      }
+    }
+
+    final expr = '$name >= ${next.$1} ? $name <= ${next.$2} : $expr1';
+    return quote ? '($expr)' : expr;
   }
 
-  String _generate(String name, int from, int to, List<(int, int)> ranges) {
+  String _generate(String name, int from, int to, List<(int, int)> ranges,
+      [bool quote = false]) {
     final length = to - from + 1;
     final first = ranges[from];
     final last = ranges[to];
     if (length > 3) {
       final i = (to + from) >> 1;
       final left = _generate(name, from, i - 1, ranges);
-      final right = _generate(name, i + 1, to, ranges);
+      final right = _generate(name, i + 1, to, ranges, true);
       final curr = ranges[i];
       final start = curr.$1;
       final end = curr.$2;
@@ -68,7 +79,7 @@ class MatcherGenerator {
       final right = _compareRange(name, last);
       return '$name >= $start ? $name <= $end || $right : $left';
     } else if (length == 2) {
-      return _compareRanges(name, first, last);
+      return _compareRanges(name, first, last, quote);
     } else {
       return _compareRange(name, first);
     }

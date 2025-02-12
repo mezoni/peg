@@ -424,7 +424,7 @@ class PegParser {
   /// `void`
   /// EndOfLine =
   ///     "\r\n"
-  ///   / [\n\r]
+  ///   / [{a}{d}]
   ///```
   (void,)? parseEndOfLine(State state) {
     final $2 = state.position;
@@ -670,7 +670,7 @@ class PegParser {
     (int,)? $5;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      final ok = c >= 65 && c <= 90 || c >= 97 && c <= 122;
+      final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
       $5 = ok ? (c,) : null;
       $5 ?? (state.position = $1);
     }
@@ -687,7 +687,6 @@ class PegParser {
           break;
         }
       }
-      state.fail<List<void>>();
       $3 = (null,);
     }
     (String,)? $2 = $3 != null ? (state.substring($1, state.position),) : null;
@@ -1188,75 +1187,60 @@ class PegParser {
   ///```code
   /// `int`
   /// RangeChar =
-  ///     !"\\" ![\{\}\[\]\\] $ = [ -Z{5e-10ffff}]
+  ///     !"\\" $ = [{0-1f}\{\}\[\]\\]
   ///   / "\\" $ = ("u" '{' $ = HexValue '}' / $ = [\-abefnrtv\{\}\[\]\\] { })
   ///```
   (int,)? parseRangeChar(State state) {
-    final $4 = state.position;
+    final $3 = state.position;
     (int,)? $0;
     final $predicate = state.predicate;
     state.predicate = true;
-    final $5 = state.match1(('\\',), 92);
+    final $4 = state.match1(('\\',), 92);
     state.predicate = $predicate;
-    final $1 = $5 == null ? (null,) : state.failAndBacktrack<void>($4);
+    final $1 = $4 == null ? (null,) : state.failAndBacktrack<void>($3);
     if ($1 != null) {
       final $6 = state.position;
-      final $predicate1 = state.predicate;
-      state.predicate = true;
-      final $9 = state.position;
-      (int,)? $8;
+      (int,)? $5;
       if (state.position < state.length) {
         final c = state.nextChar16();
-        final ok = c >= 123 ? c <= 123 || c == 125 : c >= 91 && c <= 93;
-        $8 = ok ? (c,) : null;
-        $8 ?? (state.position = $9);
+        final ok =
+            !(c >= 91 ? c <= 93 || c == 123 || c == 125 : c >= 0 && c <= 31);
+        $5 = ok ? (c,) : null;
+        $5 ?? (state.position = $6);
       }
-      final $7 = $8 ?? state.fail<int>();
-      state.predicate = $predicate1;
-      final $2 = $7 == null ? (null,) : state.failAndBacktrack<void>($6);
+      (int,)? $2 = $5 ?? state.fail<int>();
       if ($2 != null) {
-        final $11 = state.position;
-        (int,)? $10;
-        if (state.position < state.length) {
-          final c = state.nextChar32();
-          final ok = c >= 32 && c <= 90 || c >= 94 && c <= 1114111;
-          $10 = ok ? (c,) : null;
-          $10 ?? (state.position = $11);
-        }
-        (int,)? $3 = $10 ?? state.fail<int>();
-        if ($3 != null) {
-          int $ = $3.$1;
-          $0 = ($,);
-        }
+        int $ = $2.$1;
+        $0 = ($,);
       }
     }
     if ($0 == null) {
-      state.position = $4;
+      state.position = $3;
     }
     if ($0 == null) {
-      final $12 = state.match1(('\\',), 92);
-      if ($12 != null) {
-        final $18 = state.position;
-        (int,)? $13;
-        final $14 = state.match1(('u',), 117);
-        if ($14 != null) {
-          final $15 = state.matchLiteral1(('{',), '{', 123);
-          if ($15 != null) {
-            (int,)? $16 = parseHexValue(state);
-            if ($16 != null) {
-              int $ = $16.$1;
-              final $17 = state.matchLiteral1(('}',), '}', 125);
-              if ($17 != null) {
-                $13 = ($,);
+      final $7 = state.match1(('\\',), 92);
+      if ($7 != null) {
+        final $13 = state.position;
+        (int,)? $8;
+        final $9 = state.match1(('u',), 117);
+        if ($9 != null) {
+          final $10 = state.matchLiteral1(('{',), '{', 123);
+          if ($10 != null) {
+            (int,)? $11 = parseHexValue(state);
+            if ($11 != null) {
+              int $ = $11.$1;
+              final $12 = state.matchLiteral1(('}',), '}', 125);
+              if ($12 != null) {
+                $8 = ($,);
               }
             }
           }
         }
-        if ($13 == null) {
-          state.position = $18;
+        if ($8 == null) {
+          state.position = $13;
         }
-        if ($13 == null) {
-          (int,)? $20;
+        if ($8 == null) {
+          (int,)? $15;
           if (state.position < state.length) {
             final c = state.nextChar16();
             final ok = c >= 110
@@ -1264,14 +1248,14 @@ class PegParser {
                     ? c <= 118 || c == 123 || c == 125
                     : c == 114 || c == 116
                 : c >= 91
-                    ? c <= 93 || c >= 97 && c <= 98 || c >= 101 && c <= 102
+                    ? c <= 93 || (c >= 101 ? c <= 102 : c >= 97 && c <= 98)
                     : c == 45;
-            $20 = ok ? (c,) : null;
-            $20 ?? (state.position = $18);
+            $15 = ok ? (c,) : null;
+            $15 ?? (state.position = $13);
           }
-          (int,)? $19 = $20 ?? state.fail<int>();
-          if ($19 != null) {
-            int $ = $19.$1;
+          (int,)? $14 = $15 ?? state.fail<int>();
+          if ($14 != null) {
+            int $ = $14.$1;
             $ = switch ($) {
               97 => 0x07, // a
               98 => 0x08, // b
@@ -1283,16 +1267,16 @@ class PegParser {
               118 => 0x0B, // v
               _ => $,
             };
-            $13 = ($,);
+            $8 = ($,);
           }
         }
-        if ($13 != null) {
-          int $ = $13.$1;
+        if ($8 != null) {
+          int $ = $8.$1;
           $0 = ($,);
         }
       }
       if ($0 == null) {
-        state.position = $4;
+        state.position = $3;
       }
     }
     return $0;
@@ -1418,7 +1402,6 @@ class PegParser {
           break;
         }
       }
-      state.fail<List<void>>();
       $3 = (null,);
     }
     (String,)? $2 = $3 != null ? (state.substring($1, state.position),) : null;
@@ -1622,7 +1605,7 @@ class PegParser {
   ///```code
   /// `void`
   /// Space =
-  ///     [ \t]
+  ///     [ {9}]
   ///   / EndOfLine
   ///```
   (void,)? parseSpace(State state) {
@@ -1787,8 +1770,10 @@ class PegParser {
             final c = state.nextChar16();
             final ok = c >= 60
                 ? c <= 60 || c >= 95
-                    ? c <= 95 || c >= 97 && c <= 123 || c == 125
-                    : c >= 62 && c <= 63 || c >= 65 && c <= 90
+                    ? c <= 95 || (c >= 125 ? c <= 125 : c >= 97 && c <= 123)
+                    : c >= 65
+                        ? c <= 90
+                        : c >= 62 && c <= 63
                 : c >= 40
                     ? c <= 41 || c == 44 || c >= 48 && c <= 58
                     : c == 32 || c == 36;

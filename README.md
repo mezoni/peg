@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 7.0.2
+Version: 7.0.4
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -123,7 +123,7 @@ if (state.failure > state.position) {
 }
 ```
 
-What can be done to ensure that more errors are generated automatically?
+### What can be done to ensure that more errors are generated automatically?
 
 The main recommendation is that the expression single quoted `literal` expression **must always** be used for punctuation marks.  
 Do not use `primitive terminals` for these purposes under any circumstances.  
@@ -367,9 +367,9 @@ Below is a short list of additional features:
 
 Some small and simple examples of additional features.
 
-### Action expressions
+### Action expression
 
-Action expressions allow to execute any code and are also used to generate results.  
+The expression `Action` allow to execute any code and are mainly used for computing and assigning the result of parsing.  
 Syntax: `{` block of statements `}`
 
 ```text
@@ -387,30 +387,30 @@ This example demonstrates the use of 2 blocks of source code.
 ```
 
 ```text
-{ n = true; }
+{ $ = true; }
 ```
 
 This is the regular source code that will be embedded into the parser code.
 
 ### Predicate expressions
 
-Action predicate expressions allow to perform a conditional failure..  
-Syntax: &`{` conditional expression `}`
+The expression `Predicate` allow to determining the success or failure of the parsing based on the value of the specified boolean expression.  
+Syntax: `&{` boolean expression `}` or `!{` boolean expression `}`
 
 Example:
 
 ```text
 Rule =>
   Expr1
-  &{ state.position == position }
+  ! { state.position == position }
   Expr2
 ```
 
-This expression will fail if the condition `state.position == position` is not met.
+This expression will fail if the result of the expression `state.position == position` will be evaluated as `true`.
 
 ### Match expressions
 
-Match expressions return a string that matches a recognized expression.  
+The `Match` expression returns a string value of the data source that matches the recognized expression.  
 Syntax: `<` recognition expression `>`
 
 ```text
@@ -436,7 +436,7 @@ Example:
 [eE]
 [-+]
 Decimal
-~ { state.malformed('Malformed exponent'); isFatal = true; }
+~ { state.malformed('Malformed exponent'); }
 ```
 
 How it works?  
@@ -500,13 +500,13 @@ If a special semantic result variable `$` is used, the value of this variable wi
 
 ### Modified character class
 
-The modified character class allows for more readable character range specifications and inverting ranges (negation).
+The modified `Character class` expression allows for more readable character range specifications and inverting ranges (negation).
 Syntax: `[` ranges `]` or `[^` ranges `]`
 
 The `negated` character class `[^]` is equivalent to the following sequence of expressions but much more faster:
 
 ```text
-! [some ranges]
+! [unexpected characters]
 $ = .
 ```
 
@@ -533,7 +533,7 @@ Example:
 `Type` { $$ = 41; }
 ```
 
-This expression can be useful for nested expressions, to explicitly specify the type.
+This expression can be useful for subexpressions, to explicitly specify the type.
 
 ### Syntactic sugar
 
@@ -603,7 +603,7 @@ Expression? parse(String source) {
 }
 ```
 
-This requires the use of the `source_span` package.
+This requires the use of the `source_span` package.  
 If it is not desirable to use third-party libraries, then it can be done this way.
 
 ```dart
@@ -633,7 +633,7 @@ Unfortunately `FormatException` only support `offset` and this does not allow th
 
 ```text
 %{
-// ignore_for_file: prefer_final_locals
+// ignore_for_file: prefer_conditional_assignment, prefer_final_locals
 
 import 'package:source_span/source_span.dart';
 
@@ -760,8 +760,6 @@ There are several cases when this cannot be done:
 
 - Expression `Action`: always
 - Expression `Ordered choice`: alternatives have different types
-- Expression `Sequence`: the number of elements in the sequence is greater than one and the semantic variable is not specified
-- Expression `Sequence`: the number of elements in the sequence is greater than one and more than one semantic variable is specified
 
 If the result value is not specified, the default value is `void`.
 
@@ -846,3 +844,16 @@ void main(List<String> args) {
 }
 
 ```
+
+## Is it possible to parse from files?
+
+Yes, it is possible.  
+The generated parser does not use direct access to the input data.  
+Access to data is provided through members of class `State`.  
+List of these methods:
+
+- `nextChar16`
+- `nextChar32`
+- `substring`
+
+Thus, by creating a new class that extends the `State` class and overwriting these methods, it is possible to perform the parsing from the file.

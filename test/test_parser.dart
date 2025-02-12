@@ -392,7 +392,7 @@ class TestParser {
     (int,)? $1;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      final ok = c >= 65 && c <= 90 || c >= 97 && c <= 122;
+      final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
       $1 = ok ? (c,) : null;
       $1 ?? (state.position = $2);
     }
@@ -416,7 +416,7 @@ class TestParser {
     (int,)? $1;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      final ok = c >= 65 && c <= 90 || c >= 97 && c <= 122;
+      final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
       $1 = ok ? (c,) : null;
       $1 ?? (state.position = $2);
     }
@@ -867,7 +867,6 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
     (String,)? $0 = (state.substring($1, state.position),);
     String $ = $0.$1;
     $0 = ($,);
@@ -944,7 +943,6 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
     final $0 = (state.substring($1, state.position),);
     return $0;
   }
@@ -1080,7 +1078,7 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void expected(Object? result, String element, int start,
-      [bool nested = true]) {
+      [bool literal = true]) {
     if (_farthestError > position) {
       return;
     }
@@ -1095,19 +1093,29 @@ class State {
         _unexpectedIndex = 0;
       }
 
-      if (_unexpectedIndex < _unexpectedElements.length) {
-        _unexpectedElements[_unexpectedIndex] = element;
-        _unexpectedPositions[_unexpectedIndex] = start;
-        _unexpectedIndex++;
-      }
-    } else {
       if (_farthestError < position) {
         _farthestError = position;
         _errorIndex = 0;
         _expectedIndex = 0;
       }
 
-      if (!nested) {
+      if (_unexpectedIndex < _unexpectedElements.length) {
+        _unexpectedElements[_unexpectedIndex] = element;
+        _unexpectedPositions[_unexpectedIndex] = start;
+        _unexpectedIndex++;
+      }
+    } else {
+      if (!literal && failure != position) {
+        return;
+      }
+
+      if (_farthestError < position) {
+        _farthestError = position;
+        _errorIndex = 0;
+        _expectedIndex = 0;
+      }
+
+      if (!literal) {
         _expectedIndex = 0;
       }
 
@@ -1345,7 +1353,7 @@ class State {
   (R,)? matchLiteral<R>((R,) result, String literal) {
     final start = position;
     final actual = match(result, literal);
-    expected(actual, literal, start);
+    expected(actual, literal, start, true);
     return actual;
   }
 
@@ -1355,7 +1363,7 @@ class State {
   (R,)? matchLiteral1<R>((R,) result, String string, int c) {
     final start = position;
     final actual = match1(result, c);
-    expected(actual, string, start);
+    expected(actual, string, start, true);
     return actual;
   }
 
@@ -1365,7 +1373,7 @@ class State {
   (R,)? matchLiteral2<R>((R,) result, String string, int c1, int c2) {
     final start = position;
     final actual = match2(result, c1, c2);
-    expected(actual, string, start);
+    expected(actual, string, start, true);
     return actual;
   }
 
@@ -1375,7 +1383,7 @@ class State {
   (R,)? matchLiteral3<R>((R,) result, String string, int c1, int c2, int c3) {
     final start = position;
     final actual = match3(result, c1, c2, c3);
-    expected(actual, string, start);
+    expected(actual, string, start, true);
     return actual;
   }
 
@@ -1386,7 +1394,7 @@ class State {
       (R,) result, String string, int c1, int c2, int c3, int c4) {
     final start = position;
     final actual = match4(result, c1, c2, c3, c4);
-    expected(actual, string, start);
+    expected(actual, string, start, true);
     return actual;
   }
 
@@ -1397,7 +1405,7 @@ class State {
       (R,) result, String string, int c1, int c2, int c3, int c4, int c5) {
     final start = position;
     final actual = match5(result, c1, c2, c3, c4, c5);
-    expected(actual, string, start);
+    expected(actual, string, start, true);
     return actual;
   }
 

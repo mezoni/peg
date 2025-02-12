@@ -1,6 +1,15 @@
+## 7.0.4
+
+- Fixed bugs and minor improvements have been made.
+
+## 7.0.3
+
+- Minor improvements to the binary search generator.
+- Minor corrections have been made to the `PEG` grammar (`Range Char`).
+
 ## 7.0.2
 
-- Fixed bugs and minor improvements have been made
+- Fixed bugs and minor improvements have been made.
 
 ## 7.0.1
 

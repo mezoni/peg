@@ -63,8 +63,7 @@ while (state.position < state.length) {
     state.position = position;
     break;
   }
-}
-state.fail<List<void>>();''');
+}''');
         if (variable != null) {
           const value = 'const (<int>[],)';
           variable.assign(sink, value);
