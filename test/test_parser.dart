@@ -570,8 +570,8 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $1 = state.position != $2 ? const (<int>[],) : null;
+    final $1 =
+        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
     (String,)? $0 = $1 != null ? (state.substring($2, state.position),) : null;
     if ($0 != null) {
       String $ = $0.$1;
@@ -598,8 +598,8 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $1 = state.position != $2 ? const (<int>[],) : null;
+    final $1 =
+        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
     final $0 = $1 != null ? (state.substring($2, state.position),) : null;
     return $0;
   }
@@ -891,8 +891,8 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $1 = state.position != $2 ? const (<int>[],) : null;
+    final $1 =
+        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
     (String,)? $0 = $1 != null ? (state.substring($2, state.position),) : null;
     if ($0 != null) {
       String $ = $0.$1;
@@ -919,8 +919,8 @@ class TestParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $1 = state.position != $2 ? const (<int>[],) : null;
+    final $1 =
+        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
     final $0 = $1 != null ? (state.substring($2, state.position),) : null;
     return $0;
   }

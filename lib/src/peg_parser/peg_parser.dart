@@ -639,8 +639,8 @@ class PegParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $4 = state.position != $1 ? const (<int>[],) : null;
+    final $4 =
+        state.position != $1 ? const (<int>[],) : state.fail<List<int>>();
     (String,)? $2 = $4 != null ? (state.substring($1, state.position),) : null;
     if ($2 != null) {
       String n = $2.$1;

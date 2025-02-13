@@ -72,11 +72,10 @@ while (state.position < state.length) {
     state.position = position;
     break;
   }
-}
-state.fail<List<void>>();''');
+}''');
         if (variable != null) {
-          final value = conditional(
-              'state.position != $position', 'const (<int>[],)', 'null');
+          final value = conditional('state.position != $position',
+              'const (<int>[],)', 'state.fail<List<int>>()');
           variable.assign(sink, value);
         }
 

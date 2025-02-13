@@ -106,8 +106,8 @@ class CalcParser {
         break;
       }
     }
-    state.fail<List<void>>();
-    final $3 = state.position != $4 ? const (<int>[],) : null;
+    final $3 =
+        state.position != $4 ? const (<int>[],) : state.fail<List<int>>();
     (String,)? $1 = $3 != null ? (state.substring($4, state.position),) : null;
     if ($1 != null) {
       String n = $1.$1;
