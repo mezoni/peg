@@ -78,7 +78,7 @@ class CalcParser {
       $3 ?? (state.position = $4);
     }
     final $2 = $3 ?? state.fail<int>();
-    (String,)? $1 = $2 != null ? (state.substring($4, state.position),) : null;
+    final $1 = $2 != null ? (state.substring($4, state.position),) : null;
     if ($1 != null) {
       String $ = $1.$1;
       parseS(state);
@@ -108,15 +108,13 @@ class CalcParser {
     }
     final $3 =
         state.position != $4 ? const (<int>[],) : state.fail<List<int>>();
-    (String,)? $1 = $3 != null ? (state.substring($4, state.position),) : null;
+    final $1 = $3 != null ? (state.substring($4, state.position),) : null;
     if ($1 != null) {
       String n = $1.$1;
       parseS(state);
-      late int $$;
+      final int $$;
       $$ = int.parse(n);
-      (int,)? $2 = ($$,);
-      int $ = $2.$1;
-      $0 = ($,);
+      $0 = ($$,);
     }
     if ($0 == null) {
       state.position = $4;
@@ -133,7 +131,7 @@ class CalcParser {
   ///```
   (int,)? parseProduct(State state) {
     (int,)? $0;
-    (int,)? $1 = parseValue(state);
+    final $1 = parseValue(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
@@ -146,11 +144,11 @@ class CalcParser {
           $5 = ok ? (c,) : null;
           $5 ?? (state.position = $6);
         }
-        (int,)? $3 = $5 ?? state.fail<int>();
+        final $3 = $5 ?? state.fail<int>();
         if ($3 != null) {
           int n = $3.$1;
           parseS(state);
-          (int,)? $4 = parseProduct(state);
+          final $4 = parseProduct(state);
           if ($4 != null) {
             int r = $4.$1;
             $ = switch (n) {
@@ -212,7 +210,7 @@ class CalcParser {
     final $3 = state.position;
     (int,)? $0;
     parseS(state);
-    (int,)? $1 = parseExpr(state);
+    final $1 = parseExpr(state);
     if ($1 != null) {
       int $ = $1.$1;
       final $2 = parseEOF(state);
@@ -235,7 +233,7 @@ class CalcParser {
   ///```
   (int,)? parseSum(State state) {
     (int,)? $0;
-    (int,)? $1 = parseProduct(state);
+    final $1 = parseProduct(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
@@ -248,11 +246,11 @@ class CalcParser {
           $5 = ok ? (c,) : null;
           $5 ?? (state.position = $6);
         }
-        (int,)? $3 = $5 ?? state.fail<int>();
+        final $3 = $5 ?? state.fail<int>();
         if ($3 != null) {
           int n = $3.$1;
           parseS(state);
-          (int,)? $4 = parseProduct(state);
+          final $4 = parseProduct(state);
           if ($4 != null) {
             int r = $4.$1;
             $ = switch (n) {
@@ -288,20 +286,18 @@ class CalcParser {
     (int,)? $0;
     $0 = parseNUMBER(state);
     if ($0 == null) {
-      (String,)? $2 = parseID(state);
+      final $2 = parseID(state);
       if ($2 != null) {
         String i = $2.$1;
-        late int $$;
+        final int $$;
         $$ = vars[i]!;
-        (int,)? $3 = ($$,);
-        int $ = $3.$1;
-        $0 = ($,);
+        $0 = ($$,);
       }
       if ($0 == null) {
         final $4 = state.matchLiteral1(('(',), '(', 40);
         if ($4 != null) {
           parseS(state);
-          (int,)? $5 = parseExpr(state);
+          final $5 = parseExpr(state);
           if ($5 != null) {
             int $ = $5.$1;
             final $6 = state.matchLiteral1((')',), ')', 41);
@@ -476,6 +472,7 @@ class State {
     return null;
   }
 
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (T,)? failAndBacktrack<T>(int position) {

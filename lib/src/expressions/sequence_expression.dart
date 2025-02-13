@@ -48,11 +48,29 @@ class SequenceExpression extends MultiExpression {
           variable.assign(sink, '');
         }
       }
+    } else {
+      if (variable != null) {
+        final expression = expressions[0];
+        if (expression is VariableExpression) {
+          if (variable.needDeclare) {
+            if (variable.type.isEmpty) {
+              variable.type = getReturnType();
+            }
+
+            variable.assign(sink, '');
+          }
+        }
+      }
     }
 
     final variables = <Variable?>[];
     if (expressions.length == 1) {
-      variables.add(variable);
+      final expression = expressions[0];
+      if (expression is VariableExpression) {
+        variables.add(context.allocateVariable());
+      } else {
+        variables.add(variable);
+      }
     } else {
       for (var i = 0; i < expressions.length; i++) {
         final expression = expressions[i];
@@ -82,7 +100,12 @@ class SequenceExpression extends MultiExpression {
         final name = expression.name;
         final type = expression.getResultType();
         final variable = variables[i - 1];
-        block.statement('$type $name = $variable.\$1');
+        final child = expression.expression;
+        if (expression.isLast && name == '\$' && child is ActionExpression) {
+          //block.statement('$type $name = $variable.\$1');
+        } else {
+          block.statement('$type $name = $variable.\$1');
+        }
       }
     }
 
@@ -102,8 +125,14 @@ class SequenceExpression extends MultiExpression {
         final variable = variables[resultIndex];
         final expression = expressions[resultIndex];
         if (expression is VariableExpression) {
+          final child = expression.expression;
           final name = expression.name;
-          value = '($name,)';
+          if (expression.isLast && name == '\$' && child is ActionExpression) {
+            //value = '($name,)';
+            value = '(\$\$,)';
+          } else {
+            value = '($name,)';
+          }
         } else {
           value = '$variable';
         }

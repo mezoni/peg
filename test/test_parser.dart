@@ -9,236 +9,236 @@ class TestParser {
   ///    $ = ($ = '' AndAbc / $ = AnyChar AnyCharVoid / $ = Char16 Char16Void / $ = Chars16 Chars16Void / $ = Char32 Char32Void / $ = Chars32 Chars32Void / $ = Literal0 Literal0Void / $ = Literal1 Literal1Void / $ = Literal2 Literal2Void / $ = Match MatchVoid / $ = NotDigits NotDigitsVoid / $ = '' NotAbc / $ = OneOrMore OneOrMoreVoid / $ = Optional OptionalVoid / $ = OrderedChoice OrderedChoiceVoid / $ = Ranges RangesVoid / $ = TakeWhile TakeWhileVoid / $ = TakeWhile1 TakeWhile1Void / $ = ZeroOrMore ZeroOrMoreVoid)
   ///```
   (Object?,)? parseA(State state) {
-    final $3 = state.position;
+    final $4 = state.position;
     (Object?,)? $0;
-    (Object?,)? $1 = state.matchLiteral(('',), '');
+    (Object?,)? $1;
+    final $2 = state.matchLiteral(('',), '');
+    if ($2 != null) {
+      Object? $ = $2.$1;
+      final $3 = parseAndAbc(state);
+      if ($3 != null) {
+        $1 = ($,);
+      }
+    }
+    if ($1 == null) {
+      state.position = $4;
+    }
+    if ($1 == null) {
+      final $5 = parseAnyChar(state);
+      if ($5 != null) {
+        Object? $ = $5.$1;
+        final $6 = parseAnyCharVoid(state);
+        if ($6 != null) {
+          $1 = ($,);
+        }
+      }
+      if ($1 == null) {
+        state.position = $4;
+      }
+      if ($1 == null) {
+        final $7 = parseChar16(state);
+        if ($7 != null) {
+          Object? $ = $7.$1;
+          final $8 = parseChar16Void(state);
+          if ($8 != null) {
+            $1 = ($,);
+          }
+        }
+        if ($1 == null) {
+          state.position = $4;
+        }
+        if ($1 == null) {
+          final $9 = parseChars16(state);
+          if ($9 != null) {
+            Object? $ = $9.$1;
+            final $10 = parseChars16Void(state);
+            if ($10 != null) {
+              $1 = ($,);
+            }
+          }
+          if ($1 == null) {
+            state.position = $4;
+          }
+          if ($1 == null) {
+            final $11 = parseChar32(state);
+            if ($11 != null) {
+              Object? $ = $11.$1;
+              final $12 = parseChar32Void(state);
+              if ($12 != null) {
+                $1 = ($,);
+              }
+            }
+            if ($1 == null) {
+              state.position = $4;
+            }
+            if ($1 == null) {
+              final $13 = parseChars32(state);
+              if ($13 != null) {
+                Object? $ = $13.$1;
+                final $14 = parseChars32Void(state);
+                if ($14 != null) {
+                  $1 = ($,);
+                }
+              }
+              if ($1 == null) {
+                state.position = $4;
+              }
+              if ($1 == null) {
+                final $15 = parseLiteral0(state);
+                if ($15 != null) {
+                  Object? $ = $15.$1;
+                  parseLiteral0Void(state);
+                  $1 = ($,);
+                }
+                if ($1 == null) {
+                  final $16 = parseLiteral1(state);
+                  if ($16 != null) {
+                    Object? $ = $16.$1;
+                    final $17 = parseLiteral1Void(state);
+                    if ($17 != null) {
+                      $1 = ($,);
+                    }
+                  }
+                  if ($1 == null) {
+                    state.position = $4;
+                  }
+                  if ($1 == null) {
+                    final $18 = parseLiteral2(state);
+                    if ($18 != null) {
+                      Object? $ = $18.$1;
+                      final $19 = parseLiteral2Void(state);
+                      if ($19 != null) {
+                        $1 = ($,);
+                      }
+                    }
+                    if ($1 == null) {
+                      state.position = $4;
+                    }
+                    if ($1 == null) {
+                      final $20 = parseMatch(state);
+                      if ($20 != null) {
+                        Object? $ = $20.$1;
+                        final $21 = parseMatchVoid(state);
+                        if ($21 != null) {
+                          $1 = ($,);
+                        }
+                      }
+                      if ($1 == null) {
+                        state.position = $4;
+                      }
+                      if ($1 == null) {
+                        final $22 = parseNotDigits(state);
+                        if ($22 != null) {
+                          Object? $ = $22.$1;
+                          final $23 = parseNotDigitsVoid(state);
+                          if ($23 != null) {
+                            $1 = ($,);
+                          }
+                        }
+                        if ($1 == null) {
+                          state.position = $4;
+                        }
+                        if ($1 == null) {
+                          final $24 = state.matchLiteral(('',), '');
+                          if ($24 != null) {
+                            Object? $ = $24.$1;
+                            final $25 = parseNotAbc(state);
+                            if ($25 != null) {
+                              $1 = ($,);
+                            }
+                          }
+                          if ($1 == null) {
+                            state.position = $4;
+                          }
+                          if ($1 == null) {
+                            final $26 = parseOneOrMore(state);
+                            if ($26 != null) {
+                              Object? $ = $26.$1;
+                              final $27 = parseOneOrMoreVoid(state);
+                              if ($27 != null) {
+                                $1 = ($,);
+                              }
+                            }
+                            if ($1 == null) {
+                              state.position = $4;
+                            }
+                            if ($1 == null) {
+                              final $28 = parseOptional(state);
+                              if ($28 != null) {
+                                Object? $ = $28.$1;
+                                parseOptionalVoid(state);
+                                $1 = ($,);
+                              }
+                              if ($1 == null) {
+                                final $29 = parseOrderedChoice(state);
+                                if ($29 != null) {
+                                  Object? $ = $29.$1;
+                                  final $30 = parseOrderedChoiceVoid(state);
+                                  if ($30 != null) {
+                                    $1 = ($,);
+                                  }
+                                }
+                                if ($1 == null) {
+                                  state.position = $4;
+                                }
+                                if ($1 == null) {
+                                  final $31 = parseRanges(state);
+                                  if ($31 != null) {
+                                    Object? $ = $31.$1;
+                                    final $32 = parseRangesVoid(state);
+                                    if ($32 != null) {
+                                      $1 = ($,);
+                                    }
+                                  }
+                                  if ($1 == null) {
+                                    state.position = $4;
+                                  }
+                                  if ($1 == null) {
+                                    final $33 = parseTakeWhile(state);
+                                    if ($33 != null) {
+                                      Object? $ = $33.$1;
+                                      parseTakeWhileVoid(state);
+                                      $1 = ($,);
+                                    }
+                                    if ($1 == null) {
+                                      final $34 = parseTakeWhile1(state);
+                                      if ($34 != null) {
+                                        Object? $ = $34.$1;
+                                        final $35 = parseTakeWhile1Void(state);
+                                        if ($35 != null) {
+                                          $1 = ($,);
+                                        }
+                                      }
+                                      if ($1 == null) {
+                                        state.position = $4;
+                                      }
+                                      if ($1 == null) {
+                                        final $36 = parseZeroOrMore(state);
+                                        if ($36 != null) {
+                                          Object? $ = $36.$1;
+                                          parseZeroOrMoreVoid(state);
+                                          $1 = ($,);
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     if ($1 != null) {
       Object? $ = $1.$1;
-      final $2 = parseAndAbc(state);
-      if ($2 != null) {
-        $0 = ($,);
-      }
-    }
-    if ($0 == null) {
-      state.position = $3;
-    }
-    if ($0 == null) {
-      (Object?,)? $4 = parseAnyChar(state);
-      if ($4 != null) {
-        Object? $ = $4.$1;
-        final $5 = parseAnyCharVoid(state);
-        if ($5 != null) {
-          $0 = ($,);
-        }
-      }
-      if ($0 == null) {
-        state.position = $3;
-      }
-      if ($0 == null) {
-        (Object?,)? $6 = parseChar16(state);
-        if ($6 != null) {
-          Object? $ = $6.$1;
-          final $7 = parseChar16Void(state);
-          if ($7 != null) {
-            $0 = ($,);
-          }
-        }
-        if ($0 == null) {
-          state.position = $3;
-        }
-        if ($0 == null) {
-          (Object?,)? $8 = parseChars16(state);
-          if ($8 != null) {
-            Object? $ = $8.$1;
-            final $9 = parseChars16Void(state);
-            if ($9 != null) {
-              $0 = ($,);
-            }
-          }
-          if ($0 == null) {
-            state.position = $3;
-          }
-          if ($0 == null) {
-            (Object?,)? $10 = parseChar32(state);
-            if ($10 != null) {
-              Object? $ = $10.$1;
-              final $11 = parseChar32Void(state);
-              if ($11 != null) {
-                $0 = ($,);
-              }
-            }
-            if ($0 == null) {
-              state.position = $3;
-            }
-            if ($0 == null) {
-              (Object?,)? $12 = parseChars32(state);
-              if ($12 != null) {
-                Object? $ = $12.$1;
-                final $13 = parseChars32Void(state);
-                if ($13 != null) {
-                  $0 = ($,);
-                }
-              }
-              if ($0 == null) {
-                state.position = $3;
-              }
-              if ($0 == null) {
-                (Object?,)? $14 = parseLiteral0(state);
-                if ($14 != null) {
-                  Object? $ = $14.$1;
-                  parseLiteral0Void(state);
-                  $0 = ($,);
-                }
-                if ($0 == null) {
-                  (Object?,)? $15 = parseLiteral1(state);
-                  if ($15 != null) {
-                    Object? $ = $15.$1;
-                    final $16 = parseLiteral1Void(state);
-                    if ($16 != null) {
-                      $0 = ($,);
-                    }
-                  }
-                  if ($0 == null) {
-                    state.position = $3;
-                  }
-                  if ($0 == null) {
-                    (Object?,)? $17 = parseLiteral2(state);
-                    if ($17 != null) {
-                      Object? $ = $17.$1;
-                      final $18 = parseLiteral2Void(state);
-                      if ($18 != null) {
-                        $0 = ($,);
-                      }
-                    }
-                    if ($0 == null) {
-                      state.position = $3;
-                    }
-                    if ($0 == null) {
-                      (Object?,)? $19 = parseMatch(state);
-                      if ($19 != null) {
-                        Object? $ = $19.$1;
-                        final $20 = parseMatchVoid(state);
-                        if ($20 != null) {
-                          $0 = ($,);
-                        }
-                      }
-                      if ($0 == null) {
-                        state.position = $3;
-                      }
-                      if ($0 == null) {
-                        (Object?,)? $21 = parseNotDigits(state);
-                        if ($21 != null) {
-                          Object? $ = $21.$1;
-                          final $22 = parseNotDigitsVoid(state);
-                          if ($22 != null) {
-                            $0 = ($,);
-                          }
-                        }
-                        if ($0 == null) {
-                          state.position = $3;
-                        }
-                        if ($0 == null) {
-                          (Object?,)? $23 = state.matchLiteral(('',), '');
-                          if ($23 != null) {
-                            Object? $ = $23.$1;
-                            final $24 = parseNotAbc(state);
-                            if ($24 != null) {
-                              $0 = ($,);
-                            }
-                          }
-                          if ($0 == null) {
-                            state.position = $3;
-                          }
-                          if ($0 == null) {
-                            (Object?,)? $25 = parseOneOrMore(state);
-                            if ($25 != null) {
-                              Object? $ = $25.$1;
-                              final $26 = parseOneOrMoreVoid(state);
-                              if ($26 != null) {
-                                $0 = ($,);
-                              }
-                            }
-                            if ($0 == null) {
-                              state.position = $3;
-                            }
-                            if ($0 == null) {
-                              (Object?,)? $27 = parseOptional(state);
-                              if ($27 != null) {
-                                Object? $ = $27.$1;
-                                parseOptionalVoid(state);
-                                $0 = ($,);
-                              }
-                              if ($0 == null) {
-                                (Object?,)? $28 = parseOrderedChoice(state);
-                                if ($28 != null) {
-                                  Object? $ = $28.$1;
-                                  final $29 = parseOrderedChoiceVoid(state);
-                                  if ($29 != null) {
-                                    $0 = ($,);
-                                  }
-                                }
-                                if ($0 == null) {
-                                  state.position = $3;
-                                }
-                                if ($0 == null) {
-                                  (Object?,)? $30 = parseRanges(state);
-                                  if ($30 != null) {
-                                    Object? $ = $30.$1;
-                                    final $31 = parseRangesVoid(state);
-                                    if ($31 != null) {
-                                      $0 = ($,);
-                                    }
-                                  }
-                                  if ($0 == null) {
-                                    state.position = $3;
-                                  }
-                                  if ($0 == null) {
-                                    (Object?,)? $32 = parseTakeWhile(state);
-                                    if ($32 != null) {
-                                      Object? $ = $32.$1;
-                                      parseTakeWhileVoid(state);
-                                      $0 = ($,);
-                                    }
-                                    if ($0 == null) {
-                                      (Object?,)? $33 = parseTakeWhile1(state);
-                                      if ($33 != null) {
-                                        Object? $ = $33.$1;
-                                        final $34 = parseTakeWhile1Void(state);
-                                        if ($34 != null) {
-                                          $0 = ($,);
-                                        }
-                                      }
-                                      if ($0 == null) {
-                                        state.position = $3;
-                                      }
-                                      if ($0 == null) {
-                                        (Object?,)? $35 =
-                                            parseZeroOrMore(state);
-                                        if ($35 != null) {
-                                          Object? $ = $35.$1;
-                                          parseZeroOrMoreVoid(state);
-                                          $0 = ($,);
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if ($0 != null) {
-      Object? $ = $0.$1;
       $0 = ($,);
     }
     return $0;
@@ -268,9 +268,10 @@ class TestParser {
   ///    $ = .
   ///```
   (int,)? parseAnyChar(State state) {
-    (int,)? $0 = state.matchAny();
-    if ($0 != null) {
-      int $ = $0.$1;
+    (int,)? $0;
+    final $1 = state.matchAny();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -284,9 +285,10 @@ class TestParser {
   ///    $ = .
   ///```
   (int,)? parseAnyCharVoid(State state) {
-    (int,)? $0 = state.matchAny();
-    if ($0 != null) {
-      int $ = $0.$1;
+    (int,)? $0;
+    final $1 = state.matchAny();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -300,16 +302,17 @@ class TestParser {
   ///    $ = [a]
   ///```
   (int,)? parseChar16(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      $1 = c == 97 ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = c == 97 ? (97,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -327,7 +330,7 @@ class TestParser {
     (int,)? $1;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      $1 = c == 97 ? (c,) : null;
+      $1 = c == 97 ? (97,) : null;
       $1 ?? (state.position = $2);
     }
     final $0 = $1 ?? state.fail<int>();
@@ -342,16 +345,17 @@ class TestParser {
   ///    $ = [{1f800}]
   ///```
   (int,)? parseChar32(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar32();
-      $1 = c == 129024 ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = c == 129024 ? (129024,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -365,16 +369,17 @@ class TestParser {
   ///    $ = [{1f800}]
   ///```
   (int,)? parseChar32Void(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar32();
-      $1 = c == 129024 ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = c == 129024 ? (129024,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -388,17 +393,18 @@ class TestParser {
   ///    $ = [a-zA-Z]
   ///```
   (int,)? parseChars16(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar16();
       final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
-      $1 = ok ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = ok ? (c,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -432,17 +438,18 @@ class TestParser {
   ///    $ = [{1f800-1f803}]
   ///```
   (int,)? parseChars32(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar32();
       final ok = c >= 129024 && c <= 129027;
-      $1 = ok ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = ok ? (c,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -476,9 +483,10 @@ class TestParser {
   ///    $ = ''
   ///```
   (String,)? parseLiteral0(State state) {
-    (String,)? $0 = state.matchLiteral(('',), '');
-    if ($0 != null) {
-      String $ = $0.$1;
+    (String,)? $0;
+    final $1 = state.matchLiteral(('',), '');
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -504,9 +512,10 @@ class TestParser {
   ///    $ = 'a'
   ///```
   (String,)? parseLiteral1(State state) {
-    (String,)? $0 = state.matchLiteral1(('a',), 'a', 97);
-    if ($0 != null) {
-      String $ = $0.$1;
+    (String,)? $0;
+    final $1 = state.matchLiteral1(('a',), 'a', 97);
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -532,9 +541,10 @@ class TestParser {
   ///    $ = 'ab'
   ///```
   (String,)? parseLiteral2(State state) {
-    (String,)? $0 = state.matchLiteral2(('ab',), 'ab', 97, 98);
-    if ($0 != null) {
-      String $ = $0.$1;
+    (String,)? $0;
+    final $1 = state.matchLiteral2(('ab',), 'ab', 97, 98);
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -560,7 +570,8 @@ class TestParser {
   ///    $ = <[a]+>
   ///```
   (String,)? parseMatch(State state) {
-    final $2 = state.position;
+    final $3 = state.position;
+    (String,)? $0;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -570,11 +581,11 @@ class TestParser {
         break;
       }
     }
-    final $1 =
-        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
-    (String,)? $0 = $1 != null ? (state.substring($2, state.position),) : null;
-    if ($0 != null) {
-      String $ = $0.$1;
+    final $2 =
+        state.position != $3 ? const (<int>[],) : state.fail<List<int>>();
+    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -599,7 +610,7 @@ class TestParser {
       }
     }
     final $1 =
-        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
+        state.position != $2 ? const (<int>[],) : state.fail<List<int>>();
     final $0 = $1 != null ? (state.substring($2, state.position),) : null;
     return $0;
   }
@@ -629,17 +640,18 @@ class TestParser {
   ///    $ = [0-9]
   ///```
   (int,)? parseNotDigits(State state) {
-    final $2 = state.position;
-    (int,)? $1;
+    final $3 = state.position;
+    (int,)? $0;
+    (int,)? $2;
     if (state.position < state.length) {
       final c = state.nextChar16();
       final ok = c < 48 || c > 57;
-      $1 = ok ? (c,) : null;
-      $1 ?? (state.position = $2);
+      $2 = ok ? (c,) : null;
+      $2 ?? (state.position = $3);
     }
-    (int,)? $0 = $1 ?? state.fail<int>();
-    if ($0 != null) {
-      int $ = $0.$1;
+    final $1 = $2 ?? state.fail<int>();
+    if ($1 != null) {
+      int $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -673,17 +685,18 @@ class TestParser {
   ///    $ = 'abc'+
   ///```
   (List<String>,)? parseOneOrMore(State state) {
+    (List<String>,)? $0;
     final $list = <String>[];
     while (true) {
-      final $1 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
-      if ($1 == null) {
+      final $2 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
+      if ($2 == null) {
         break;
       }
-      $list.add($1.$1);
+      $list.add($2.$1);
     }
-    (List<String>,)? $0 = $list.isNotEmpty ? ($list,) : null;
-    if ($0 != null) {
-      List<String> $ = $0.$1;
+    final $1 = $list.isNotEmpty ? ($list,) : null;
+    if ($1 != null) {
+      List<String> $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -717,9 +730,10 @@ class TestParser {
   ///    $ = 'abc'?
   ///```
   (String?,)? parseOptional(State state) {
-    (String?,)? $0 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
-    $0 ??= (null,);
-    String? $ = $0.$1;
+    (String?,)? $0;
+    (String?,)? $1 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
+    $1 ??= (null,);
+    String? $ = $1.$1;
     $0 = ($,);
     return $0;
   }
@@ -746,27 +760,28 @@ class TestParser {
   ///```
   (String,)? parseOrderedChoice(State state) {
     (String,)? $0;
-    $0 = state.matchLiteral1(('a',), 'a', 97);
-    if ($0 != null) {
-      String $ = $0.$1;
-      $0 = ($,);
+    (String,)? $1;
+    final $2 = state.matchLiteral1(('a',), 'a', 97);
+    if ($2 != null) {
+      String $ = $2.$1;
+      $1 = ($,);
     }
-    if ($0 == null) {
-      $0 = state.matchLiteral1(('b',), 'b', 98);
-      if ($0 != null) {
-        String $ = $0.$1;
-        $0 = ($,);
+    if ($1 == null) {
+      final $3 = state.matchLiteral1(('b',), 'b', 98);
+      if ($3 != null) {
+        String $ = $3.$1;
+        $1 = ($,);
       }
-      if ($0 == null) {
-        $0 = state.matchLiteral1(('c',), 'c', 99);
-        if ($0 != null) {
-          String $ = $0.$1;
-          $0 = ($,);
+      if ($1 == null) {
+        final $4 = state.matchLiteral1(('c',), 'c', 99);
+        if ($4 != null) {
+          String $ = $4.$1;
+          $1 = ($,);
         }
       }
     }
-    if ($0 != null) {
-      String $ = $0.$1;
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -781,21 +796,21 @@ class TestParser {
   ///```
   (String,)? parseOrderedChoiceVoid(State state) {
     (String,)? $0;
-    $0 = state.matchLiteral1(('a',), 'a', 97);
-    if ($0 != null) {
-      String $ = $0.$1;
+    final $1 = state.matchLiteral1(('a',), 'a', 97);
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     if ($0 == null) {
-      $0 = state.matchLiteral1(('b',), 'b', 98);
-      if ($0 != null) {
-        String $ = $0.$1;
+      final $2 = state.matchLiteral1(('b',), 'b', 98);
+      if ($2 != null) {
+        String $ = $2.$1;
         $0 = ($,);
       }
       if ($0 == null) {
-        $0 = state.matchLiteral1(('c',), 'c', 99);
-        if ($0 != null) {
-          String $ = $0.$1;
+        final $3 = state.matchLiteral1(('c',), 'c', 99);
+        if ($3 != null) {
+          String $ = $3.$1;
           $0 = ($,);
         }
       }
@@ -811,18 +826,19 @@ class TestParser {
   ///    $ = <[0-9A-Za-z]>
   ///```
   (String,)? parseRanges(State state) {
-    final $3 = state.position;
-    (int,)? $2;
+    final $4 = state.position;
+    (String,)? $0;
+    (int,)? $3;
     if (state.position < state.length) {
       final c = state.nextChar16();
       final ok = c >= 65 ? c <= 90 || c >= 97 && c <= 122 : c >= 48 && c <= 57;
-      $2 = ok ? (c,) : null;
-      $2 ?? (state.position = $3);
+      $3 = ok ? (c,) : null;
+      $3 ?? (state.position = $4);
     }
-    final $1 = $2 ?? state.fail<int>();
-    (String,)? $0 = $1 != null ? (state.substring($3, state.position),) : null;
-    if ($0 != null) {
-      String $ = $0.$1;
+    final $2 = $3 ?? state.fail<int>();
+    final $1 = $2 != null ? (state.substring($4, state.position),) : null;
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -857,7 +873,8 @@ class TestParser {
   ///    $ = <[a]*>
   ///```
   (String,)? parseTakeWhile(State state) {
-    final $1 = state.position;
+    final $2 = state.position;
+    (String,)? $0;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -867,8 +884,8 @@ class TestParser {
         break;
       }
     }
-    (String,)? $0 = (state.substring($1, state.position),);
-    String $ = $0.$1;
+    final $1 = (state.substring($2, state.position),);
+    String $ = $1.$1;
     $0 = ($,);
     return $0;
   }
@@ -881,7 +898,8 @@ class TestParser {
   ///    $ = <[a]+>
   ///```
   (String,)? parseTakeWhile1(State state) {
-    final $2 = state.position;
+    final $3 = state.position;
+    (String,)? $0;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -891,11 +909,11 @@ class TestParser {
         break;
       }
     }
-    final $1 =
-        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
-    (String,)? $0 = $1 != null ? (state.substring($2, state.position),) : null;
-    if ($0 != null) {
-      String $ = $0.$1;
+    final $2 =
+        state.position != $3 ? const (<int>[],) : state.fail<List<int>>();
+    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
+    if ($1 != null) {
+      String $ = $1.$1;
       $0 = ($,);
     }
     return $0;
@@ -920,7 +938,7 @@ class TestParser {
       }
     }
     final $1 =
-        state.position != $2 ? const (<int>[],) : state.fail<List<void>>();
+        state.position != $2 ? const (<int>[],) : state.fail<List<int>>();
     final $0 = $1 != null ? (state.substring($2, state.position),) : null;
     return $0;
   }
@@ -955,16 +973,17 @@ class TestParser {
   ///    $ = 'abc'*
   ///```
   (List<String>,)? parseZeroOrMore(State state) {
+    (List<String>,)? $0;
     final $list = <String>[];
     while (true) {
-      final $1 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
-      if ($1 == null) {
+      final $2 = state.matchLiteral3(('abc',), 'abc', 97, 98, 99);
+      if ($2 == null) {
         break;
       }
-      $list.add($1.$1);
+      $list.add($2.$1);
     }
-    (List<String>,)? $0 = ($list,);
-    List<String> $ = $0.$1;
+    final $1 = ($list,);
+    List<String> $ = $1.$1;
     $0 = ($,);
     return $0;
   }
@@ -1144,6 +1163,7 @@ class State {
     return null;
   }
 
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (T,)? failAndBacktrack<T>(int position) {

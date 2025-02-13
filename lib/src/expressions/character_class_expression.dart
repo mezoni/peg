@@ -73,7 +73,7 @@ if (state.position < state.length) {
 (int,)? $result;
 if (state.position < state.length) {
   final c = state.nextChar$bitDepth();
-  $result = c $op $char ? (c,) : null;
+  $result = c $op $char ? ($char,) : null;
   $result ?? (state.position = $position);
 }''');
 

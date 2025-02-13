@@ -16,13 +16,6 @@ class VariableExpression extends SingleExpression {
   @override
   String generate(BuildContext context, Variable? variable, bool isFast) {
     final sink = preprocess(context);
-    if (variable != null) {
-      if (variable.type.isEmpty) {
-        variable.type = getReturnType();
-      }
-    }
-
-    expression.isVariableNeedForTestState();
     sink.writeln(expression.generate(context, variable, isFast));
     return postprocess(context, sink);
   }

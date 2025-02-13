@@ -154,6 +154,7 @@ class State {
     return null;
   }
 
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (T,)? failAndBacktrack<T>(int position) {

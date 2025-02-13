@@ -16,10 +16,12 @@ class ActionExpression extends Expression {
     final sink = preprocess(context);
     if (parent is VariableExpression) {
       final type = getResultType();
-      sink.statement('late $type \$\$');
+      sink.statement('final $type \$\$');
       sink.writeln(code);
       if (variable != null) {
-        variable.assign(sink, '(\$\$,)');
+        if (!isLast) {
+          variable.assign(sink, '(\$\$,)');
+        }
       }
     } else {
       sink.writeln(code);
