@@ -2034,15 +2034,6 @@ class State {
   /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int enter() {
-    final failure = this.failure;
-    this.failure = position;
-    return failure;
-  }
-
-  /// This method is for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   void error(String message, {bool? location}) {
     if (_farthestError > failure) {
       return;
@@ -2201,15 +2192,6 @@ class State {
     }
 
     return errors.toSet().toList();
-  }
-
-  /// This method is for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void leave(int failure) {
-    if (this.failure < failure) {
-      this.failure = failure;
-    }
   }
 
   /// Intended for internal use only.

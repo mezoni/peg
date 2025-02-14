@@ -327,13 +327,13 @@ Syntax: sequence expression `~ {` error parameters `}`
 Example:
 
 ```text
-A B C ~ { handler1 } D E ~ { handler2 } F
+A B C ~ { message = 'foo' } D E ~ { message = 'baz' } F
 ```
 
 This expression will be executed as follows:
 
 ```text
-(((A B C ~ { handler1 }) D E ~ { handler2 }) F)
+(((A B C ~ { message = 'foo' }) D E ~ { message = 'baz' }) F)
 ```
 
 ### Sematic variables
@@ -415,6 +415,8 @@ Example:
 `Type` n = { $$ = 41; }
 
 `Type` { $$ = 41; }
+
+`num` result = { $$ = num.parse(integer); }
 ```
 
 This expression can be useful for subexpressions, to explicitly specify the type.
@@ -445,11 +447,11 @@ The `-` character can be repeated as many times as necessary.
 ```text
 `Expression`
 Assignment =>
-  i = (Identifier / n:'$' S)
+  v = (Identifier / $ = '$' S)
   ('=' S / ':' S)
   e = Prefix
-  $ = { $$ = e..semanticVariable = i; }
-  -------------------------------------
+  $ = { $$ = VariableExpression(expression: e, name: v); }
+  ----
   Prefix
 ```
 

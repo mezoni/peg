@@ -102,7 +102,7 @@ Typing =>
 
 `Expression`
 Assignment =>
-  v = (Identifier / $:'$' S)
+  v = (Identifier / $ = '$' S)
   ('=' S / ':' S)
   e = Prefix
   $ = { $$ = VariableExpression(expression: e, name: v); }

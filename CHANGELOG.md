@@ -1,6 +1,6 @@
 ## 8.0.1
 
-- Fixed bugs
+- Fixed bugs and minor improvements have been made.
 
 ## 8.0.0
 
