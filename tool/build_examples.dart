@@ -19,6 +19,13 @@ void main(List<String> args) {
       ),
     ),
     (
+      'example/math.peg',
+      'example/math_parser.dart',
+      ParserGeneratorOptions(
+        name: 'MathParser',
+      ),
+    ),
+    (
       'example/number.peg',
       'example/number.dart',
       ParserGeneratorOptions(

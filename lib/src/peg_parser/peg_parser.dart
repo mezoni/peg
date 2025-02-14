@@ -1319,7 +1319,7 @@ class PegParser {
   /// `int`
   /// RangeChar =
   ///     !"\\" $ = [{0-1f}\{\}\[\]\\]
-  ///   / "\\" $ = ("u" '{' $ = HexValue '}' / $ = [\-abefnrtv\{\}\[\]\\] { })
+  ///   / "\\" $ = ("u" '{' $ = HexValue '}' / $ = [\-^abefnrtv\{\}\[\]\\] { })
   ///```
   (int,)? parseRangeChar(State state) {
     final $3 = state.position;
@@ -1379,7 +1379,7 @@ class PegParser {
                     ? c <= 118 || c == 123 || c == 125
                     : c == 114 || c == 116
                 : c >= 91
-                    ? c <= 93 || (c >= 101 ? c <= 102 : c >= 97 && c <= 98)
+                    ? c <= 94 || (c >= 101 ? c <= 102 : c >= 97 && c <= 98)
                     : c == 45;
             $15 = ok ? (c,) : null;
             $15 ?? (state.position = $13);

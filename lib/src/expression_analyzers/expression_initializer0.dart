@@ -169,14 +169,16 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   void _initializeNonterminal(NonterminalExpression node) {
     _initializeNode(node);
     final name = node.name;
-    final rule = _rules[name];
-    if (rule == null) {
+    final reference = _rules[name];
+    if (reference == null) {
+      final rule = node.rule!;
       final error = diagnostics.error(
           "The expression 'Nonterminal' refers to an undefined production rule");
-      error.description('Production rule name', name);
+      error.description('Referenced rule name', name);
+      error.description('Production rule name', rule.name);
       return;
     }
 
-    node.reference = rule;
+    node.reference = reference;
   }
 }

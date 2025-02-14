@@ -1,0 +1,210 @@
+%{
+// ignore_for_file: prefer_conditional_assignment, prefer_final_locals
+
+import 'dart:math' as math;
+
+import 'package:source_span/source_span.dart';
+
+void main() {
+  final data = <(String, Map<String, num>, Map<String, Function>)>[
+    ('1 + a * 3', {'a': 2}, {}),
+    ('sin(x)', {'x': 1}, {}),
+    ('2^2^x', {'x': 2}, {}),
+    ('sum(a, b)', {'a': 1, 'b': 2}, {'sum': (num x, num y) => x + y}),
+    ('x * pi', {'x': 2}, {}),
+  ];
+  for (var i = 0; i < data.length; i++) {
+    final element = data[i];
+    final expression = element.$1;
+    final variables = element.$2;
+    final functions = element.$3;
+    final result = eval(
+      expression,
+      functions: functions,
+      variables: variables,
+    );
+    print('*' * 40);
+    print(expression);
+    if (variables.isNotEmpty) {
+      print(variables.entries.map((e) => '${e.key}: ${e.value}').join(', '));
+    }
+
+    if (functions.isNotEmpty) {
+      print(functions.keys.join(', '));
+    }
+
+    print(result);
+  }
+}
+
+num eval(
+  String source, {
+  Map<String, Function> functions = const {},
+  Map<String, num> variables = const {},
+}) {
+  final parser = MathParser(functions: functions, variables: variables);
+  final state = State(source);
+  final result = parser.parseStart(state);
+  if (result == null) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n'));
+  }
+
+  return result.$1;
+}
+
+}%
+
+%%
+
+Map<String, Function> functions = {
+    'acos': math.acos,
+    'asin': math.asin,
+    'atan': math.atan,
+    'atan2': math.atan2,
+    'exp': math.exp,
+    'cos': math.cos,
+    'log': math.log,
+    'max': math.max,
+    'min': math.min,
+    'pow': math.pow,
+    'sin': math.sin,
+    'sqrt': math.sqrt,
+    'tan': math.tan,
+  };
+
+  Map<String, num> variables = {
+    'e': math.e,
+    'ln10': math.ln10,
+    'ln2': math.ln2,
+    'log10e': math.log10e,
+    'pi': math.pi,
+    'sqrt1_2': math.sqrt1_2,
+    'sqrt2': math.sqrt2,
+  };
+
+  MathParser({
+    Map<String, Function> functions = const {},
+    Map<String, num> variables = const {},
+  }) {
+    this.functions.addAll(functions);
+    this.variables.addAll(variables);
+  }
+
+%%
+
+`num`
+Start =>
+  S
+  $ = Expression
+  EOF
+
+`num`
+Expression('expression') =>
+  Sum
+
+`num`
+Sum =>
+  $ = Product
+  @while (*) {
+    [+] S
+    r = Product
+    { $ += r; }
+    ----
+    [-] S
+    r = Product
+    { $ -= r; }
+  }
+
+`num`
+Product =>
+  $ = Unary
+  @while (*) {
+    [*] S
+    r = Unary
+    { $ *= r; }
+    ----
+    [/] S
+    r = Unary
+    { $ ~/= r; }
+  }
+
+`num`
+Unary =>
+  n = [-]?
+  e = Pow
+  $ = { $$ = n == null ? e : -e; };
+
+`num`
+Pow =>
+  $ = Value
+  @while (*) {
+    [\^] S
+    r = Value
+    { $ = math.pow($, r); }
+  }
+
+`num`
+Value('expression') => (
+  Function
+  ----
+  Number
+  ----
+  i = Identifier
+  $ = {
+    final v = variables[i];
+    if (v == null) {
+      throw StateError('Variable not found: $i');
+    }
+    $$ = v;
+  }
+  ----
+  '(' S
+  $ = Expression
+  ')' S
+)
+
+`List<num>`
+Arguments =>
+  e = Expression
+  $ = { final l = [e]; $$ = l; }
+  @while (*) {
+    ',' S
+    e = Expression
+    { l.add(e); }
+  }
+
+`num`
+Function =>
+  i = Identifier
+  '(' S
+  a = Arguments?
+  ')' S
+  $ = {
+    final f = functions[i];
+    if (f == null) {
+      throw StateError('Function not found: $i');
+    }
+    $$ = Function.apply(f, a ?? []) as num;
+  }
+
+`num`
+Number =>
+  n = <[0-9]+>
+  S
+  $ = { $$ = int.parse(n); }
+
+`String`
+Identifier =>
+  $ = <[a-zA-Z]+>
+  S
+
+`void`
+EOF('end of file') =>
+  ! .
+
+`void`
+S => [ \t\r\n]*

@@ -1,6 +1,7 @@
 ## 8.0.1
 
 - Fixed bugs and minor improvements have been made.
+- Added an example of the mathematical formula evaluator with support for variables and functions.
 
 ## 8.0.0
 
