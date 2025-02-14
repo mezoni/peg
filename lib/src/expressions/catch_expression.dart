@@ -46,7 +46,7 @@ class CatchExpression extends SingleExpression {
       }
     }
 
-    Never invalidValue(String name, String value) {
+    Never invalidArgument(String name, String value) {
       throw StateError("Invalid argument '$value' for parameter '$name'");
     }
 
@@ -54,11 +54,11 @@ class CatchExpression extends SingleExpression {
       '' => 'true',
       '==start' => 'state.failure == state.position',
       '!=start' => 'state.failure != state.position',
-      _ => throw invalidValue('starts', origin),
+      _ => throw invalidArgument('origin', origin),
     };
 
-    start == 'start' || start == 'end' ? null : invalidValue('start', start);
-    end == 'start' || end == 'end' ? null : invalidValue('end', end);
+    start == 'start' || start == 'end' ? null : invalidArgument('start', start);
+    end == 'start' || end == 'end' ? null : invalidArgument('end', end);
     final span = switch ((start, end)) {
       ('end', 'end') => ', true',
       ('start', 'end') => '',
