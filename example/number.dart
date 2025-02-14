@@ -5,6 +5,12 @@ import 'package:source_span/source_span.dart';
 
 void main() {
   _testErrors();
+  print(parse('0'));
+  print(parse('-0'));
+  print(parse('1'));
+  print(parse('-1'));
+  print(parse('123.456'));
+  print(parse('-123.456'));
 }
 
 void _testErrors() {
@@ -39,23 +45,23 @@ class NumberParser {
   ///```text
   /// `num`
   /// Number =
-  ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } ~ { })) &{ } $ = { }
+  ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } { } ~ { }))? &{ } $ = { }
   ///```
   (num,)? parseNumber(State state) {
-    final $19 = state.enter();
+    final $18 = state.enter();
     final $1 = state.position;
     (num,)? $0;
-    (int,)? $8;
+    (int,)? $7;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      $8 = c == 45 ? (45,) : null;
-      $8 ?? (state.position = $1);
+      $7 = c == 45 ? (45,) : null;
+      $7 ?? (state.position = $1);
     }
-    (int?,)? $2 = $8 ?? state.fail<int>();
+    (int?,)? $2 = $7 ?? state.fail<int>();
     $2 ??= (null,);
     int? negative = $2.$1;
-    final $11 = state.position;
     final $10 = state.position;
+    final $9 = state.position;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -65,9 +71,9 @@ class NumberParser {
         break;
       }
     }
-    final $9 =
-        state.position != $10 ? const (<int>[],) : state.fail<List<int>>();
-    final $3 = $9 != null ? (state.substring($11, state.position),) : null;
+    final $8 =
+        state.position != $9 ? const (<int>[],) : state.fail<List<int>>();
+    final $3 = $8 != null ? (state.substring($10, state.position),) : null;
     if ($3 != null) {
       String integer = $3.$1;
       final num $$;
@@ -75,20 +81,19 @@ class NumberParser {
       final $4 = ($$,);
       num result = $4.$1;
       var ok = true;
-      final $15 = state.position;
-      (void,)? $5;
-      (int,)? $14;
+      final $14 = state.position;
+      (int,)? $13;
       if (state.position < state.length) {
         final c = state.nextChar16();
-        $14 = c == 46 ? (46,) : null;
-        $14 ?? (state.position = $15);
+        $13 = c == 46 ? (46,) : null;
+        $13 ?? (state.position = $14);
       }
-      final $12 = $14 ?? state.fail<int>();
-      if ($12 != null) {
+      final $11 = $13 ?? state.fail<int>();
+      if ($11 != null) {
         ok = false;
-        final $18 = state.position;
+        final $17 = state.position;
         final $failure = state.enter();
-        (void,)? $13;
+        (void,)? $12;
         while (state.position < state.length) {
           final position = state.position;
           final c = state.nextChar16();
@@ -98,42 +103,39 @@ class NumberParser {
             break;
           }
         }
-        final $17 =
-            state.position != $18 ? const (<int>[],) : state.fail<List<int>>();
         final $16 =
-            $17 != null ? (state.substring($18, state.position),) : null;
-        if ($16 != null) {
-          String decimal = $16.$1;
+            state.position != $17 ? const (<int>[],) : state.fail<List<int>>();
+        final $15 =
+            $16 != null ? (state.substring($17, state.position),) : null;
+        if ($15 != null) {
+          String decimal = $15.$1;
+          ok = true;
           result += int.parse(decimal) / math.pow(10, decimal.length);
-          $13 = (null,);
+          $12 = (null,);
         }
-        if ($13 == null) {
+        if ($12 == null) {
+          state.position = $17;
+        }
+        if ($12 == null) {
           state.error('Expected decimal digit');
         }
         state.leave($failure);
-        if ($13 != null) {
-          $5 = (null,);
-        }
+        if ($12 != null) {}
       }
-      if ($5 == null) {
-        state.position = $15;
-      }
+      final $5 = ok ? (null,) : state.fail<void>();
       if ($5 != null) {
-        final $6 = ok ? (null,) : state.fail<void>();
-        if ($6 != null) {
-          final num $$;
-          $$ = negative == null ? result : -result;
-          final $7 = ($$,);
-          num $ = $7.$1;
-          $0 = ($,);
-        }
+        final num $$;
+        $$ = negative == null ? result : -result;
+        final $6 = ($$,);
+        num $ = $6.$1;
+        $0 = ($,);
       }
     }
     if ($0 == null) {
       state.position = $1;
     }
     state.expected($0, 'number', $1, false);
-    state.leave($19);
+    state.leave($18);
     return $0;
   }
 }

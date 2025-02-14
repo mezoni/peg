@@ -1,3 +1,7 @@
+## 7.0.6
+
+- Fixed a bug in the number parsing algorithm in the `example/number,peg` grammar.
+
 ## 7.0.5
 
 - Fixed bugs and minor improvements have been made.

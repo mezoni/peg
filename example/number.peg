@@ -6,6 +6,12 @@ import 'package:source_span/source_span.dart';
 
 void main() {
   _testErrors();
+  print(parse('0'));
+  print(parse('-0'));
+  print(parse('1'));
+  print(parse('-1'));
+  print(parse('123.456'));
+  print(parse('-123.456'));
 }
 
 void _testErrors() {
@@ -31,9 +37,10 @@ Number('number') =>
     [.]
     { ok = false; } (
       decimal = <[0-9]+>
+      { ok = true; }
       { result += int.parse(decimal) / math.pow(10, decimal.length); }
       ~ { state.error('Expected decimal digit'); }
     )
-  )
+  )?
   & { ok }
   $ = { $$ = negative == null ? result  : -result; }
