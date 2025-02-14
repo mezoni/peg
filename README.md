@@ -98,6 +98,7 @@ The PEG grammar definition is a combination of parsing expressions (similar to r
 A trivial implementation of the formula evaluator (calculator):  
 Grammar definition: [calc.peg](https://github.com/mezoni/peg/blob/main/example/calc.peg)  
 Generated code: [example.dart](https://github.com/mezoni/peg/blob/main/example/example.dart)
+DartPad example: [https://dartpad.dev/?id=d720a249b378462ba36490956213225c](https://dartpad.dev/?id=d720a249b378462ba36490956213225c)
 
 The same formula evaluator, but a little faster:  
 Grammar definition:  [realtime_calc.peg](https://github.com/mezoni/peg/blob/main/example/realtime_calc.peg)  
@@ -107,6 +108,7 @@ Mathematical formula evaluator with support for variables and functions:
 This example was written in about 30 minutes, based on the code from the calculator example.  
 Grammar definition:  [math.peg](https://github.com/mezoni/peg/blob/main/example/math.peg)  
 Generated code: [math_parser.dart](https://github.com/mezoni/peg/blob/main/example/math_parser.dart)
+DartPad example: [https://dartpad.dev/?id=fa7cbeb8dec40ad043937a09523141d3](https://dartpad.dev/?id=fa7cbeb8dec40ad043937a09523141d3)
 
 A number parser and an example of how to examine the generated error messages:  
 Grammar definition: [number.peg](https://github.com/mezoni/peg/blob/main/example/number.peg)  
