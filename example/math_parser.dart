@@ -6,6 +6,7 @@ import 'package:source_span/source_span.dart';
 
 void main() {
   final data = <(String, Map<String, num>, Map<String, Function>)>[
+    ('1 + -10.25e2', {}, {}),
     ('1 + a * 3', {'a': 2}, {}),
     ('sin(x)', {'x': 1}, {}),
     ('2^2^x', {'x': 2}, {}),
@@ -240,16 +241,31 @@ class MathParser {
     return $0;
   }
 
-  /// **Number**
+  /// **Number** ('number')
   ///
   ///```text
   /// `num`
   /// Number =
-  ///    n = <[0-9]+> S $ = { }
+  ///    { } n = <[\-]? <[0-9]+> ([.] { } (<[0-9]+> { } ~ { message = 'Expected decimal digit' }))? ([eE] { } ([\-+]? <[0-9]+> { } ~ { message = 'Expected decimal digit' }))?> &{ } S $ = { }
   ///```
   (num,)? parseNumber(State state) {
-    final $4 = state.position;
+    final $32 = state.failure;
+    state.failure = state.position;
+    final $1 = state.position;
     (num,)? $0;
+    var ok = true;
+    final $31 = state.position;
+    final $8 = state.position;
+    (void,)? $5;
+    (int,)? $7;
+    if (state.position < state.length) {
+      final c = state.nextChar16();
+      $7 = c == 45 ? (45,) : null;
+      $7 ?? (state.position = $8);
+    }
+    $7 ?? state.fail<int>();
+    final $11 = state.position;
+    final $10 = state.position;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -259,21 +275,121 @@ class MathParser {
         break;
       }
     }
-    final $3 =
-        state.position != $4 ? const (<int>[],) : state.fail<List<int>>();
-    final $1 = $3 != null ? (state.substring($4, state.position),) : null;
-    if ($1 != null) {
-      String n = $1.$1;
-      parseS(state);
-      final num $$;
-      $$ = int.parse(n);
-      final $2 = ($$,);
-      num $ = $2.$1;
-      $0 = ($,);
+    final $9 =
+        state.position != $10 ? const (<int>[],) : state.fail<List<int>>();
+    final $6 = $9 != null ? (state.substring($11, state.position),) : null;
+    if ($6 != null) {
+      final $15 = state.position;
+      (int,)? $14;
+      if (state.position < state.length) {
+        final c = state.nextChar16();
+        $14 = c == 46 ? (46,) : null;
+        $14 ?? (state.position = $15);
+      }
+      final $12 = $14 ?? state.fail<int>();
+      if ($12 != null) {
+        ok = false;
+        final $19 = state.position;
+        final $16 = state.failure;
+        state.failure = state.position;
+        (void,)? $13;
+        while (state.position < state.length) {
+          final position = state.position;
+          final c = state.nextChar16();
+          final ok = c >= 48 && c <= 57;
+          if (!ok) {
+            state.position = position;
+            break;
+          }
+        }
+        final $18 =
+            state.position != $19 ? const (<int>[],) : state.fail<List<int>>();
+        final $17 =
+            $18 != null ? (state.substring($19, state.position),) : null;
+        if ($17 != null) {
+          ok = true;
+          $13 = (null,);
+        }
+        if ($13 == null) {
+          state.error('Expected decimal digit');
+        }
+        state.failure = state.failure < $16 ? $16 : state.failure;
+        if ($13 != null) {}
+      }
+      final $23 = state.position;
+      (int,)? $22;
+      if (state.position < state.length) {
+        final c = state.nextChar16();
+        final ok = c == 69 || c == 101;
+        $22 = ok ? (c,) : null;
+        $22 ?? (state.position = $23);
+      }
+      final $20 = $22 ?? state.fail<int>();
+      if ($20 != null) {
+        ok = false;
+        final $27 = state.position;
+        final $24 = state.failure;
+        state.failure = state.position;
+        (void,)? $21;
+        (int,)? $26;
+        if (state.position < state.length) {
+          final c = state.nextChar16();
+          final ok = c == 43 || c == 45;
+          $26 = ok ? (c,) : null;
+          $26 ?? (state.position = $27);
+        }
+        $26 ?? state.fail<int>();
+        final $30 = state.position;
+        final $29 = state.position;
+        while (state.position < state.length) {
+          final position = state.position;
+          final c = state.nextChar16();
+          final ok = c >= 48 && c <= 57;
+          if (!ok) {
+            state.position = position;
+            break;
+          }
+        }
+        final $28 =
+            state.position != $29 ? const (<int>[],) : state.fail<List<int>>();
+        final $25 =
+            $28 != null ? (state.substring($30, state.position),) : null;
+        if ($25 != null) {
+          ok = true;
+          $21 = (null,);
+        }
+        if ($21 == null) {
+          state.position = $27;
+        }
+        if ($21 == null) {
+          state.error('Expected decimal digit');
+        }
+        state.failure = state.failure < $24 ? $24 : state.failure;
+        if ($21 != null) {}
+      }
+      $5 = (null,);
+    }
+    if ($5 == null) {
+      state.position = $8;
+    }
+    final $2 = $5 != null ? (state.substring($31, state.position),) : null;
+    if ($2 != null) {
+      String n = $2.$1;
+      final $3 = ok ? (null,) : state.fail<void>();
+      if ($3 != null) {
+        parseS(state);
+        final num $$;
+        $$ = num.parse(n);
+        final $4 = ($$,);
+        num $ = $4.$1;
+        $0 = ($,);
+      }
     }
     if ($0 == null) {
-      state.position = $4;
+      state.position = $1;
     }
+    state.expected($0, 'number', $1, false);
+    state.failure = state.failure < $32 ? $32 : state.failure;
     return $0;
   }
 

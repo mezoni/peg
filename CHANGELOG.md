@@ -1,3 +1,7 @@
+## 8.0.2
+
+- Added minor modifications to the grammar mathematical formula evaluator.
+
 ## 8.0.1
 
 - Fixed bugs and minor improvements have been made.

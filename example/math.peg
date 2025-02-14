@@ -7,6 +7,7 @@ import 'package:source_span/source_span.dart';
 
 void main() {
   final data = <(String, Map<String, num>, Map<String, Function>)>[
+    ('1 + -10.25e2', {}, {}),
     ('1 + a * 3', {'a': 2}, {}),
     ('sin(x)', {'x': 1}, {}),
     ('2^2^x', {'x': 2}, {}),
@@ -192,10 +193,34 @@ Function =>
   }
 
 `num`
-Number =>
-  n = <[0-9]+>
+Number('number') =>
+  { var ok = true; }
+  n = <
+    [-]?
+    <[0-9]+>
+    (
+      [.]
+      { ok = false; }
+      (
+        <[0-9]+>
+        { ok = true; }
+        ~ { message = 'Expected decimal digit' }
+      )
+    )?
+    (
+      [eE]
+      { ok = false; }
+      (
+        [-+]?
+        <[0-9]+>
+        { ok = true; }
+        ~ { message = 'Expected decimal digit' }
+      )
+    )?
+  >
+  & { ok }
   S
-  $ = { $$ = int.parse(n); }
+  $ = { $$ = num.parse(n); }
 
 `String`
 Identifier =>
