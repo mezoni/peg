@@ -1066,12 +1066,7 @@ class State {
     return failure;
   }
 
-  /// Registers an error at the [failure] position.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, {bool? location}) {
@@ -1242,18 +1237,6 @@ class State {
       this.failure = failure;
     }
   }
-
-  /// Registers an error if the [failure] position is further than starting
-  /// [position], otherwise the error will be ignored.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void malformed(String message, {bool? location}) =>
-      failure != position ? error(message, location: location) : null;
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')

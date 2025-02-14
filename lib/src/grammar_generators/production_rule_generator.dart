@@ -45,13 +45,13 @@ class ProductionRuleGenerator {
     if (expected != null) {
       final position = expression.getSharedValue(context, 'state.position');
       final escaped = escapeString(expected, "'");
-      final failure = context.allocate();
+      final enterLeave = expression.generateEnterLeave(context);
       prologue = '''
 $prologue
-final $failure = state.enter();''';
+ ${enterLeave.enter}''';
       epilogue = '''
 state.expected($variable, $escaped, $position, false);
-state.leave($failure);
+${enterLeave.leave}
 $epilogue''';
     }
 

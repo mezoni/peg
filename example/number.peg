@@ -39,7 +39,7 @@ Number('number') =>
       decimal = <[0-9]+>
       { ok = true; }
       { result += int.parse(decimal) / math.pow(10, decimal.length); }
-      ~ { state.error('Expected decimal digit'); }
+      ~ { message = 'Expected decimal digit' }
     )
   )?
   & { ok }

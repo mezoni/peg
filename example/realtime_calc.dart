@@ -36,11 +36,12 @@ class CalcParser {
   ///    !.
   ///```
   (void,)? parseEOF(State state) {
-    final $2 = state.enter();
+    final $2 = state.failure;
+    state.failure = state.position;
     final $1 = state.position;
     final $0 = state.matchEof();
     state.expected($0, 'end of file', $1, false);
-    state.leave($2);
+    state.failure = state.failure < $2 ? $2 : state.failure;
     return $0;
   }
 
@@ -52,11 +53,12 @@ class CalcParser {
   ///    Sum
   ///```
   (int,)? parseExpr(State state) {
-    final $2 = state.enter();
+    final $2 = state.failure;
+    state.failure = state.position;
     final $1 = state.position;
     final $0 = parseSum(state);
     state.expected($0, 'expression', $1, false);
-    state.leave($2);
+    state.failure = state.failure < $2 ? $2 : state.failure;
     return $0;
   }
 
@@ -129,7 +131,7 @@ class CalcParser {
   ///```text
   /// `int`
   /// Product =
-  ///    $ = Value n = [*/] S r = Product { }*
+  ///    $ = Value (n = [*/] S r = Product { })*
   ///```
   (int,)? parseProduct(State state) {
     (int,)? $0;
@@ -231,7 +233,7 @@ class CalcParser {
   ///```text
   /// `int`
   /// Sum =
-  ///    $ = Product n = [\-+] S r = Product { }*
+  ///    $ = Product (n = [\-+] S r = Product { })*
   ///```
   (int,)? parseSum(State state) {
     (int,)? $0;
@@ -283,7 +285,8 @@ class CalcParser {
   ///    (NUMBER / i = ID $ = { } / '(' S $ = Expr ')' S)
   ///```
   (int,)? parseValue(State state) {
-    final $7 = state.enter();
+    final $7 = state.failure;
+    state.failure = state.position;
     final $1 = state.position;
     (int,)? $0;
     $0 = parseNUMBER(state);
@@ -317,7 +320,7 @@ class CalcParser {
       }
     }
     state.expected($0, 'expression', $1, false);
-    state.leave($7);
+    state.failure = state.failure < $7 ? $7 : state.failure;
     return $0;
   }
 }
@@ -379,12 +382,7 @@ class State {
     return failure;
   }
 
-  /// Registers an error at the [failure] position.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, {bool? location}) {
@@ -555,18 +553,6 @@ class State {
       this.failure = failure;
     }
   }
-
-  /// Registers an error if the [failure] position is further than starting
-  /// [position], otherwise the error will be ignored.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void malformed(String message, {bool? location}) =>
-      failure != position ? error(message, location: location) : null;
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')

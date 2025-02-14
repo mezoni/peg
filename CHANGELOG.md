@@ -1,3 +1,7 @@
+## 8.0.0
+
+- Breaking change: The way to specify when, where and how to generate errors has been simplified and standardized. Full information can be found in the file `README.md`.
+
 ## 7.0.6
 
 - Fixed a bug in the number parsing algorithm in the `example/number,peg` grammar.

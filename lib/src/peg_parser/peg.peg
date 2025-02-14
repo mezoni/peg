@@ -61,7 +61,7 @@ OrderedChoice =>
   n = Sequence
   { final l = [n]; }
   @while (*) {
-    ('/' / '-'*) S
+    ('/' / '-'+) S
     n = Sequence
     { l.add(n); }
   }
@@ -70,10 +70,28 @@ OrderedChoice =>
 `Expression`
 Sequence =>
   n = Typing+
-  b = ('~' S $:Block)?
+  p = ('~' S '{' S $ = ErrorParameters '}' S)?
   $ = {
     final e = SequenceExpression(expressions: n);
-    $$ = b == null ? e : CatchExpression(expression: e, catchBlock: b);
+    $$ = p == null ? e : CatchExpression(expression: e, catchBlock: '', parameters: p);
+  }
+
+`List<(String, String)>`
+ErrorParameters =>
+  $ = @while(+) {
+    k = 'message' S
+    '=' S
+    v = String S
+    $ = { $$ = (k, v); }
+    ----
+    k = ('start' / 'end') S
+    '=' S
+    v = ('start' / 'end') S
+    $ = { $$ = (k, v); }
+    ----
+    k = 'origin' S
+    `String` v = (n = ('==' / '!=') S s = 'start' S $ = { $$ = '$n$s'; } )
+    $ = { $$ = (k, v); }
   }
 
 `Expression`
@@ -201,14 +219,14 @@ Repeater =>
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = ZeroOrMoreExpression(expression: e); }
+  $ = { $$ = ZeroOrMoreExpression(expression: GroupExpression(expression: e)); }
   ----
   '@while' S
   '(' S '+' S ')' S
   '{' S
   e = Expression
   '}' S
-  $ = { $$ = OneOrMoreExpression(expression: e); }
+  $ = { $$ = OneOrMoreExpression(expression: GroupExpression(expression: e)); }
 
 Type('type') =>
   '`'
@@ -285,7 +303,7 @@ EscapedValue =>
       _ => $,
     };
   }
-  ~ { state.error('Unexpected escape character'); }
+  ~ { message = 'Unexpected escape character' }
 
 `int`
 EscapedHexValue =>
@@ -293,7 +311,7 @@ EscapedHexValue =>
   '{'
   $ = HexValue
   '}'
-  ~ { state.malformed('Malformed escape sequence'); }
+  ~ { message = 'Malformed escape sequence' origin != start }
 
 `int`
 RangeChar =>

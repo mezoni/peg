@@ -48,7 +48,8 @@ class NumberParser {
   ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } { } ~ { }))? &{ } $ = { }
   ///```
   (num,)? parseNumber(State state) {
-    final $18 = state.enter();
+    final $19 = state.failure;
+    state.failure = state.position;
     final $1 = state.position;
     (num,)? $0;
     (int,)? $7;
@@ -91,8 +92,9 @@ class NumberParser {
       final $11 = $13 ?? state.fail<int>();
       if ($11 != null) {
         ok = false;
-        final $17 = state.position;
-        final $failure = state.enter();
+        final $18 = state.position;
+        final $15 = state.failure;
+        state.failure = state.position;
         (void,)? $12;
         while (state.position < state.length) {
           final position = state.position;
@@ -103,23 +105,23 @@ class NumberParser {
             break;
           }
         }
+        final $17 =
+            state.position != $18 ? const (<int>[],) : state.fail<List<int>>();
         final $16 =
-            state.position != $17 ? const (<int>[],) : state.fail<List<int>>();
-        final $15 =
-            $16 != null ? (state.substring($17, state.position),) : null;
-        if ($15 != null) {
-          String decimal = $15.$1;
+            $17 != null ? (state.substring($18, state.position),) : null;
+        if ($16 != null) {
+          String decimal = $16.$1;
           ok = true;
           result += int.parse(decimal) / math.pow(10, decimal.length);
           $12 = (null,);
         }
         if ($12 == null) {
-          state.position = $17;
+          state.position = $18;
         }
         if ($12 == null) {
           state.error('Expected decimal digit');
         }
-        state.leave($failure);
+        state.failure = state.failure < $15 ? $15 : state.failure;
         if ($12 != null) {}
       }
       final $5 = ok ? (null,) : state.fail<void>();
@@ -135,7 +137,7 @@ class NumberParser {
       state.position = $1;
     }
     state.expected($0, 'number', $1, false);
-    state.leave($18);
+    state.failure = state.failure < $19 ? $19 : state.failure;
     return $0;
   }
 }
@@ -197,12 +199,7 @@ class State {
     return failure;
   }
 
-  /// Registers an error at the [failure] position.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
+  /// This method is for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, {bool? location}) {
@@ -373,18 +370,6 @@ class State {
       this.failure = failure;
     }
   }
-
-  /// Registers an error if the [failure] position is further than starting
-  /// [position], otherwise the error will be ignored.
-  ///
-  /// The [location] argument specifies how the source span will be formed;
-  /// - `true` ([failure], [failure])
-  /// - `false` ([position], [position])
-  /// - `null` ([position], [failure])
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void malformed(String message, {bool? location}) =>
-      failure != position ? error(message, location: location) : null;
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')

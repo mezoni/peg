@@ -32,6 +32,17 @@ abstract class Expression {
 
   String generate(BuildContext context, Variable? variable, bool isFast);
 
+  ({String enter, String leave}) generateEnterLeave(BuildContext context) {
+    final failure = context.allocate();
+    final buffer = StringBuffer();
+    buffer.statement('final $failure = state.failure');
+    buffer.statement('state.failure = state.position');
+    final test =
+        conditional('state.failure < $failure', failure, 'state.failure');
+    final leave = 'state.failure = $test;';
+    return (enter: '$buffer', leave: leave);
+  }
+
   String getResultType() {
     if (resultType.isEmpty) {
       return 'void';

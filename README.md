@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 7.0.6
+Version: 8.0.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -85,7 +85,7 @@ Main characteristics:
 - Small size of the source code of generated parsers
 - Efficient built-in runtime parsing methods
 - Performance optimized source code of generated parsers
-- Automatic generation of standard errors
+- Flexible error system with automatic generation of standard errors
 - Additional useful features, including the use of syntactic sugar
 
 Creating a parser using PEG is very simple.  
@@ -247,20 +247,85 @@ Type('type') =>
 
 ### Catch expressions (error handlers)
 
-The `Catch` expression allows arbitrary code to be executed if one of the preceding expressions was not successfully parsed.  
-The main purpose is to register errors.  
-Syntax: sequence expression `~ {` error handler `}`
+The `Catch`expression allows to generate errors when parsing fails in preceding expressions.  
+The `Catch` expression allows to specify when, where and how to generate errors.  
+Syntax: sequence expression `~ {` error parameters `}`
+
+Below is a list of error parameters:
+
+- `message`
+- `origin`
+- `start`
+- `end`
+
+The `message` parameter specifies the text of the error message.
 
 Example:
 
 ```text
-[eE]
-[-+]
-Decimal
-~ { state.malformed('Malformed exponent'); }
+~ { message = 'Some error message' }
 ```
 
-How it works?  
+The `origin` parameter specifies the condition under which the error will be generated.  
+There are two conditions:
+
+- `== start`
+- `!= start`
+
+That is, this condition specifies where the failure should occur so that the error was generated, in the `starting` position or further than the `starting` position.  
+If the `origin` parameter is not specified, the error will be generated regardless of where it occurs.
+
+Example:
+
+```text
+~ { message = 'Malformed element' origin != start }
+```
+
+The `start` and `end` specifies what information about the error location will be registered.  
+These parameters determine what portion of the input data will be displayed in the error message.  
+There are two values:
+
+- `start`
+- `end`
+
+Essentially, this is information about the location where the error occurred (`source span` or simply `location`).  
+By default, the `source span` is displayed. That is, `start` = `start`, `end` = `end`.  
+If an invalid combination of values ​​is specified, default values ​​will be applied.  
+
+Example:
+
+```text
+Expr1 Expr2 Expr3
+~ { message = 'Message at the end of the error position' start = end }
+```
+
+```text
+Foo
+  ^
+```
+
+```text
+Expr1 Expr2 Expr3
+~ { message = 'Message at the start of the error position' end = start }
+```
+
+```text
+Foo
+^
+```
+
+```text
+Expr1 Expr2 Expr3
+~ { message = 'Message with source span' }
+```
+
+```text
+Foo
+^^^
+```
+
+#### How are expressions preceding a given expression processed?
+
 Example:
 
 ```text

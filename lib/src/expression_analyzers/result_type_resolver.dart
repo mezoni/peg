@@ -38,7 +38,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   @override
   void visitAction(ActionExpression node) {
     node.visitChildren(this);
-    _setResultType(node, 'void');
   }
 
   @override
@@ -164,6 +163,23 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitTyping(TypingExpression node) {
+    final type = node.type;
+    _setResultType(node, type);
+    final child = node.expression;
+    child.accept(this);
+    _setResultType(child, type);
+  }
+
+  @override
+  void visitVariable(VariableExpression node) {
+    final child = node.expression;
+    _setResultType(child, node.resultType);
+    node.visitChildren(this);
+    _setResultType(node, child.resultType);
+  }
+
+  @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     final elementType = _getListElementType(node.resultType);
     final child = node.expression;
@@ -200,23 +216,6 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
     }
 
     node.resultType = resultType;
-  }
-
-  @override
-  void visitTyping(TypingExpression node) {
-    final type = node.type;
-    _setResultType(node, type);
-    final child = node.expression;
-    child.accept(this);
-    _setResultType(child, type);
-  }
-
-  @override
-  void visitVariable(VariableExpression node) {
-    final child = node.expression;
-    _setResultType(child, node.resultType);
-    node.visitChildren(this);
-    _setResultType(node, child.resultType);
   }
 }
 
