@@ -27,7 +27,7 @@ class OneOrMoreExpression extends SingleExpression {
       list = context.allocate('list');
       sink.statement('final $list = <$elementType>[]');
     } else {
-      ok = context.allocate('list');
+      ok = context.allocate('ok');
       sink.statement('var $ok = false');
     }
 

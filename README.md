@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 8.0.2
+Version: 8.0.3
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
