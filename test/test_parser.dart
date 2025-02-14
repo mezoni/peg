@@ -3,7 +3,7 @@
 class TestParser {
   /// **A**
   ///
-  ///```code
+  ///```text
   /// `Object?`
   /// A =
   ///    $ = ($ = '' AndAbc / $ = AnyChar AnyCharVoid / $ = Char16 Char16Void / $ = Chars16 Chars16Void / $ = Char32 Char32Void / $ = Chars32 Chars32Void / $ = Literal0 Literal0Void / $ = Literal1 Literal1Void / $ = Literal2 Literal2Void / $ = Match MatchVoid / $ = NotDigits NotDigitsVoid / $ = '' NotAbc / $ = OneOrMore OneOrMoreVoid / $ = Optional OptionalVoid / $ = OrderedChoice OrderedChoiceVoid / $ = Ranges RangesVoid / $ = TakeWhile TakeWhileVoid / $ = TakeWhile1 TakeWhile1Void / $ = ZeroOrMore ZeroOrMoreVoid)
@@ -246,7 +246,7 @@ class TestParser {
 
   /// **AndAbc**
   ///
-  ///```code
+  ///```text
   /// `void`
   /// AndAbc =
   ///    &'abc'
@@ -262,7 +262,7 @@ class TestParser {
 
   /// **AnyChar**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// AnyChar =
   ///    $ = .
@@ -279,7 +279,7 @@ class TestParser {
 
   /// **AnyCharVoid**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// AnyCharVoid =
   ///    $ = .
@@ -296,7 +296,7 @@ class TestParser {
 
   /// **Char16**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Char16 =
   ///    $ = [a]
@@ -320,7 +320,7 @@ class TestParser {
 
   /// **Char16Void**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Char16Void =
   ///    [a]
@@ -339,7 +339,7 @@ class TestParser {
 
   /// **Char32**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Char32 =
   ///    $ = [{1f800}]
@@ -363,7 +363,7 @@ class TestParser {
 
   /// **Char32Void**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Char32Void =
   ///    $ = [{1f800}]
@@ -387,7 +387,7 @@ class TestParser {
 
   /// **Chars16**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Chars16 =
   ///    $ = [a-zA-Z]
@@ -412,7 +412,7 @@ class TestParser {
 
   /// **Chars16Void**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Chars16Void =
   ///    [a-zA-Z]
@@ -432,7 +432,7 @@ class TestParser {
 
   /// **Chars32**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Chars32 =
   ///    $ = [{1f800-1f803}]
@@ -457,7 +457,7 @@ class TestParser {
 
   /// **Chars32Void**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Chars32Void =
   ///    [{1f800-1f803}]
@@ -477,7 +477,7 @@ class TestParser {
 
   /// **Literal0**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal0 =
   ///    $ = ''
@@ -494,7 +494,7 @@ class TestParser {
 
   /// **Literal0Void**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal0Void =
   ///    ''
@@ -506,7 +506,7 @@ class TestParser {
 
   /// **Literal1**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal1 =
   ///    $ = 'a'
@@ -523,7 +523,7 @@ class TestParser {
 
   /// **Literal1Void**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal1Void =
   ///    'a'
@@ -535,7 +535,7 @@ class TestParser {
 
   /// **Literal2**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal2 =
   ///    $ = 'ab'
@@ -552,7 +552,7 @@ class TestParser {
 
   /// **Literal2Void**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Literal2Void =
   ///    'ab'
@@ -564,7 +564,7 @@ class TestParser {
 
   /// **Match**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Match =
   ///    $ = <[a]+>
@@ -593,7 +593,7 @@ class TestParser {
 
   /// **MatchVoid**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// MatchVoid =
   ///    <[a]+>
@@ -617,7 +617,7 @@ class TestParser {
 
   /// **NotAbc**
   ///
-  ///```code
+  ///```text
   /// `void`
   /// NotAbc =
   ///    !'abc'
@@ -634,7 +634,7 @@ class TestParser {
 
   /// **NotDigits**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// NotDigits =
   ///    $ = [0-9]
@@ -659,7 +659,7 @@ class TestParser {
 
   /// **NotDigitsVoid**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// NotDigitsVoid =
   ///    [0-9]
@@ -679,7 +679,7 @@ class TestParser {
 
   /// **OneOrMore**
   ///
-  ///```code
+  ///```text
   /// `List<String>`
   /// OneOrMore =
   ///    $ = 'abc'+
@@ -704,7 +704,7 @@ class TestParser {
 
   /// **OneOrMoreVoid**
   ///
-  ///```code
+  ///```text
   /// `List<String>`
   /// OneOrMoreVoid =
   ///    'abc'+
@@ -724,7 +724,7 @@ class TestParser {
 
   /// **Optional**
   ///
-  ///```code
+  ///```text
   /// `String?`
   /// Optional =
   ///    $ = 'abc'?
@@ -740,7 +740,7 @@ class TestParser {
 
   /// **OptionalVoid**
   ///
-  ///```code
+  ///```text
   /// `String?`
   /// OptionalVoid =
   ///    'abc'?
@@ -753,7 +753,7 @@ class TestParser {
 
   /// **OrderedChoice**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// OrderedChoice =
   ///    $ = ($ = 'a' / $ = 'b' / $ = 'c')
@@ -789,7 +789,7 @@ class TestParser {
 
   /// **OrderedChoiceVoid**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// OrderedChoiceVoid =
   ///    ($ = 'a' / $ = 'b' / $ = 'c')
@@ -820,7 +820,7 @@ class TestParser {
 
   /// **Ranges**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// Ranges =
   ///    $ = <[0-9A-Za-z]>
@@ -846,7 +846,7 @@ class TestParser {
 
   /// **RangesVoid**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// RangesVoid =
   ///    <[0-9A-Za-z]>
@@ -867,7 +867,7 @@ class TestParser {
 
   /// **TakeWhile**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// TakeWhile =
   ///    $ = <[a]*>
@@ -892,7 +892,7 @@ class TestParser {
 
   /// **TakeWhile1**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// TakeWhile1 =
   ///    $ = <[a]+>
@@ -921,7 +921,7 @@ class TestParser {
 
   /// **TakeWhile1Void**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// TakeWhile1Void =
   ///    <[a]+>
@@ -945,7 +945,7 @@ class TestParser {
 
   /// **TakeWhileVoid**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// TakeWhileVoid =
   ///    <[a]*>
@@ -967,7 +967,7 @@ class TestParser {
 
   /// **ZeroOrMore**
   ///
-  ///```code
+  ///```text
   /// `List<String>`
   /// ZeroOrMore =
   ///    $ = 'abc'*
@@ -990,7 +990,7 @@ class TestParser {
 
   /// **ZeroOrMoreVoid**
   ///
-  ///```code
+  ///```text
   /// `List<String>`
   /// ZeroOrMoreVoid =
   ///    'abc'*

@@ -88,6 +88,24 @@ Main characteristics:
 - Automatic generation of standard errors
 - Additional useful features, including the use of syntactic sugar
 
+Creating a parser using PEG is very simple.  
+There is no need to use tokenization.  
+The PEG grammar definition is a combination of parsing expressions (similar to regular expressions), production rules, and regular Dart code.  
+
+Available examples:
+
+A trivial implementation of the formula evaluator (calculator):  
+Grammar definition: [calc.peg](https://github.com/mezoni/peg/blob/main/example/calc.peg)  
+Generated code: [example.dart](https://github.com/mezoni/peg/blob/main/example/example.dart)
+
+The same formula evaluator, but a little faster:  
+Grammar definition:  [realtime_calc.peg](https://github.com/mezoni/peg/blob/main/example/realtime_calc.peg)  
+Generated code: [realtime_calc.dart](https://github.com/mezoni/peg/blob/main/example/realtime_calc.dart)
+
+A number parser and an example of how to examine the generated error messages:  
+Grammar definition: [number.peg](https://github.com/mezoni/peg/blob/main/example/number.peg)  
+Generated code: [number.dart](https://github.com/mezoni/peg/blob/main/example/number.dart)
+
 ## Automatic and programmatic error generation
 
 Automatic error generation occurs when parsing the following grammar elements:
@@ -804,20 +822,44 @@ import 'dart:io';
 import 'package:peg/src/parser_generator.dart';
 
 void main(List<String> args) {
-  final files = [
-    ('example/calc.peg', 'example/example.dart', 'CalcParser'),
-    ('example/realtime_calc.peg', 'example/realtime_calc.dart', 'CalcParser'),
+  final parsers = [
+    (
+      'example/number.peg',
+      'example/number.dart',
+      ParserGeneratorOptions(
+        name: 'NumberParser',
+        parseFunction: 'parse',
+      ),
+    ),
+    (
+      'example/calc.peg',
+      'example/example.dart',
+      ParserGeneratorOptions(
+        name: 'CalcParser',
+      ),
+    ),
+    (
+      'example/realtime_calc.peg',
+      'example/realtime_calc.dart',
+      ParserGeneratorOptions(
+        name: 'CalcParser',
+      ),
+    ),
+    (
+      'example/number.peg',
+      'example/number.dart',
+      ParserGeneratorOptions(
+        name: 'NumberParser',
+        parseFunction: 'parse',
+      ),
+    ),
   ];
   final outputFiles = <String>[];
-  for (final element in files) {
-    final inputFile = element.$1;
-    final outputFile = element.$2;
-    final name = element.$3;
+  for (final parser in parsers) {
+    final inputFile = parser.$1;
+    final outputFile = parser.$2;
+    final options = parser.$3;
     final source = File(inputFile).readAsStringSync();
-    final options = ParserGeneratorOptions(
-      addComments: false,
-      name: name,
-    );
     final generator = ParserGenerator(
       options: options,
       source: source,

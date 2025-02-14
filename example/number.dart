@@ -1,17 +1,28 @@
-// ignore_for_file: prefer_conditional_assignment, prefer_final_locals
+// ignore_for_file: prefer_final_locals
+import 'dart:math' as math;
 
 import 'package:source_span/source_span.dart';
 
 void main() {
-  const source = ' 1 + 2 * 3 + x ';
-  final result = calc(source, {'x': 5});
-  print(result);
+  _testErrors();
 }
 
-int calc(String source, Map<String, int> vars) {
-  final parser = CalcParser(vars);
+void _testErrors() {
+  const patterns = ['1.', '`'];
+  for (final pattern in patterns) {
+    try {
+      parse(pattern);
+    } catch (e) {
+      print(pattern);
+      print(e);
+    }
+  }
+}
+
+num parse(String source) {
   final state = State(source);
-  final result = parser.parseStart(state);
+  final parser = NumberParser();
+  final result = parser.parseNumber(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(state
@@ -19,84 +30,32 @@ int calc(String source, Map<String, int> vars) {
         .map((e) => file.span(e.start, e.end).message(e.message))
         .join('\n'));
   }
-
   return result.$1;
 }
 
-class CalcParser {
-  Map<String, int> vars = {};
-
-  CalcParser(this.vars);
-
-  /// **EOF** ('end of file')
+class NumberParser {
+  /// **Number** ('number')
   ///
   ///```text
-  /// `void`
-  /// EOF =
-  ///    !.
+  /// `num`
+  /// Number =
+  ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } ~ { })) &{ } $ = { }
   ///```
-  (void,)? parseEOF(State state) {
-    final $2 = state.enter();
+  (num,)? parseNumber(State state) {
+    final $19 = state.enter();
     final $1 = state.position;
-    final $0 = state.matchEof();
-    state.expected($0, 'end of file', $1, false);
-    state.leave($2);
-    return $0;
-  }
-
-  /// **Expr** ('expression')
-  ///
-  ///```text
-  /// `int`
-  /// Expr =
-  ///    Sum
-  ///```
-  (int,)? parseExpr(State state) {
-    final $2 = state.enter();
-    final $1 = state.position;
-    final $0 = parseSum(state);
-    state.expected($0, 'expression', $1, false);
-    state.leave($2);
-    return $0;
-  }
-
-  /// **ID**
-  ///
-  ///```text
-  /// `String`
-  /// ID =
-  ///    $ = <[a-zA-Z]> S
-  ///```
-  (String,)? parseID(State state) {
-    final $4 = state.position;
-    (String,)? $0;
-    (int,)? $3;
+    (num,)? $0;
+    (int,)? $8;
     if (state.position < state.length) {
       final c = state.nextChar16();
-      final ok = c >= 97 ? c <= 122 : c >= 65 && c <= 90;
-      $3 = ok ? (c,) : null;
-      $3 ?? (state.position = $4);
+      $8 = c == 45 ? (45,) : null;
+      $8 ?? (state.position = $1);
     }
-    final $2 = $3 ?? state.fail<int>();
-    final $1 = $2 != null ? (state.substring($4, state.position),) : null;
-    if ($1 != null) {
-      String $ = $1.$1;
-      parseS(state);
-      $0 = ($,);
-    }
-    return $0;
-  }
-
-  /// **NUMBER**
-  ///
-  ///```text
-  /// `int`
-  /// NUMBER =
-  ///    n = <[0-9]+> S $ = { }
-  ///```
-  (int,)? parseNUMBER(State state) {
-    final $4 = state.position;
-    (int,)? $0;
+    (int?,)? $2 = $8 ?? state.fail<int>();
+    $2 ??= (null,);
+    int? negative = $2.$1;
+    final $11 = state.position;
+    final $10 = state.position;
     while (state.position < state.length) {
       final position = state.position;
       final c = state.nextChar16();
@@ -106,241 +65,75 @@ class CalcParser {
         break;
       }
     }
-    final $3 =
-        state.position != $4 ? const (<int>[],) : state.fail<List<int>>();
-    final $1 = $3 != null ? (state.substring($4, state.position),) : null;
-    if ($1 != null) {
-      String n = $1.$1;
-      parseS(state);
-      final int $$;
-      $$ = int.parse(n);
-      final $2 = ($$,);
-      int $ = $2.$1;
-      $0 = ($,);
-    }
-    if ($0 == null) {
-      state.position = $4;
-    }
-    return $0;
-  }
-
-  /// **Product**
-  ///
-  ///```text
-  /// `int`
-  /// Product =
-  ///    $ = Value [*] S r = Value { } / [/] S r = Value { }*
-  ///```
-  (int,)? parseProduct(State state) {
-    (int,)? $0;
-    final $1 = parseValue(state);
-    if ($1 != null) {
-      int $ = $1.$1;
-      while (true) {
-        final $6 = state.position;
-        (void,)? $2;
-        (int,)? $5;
-        if (state.position < state.length) {
+    final $9 =
+        state.position != $10 ? const (<int>[],) : state.fail<List<int>>();
+    final $3 = $9 != null ? (state.substring($11, state.position),) : null;
+    if ($3 != null) {
+      String integer = $3.$1;
+      final num $$;
+      $$ = num.parse(integer);
+      final $4 = ($$,);
+      num result = $4.$1;
+      var ok = true;
+      final $15 = state.position;
+      (void,)? $5;
+      (int,)? $14;
+      if (state.position < state.length) {
+        final c = state.nextChar16();
+        $14 = c == 46 ? (46,) : null;
+        $14 ?? (state.position = $15);
+      }
+      final $12 = $14 ?? state.fail<int>();
+      if ($12 != null) {
+        ok = false;
+        final $18 = state.position;
+        final $failure = state.enter();
+        (void,)? $13;
+        while (state.position < state.length) {
+          final position = state.position;
           final c = state.nextChar16();
-          $5 = c == 42 ? (42,) : null;
-          $5 ?? (state.position = $6);
-        }
-        final $3 = $5 ?? state.fail<int>();
-        if ($3 != null) {
-          parseS(state);
-          final $4 = parseValue(state);
-          if ($4 != null) {
-            int r = $4.$1;
-            $ *= r;
-            $2 = (null,);
+          final ok = c >= 48 && c <= 57;
+          if (!ok) {
+            state.position = position;
+            break;
           }
         }
-        if ($2 == null) {
-          state.position = $6;
+        final $17 =
+            state.position != $18 ? const (<int>[],) : state.fail<List<int>>();
+        final $16 =
+            $17 != null ? (state.substring($18, state.position),) : null;
+        if ($16 != null) {
+          String decimal = $16.$1;
+          result += int.parse(decimal) / math.pow(10, decimal.length);
+          $13 = (null,);
         }
-        if ($2 == null) {
-          (int,)? $9;
-          if (state.position < state.length) {
-            final c = state.nextChar16();
-            $9 = c == 47 ? (47,) : null;
-            $9 ?? (state.position = $6);
-          }
-          final $7 = $9 ?? state.fail<int>();
-          if ($7 != null) {
-            parseS(state);
-            final $8 = parseValue(state);
-            if ($8 != null) {
-              int r = $8.$1;
-              $ ~/= r;
-              $2 = (null,);
-            }
-          }
-          if ($2 == null) {
-            state.position = $6;
-          }
+        if ($13 == null) {
+          state.error('Expected decimal digit');
         }
-        if ($2 == null) {
-          break;
+        state.leave($failure);
+        if ($13 != null) {
+          $5 = (null,);
         }
       }
-      $0 = ($,);
-    }
-    return $0;
-  }
-
-  /// **S**
-  ///
-  ///```text
-  /// `void`
-  /// S =
-  ///    [ {9}{d}{a}]*
-  ///```
-  (void,)? parseS(State state) {
-    while (state.position < state.length) {
-      final position = state.position;
-      final c = state.nextChar16();
-      final ok = c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;
-      if (!ok) {
-        state.position = position;
-        break;
+      if ($5 == null) {
+        state.position = $15;
       }
-    }
-    const $0 = (<int>[],);
-    return $0;
-  }
-
-  /// **Start**
-  ///
-  ///```text
-  /// `int`
-  /// Start =
-  ///    S $ = Expr EOF
-  ///```
-  (int,)? parseStart(State state) {
-    final $3 = state.position;
-    (int,)? $0;
-    parseS(state);
-    final $1 = parseExpr(state);
-    if ($1 != null) {
-      int $ = $1.$1;
-      final $2 = parseEOF(state);
-      if ($2 != null) {
-        $0 = ($,);
+      if ($5 != null) {
+        final $6 = ok ? (null,) : state.fail<void>();
+        if ($6 != null) {
+          final num $$;
+          $$ = negative == null ? result : -result;
+          final $7 = ($$,);
+          num $ = $7.$1;
+          $0 = ($,);
+        }
       }
     }
     if ($0 == null) {
-      state.position = $3;
+      state.position = $1;
     }
-    return $0;
-  }
-
-  /// **Sum**
-  ///
-  ///```text
-  /// `int`
-  /// Sum =
-  ///    $ = Product [+] S r = Product { } / [\-] S r = Product { }*
-  ///```
-  (int,)? parseSum(State state) {
-    (int,)? $0;
-    final $1 = parseProduct(state);
-    if ($1 != null) {
-      int $ = $1.$1;
-      while (true) {
-        final $6 = state.position;
-        (void,)? $2;
-        (int,)? $5;
-        if (state.position < state.length) {
-          final c = state.nextChar16();
-          $5 = c == 43 ? (43,) : null;
-          $5 ?? (state.position = $6);
-        }
-        final $3 = $5 ?? state.fail<int>();
-        if ($3 != null) {
-          parseS(state);
-          final $4 = parseProduct(state);
-          if ($4 != null) {
-            int r = $4.$1;
-            $ += r;
-            $2 = (null,);
-          }
-        }
-        if ($2 == null) {
-          state.position = $6;
-        }
-        if ($2 == null) {
-          (int,)? $9;
-          if (state.position < state.length) {
-            final c = state.nextChar16();
-            $9 = c == 45 ? (45,) : null;
-            $9 ?? (state.position = $6);
-          }
-          final $7 = $9 ?? state.fail<int>();
-          if ($7 != null) {
-            parseS(state);
-            final $8 = parseProduct(state);
-            if ($8 != null) {
-              int r = $8.$1;
-              $ -= r;
-              $2 = (null,);
-            }
-          }
-          if ($2 == null) {
-            state.position = $6;
-          }
-        }
-        if ($2 == null) {
-          break;
-        }
-      }
-      $0 = ($,);
-    }
-    return $0;
-  }
-
-  /// **Value** ('expression')
-  ///
-  ///```text
-  /// `int`
-  /// Value =
-  ///    (NUMBER / i = ID $ = { } / '(' S $ = Expr ')' S)
-  ///```
-  (int,)? parseValue(State state) {
-    final $7 = state.enter();
-    final $1 = state.position;
-    (int,)? $0;
-    $0 = parseNUMBER(state);
-    if ($0 == null) {
-      final $2 = parseID(state);
-      if ($2 != null) {
-        String i = $2.$1;
-        final int $$;
-        $$ = vars[i]!;
-        final $3 = ($$,);
-        int $ = $3.$1;
-        $0 = ($,);
-      }
-      if ($0 == null) {
-        final $4 = state.matchLiteral1(('(',), '(', 40);
-        if ($4 != null) {
-          parseS(state);
-          final $5 = parseExpr(state);
-          if ($5 != null) {
-            int $ = $5.$1;
-            final $6 = state.matchLiteral1((')',), ')', 41);
-            if ($6 != null) {
-              parseS(state);
-              $0 = ($,);
-            }
-          }
-        }
-        if ($0 == null) {
-          state.position = $1;
-        }
-      }
-    }
-    state.expected($0, 'expression', $1, false);
-    state.leave($7);
+    state.expected($0, 'number', $1, false);
+    state.leave($19);
     return $0;
   }
 }

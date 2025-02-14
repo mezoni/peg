@@ -1,6 +1,6 @@
 ## 7.0.5
 
-- Minor improvements have been made.
+- Fixed bugs and minor improvements have been made.
 
 ## 7.0.4
 

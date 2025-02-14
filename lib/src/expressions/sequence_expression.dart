@@ -37,6 +37,14 @@ class SequenceExpression extends MultiExpression {
 
   @override
   String generate(BuildContext context, Variable? variable, bool isFast) {
+    final expressions = List.of(this.expressions);
+    for (var i = 0; i < expressions.length; i++) {
+      final expression = expressions[i];
+      if (expression is TypingExpression) {
+        expressions[i] = expression.expression;
+      }
+    }
+
     final sink = preprocess(context);
     if (expressions.length > 1) {
       if (variable != null) {
@@ -100,12 +108,7 @@ class SequenceExpression extends MultiExpression {
         final name = expression.name;
         final type = expression.getResultType();
         final variable = variables[i - 1];
-        final child = expression.expression;
-        if (expression.isLast && name == '\$' && child is ActionExpression) {
-          //block.statement('$type $name = $variable.\$1');
-        } else {
-          block.statement('$type $name = $variable.\$1');
-        }
+        block.statement('$type $name = $variable.\$1');
       }
     }
 
@@ -125,14 +128,8 @@ class SequenceExpression extends MultiExpression {
         final variable = variables[resultIndex];
         final expression = expressions[resultIndex];
         if (expression is VariableExpression) {
-          final child = expression.expression;
           final name = expression.name;
-          if (expression.isLast && name == '\$' && child is ActionExpression) {
-            //value = '($name,)';
-            value = '(\$\$,)';
-          } else {
-            value = '($name,)';
-          }
+          value = '($name,)';
         } else {
           value = '$variable';
         }

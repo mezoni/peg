@@ -1,0 +1,39 @@
+%{
+// ignore_for_file: prefer_final_locals
+import 'dart:math' as math;
+
+import 'package:source_span/source_span.dart';
+
+void main() {
+  _testErrors();
+}
+
+void _testErrors() {
+  const patterns = ['1.', '`'];
+  for (final pattern in patterns) {
+    try {
+      parse(pattern);
+    } catch (e) {
+      print(pattern);
+      print(e);
+    }
+  }
+}
+
+}%
+
+`num`
+Number('number') =>
+  negative = [-]?
+  integer = <[0-9]+>
+  `num` result = { $$ = num.parse(integer); }
+  { var ok = true; } (
+    [.]
+    { ok = false; } (
+      decimal = <[0-9]+>
+      { result += int.parse(decimal) / math.pow(10, decimal.length); }
+      ~ { state.error('Expected decimal digit'); }
+    )
+  )
+  & { ok }
+  $ = { $$ = negative == null ? result  : -result; }

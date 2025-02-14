@@ -19,6 +19,12 @@ class CatchExpression extends SingleExpression {
     final sink = preprocess(context);
     final failure = context.allocate('failure');
     sink.statement('final $failure = state.enter()');
+    if (variable == null) {
+      if (expression.isVariableNeedForTestState()) {
+        variable = context.allocateVariable();
+      }
+    }
+
     sink.writeln(expression.generate(context, variable, isFast));
     final isFailure = expression.getStateTest(variable, false);
     sink.ifStatement(isFailure, (block) {

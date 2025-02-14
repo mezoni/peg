@@ -30,7 +30,7 @@ class CalcParser {
 
   /// **EOF** ('end of file')
   ///
-  ///```code
+  ///```text
   /// `void`
   /// EOF =
   ///    !.
@@ -46,7 +46,7 @@ class CalcParser {
 
   /// **Expr** ('expression')
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Expr =
   ///    Sum
@@ -62,7 +62,7 @@ class CalcParser {
 
   /// **ID**
   ///
-  ///```code
+  ///```text
   /// `String`
   /// ID =
   ///    $ = <[a-zA-Z]> S
@@ -89,7 +89,7 @@ class CalcParser {
 
   /// **NUMBER**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// NUMBER =
   ///    n = <[0-9]+> S $ = { }
@@ -114,7 +114,9 @@ class CalcParser {
       parseS(state);
       final int $$;
       $$ = int.parse(n);
-      $0 = ($$,);
+      final $2 = ($$,);
+      int $ = $2.$1;
+      $0 = ($,);
     }
     if ($0 == null) {
       state.position = $4;
@@ -124,7 +126,7 @@ class CalcParser {
 
   /// **Product**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Product =
   ///    $ = Value n = [*/] S r = Product { }*
@@ -173,7 +175,7 @@ class CalcParser {
 
   /// **S**
   ///
-  ///```code
+  ///```text
   /// `void `
   /// S =
   ///    `void ` [ {9}{d}{a}]*
@@ -201,7 +203,7 @@ class CalcParser {
 
   /// **Start**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Start =
   ///    S $ = Expr EOF
@@ -226,7 +228,7 @@ class CalcParser {
 
   /// **Sum**
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Sum =
   ///    $ = Product n = [\-+] S r = Product { }*
@@ -275,7 +277,7 @@ class CalcParser {
 
   /// **Value** ('expression')
   ///
-  ///```code
+  ///```text
   /// `int`
   /// Value =
   ///    (NUMBER / i = ID $ = { } / '(' S $ = Expr ')' S)
@@ -291,7 +293,9 @@ class CalcParser {
         String i = $2.$1;
         final int $$;
         $$ = vars[i]!;
-        $0 = ($$,);
+        final $3 = ($$,);
+        int $ = $3.$1;
+        $0 = ($,);
       }
       if ($0 == null) {
         final $4 = state.matchLiteral1(('(',), '(', 40);

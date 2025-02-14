@@ -91,7 +91,7 @@ $rendered''';
 
     declaration.writeln();
     declaration.writeln(' ///');
-    declaration.writeln(' ///```code');
+    declaration.writeln(' ///```text');
     if (rule.resultType.isNotEmpty) {
       declaration.writeln(' /// `${rule.resultType}`');
     }

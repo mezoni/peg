@@ -19,9 +19,7 @@ class ActionExpression extends Expression {
       sink.statement('final $type \$\$');
       sink.writeln(code);
       if (variable != null) {
-        if (!isLast) {
-          variable.assign(sink, '(\$\$,)');
-        }
+        variable.assign(sink, '(\$\$,)');
       }
     } else {
       sink.writeln(code);
