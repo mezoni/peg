@@ -525,7 +525,7 @@ class PegParser {
                 String s = $16.$1;
                 parseS(state);
                 final String $$;
-                $$ = '$n$s';
+                $$ = '$n $s';
                 final $17 = ($$,);
                 String $ = $17.$1;
                 $13 = ($,);
@@ -566,7 +566,7 @@ class PegParser {
   ///```text
   /// `int`
   /// EscapedHexValue =
-  ///    "u" '{' $ = HexValue '}' ~ { }
+  ///    "u" '{' $ = HexValue '}' ~ { message = 'Malformed escape sequence' origin != start }
   ///```
   (int,)? parseEscapedHexValue(State state) {
     final $6 = state.position;
@@ -604,7 +604,7 @@ class PegParser {
   ///```text
   /// `int`
   /// EscapedValue =
-  ///    $ = [abefnrtv'"\\] { } ~ { }
+  ///    $ = [abefnrtv'"\\] { } ~ { message = 'Unexpected escape character' }
   ///```
   (int,)? parseEscapedValue(State state) {
     final $4 = state.position;
@@ -1731,9 +1731,7 @@ class PegParser {
       List<(String, String)>? p = $2.$1;
       final Expression $$;
       final e = SequenceExpression(expressions: n);
-      $$ = p == null
-          ? e
-          : CatchExpression(expression: e, catchBlock: '', parameters: p);
+      $$ = p == null ? e : CatchExpression(expression: e, parameters: p);
       final $3 = ($$,);
       Expression $ = $3.$1;
       $0 = ($,);

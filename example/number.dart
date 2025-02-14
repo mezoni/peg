@@ -45,7 +45,7 @@ class NumberParser {
   ///```text
   /// `num`
   /// Number =
-  ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } { } ~ { }))? &{ } $ = { }
+  ///    negative = [\-]? integer = <[0-9]+> `num` result = { } { } ([.] { } (decimal = <[0-9]+> { } { } ~ { message = 'Expected decimal digit' }))? &{ } $ = { }
   ///```
   (num,)? parseNumber(State state) {
     final $19 = state.failure;

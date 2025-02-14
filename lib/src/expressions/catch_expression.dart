@@ -2,13 +2,10 @@ import '../helper.dart';
 import 'build_context.dart';
 
 class CatchExpression extends SingleExpression {
-  final String catchBlock;
-
   final List<(String, String)> parameters;
 
   CatchExpression({
     required super.expression,
-    required this.catchBlock,
     this.parameters = const [],
   });
 
@@ -52,8 +49,8 @@ class CatchExpression extends SingleExpression {
 
     final originTest = switch (origin) {
       '' => 'true',
-      '==start' => 'state.failure == state.position',
-      '!=start' => 'state.failure != state.position',
+      '== start' => 'state.failure == state.position',
+      '!= start' => 'state.failure != state.position',
       _ => throw invalidArgument('origin', origin),
     };
 

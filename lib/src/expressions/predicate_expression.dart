@@ -33,10 +33,10 @@ class PredicateExpression extends Expression {
             : conditional(code, 'state.fail<void>()', '(null,)');
     }
 
-    final hasCalculation = value != '(null,)';
     if (variable != null) {
       variable.assign(sink, value);
     } else {
+      final hasCalculation = value != '(null,)';
       if (hasCalculation) {
         sink.statement(value);
       }

@@ -73,7 +73,7 @@ Sequence =>
   p = ('~' S '{' S $ = ErrorParameters '}' S)?
   $ = {
     final e = SequenceExpression(expressions: n);
-    $$ = p == null ? e : CatchExpression(expression: e, catchBlock: '', parameters: p);
+    $$ = p == null ? e : CatchExpression(expression: e, parameters: p);
   }
 
 `List<(String, String)>`
@@ -90,7 +90,7 @@ ErrorParameters =>
     $ = { $$ = (k, v); }
     ----
     k = 'origin' S
-    `String` v = (n = ('==' / '!=') S s = 'start' S $ = { $$ = '$n$s'; } )
+    `String` v = (n = ('==' / '!=') S s = 'start' S $ = { $$ = '$n $s'; } )
     $ = { $$ = (k, v); }
   }
 

@@ -1,4 +1,4 @@
-import '../helper.dart' as helper;
+import '../helper.dart';
 import 'expressions.dart';
 
 class ExpressionPrinter implements ExpressionVisitor<void> {
@@ -15,14 +15,6 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
   }
 
   @override
-  void visitPredicate(PredicateExpression node) {
-    final negate = node.negate;
-    _buffer.write(negate ? '!' : '&');
-    _buffer.write('{ }');
-    node.visitChildren(this);
-  }
-
-  @override
   void visitAndPredicate(AndPredicateExpression node) {
     _buffer.write('&');
     node.visitChildren(this);
@@ -36,7 +28,20 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
   @override
   void visitCatch(CatchExpression node) {
     node.visitChildren(this);
-    _buffer.write(' ~ { }');
+    final parameters = node.parameters.map((e) {
+      final name = e.$1;
+      final value = e.$2;
+      switch (name) {
+        case 'message':
+          final escaped = escapeString(value);
+          return '$name = $escaped';
+        case 'origin':
+          return '$name $value';
+        default:
+          return '$name = $value';
+      }
+    }).join(' ');
+    _buffer.write(' ~ { $parameters }');
   }
 
   @override
@@ -101,7 +106,7 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
     final literal = node.literal;
     final silent = node.silent;
     final quote = silent ? '"' : '\'';
-    final escaped = helper.escapeString(literal, quote);
+    final escaped = escapeString(literal, quote);
     _buffer.write(escaped);
   }
 
@@ -149,9 +154,16 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
   }
 
   @override
+  void visitPredicate(PredicateExpression node) {
+    final negate = node.negate;
+    _buffer.write(negate ? '!' : '&');
+    _buffer.write('{ }');
+    node.visitChildren(this);
+  }
+
+  @override
   void visitSequence(SequenceExpression node) {
     final expressions = node.expressions;
-    final errorHandler = node.errorHandler;
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
       expression.accept(this);
@@ -159,15 +171,6 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
         _buffer.write(' ');
       }
     }
-    if (errorHandler != null) {
-      _buffer.write('~{ }');
-    }
-  }
-
-  @override
-  void visitZeroOrMore(ZeroOrMoreExpression node) {
-    node.visitChildren(this);
-    _buffer.write('*');
   }
 
   @override
@@ -182,5 +185,11 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
     final name = node.name;
     _buffer.write('$name = ');
     node.visitChildren(this);
+  }
+
+  @override
+  void visitZeroOrMore(ZeroOrMoreExpression node) {
+    node.visitChildren(this);
+    _buffer.write('*');
   }
 }

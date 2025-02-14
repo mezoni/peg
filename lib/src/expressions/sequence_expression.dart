@@ -2,11 +2,8 @@ import '../helper.dart';
 import 'build_context.dart';
 
 class SequenceExpression extends MultiExpression {
-  final String? errorHandler;
-
   SequenceExpression({
     required super.expressions,
-    this.errorHandler,
   }) {
     if (expressions.isEmpty) {
       throw ArgumentError('Must not be empty', 'expressions');
