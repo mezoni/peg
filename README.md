@@ -85,7 +85,8 @@ Main characteristics:
 - Small size of the source code of generated parsers
 - Efficient built-in runtime parsing methods
 - Performance optimized source code of generated parsers
-- Flexible error system with automatic generation of standard errors
+- Automatic generation of standard errors
+- Declarative way of describing additional errors
 - Additional useful features, including the use of syntactic sugar
 
 Creating a parser using PEG is very simple.  
@@ -106,7 +107,7 @@ A number parser and an example of how to examine the generated error messages:
 Grammar definition: [number.peg](https://github.com/mezoni/peg/blob/main/example/number.peg)  
 Generated code: [number.dart](https://github.com/mezoni/peg/blob/main/example/number.dart)
 
-## Automatic and programmatic error generation
+## Automatic error generation
 
 Automatic error generation occurs when parsing the following grammar elements:
 
@@ -128,18 +129,6 @@ The most common and simple example when it is 100% necessary:
 Because it is unlikely that a grammar element with such a name `'\r\n'` and action (`line break`) is `expected`, if it is parsed as `white space`.
 
 The literal expression with `double quotes`and the expression `character class` can be considered `primitive` `terminal` expressions. They only signal with `failures` in case of unsuccessful parsing.
-
-To generate errors programmatically, to improve the informativeness there is a method `error` in the class `State`.  
-It allows to generate errors with any messages.  
-There is also the `malformed` method. It does nothing special or just checks the position of the failure before generating an error. If an error occurs at a position further the starting parsing position, this method calls the `error` method, otherwise it does nothing.
-
-It is equivalent to the following code:
-
-```dart
-if (state.failure > state.position) {
-  state.error(message);
-}
-```
 
 ### What can be done to ensure that more errors are generated automatically?
 
@@ -170,6 +159,89 @@ And make adjustments to grammar if necessary.
 Because the grammar that parses expressions is not unambiguous and it does not know the purpose of certain elements.  
 
 By following these principles, you can ensure that error messages are of sufficient quality.  
+
+## Declarative way of generating errors
+
+To generate additional errors, to increase the amount of information about the causes of failures, there is a declarative way to specify when, where and how to generate errors.  
+It allows to generate errors with any messages.  
+
+The point of this method is that the error handler description specifies the parameters for generating an error.  
+For these purposes, the expression `Catch` is used, which will be described below in the corresponding section.  
+
+Below is a list of error parameters:
+
+- `message`
+- `origin`
+- `start`
+- `end`
+
+The `message` parameter specifies the text of the error message.
+
+Example:
+
+```text
+Expression Sequence
+~ { message = 'Some error message' }
+```
+
+The `origin` parameter specifies the condition under which the error will be generated.  
+There are two conditions:
+
+- `== start`
+- `!= start`
+
+That is, this condition specifies where the failure should occur so that the error was generated, in the `starting` position or further than the `starting` position.  
+If the `origin` parameter is not specified, the error will be generated regardless of where the failure occurred.
+
+Example:
+
+```text
+Expression Sequence
+~ { message = 'Malformed element' origin != start }
+```
+
+The `start` and `end` specifies what information about the error location will be registered.  
+These parameters determine what portion of the input data will be displayed in the error message.  
+There are two values:
+
+- `start`
+- `end`
+
+Essentially, this is information about the location where the error occurred (`source span` or simply `location`).  
+By default, the `source span` is displayed. That is, `start` = `start`, `end` = `end`.  
+If an invalid combination of values ​​is specified, default values ​​will be applied.  
+
+Example:
+
+```text
+Expression Sequence
+~ { message = 'Message at the end of the failure position' start = end }
+```
+
+```text
+Foo
+  ^
+```
+
+```text
+Expression Sequence
+~ { message = 'Message at the start of the failure position' end = start }
+```
+
+```text
+Foo
+^
+```
+
+```text
+Expression Sequence
+~ { message = 'Message with source span' }
+```
+
+```text
+Foo
+^^^
+```
 
 ## Additional features
 
@@ -248,83 +320,9 @@ Type('type') =>
 ### Catch expressions (error handlers)
 
 The `Catch`expression allows to generate errors when parsing fails in preceding expressions.  
-The `Catch` expression allows to specify when, where and how to generate errors.  
+The `Catch` expression allows to specify when, where, and how to generate errors based on the specified parameters.  
+The description of the parameters is given above in the text.  
 Syntax: sequence expression `~ {` error parameters `}`
-
-Below is a list of error parameters:
-
-- `message`
-- `origin`
-- `start`
-- `end`
-
-The `message` parameter specifies the text of the error message.
-
-Example:
-
-```text
-~ { message = 'Some error message' }
-```
-
-The `origin` parameter specifies the condition under which the error will be generated.  
-There are two conditions:
-
-- `== start`
-- `!= start`
-
-That is, this condition specifies where the failure should occur so that the error was generated, in the `starting` position or further than the `starting` position.  
-If the `origin` parameter is not specified, the error will be generated regardless of where it occurs.
-
-Example:
-
-```text
-~ { message = 'Malformed element' origin != start }
-```
-
-The `start` and `end` specifies what information about the error location will be registered.  
-These parameters determine what portion of the input data will be displayed in the error message.  
-There are two values:
-
-- `start`
-- `end`
-
-Essentially, this is information about the location where the error occurred (`source span` or simply `location`).  
-By default, the `source span` is displayed. That is, `start` = `start`, `end` = `end`.  
-If an invalid combination of values ​​is specified, default values ​​will be applied.  
-
-Example:
-
-```text
-Expr1 Expr2 Expr3
-~ { message = 'Message at the end of the error position' start = end }
-```
-
-```text
-Foo
-  ^
-```
-
-```text
-Expr1 Expr2 Expr3
-~ { message = 'Message at the start of the error position' end = start }
-```
-
-```text
-Foo
-^
-```
-
-```text
-Expr1 Expr2 Expr3
-~ { message = 'Message with source span' }
-```
-
-```text
-Foo
-^^^
-```
-
-#### How are expressions preceding a given expression processed?
 
 Example:
 
