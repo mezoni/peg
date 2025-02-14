@@ -62,6 +62,7 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
         0x5B => r'\[',
         0x5C => r'\\',
         0x5D => r'\]',
+        0x5E => r'\^',
         0x7B => r'\{',
         0x7D => r'\}',
         _ => String.fromCharCode(char),
