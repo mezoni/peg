@@ -5,14 +5,6 @@ import 'package:peg/src/parser_generator.dart';
 void main(List<String> args) {
   final parsers = [
     (
-      'example/number.peg',
-      'example/number.dart',
-      ParserGeneratorOptions(
-        name: 'NumberParser',
-        parseFunction: 'parse',
-      ),
-    ),
-    (
       'example/calc.peg',
       'example/example.dart',
       ParserGeneratorOptions(

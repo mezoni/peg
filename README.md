@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 8.0.0
+Version: 8.0.1
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -200,15 +200,15 @@ Expression Sequence
 ~ { message = 'Malformed element' origin != start }
 ```
 
-The `start` and `end` specifies what information about the error location will be registered.  
+The `start` and `end` parameters specify what information about the error location will be registered.  
 These parameters determine what portion of the input data will be displayed in the error message.  
-There are two values:
+There are two values for both parameters:
 
 - `start`
 - `end`
 
 Essentially, this is information about the location where the error occurred (`source span` or simply `location`).  
-By default, the `source span` is displayed. That is, `start` = `start`, `end` = `end`.  
+By default, the `source span` is registered. That is, `start` = `start`, `end` = `end`.  
 If an invalid combination of values ​​is specified, default values ​​will be applied.  
 
 Example:
@@ -439,7 +439,7 @@ Values =>
   $ = { $$ = l; }
 ```
 
-The `-` expression is syntactic sugar for `/`  
+The `-` operator is syntactic sugar for the operator `/`  
 The `-` character can be repeated as many times as necessary.
 
 ```text
@@ -488,7 +488,15 @@ Expression? parse(String source) {
 ```
 
 This requires the use of the `source_span` package.  
-If it is not desirable to use third-party libraries, then it can be done this way.
+This method can be generated automatically by specifying the "parse" command line option.  
+
+Example
+
+```bash
+ dart pub global run peg bin/scanner.peg --parse=parse
+```
+
+If it is not desirable to use third-party libraries, then it can be done this way (using only `FormatException`).
 
 ```dart
 Expression? parse(String source) {
@@ -511,7 +519,8 @@ Expression? parse(String source) {
 }
 ```
 
-Unfortunately `FormatException` only support `offset` and this does not allow the use of `start` and  `end` at the same time.
+Unfortunately `FormatException` only support `offset` and this does not allow the use of `start` and  `end` at the same time.  
+Perhaps in the future the Dart SDK developers will improve this method a little by adding the `end` parameter. Such care for Dart SDK users would be invaluable.
 
 ## Example of a simple calculator
 
@@ -663,7 +672,7 @@ But this can be done a little more complicated, but more correctly.
 Start specifying types for those rules on which the types of other rules depend.  
 That is, from the bottom up.  
 
-But if you don't want to do this, then just specify all the types of rules that are not defined (and nit determined) manually.
+But if you don't want to do this, then just specify all the types of rules that are not defined (and not determined) manually.
 
 ### Errors when there are no rules to which references are given
 
@@ -689,14 +698,6 @@ import 'package:peg/src/parser_generator.dart';
 
 void main(List<String> args) {
   final parsers = [
-    (
-      'example/number.peg',
-      'example/number.dart',
-      ParserGeneratorOptions(
-        name: 'NumberParser',
-        parseFunction: 'parse',
-      ),
-    ),
     (
       'example/calc.peg',
       'example/example.dart',

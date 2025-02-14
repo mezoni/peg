@@ -1,6 +1,6 @@
 name: peg
 description: Command line tool for generating a PEG (with some syntactic sugar) parsers
-version: 8.0.0
+version: 8.0.1
 homepage: https://github.com/mezoni/peg
 topics:
   - parser
