@@ -1,3 +1,7 @@
+## 8.0.4
+
+- Fixed bugs
+
 ## 8.0.3
 
 - Fixed bugs

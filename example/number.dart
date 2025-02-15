@@ -58,7 +58,7 @@ class NumberParser {
   ///        { } ~ { message = 'Expected decimal digit' }
   ///      )
   ///    )?
-  ///    &{  ok  }
+  ///    &{ ok }
   ///    $ = { }
   ///```
   (num,)? parseNumber(State state) {

@@ -180,9 +180,9 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
     final negate = node.negate;
     final code = node.code;
     _buffer.write(negate ? '!' : '&');
-    _buffer.write('{ ');
+    _buffer.write('{');
     _buffer.write(code);
-    _buffer.write(' }');
+    _buffer.write('}');
     node.visitChildren(this);
   }
 
