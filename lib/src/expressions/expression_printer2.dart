@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../helper.dart';
 import 'expressions.dart';
 
@@ -24,7 +26,44 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
 
   @override
   void visitAction(ActionExpression node) {
-    _buffer.write('{ }');
+    final code = node.code;
+    final lines = const LineSplitter().convert(code);
+    _buffer.write('{');
+    if (lines.length == 1) {
+      _buffer.write(lines[0]);
+      _buffer.write('}');
+    } else {
+      _buffer.writeln(lines[0]);
+      final indents = <int>[];
+      for (var i = 1; i < lines.length; i++) {
+        final line = lines[i];
+        final trimmed = line.trimLeft();
+        if (trimmed.isNotEmpty) {
+          final indent = line.length - line.trimLeft().length;
+          indents.add(indent);
+        }
+      }
+
+      indents.sort();
+      final minIndent = indents[0];
+      final indent = _indent;
+      _indent += '  ';
+      for (var i = 1; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trim().isEmpty) {
+          if (i != lines.length - 1) {
+            _buffer.writeln();
+          }
+        } else {
+          _buffer.write(_indent);
+          _buffer.writeln(line.substring(minIndent));
+        }
+      }
+
+      _indent = indent;
+      _buffer.write(_indent);
+      _buffer.write('}');
+    }
   }
 
   @override
@@ -54,6 +93,8 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
           return '$name = $value';
       }
     }).join(' ');
+    _buffer.writeln();
+    _buffer.write(_indent);
     _buffer.write(' ~ { $parameters }');
   }
 
@@ -233,9 +274,12 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
   void _surround(SingleExpression node, String open, String close) {
     final multiline = _multiline[node]!;
     if (!multiline) {
+      final indent = _indent;
+      _indent = '';
       _buffer.write(open);
       node.visitChildren(this);
       _buffer.write(close);
+      _indent = indent;
     } else {
       final indent = _indent;
       _buffer.writeln(open);

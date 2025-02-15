@@ -32,8 +32,8 @@ class CalcParser {
   ///
   ///```text
   /// `void`
-  /// EOF =>
-  ///    !.
+  /// EOF('end of file') =>
+  ///   !.
   ///```
   (void,)? parseEOF(State state) {
     final $2 = state.failure;
@@ -49,8 +49,8 @@ class CalcParser {
   ///
   ///```text
   /// `int`
-  /// Expr =>
-  ///    Sum
+  /// Expr('expression') =>
+  ///   Sum
   ///```
   (int,)? parseExpr(State state) {
     final $2 = state.failure;
@@ -67,8 +67,8 @@ class CalcParser {
   ///```text
   /// `String`
   /// ID =>
-  ///    $ = <[a-zA-Z]>
-  ///    S
+  ///   $ = <[a-zA-Z]>
+  ///   S
   ///```
   (String,)? parseID(State state) {
     final $4 = state.position;
@@ -95,9 +95,9 @@ class CalcParser {
   ///```text
   /// `int`
   /// NUMBER =>
-  ///    n = <[0-9]+>
-  ///    S
-  ///    $ = { }
+  ///   n = <[0-9]+>
+  ///   S
+  ///   $ = { $$ = int.parse(n); }
   ///```
   (int,)? parseNUMBER(State state) {
     final $4 = state.position;
@@ -134,13 +134,18 @@ class CalcParser {
   ///```text
   /// `int`
   /// Product =>
-  ///    $ = Value
-  ///    @while (*) (
-  ///      n = [*/]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///    )
+  ///   $ = Value
+  ///   @while (*) (
+  ///     n = [*/]
+  ///     S
+  ///     r = Product
+  ///     { $ = switch(n) {
+  ///         42 => $ * r,
+  ///         47 => $ ~/ r,
+  ///         _ => $,
+  ///       };
+  ///     }
+  ///   )
   ///```
   (int,)? parseProduct(State state) {
     (int,)? $0;
@@ -189,7 +194,7 @@ class CalcParser {
   ///```text
   /// `void `
   /// S =>
-  ///    `void ` [ {9}{d}{a}]*
+  ///   `void ` [ {9}{d}{a}]*
   ///```
   (void,)? parseS(State state) {
     final $list = <int>[];
@@ -217,9 +222,9 @@ class CalcParser {
   ///```text
   /// `int`
   /// Start =>
-  ///    S
-  ///    $ = Expr
-  ///    EOF
+  ///   S
+  ///   $ = Expr
+  ///   EOF
   ///```
   (int,)? parseStart(State state) {
     final $3 = state.position;
@@ -244,13 +249,18 @@ class CalcParser {
   ///```text
   /// `int`
   /// Sum =>
-  ///    $ = Product
-  ///    @while (*) (
-  ///      n = [\-+]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///    )
+  ///   $ = Product
+  ///   @while (*) (
+  ///     n = [\-+]
+  ///     S
+  ///     r = Product
+  ///     { $ = switch(n) {
+  ///         43 => $ + r,
+  ///         45 => $ - r,
+  ///         _ => $,
+  ///       };
+  ///     }
+  ///   )
   ///```
   (int,)? parseSum(State state) {
     (int,)? $0;
@@ -298,19 +308,19 @@ class CalcParser {
   ///
   ///```text
   /// `int`
-  /// Value =>
-  ///    (
-  ///      NUMBER
-  ///      ----
-  ///      i = ID
-  ///      $ = { }
-  ///      ----
-  ///      '('
-  ///      S
-  ///      $ = Expr
-  ///      ')'
-  ///      S
-  ///    )
+  /// Value('expression') =>
+  ///   (
+  ///     NUMBER
+  ///     ----
+  ///     i = ID
+  ///     $ = { $$ = vars[i]!; }
+  ///     ----
+  ///     '('
+  ///     S
+  ///     $ = Expr
+  ///     ')'
+  ///     S
+  ///   )
   ///```
   (int,)? parseValue(State state) {
     final $7 = state.failure;

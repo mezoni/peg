@@ -96,14 +96,14 @@ class MathParser {
   ///```text
   /// `List<num>`
   /// Arguments =>
-  ///    e = Expression
-  ///    $ = { }
-  ///    @while (*) (
-  ///      ','
-  ///      S
-  ///      e = Expression
-  ///      { }
-  ///    )
+  ///   e = Expression
+  ///   $ = { final l = [e]; $$ = l; }
+  ///   @while (*) (
+  ///     ','
+  ///     S
+  ///     e = Expression
+  ///     { l.add(e); }
+  ///   )
   ///```
   (List<num>,)? parseArguments(State state) {
     final $7 = state.position;
@@ -148,8 +148,8 @@ class MathParser {
   ///
   ///```text
   /// `void`
-  /// EOF =>
-  ///    !.
+  /// EOF('end of file') =>
+  ///   !.
   ///```
   (void,)? parseEOF(State state) {
     final $2 = state.failure;
@@ -165,8 +165,8 @@ class MathParser {
   ///
   ///```text
   /// `num`
-  /// Expression =>
-  ///    Sum
+  /// Expression('expression') =>
+  ///   Sum
   ///```
   (num,)? parseExpression(State state) {
     final $2 = state.failure;
@@ -183,13 +183,19 @@ class MathParser {
   ///```text
   /// `num`
   /// Function =>
-  ///    i = Identifier
-  ///    '('
-  ///    S
-  ///    a = Arguments?
-  ///    ')'
-  ///    S
-  ///    $ = { }
+  ///   i = Identifier
+  ///   '('
+  ///   S
+  ///   a = Arguments?
+  ///   ')'
+  ///   S
+  ///   $ = {
+  ///     final f = functions[i];
+  ///     if (f == null) {
+  ///       throw StateError('Function not found: $i');
+  ///     }
+  ///     $$ = Function.apply(f, a ?? []) as num;
+  ///   }
   ///```
   (num,)? parseFunction(State state) {
     final $6 = state.position;
@@ -229,8 +235,8 @@ class MathParser {
   ///```text
   /// `String`
   /// Identifier =>
-  ///    $ = <[a-zA-Z]+>
-  ///    S
+  ///   $ = <[a-zA-Z]+>
+  ///   S
   ///```
   (String,)? parseIdentifier(State state) {
     final $3 = state.position;
@@ -259,32 +265,34 @@ class MathParser {
   ///
   ///```text
   /// `num`
-  /// Number =>
-  ///    { }
-  ///    n = <
-  ///      [\-]?
-  ///      <  [0-9]+>
-  ///      (
-  ///        [.]
-  ///        { }
-  ///        (
-  ///          <      [0-9]+>
-  ///          { } ~ { message = 'Expected decimal digit' }
-  ///        )
-  ///      )?
-  ///      (
-  ///        [eE]
-  ///        { }
-  ///        (
-  ///          [\-+]?
-  ///          <      [0-9]+>
-  ///          { } ~ { message = 'Expected decimal digit' }
-  ///        )
-  ///      )?
-  ///    >
-  ///    &{ ok }
-  ///    S
-  ///    $ = { }
+  /// Number('number') =>
+  ///   { var ok = true; }
+  ///   n = <
+  ///     [\-]?
+  ///     <[0-9]+>
+  ///     (
+  ///       [.]
+  ///       { ok = false; }
+  ///       (
+  ///         <[0-9]+>
+  ///         { ok = true; }
+  ///          ~ { message = 'Expected decimal digit' }
+  ///       )
+  ///     )?
+  ///     (
+  ///       [eE]
+  ///       { ok = false; }
+  ///       (
+  ///         [\-+]?
+  ///         <[0-9]+>
+  ///         { ok = true; }
+  ///          ~ { message = 'Expected decimal digit' }
+  ///       )
+  ///     )?
+  ///   >
+  ///   &{ ok }
+  ///   S
+  ///   $ = { $$ = num.parse(n); }
   ///```
   (num,)? parseNumber(State state) {
     final $32 = state.failure;
@@ -436,13 +444,13 @@ class MathParser {
   ///```text
   /// `num`
   /// Pow =>
-  ///    $ = Value
-  ///    @while (*) (
-  ///      [\^]
-  ///      S
-  ///      r = Value
-  ///      { }
-  ///    )
+  ///   $ = Value
+  ///   @while (*) (
+  ///     [\^]
+  ///     S
+  ///     r = Value
+  ///     { $ = math.pow($, r); }
+  ///   )
   ///```
   (num,)? parsePow(State state) {
     (num,)? $0;
@@ -485,18 +493,18 @@ class MathParser {
   ///```text
   /// `num`
   /// Product =>
-  ///    $ = Unary
-  ///    @while (*) (
-  ///      [*]
-  ///      S
-  ///      r = Unary
-  ///      { }
-  ///      ----
-  ///      [/]
-  ///      S
-  ///      r = Unary
-  ///      { }
-  ///    )
+  ///   $ = Unary
+  ///   @while (*) (
+  ///     [*]
+  ///     S
+  ///     r = Unary
+  ///     { $ *= r; }
+  ///     ----
+  ///     [/]
+  ///     S
+  ///     r = Unary
+  ///     { $ ~/= r; }
+  ///   )
   ///```
   (num,)? parseProduct(State state) {
     (num,)? $0;
@@ -560,7 +568,7 @@ class MathParser {
   ///```text
   /// `void`
   /// S =>
-  ///    [ {9}{d}{a}]*
+  ///   [ {9}{d}{a}]*
   ///```
   (void,)? parseS(State state) {
     while (state.position < state.length) {
@@ -581,9 +589,9 @@ class MathParser {
   ///```text
   /// `num`
   /// Start =>
-  ///    S
-  ///    $ = Expression
-  ///    EOF
+  ///   S
+  ///   $ = Expression
+  ///   EOF
   ///```
   (num,)? parseStart(State state) {
     final $3 = state.position;
@@ -608,18 +616,18 @@ class MathParser {
   ///```text
   /// `num`
   /// Sum =>
-  ///    $ = Product
-  ///    @while (*) (
-  ///      [+]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///      ----
-  ///      [\-]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///    )
+  ///   $ = Product
+  ///   @while (*) (
+  ///     [+]
+  ///     S
+  ///     r = Product
+  ///     { $ += r; }
+  ///     ----
+  ///     [\-]
+  ///     S
+  ///     r = Product
+  ///     { $ -= r; }
+  ///   )
   ///```
   (num,)? parseSum(State state) {
     (num,)? $0;
@@ -683,9 +691,9 @@ class MathParser {
   ///```text
   /// `num`
   /// Unary =>
-  ///    n = [\-]?
-  ///    e = Pow
-  ///    $ = { }
+  ///   n = [\-]?
+  ///   e = Pow
+  ///   $ = { $$ = n == null ? e : -e; }
   ///```
   (num,)? parseUnary(State state) {
     final $5 = state.position;
@@ -718,21 +726,27 @@ class MathParser {
   ///
   ///```text
   /// `num`
-  /// Value =>
-  ///    (
-  ///      Function
-  ///      ----
-  ///      Number
-  ///      ----
-  ///      i = Identifier
-  ///      $ = { }
-  ///      ----
-  ///      '('
-  ///      S
-  ///      $ = Expression
-  ///      ')'
-  ///      S
-  ///    )
+  /// Value('expression') =>
+  ///   (
+  ///     Function
+  ///     ----
+  ///     Number
+  ///     ----
+  ///     i = Identifier
+  ///     $ = {
+  ///       final v = variables[i];
+  ///       if (v == null) {
+  ///         throw StateError('Variable not found: $i');
+  ///       }
+  ///       $$ = v;
+  ///     }
+  ///     ----
+  ///     '('
+  ///     S
+  ///     $ = Expression
+  ///     ')'
+  ///     S
+  ///   )
   ///```
   (num,)? parseValue(State state) {
     final $7 = state.failure;

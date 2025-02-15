@@ -1,6 +1,7 @@
 ## 8.0.4
 
-- Fixed bugs
+- Fixed bugs.
+- Improved new expression printer. Now the printer also prints the code blocks of `Action` expressions.
 
 ## 8.0.3
 

@@ -32,8 +32,8 @@ class CalcParser {
   ///
   ///```text
   /// `void`
-  /// EOF =>
-  ///    !.
+  /// EOF('end of file') =>
+  ///   !.
   ///```
   (void,)? parseEOF(State state) {
     final $2 = state.failure;
@@ -49,8 +49,8 @@ class CalcParser {
   ///
   ///```text
   /// `int`
-  /// Expr =>
-  ///    Sum
+  /// Expr('expression') =>
+  ///   Sum
   ///```
   (int,)? parseExpr(State state) {
     final $2 = state.failure;
@@ -67,8 +67,8 @@ class CalcParser {
   ///```text
   /// `String`
   /// ID =>
-  ///    $ = <[a-zA-Z]>
-  ///    S
+  ///   $ = <[a-zA-Z]>
+  ///   S
   ///```
   (String,)? parseID(State state) {
     final $4 = state.position;
@@ -95,9 +95,9 @@ class CalcParser {
   ///```text
   /// `int`
   /// NUMBER =>
-  ///    n = <[0-9]+>
-  ///    S
-  ///    $ = { }
+  ///   n = <[0-9]+>
+  ///   S
+  ///   $ = { $$ = int.parse(n); }
   ///```
   (int,)? parseNUMBER(State state) {
     final $4 = state.position;
@@ -134,18 +134,18 @@ class CalcParser {
   ///```text
   /// `int`
   /// Product =>
-  ///    $ = Value
-  ///    @while (*) (
-  ///      [*]
-  ///      S
-  ///      r = Value
-  ///      { }
-  ///      ----
-  ///      [/]
-  ///      S
-  ///      r = Value
-  ///      { }
-  ///    )
+  ///   $ = Value
+  ///   @while (*) (
+  ///     [*]
+  ///     S
+  ///     r = Value
+  ///     { $ *= r; }
+  ///     ----
+  ///     [/]
+  ///     S
+  ///     r = Value
+  ///     { $ ~/= r; }
+  ///   )
   ///```
   (int,)? parseProduct(State state) {
     (int,)? $0;
@@ -209,7 +209,7 @@ class CalcParser {
   ///```text
   /// `void`
   /// S =>
-  ///    [ {9}{d}{a}]*
+  ///   [ {9}{d}{a}]*
   ///```
   (void,)? parseS(State state) {
     while (state.position < state.length) {
@@ -230,9 +230,9 @@ class CalcParser {
   ///```text
   /// `int`
   /// Start =>
-  ///    S
-  ///    $ = Expr
-  ///    EOF
+  ///   S
+  ///   $ = Expr
+  ///   EOF
   ///```
   (int,)? parseStart(State state) {
     final $3 = state.position;
@@ -257,18 +257,18 @@ class CalcParser {
   ///```text
   /// `int`
   /// Sum =>
-  ///    $ = Product
-  ///    @while (*) (
-  ///      [+]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///      ----
-  ///      [\-]
-  ///      S
-  ///      r = Product
-  ///      { }
-  ///    )
+  ///   $ = Product
+  ///   @while (*) (
+  ///     [+]
+  ///     S
+  ///     r = Product
+  ///     { $ += r; }
+  ///     ----
+  ///     [\-]
+  ///     S
+  ///     r = Product
+  ///     { $ -= r; }
+  ///   )
   ///```
   (int,)? parseSum(State state) {
     (int,)? $0;
@@ -331,19 +331,19 @@ class CalcParser {
   ///
   ///```text
   /// `int`
-  /// Value =>
-  ///    (
-  ///      NUMBER
-  ///      ----
-  ///      i = ID
-  ///      $ = { }
-  ///      ----
-  ///      '('
-  ///      S
-  ///      $ = Expr
-  ///      ')'
-  ///      S
-  ///    )
+  /// Value('expression') =>
+  ///   (
+  ///     NUMBER
+  ///     ----
+  ///     i = ID
+  ///     $ = { $$ = vars[i]!; }
+  ///     ----
+  ///     '('
+  ///     S
+  ///     $ = Expr
+  ///     ')'
+  ///     S
+  ///   )
   ///```
   (int,)? parseValue(State state) {
     final $7 = state.failure;

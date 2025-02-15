@@ -44,22 +44,23 @@ class NumberParser {
   ///
   ///```text
   /// `num`
-  /// Number =>
-  ///    negative = [\-]?
-  ///    integer = <[0-9]+>
-  ///    `num` result = { }
-  ///    { }
-  ///    (
-  ///      [.]
-  ///      { }
-  ///      (
-  ///        decimal = <    [0-9]+>
-  ///        { }
-  ///        { } ~ { message = 'Expected decimal digit' }
-  ///      )
-  ///    )?
-  ///    &{ ok }
-  ///    $ = { }
+  /// Number('number') =>
+  ///   negative = [\-]?
+  ///   integer = <[0-9]+>
+  ///   `num` result = { $$ = num.parse(integer); }
+  ///   { var ok = true; }
+  ///   (
+  ///     [.]
+  ///     { ok = false; }
+  ///     (
+  ///       decimal = <[0-9]+>
+  ///       { ok = true; }
+  ///       { result += int.parse(decimal) / math.pow(10, decimal.length); }
+  ///        ~ { message = 'Expected decimal digit' }
+  ///     )
+  ///   )?
+  ///   &{ ok }
+  ///   $ = { $$ = negative == null ? result  : -result; }
   ///```
   (num,)? parseNumber(State state) {
     final $19 = state.failure;

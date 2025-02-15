@@ -25,8 +25,8 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Action =>
-  ///    b = Block
-  ///    $ = { }
+  ///   b = Block
+  ///   $ = { $$ = ActionExpression(code: b); }
   ///```
   (Expression,)? parseAction(State state) {
     (Expression,)? $0;
@@ -47,9 +47,9 @@ class PegParser {
   ///```text
   /// `Expression`
   /// AnyCharacter =>
-  ///    '.'
-  ///    S
-  ///    $ = { }
+  ///   '.'
+  ///   S
+  ///   $ = { $$ = AnyCharacterExpression(); }
   ///```
   (Expression,)? parseAnyCharacter(State state) {
     final $3 = state.position;
@@ -74,23 +74,23 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Assignment =>
-  ///    v = (
-  ///      Identifier
-  ///      ----
-  ///      $ = '\$'
-  ///      S
-  ///    )
-  ///    (
-  ///      '='
-  ///      S
-  ///      ----
-  ///      ':'
-  ///      S
-  ///    )
-  ///    e = Prefix
-  ///    $ = { }
-  ///    ----
-  ///    Prefix
+  ///   v = (
+  ///     Identifier
+  ///     ----
+  ///     $ = '\$'
+  ///     S
+  ///   )
+  ///   (
+  ///     '='
+  ///     S
+  ///     ----
+  ///     ':'
+  ///     S
+  ///   )
+  ///   e = Prefix
+  ///   $ = { $$ = VariableExpression(expression: e, name: v); }
+  ///   ----
+  ///   Prefix
   ///```
   (Expression,)? parseAssignment(State state) {
     final $8 = state.position;
@@ -144,10 +144,10 @@ class PegParser {
   ///```text
   /// `String`
   /// Block =>
-  ///    '{'
-  ///    $ = <BlockBody*>
-  ///    '}'
-  ///    S
+  ///   '{'
+  ///   $ = <BlockBody*>
+  ///   '}'
+  ///   S
   ///```
   (String,)? parseBlock(State state) {
     final $6 = state.position;
@@ -180,12 +180,12 @@ class PegParser {
   ///```text
   /// `void`
   /// BlockBody =>
-  ///    "{"
-  ///    BlockBody*
-  ///    '}'
-  ///    ----
-  ///    !"}"
-  ///    .
+  ///   "{"
+  ///   BlockBody*
+  ///   '}'
+  ///   ----
+  ///   !"}"
+  ///   .
   ///```
   (void,)? parseBlockBody(State state) {
     final $4 = state.position;
@@ -230,20 +230,20 @@ class PegParser {
   ///```text
   /// `Expression`
   /// CharacterClass =>
-  ///    { }
-  ///    (
-  ///      '[^'
-  ///      { }
-  ///      ----
-  ///      '['
-  ///    )
-  ///    r = @while (+) (
-  ///      !']'
-  ///      $ = Range
-  ///    )
-  ///    ']'
-  ///    S
-  ///    $ = { }
+  ///   { var negate = false; }
+  ///   (
+  ///     '[^'
+  ///     { negate = true; }
+  ///     ----
+  ///     '['
+  ///   )
+  ///   r = @while (+) (
+  ///     !']'
+  ///     $ = Range
+  ///   )
+  ///   ']'
+  ///   S
+  ///   $ = { $$ = CharacterClassExpression(ranges: r, negate: negate); }
   ///```
   (Expression,)? parseCharacterClass(State state) {
     final $11 = state.position;
@@ -306,12 +306,12 @@ class PegParser {
   ///```text
   /// `void`
   /// Comment =>
-  ///    "#"
-  ///    @while (*) (
-  ///      !EndOfLine
-  ///      .
-  ///    )
-  ///    EndOfLine?
+  ///   "#"
+  ///   @while (*) (
+  ///     !EndOfLine
+  ///     .
+  ///   )
+  ///   EndOfLine?
   ///```
   (void,)? parseComment(State state) {
     final $7 = state.position;
@@ -353,13 +353,13 @@ class PegParser {
   ///```text
   /// `int`
   /// DQChar =>
-  ///    !"\\"
-  ///    $ = [ -!#-\[{5d-10ffff}]
-  ///    ----
-  ///    "\\"
-  ///    $ = (EscapedValue
-  ///    ----
-  ///    EscapedHexValue)
+  ///   !"\\"
+  ///   $ = [ -!#-\[{5d-10ffff}]
+  ///   ----
+  ///   "\\"
+  ///   $ = (EscapedValue
+  ///   ----
+  ///   EscapedHexValue)
   ///```
   (int,)? parseDQChar(State state) {
     final $3 = state.position;
@@ -411,14 +411,14 @@ class PegParser {
   ///```text
   /// `String`
   /// DQString =>
-  ///    '"'
-  ///    n = @while (*) (
-  ///      !["]
-  ///      $ = DQChar
-  ///    )
-  ///    '"'
-  ///    S
-  ///    $ = { }
+  ///   '"'
+  ///   n = @while (*) (
+  ///     !["]
+  ///     $ = DQChar
+  ///   )
+  ///   '"'
+  ///   S
+  ///   $ = { $$ = String.fromCharCodes(n); }
   ///```
   (String,)? parseDQString(State state) {
     final $11 = state.position;
@@ -478,9 +478,9 @@ class PegParser {
   ///```text
   /// `void`
   /// EndOfLine =>
-  ///    "\r\n"
-  ///    ----
-  ///    [{a}{d}]
+  ///   "\r\n"
+  ///   ----
+  ///   [{a}{d}]
   ///```
   (void,)? parseEndOfLine(State state) {
     final $2 = state.position;
@@ -504,40 +504,40 @@ class PegParser {
   ///```text
   /// `List<(String, String)>`
   /// ErrorParameters =>
-  ///    $ = @while (+) (
-  ///      k = 'message'
-  ///      S
-  ///      '='
-  ///      S
-  ///      v = String
-  ///      S
-  ///      $ = { }
-  ///      ----
-  ///      k = (  'start'
-  ///      ----
-  ///      'end')
-  ///      S
-  ///      '='
-  ///      S
-  ///      v = (  'start'
-  ///      ----
-  ///      'end')
-  ///      S
-  ///      $ = { }
-  ///      ----
-  ///      k = 'origin'
-  ///      S
-  ///      `String` v = (
-  ///        n = (    '=='
-  ///        ----
-  ///        '!=')
-  ///        S
-  ///        s = 'start'
-  ///        S
-  ///        $ = { }
-  ///      )
-  ///      $ = { }
-  ///    )
+  ///   $ = @while (+) (
+  ///     k = 'message'
+  ///     S
+  ///     '='
+  ///     S
+  ///     v = String
+  ///     S
+  ///     $ = { $$ = (k, v); }
+  ///     ----
+  ///     k = ('start'
+  ///   ----
+  ///   'end')
+  ///     S
+  ///     '='
+  ///     S
+  ///     v = ('start'
+  ///   ----
+  ///   'end')
+  ///     S
+  ///     $ = { $$ = (k, v); }
+  ///     ----
+  ///     k = 'origin'
+  ///     S
+  ///     `String` v = (
+  ///       n = ('=='
+  ///   ----
+  ///   '!=')
+  ///       S
+  ///       s = 'start'
+  ///       S
+  ///       $ = { $$ = '$n $s'; }
+  ///     )
+  ///     $ = { $$ = (k, v); }
+  ///   )
   ///```
   (List<(String, String)>,)? parseErrorParameters(State state) {
     (List<(String, String)>,)? $0;
@@ -655,10 +655,11 @@ class PegParser {
   ///```text
   /// `int`
   /// EscapedHexValue =>
-  ///    "u"
-  ///    '{'
-  ///    $ = HexValue
-  ///    '}' ~ { message = 'Malformed escape sequence' origin != start }
+  ///   "u"
+  ///   '{'
+  ///   $ = HexValue
+  ///   '}'
+  ///    ~ { message = 'Malformed escape sequence' origin != start }
   ///```
   (int,)? parseEscapedHexValue(State state) {
     final $6 = state.position;
@@ -696,8 +697,21 @@ class PegParser {
   ///```text
   /// `int`
   /// EscapedValue =>
-  ///    $ = [abefnrtv'"\\]
-  ///    { } ~ { message = 'Unexpected escape character' }
+  ///   $ = [abefnrtv'"\\]
+  ///   {
+  ///     $ = switch ($) {
+  ///       97 => 0x07,  // a
+  ///       98 => 0x08,  // b
+  ///       101 => 0x1B, // e
+  ///       102 => 0x0C, // f
+  ///       110 => 0x0A, // n
+  ///       114 => 0x0D, // r
+  ///       116 => 0x09, // t
+  ///       118 => 0x0B, // v
+  ///       _ => $,
+  ///     };
+  ///   }
+  ///    ~ { message = 'Unexpected escape character' }
   ///```
   (int,)? parseEscapedValue(State state) {
     final $4 = state.position;
@@ -744,8 +758,8 @@ class PegParser {
   ///
   ///```text
   /// `Expression`
-  /// Expression =>
-  ///    OrderedChoice
+  /// Expression('expression') =>
+  ///   OrderedChoice
   ///```
   (Expression,)? parseExpression(State state) {
     final $2 = state.failure;
@@ -762,15 +776,15 @@ class PegParser {
   ///```text
   /// `String`
   /// Globals =>
-  ///    '%{'
-  ///    $ = <
-  ///      @while (*) (
-  ///        !"}%"
-  ///        .
-  ///      )
-  ///    >
-  ///    '}%'
-  ///    S
+  ///   '%{'
+  ///   $ = <
+  ///     @while (*) (
+  ///       !"}%"
+  ///       .
+  ///     )
+  ///   >
+  ///   '}%'
+  ///   S
   ///```
   (String,)? parseGlobals(State state) {
     final $10 = state.position;
@@ -818,12 +832,12 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Group =>
-  ///    '('
-  ///    S
-  ///    $ = Expression
-  ///    ')'
-  ///    S
-  ///    { }
+  ///   '('
+  ///   S
+  ///   $ = Expression
+  ///   ')'
+  ///   S
+  ///   { $ = GroupExpression(expression: $); }
   ///```
   (Expression,)? parseGroup(State state) {
     final $4 = state.position;
@@ -852,9 +866,9 @@ class PegParser {
   ///
   ///```text
   /// `int`
-  /// HexValue =>
-  ///    n = <[a-fA-F0-9]+>
-  ///    $ = { }
+  /// HexValue('hex number') =>
+  ///   n = <[a-fA-F0-9]+>
+  ///   $ = { $$ = int.parse(n, radix: 16); }
   ///```
   (int,)? parseHexValue(State state) {
     final $5 = state.failure;
@@ -890,12 +904,12 @@ class PegParser {
   ///
   ///```text
   /// `String`
-  /// Identifier =>
-  ///    $ = <
-  ///      [a-zA-Z]
-  ///      [a-zA-Z0-9_]*
-  ///    >
-  ///    S
+  /// Identifier('identifier') =>
+  ///   $ = <
+  ///     [a-zA-Z]
+  ///     [a-zA-Z0-9_]*
+  ///   >
+  ///   S
   ///```
   (String,)? parseIdentifier(State state) {
     final $6 = state.failure;
@@ -941,11 +955,11 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Literal =>
-  ///    s = SQString
-  ///    $ = { }
-  ///    ----
-  ///    s = DQString
-  ///    $ = { }
+  ///   s = SQString
+  ///   $ = { $$ = LiteralExpression(literal: s); }
+  ///   ----
+  ///   s = DQString
+  ///   $ = { $$ = LiteralExpression(literal: s, silent: true); }
   ///```
   (Expression,)? parseLiteral(State state) {
     (Expression,)? $0;
@@ -977,12 +991,12 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Match =>
-  ///    '<'
-  ///    S
-  ///    e = Expression
-  ///    '>'
-  ///    S
-  ///    $ = { }
+  ///   '<'
+  ///   S
+  ///   e = Expression
+  ///   '>'
+  ///   S
+  ///   $ = { $$ = MatchExpression(expression: e); }
   ///```
   (Expression,)? parseMatch(State state) {
     final $5 = state.position;
@@ -1015,15 +1029,15 @@ class PegParser {
   ///```text
   /// `String`
   /// Members =>
-  ///    '%%'
-  ///    $ = <
-  ///      @while (*) (
-  ///        !"%%"
-  ///        .
-  ///      )
-  ///    >
-  ///    '%%'
-  ///    S
+  ///   '%%'
+  ///   $ = <
+  ///     @while (*) (
+  ///       !"%%"
+  ///       .
+  ///     )
+  ///   >
+  ///   '%%'
+  ///   S
   ///```
   (String,)? parseMembers(State state) {
     final $10 = state.position;
@@ -1071,13 +1085,13 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Nonterminal =>
-  ///    i = RuleName
-  ///    !(
-  ///      ProductionRuleArguments?
-  ///      '=>'
-  ///      S
-  ///    )
-  ///    $ = { }
+  ///   i = RuleName
+  ///   !(
+  ///     ProductionRuleArguments?
+  ///     '=>'
+  ///     S
+  ///   )
+  ///   $ = { $$ = NonterminalExpression(name: i); }
   ///```
   (Expression,)? parseNonterminal(State state) {
     final $8 = state.position;
@@ -1120,17 +1134,17 @@ class PegParser {
   ///```text
   /// `Expression`
   /// OrderedChoice =>
-  ///    n = Sequence
-  ///    { }
-  ///    @while (*) (
-  ///      (  '/'
-  ///      ----
-  ///      '-'+)
-  ///      S
-  ///      n = Sequence
-  ///      { }
-  ///    )
-  ///    $ = { }
+  ///   n = Sequence
+  ///   { final l = [n]; }
+  ///   @while (*) (
+  ///     ('/'
+  ///   ----
+  ///   '-'+)
+  ///     S
+  ///     n = Sequence
+  ///     { l.add(n); }
+  ///   )
+  ///   $ = { $$ = OrderedChoiceExpression(expressions: l); }
   ///```
   (Expression,)? parseOrderedChoice(State state) {
     final $8 = state.position;
@@ -1188,15 +1202,31 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Prefix =>
-  ///    p = (
-  ///      $ = '!'
-  ///      S
-  ///      ----
-  ///      $ = '&'
-  ///      S
-  ///    )?
-  ///    $ = Suffix
-  ///    { }
+  ///   p = (
+  ///     $ = '!'
+  ///     S
+  ///     ----
+  ///     $ = '&'
+  ///     S
+  ///   )?
+  ///   $ = Suffix
+  ///   { switch(p) {
+  ///       case '!':
+  ///         if ($ is ActionExpression) {
+  ///           $ = PredicateExpression(code: $.code, negate: true);
+  ///         } else {
+  ///           $ = NotPredicateExpression(expression: $);
+  ///         }
+  ///         break;
+  ///       case '&':
+  ///       if ($ is ActionExpression) {
+  ///           $ = PredicateExpression(code: $.code, negate: false);
+  ///         } else {
+  ///           $ = AndPredicateExpression(expression: $);
+  ///         }
+  ///         break;
+  ///     }
+  ///   }
   ///```
   (Expression,)? parsePrefix(State state) {
     final $5 = state.position;
@@ -1249,22 +1279,22 @@ class PegParser {
   ///
   ///```text
   /// `Expression`
-  /// Primary =>
-  ///    CharacterClass
-  ///    ----
-  ///    Literal
-  ///    ----
-  ///    Group
-  ///    ----
-  ///    Repeater
-  ///    ----
-  ///    Nonterminal
-  ///    ----
-  ///    Action
-  ///    ----
-  ///    AnyCharacter
-  ///    ----
-  ///    Match
+  /// Primary('expression') =>
+  ///   CharacterClass
+  ///   ----
+  ///   Literal
+  ///   ----
+  ///   Group
+  ///   ----
+  ///   Repeater
+  ///   ----
+  ///   Nonterminal
+  ///   ----
+  ///   Action
+  ///   ----
+  ///   AnyCharacter
+  ///   ----
+  ///   Match
   ///```
   (Expression,)? parsePrimary(State state) {
     final $2 = state.failure;
@@ -1301,15 +1331,15 @@ class PegParser {
   ///```text
   /// `ProductionRule`
   /// ProductionRule =>
-  ///    t = Type?
-  ///    i = Identifier
-  ///    a = ProductionRuleArguments?
-  ///    '=>'
-  ///    S
-  ///    e = Expression
-  ///    [;]?
-  ///    S
-  ///    $ = { }
+  ///   t = Type?
+  ///   i = Identifier
+  ///   a = ProductionRuleArguments?
+  ///   '=>'
+  ///   S
+  ///   e = Expression
+  ///   [;]?
+  ///   S
+  ///   $ = { $$ = ProductionRule(expression: e, expected: a, name: i, resultType: t ?? ''); }
   ///```
   (ProductionRule,)? parseProductionRule(State state) {
     final $9 = state.position;
@@ -1358,11 +1388,11 @@ class PegParser {
   ///```text
   /// `String`
   /// ProductionRuleArguments =>
-  ///    '('
-  ///    S
-  ///    $ = String
-  ///    ')'
-  ///    S
+  ///   '('
+  ///   S
+  ///   $ = String
+  ///   ')'
+  ///   S
   ///```
   (String,)? parseProductionRuleArguments(State state) {
     final $4 = state.position;
@@ -1390,26 +1420,26 @@ class PegParser {
   ///
   ///```text
   /// `(int, int)`
-  /// Range =>
-  ///    "{"
-  ///    s = HexValue
-  ///    "-"
-  ///    e = HexValue
-  ///    '}'
-  ///    $ = { }
-  ///    ----
-  ///    "{"
-  ///    n = HexValue
-  ///    '}'
-  ///    $ = { }
-  ///    ----
-  ///    s = RangeChar
-  ///    "-"
-  ///    e = RangeChar
-  ///    $ = { }
-  ///    ----
-  ///    n = RangeChar
-  ///    $ = { }
+  /// Range('range') =>
+  ///   "{"
+  ///   s = HexValue
+  ///   "-"
+  ///   e = HexValue
+  ///   '}'
+  ///   $ = { $$ = (s, e); }
+  ///   ----
+  ///   "{"
+  ///   n = HexValue
+  ///   '}'
+  ///   $ = { $$ = (n, n); }
+  ///   ----
+  ///   s = RangeChar
+  ///   "-"
+  ///   e = RangeChar
+  ///   $ = { $$ = (s, e); }
+  ///   ----
+  ///   n = RangeChar
+  ///   $ = { $$ = (n, n); }
   ///```
   ((int, int),)? parseRange(State state) {
     final $18 = state.failure;
@@ -1503,19 +1533,31 @@ class PegParser {
   ///```text
   /// `int`
   /// RangeChar =>
-  ///    !"\\"
-  ///    $ = [{0-1f}\{\}\[\]\\]
-  ///    ----
-  ///    "\\"
-  ///    $ = (
-  ///      "u"
-  ///      '{'
-  ///      $ = HexValue
-  ///      '}'
-  ///      ----
-  ///      $ = [\-\^abefnrtv\{\}\[\]\\]
-  ///      { }
-  ///    )
+  ///   !"\\"
+  ///   $ = [{0-1f}\{\}\[\]\\]
+  ///   ----
+  ///   "\\"
+  ///   $ = (
+  ///     "u"
+  ///     '{'
+  ///     $ = HexValue
+  ///     '}'
+  ///     ----
+  ///     $ = [\-\^abefnrtv\{\}\[\]\\]
+  ///     {
+  ///       $ = switch ($) {
+  ///         97 => 0x07,  // a
+  ///         98 => 0x08,  // b
+  ///         101 => 0x1B, // e
+  ///         102 => 0x0C, // f
+  ///         110 => 0x0A, // n
+  ///         114 => 0x0D, // r
+  ///         116 => 0x09, // t
+  ///         118 => 0x0B, // v
+  ///         _ => $,
+  ///       };
+  ///     }
+  ///   )
   ///```
   (int,)? parseRangeChar(State state) {
     final $3 = state.position;
@@ -1614,35 +1656,35 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Repeater =>
-  ///    '@while'
-  ///    S
-  ///    '('
-  ///    S
-  ///    '*'
-  ///    S
-  ///    ')'
-  ///    S
-  ///    '{'
-  ///    S
-  ///    e = Expression
-  ///    '}'
-  ///    S
-  ///    $ = { }
-  ///    ----
-  ///    '@while'
-  ///    S
-  ///    '('
-  ///    S
-  ///    '+'
-  ///    S
-  ///    ')'
-  ///    S
-  ///    '{'
-  ///    S
-  ///    e = Expression
-  ///    '}'
-  ///    S
-  ///    $ = { }
+  ///   '@while'
+  ///   S
+  ///   '('
+  ///   S
+  ///   '*'
+  ///   S
+  ///   ')'
+  ///   S
+  ///   '{'
+  ///   S
+  ///   e = Expression
+  ///   '}'
+  ///   S
+  ///   $ = { $$ = ZeroOrMoreExpression(expression: GroupExpression(expression: e)); }
+  ///   ----
+  ///   '@while'
+  ///   S
+  ///   '('
+  ///   S
+  ///   '+'
+  ///   S
+  ///   ')'
+  ///   S
+  ///   '{'
+  ///   S
+  ///   e = Expression
+  ///   '}'
+  ///   S
+  ///   $ = { $$ = OneOrMoreExpression(expression: GroupExpression(expression: e)); }
   ///```
   (Expression,)? parseRepeater(State state) {
     final $9 = state.position;
@@ -1730,12 +1772,12 @@ class PegParser {
   ///
   ///```text
   /// `String`
-  /// RuleName =>
-  ///    $ = <
-  ///      [A-Z]
-  ///      [a-zA-Z0-9_]*
-  ///    >
-  ///    S
+  /// RuleName('production rule name') =>
+  ///   $ = <
+  ///     [A-Z]
+  ///     [a-zA-Z0-9_]*
+  ///   >
+  ///   S
   ///```
   (String,)? parseRuleName(State state) {
     final $6 = state.failure;
@@ -1781,9 +1823,9 @@ class PegParser {
   ///```text
   /// `List<void>`
   /// S =>
-  ///    @while (*) (Space
-  ///    ----
-  ///    Comment)
+  ///   @while (*) (Space
+  ///   ----
+  ///   Comment)
   ///```
   (List<void>,)? parseS(State state) {
     final $list = <void>[];
@@ -1805,13 +1847,13 @@ class PegParser {
   ///```text
   /// `int`
   /// SQChar =>
-  ///    !"\\"
-  ///    $ = [ -&(-\[{5d-10ffff}]
-  ///    ----
-  ///    "\\"
-  ///    $ = (EscapedValue
-  ///    ----
-  ///    EscapedHexValue)
+  ///   !"\\"
+  ///   $ = [ -&(-\[{5d-10ffff}]
+  ///   ----
+  ///   "\\"
+  ///   $ = (EscapedValue
+  ///   ----
+  ///   EscapedHexValue)
   ///```
   (int,)? parseSQChar(State state) {
     final $3 = state.position;
@@ -1863,14 +1905,14 @@ class PegParser {
   ///```text
   /// `String`
   /// SQString =>
-  ///    '\''
-  ///    n = @while (*) (
-  ///      ![']
-  ///      $ = SQChar
-  ///    )
-  ///    '\''
-  ///    S
-  ///    $ = { }
+  ///   '\''
+  ///   n = @while (*) (
+  ///     ![']
+  ///     $ = SQChar
+  ///   )
+  ///   '\''
+  ///   S
+  ///   $ = { $$ = String.fromCharCodes(n); }
   ///```
   (String,)? parseSQString(State state) {
     final $11 = state.position;
@@ -1930,17 +1972,20 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Sequence =>
-  ///    n = Typing+
-  ///    p = (
-  ///      '~'
-  ///      S
-  ///      '{'
-  ///      S
-  ///      $ = ErrorParameters
-  ///      '}'
-  ///      S
-  ///    )?
-  ///    $ = { }
+  ///   n = Typing+
+  ///   p = (
+  ///     '~'
+  ///     S
+  ///     '{'
+  ///     S
+  ///     $ = ErrorParameters
+  ///     '}'
+  ///     S
+  ///   )?
+  ///   $ = {
+  ///     final e = SequenceExpression(expressions: n);
+  ///     $$ = p == null ? e : CatchExpression(expression: e, parameters: p);
+  ///   }
   ///```
   (Expression,)? parseSequence(State state) {
     final $10 = state.position;
@@ -1998,9 +2043,9 @@ class PegParser {
   ///```text
   /// `void`
   /// Space =>
-  ///    [ {9}]
-  ///    ----
-  ///    EndOfLine
+  ///   [ {9}]
+  ///   ----
+  ///   EndOfLine
   ///```
   (void,)? parseSpace(State state) {
     final $2 = state.position;
@@ -2022,12 +2067,12 @@ class PegParser {
   ///```text
   /// `Grammar`
   /// Start =>
-  ///    S
-  ///    g = Globals?
-  ///    m = Members?
-  ///    r = ProductionRule+
-  ///    !.
-  ///    $ = { }
+  ///   S
+  ///   g = Globals?
+  ///   m = Members?
+  ///   r = ProductionRule+
+  ///   !.
+  ///   $ = { $$ = Grammar(globals: g, members: m, rules: r); }
   ///```
   (Grammar,)? parseStart(State state) {
     final $7 = state.position;
@@ -2069,10 +2114,10 @@ class PegParser {
   ///
   ///```text
   /// `String`
-  /// String =>
-  ///    DQString
-  ///    ----
-  ///    SQString
+  /// String('string') =>
+  ///   DQString
+  ///   ----
+  ///   SQString
   ///```
   (String,)? parseString(State state) {
     final $2 = state.failure;
@@ -2091,20 +2136,20 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Suffix =>
-  ///    $ = Primary
-  ///    (
-  ///      '*'
-  ///      S
-  ///      { }
-  ///      ----
-  ///      '+'
-  ///      S
-  ///      { }
-  ///      ----
-  ///      '?'
-  ///      S
-  ///      { }
-  ///    )?
+  ///   $ = Primary
+  ///   (
+  ///     '*'
+  ///     S
+  ///     { $ = ZeroOrMoreExpression(expression: $); }
+  ///     ----
+  ///     '+'
+  ///     S
+  ///     { $ = OneOrMoreExpression(expression: $); }
+  ///     ----
+  ///     '?'
+  ///     S
+  ///     { $ = OptionalExpression(expression: $); }
+  ///   )?
   ///```
   (Expression,)? parseSuffix(State state) {
     (Expression,)? $0;
@@ -2153,16 +2198,16 @@ class PegParser {
   ///
   ///```text
   /// `String`
-  /// Type =>
-  ///    '`'
-  ///    $ = <
-  ///      @while (*) (
-  ///        ![`]
-  ///        [a-zA-Z0-9_$<(\{,:\})>? ]
-  ///      )
-  ///    >
-  ///    '`'
-  ///    S
+  /// Type('type') =>
+  ///   '`'
+  ///   $ = <
+  ///     @while (*) (
+  ///       ![`]
+  ///       [a-zA-Z0-9_$<(\{,:\})>? ]
+  ///     )
+  ///   >
+  ///   '`'
+  ///   S
   ///```
   (String,)? parseType(State state) {
     final $14 = state.failure;
@@ -2236,9 +2281,9 @@ class PegParser {
   ///```text
   /// `Expression`
   /// Typing =>
-  ///    t = Type?
-  ///    e = Assignment
-  ///    $ = { }
+  ///   t = Type?
+  ///   e = Assignment
+  ///   $ = { $$ = t == null ? e : TypingExpression(expression: e, type: t); }
   ///```
   (Expression,)? parseTyping(State state) {
     final $4 = state.position;

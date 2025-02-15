@@ -87,9 +87,10 @@ $rendered''';
     final declaration = StringBuffer();
     declaration.write(' /// **${rule.name}**');
     final expected = rule.expected;
-    if (expected != null) {
-      final escaped = escapeString(expected, "'");
-      declaration.write(' ($escaped)');
+    final escapedExpected =
+        expected == null ? null : escapeString(expected, "'");
+    if (escapedExpected != null) {
+      declaration.write(' ($escapedExpected)');
     }
 
     declaration.writeln();
@@ -99,10 +100,15 @@ $rendered''';
       declaration.writeln(' /// `${rule.resultType}`');
     }
 
-    declaration.writeln(' /// ${rule.name} =>');
+    declaration.write(' /// ${rule.name}');
+    if (escapedExpected != null) {
+      declaration.write('($escapedExpected)');
+    }
+
+    declaration.writeln(' =>');
     final code = const LineSplitter()
         .convert(ExpressionPrinter2().print(expression))
-        .map((e) => ' ///    $e')
+        .map((e) => ' ///   $e')
         .join('\n');
     declaration.writeln(code);
     declaration.writeln(' ///```');
