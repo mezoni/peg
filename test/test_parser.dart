@@ -5,8 +5,65 @@ class TestParser {
   ///
   ///```text
   /// `Object?`
-  /// A =
-  ///    $ = ($ = '' AndAbc / $ = AnyChar AnyCharVoid / $ = Char16 Char16Void / $ = Chars16 Chars16Void / $ = Char32 Char32Void / $ = Chars32 Chars32Void / $ = Literal0 Literal0Void / $ = Literal1 Literal1Void / $ = Literal2 Literal2Void / $ = Match MatchVoid / $ = NotDigits NotDigitsVoid / $ = '' NotAbc / $ = OneOrMore OneOrMoreVoid / $ = Optional OptionalVoid / $ = OrderedChoice OrderedChoiceVoid / $ = Ranges RangesVoid / $ = TakeWhile TakeWhileVoid / $ = TakeWhile1 TakeWhile1Void / $ = ZeroOrMore ZeroOrMoreVoid)
+  /// A =>
+  ///    $ = (
+  ///      $ = ''
+  ///      AndAbc
+  ///      ----
+  ///      $ = AnyChar
+  ///      AnyCharVoid
+  ///      ----
+  ///      $ = Char16
+  ///      Char16Void
+  ///      ----
+  ///      $ = Chars16
+  ///      Chars16Void
+  ///      ----
+  ///      $ = Char32
+  ///      Char32Void
+  ///      ----
+  ///      $ = Chars32
+  ///      Chars32Void
+  ///      ----
+  ///      $ = Literal0
+  ///      Literal0Void
+  ///      ----
+  ///      $ = Literal1
+  ///      Literal1Void
+  ///      ----
+  ///      $ = Literal2
+  ///      Literal2Void
+  ///      ----
+  ///      $ = Match
+  ///      MatchVoid
+  ///      ----
+  ///      $ = NotDigits
+  ///      NotDigitsVoid
+  ///      ----
+  ///      $ = ''
+  ///      NotAbc
+  ///      ----
+  ///      $ = OneOrMore
+  ///      OneOrMoreVoid
+  ///      ----
+  ///      $ = Optional
+  ///      OptionalVoid
+  ///      ----
+  ///      $ = OrderedChoice
+  ///      OrderedChoiceVoid
+  ///      ----
+  ///      $ = Ranges
+  ///      RangesVoid
+  ///      ----
+  ///      $ = TakeWhile
+  ///      TakeWhileVoid
+  ///      ----
+  ///      $ = TakeWhile1
+  ///      TakeWhile1Void
+  ///      ----
+  ///      $ = ZeroOrMore
+  ///      ZeroOrMoreVoid
+  ///    )
   ///```
   (Object?,)? parseA(State state) {
     final $4 = state.position;
@@ -248,7 +305,7 @@ class TestParser {
   ///
   ///```text
   /// `void`
-  /// AndAbc =
+  /// AndAbc =>
   ///    &'abc'
   ///```
   (void,)? parseAndAbc(State state) {
@@ -264,7 +321,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// AnyChar =
+  /// AnyChar =>
   ///    $ = .
   ///```
   (int,)? parseAnyChar(State state) {
@@ -281,7 +338,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// AnyCharVoid =
+  /// AnyCharVoid =>
   ///    $ = .
   ///```
   (int,)? parseAnyCharVoid(State state) {
@@ -298,7 +355,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Char16 =
+  /// Char16 =>
   ///    $ = [a]
   ///```
   (int,)? parseChar16(State state) {
@@ -322,7 +379,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Char16Void =
+  /// Char16Void =>
   ///    [a]
   ///```
   (int,)? parseChar16Void(State state) {
@@ -341,7 +398,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Char32 =
+  /// Char32 =>
   ///    $ = [{1f800}]
   ///```
   (int,)? parseChar32(State state) {
@@ -365,7 +422,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Char32Void =
+  /// Char32Void =>
   ///    $ = [{1f800}]
   ///```
   (int,)? parseChar32Void(State state) {
@@ -389,7 +446,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Chars16 =
+  /// Chars16 =>
   ///    $ = [a-zA-Z]
   ///```
   (int,)? parseChars16(State state) {
@@ -414,7 +471,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Chars16Void =
+  /// Chars16Void =>
   ///    [a-zA-Z]
   ///```
   (int,)? parseChars16Void(State state) {
@@ -434,7 +491,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Chars32 =
+  /// Chars32 =>
   ///    $ = [{1f800-1f803}]
   ///```
   (int,)? parseChars32(State state) {
@@ -459,7 +516,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// Chars32Void =
+  /// Chars32Void =>
   ///    [{1f800-1f803}]
   ///```
   (int,)? parseChars32Void(State state) {
@@ -479,7 +536,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal0 =
+  /// Literal0 =>
   ///    $ = ''
   ///```
   (String,)? parseLiteral0(State state) {
@@ -496,7 +553,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal0Void =
+  /// Literal0Void =>
   ///    ''
   ///```
   (String,)? parseLiteral0Void(State state) {
@@ -508,7 +565,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal1 =
+  /// Literal1 =>
   ///    $ = 'a'
   ///```
   (String,)? parseLiteral1(State state) {
@@ -525,7 +582,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal1Void =
+  /// Literal1Void =>
   ///    'a'
   ///```
   (String,)? parseLiteral1Void(State state) {
@@ -537,7 +594,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal2 =
+  /// Literal2 =>
   ///    $ = 'ab'
   ///```
   (String,)? parseLiteral2(State state) {
@@ -554,7 +611,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Literal2Void =
+  /// Literal2Void =>
   ///    'ab'
   ///```
   (String,)? parseLiteral2Void(State state) {
@@ -566,7 +623,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Match =
+  /// Match =>
   ///    $ = <[a]+>
   ///```
   (String,)? parseMatch(State state) {
@@ -595,7 +652,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// MatchVoid =
+  /// MatchVoid =>
   ///    <[a]+>
   ///```
   (String,)? parseMatchVoid(State state) {
@@ -619,7 +676,7 @@ class TestParser {
   ///
   ///```text
   /// `void`
-  /// NotAbc =
+  /// NotAbc =>
   ///    !'abc'
   ///```
   (void,)? parseNotAbc(State state) {
@@ -636,7 +693,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// NotDigits =
+  /// NotDigits =>
   ///    $ = [0-9]
   ///```
   (int,)? parseNotDigits(State state) {
@@ -661,7 +718,7 @@ class TestParser {
   ///
   ///```text
   /// `int`
-  /// NotDigitsVoid =
+  /// NotDigitsVoid =>
   ///    [0-9]
   ///```
   (int,)? parseNotDigitsVoid(State state) {
@@ -681,7 +738,7 @@ class TestParser {
   ///
   ///```text
   /// `List<String>`
-  /// OneOrMore =
+  /// OneOrMore =>
   ///    $ = 'abc'+
   ///```
   (List<String>,)? parseOneOrMore(State state) {
@@ -706,7 +763,7 @@ class TestParser {
   ///
   ///```text
   /// `List<String>`
-  /// OneOrMoreVoid =
+  /// OneOrMoreVoid =>
   ///    'abc'+
   ///```
   (List<String>,)? parseOneOrMoreVoid(State state) {
@@ -726,7 +783,7 @@ class TestParser {
   ///
   ///```text
   /// `String?`
-  /// Optional =
+  /// Optional =>
   ///    $ = 'abc'?
   ///```
   (String?,)? parseOptional(State state) {
@@ -742,7 +799,7 @@ class TestParser {
   ///
   ///```text
   /// `String?`
-  /// OptionalVoid =
+  /// OptionalVoid =>
   ///    'abc'?
   ///```
   (String?,)? parseOptionalVoid(State state) {
@@ -755,8 +812,14 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// OrderedChoice =
-  ///    $ = ($ = 'a' / $ = 'b' / $ = 'c')
+  /// OrderedChoice =>
+  ///    $ = (
+  ///      $ = 'a'
+  ///      ----
+  ///      $ = 'b'
+  ///      ----
+  ///      $ = 'c'
+  ///    )
   ///```
   (String,)? parseOrderedChoice(State state) {
     (String,)? $0;
@@ -791,8 +854,14 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// OrderedChoiceVoid =
-  ///    ($ = 'a' / $ = 'b' / $ = 'c')
+  /// OrderedChoiceVoid =>
+  ///    (
+  ///      $ = 'a'
+  ///      ----
+  ///      $ = 'b'
+  ///      ----
+  ///      $ = 'c'
+  ///    )
   ///```
   (String,)? parseOrderedChoiceVoid(State state) {
     (String,)? $0;
@@ -822,7 +891,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// Ranges =
+  /// Ranges =>
   ///    $ = <[0-9A-Za-z]>
   ///```
   (String,)? parseRanges(State state) {
@@ -848,7 +917,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// RangesVoid =
+  /// RangesVoid =>
   ///    <[0-9A-Za-z]>
   ///```
   (String,)? parseRangesVoid(State state) {
@@ -869,7 +938,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// TakeWhile =
+  /// TakeWhile =>
   ///    $ = <[a]*>
   ///```
   (String,)? parseTakeWhile(State state) {
@@ -894,7 +963,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// TakeWhile1 =
+  /// TakeWhile1 =>
   ///    $ = <[a]+>
   ///```
   (String,)? parseTakeWhile1(State state) {
@@ -923,7 +992,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// TakeWhile1Void =
+  /// TakeWhile1Void =>
   ///    <[a]+>
   ///```
   (String,)? parseTakeWhile1Void(State state) {
@@ -947,7 +1016,7 @@ class TestParser {
   ///
   ///```text
   /// `String`
-  /// TakeWhileVoid =
+  /// TakeWhileVoid =>
   ///    <[a]*>
   ///```
   (String,)? parseTakeWhileVoid(State state) {
@@ -969,7 +1038,7 @@ class TestParser {
   ///
   ///```text
   /// `List<String>`
-  /// ZeroOrMore =
+  /// ZeroOrMore =>
   ///    $ = 'abc'*
   ///```
   (List<String>,)? parseZeroOrMore(State state) {
@@ -992,7 +1061,7 @@ class TestParser {
   ///
   ///```text
   /// `List<String>`
-  /// ZeroOrMoreVoid =
+  /// ZeroOrMoreVoid =>
   ///    'abc'*
   ///```
   (List<String>,)? parseZeroOrMoreVoid(State state) {

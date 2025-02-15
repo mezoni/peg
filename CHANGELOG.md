@@ -1,6 +1,7 @@
 ## 8.0.3
 
 - Fixed bugs
+- A new expression printer has been implemented. At the moment, printing of the source code of the expression `Action` has not yet been implemented.
 
 ## 8.0.2
 

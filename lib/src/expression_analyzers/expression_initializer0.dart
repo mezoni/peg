@@ -116,11 +116,6 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   @override
   void visitSequence(SequenceExpression node) {
     _initializeNode(node);
-    final children = node.expressions;
-    for (var i = 0; i < children.length; i++) {
-      final child = children[i];
-      child.index = i;
-    }
   }
 
   @override

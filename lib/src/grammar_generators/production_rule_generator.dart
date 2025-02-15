@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import '../allocator.dart';
 import '../expressions/build_context.dart';
+import '../expressions/expression_printer2.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart';
 import '../parser_generator.dart';
@@ -96,22 +99,12 @@ $rendered''';
       declaration.writeln(' /// `${rule.resultType}`');
     }
 
-    declaration.writeln(' /// ${rule.name} =');
-    if (expression is OrderedChoiceExpression) {
-      final expressions = expression.expressions;
-      if (expressions.length == 1) {
-        declaration.writeln(' ///    $expression');
-      } else {
-        for (var i = 0; i < expressions.length; i++) {
-          final expression = expressions[i];
-          final prefix = i == 0 ? '    ' : '  / ';
-          declaration.writeln(' /// $prefix$expression');
-        }
-      }
-    } else {
-      declaration.writeln(' /// $expression');
-    }
-
+    declaration.writeln(' /// ${rule.name} =>');
+    final code = const LineSplitter()
+        .convert(ExpressionPrinter2().print(expression))
+        .map((e) => ' ///    $e')
+        .join('\n');
+    declaration.writeln(code);
     declaration.writeln(' ///```');
     return '$declaration'.trim();
   }
