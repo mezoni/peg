@@ -162,7 +162,7 @@ class MathParser {
     if (state.failure == $1 && $2 < state.nesting) {
       state.expected($0, 'end of file', $1, state.position);
     }
-    state.nesting == $2;
+    state.nesting = $2;
     state.failure = state.failure < $3 ? $3 : state.failure;
     return $0;
   }
@@ -185,7 +185,7 @@ class MathParser {
     if (state.failure == $1 && $2 < state.nesting) {
       state.expected($0, 'expression', $1, state.position);
     }
-    state.nesting == $2;
+    state.nesting = $2;
     state.failure = state.failure < $3 ? $3 : state.failure;
     return $0;
   }
@@ -402,7 +402,7 @@ class MathParser {
     if (state.failure == $1 && $25 < state.nesting) {
       state.expected($0, 'number', $1, state.position);
     }
-    state.nesting == $25;
+    state.nesting = $25;
     state.failure = state.failure < $26 ? $26 : state.failure;
     return $0;
   }
@@ -726,7 +726,7 @@ class MathParser {
     if (state.failure == $1 && $7 < state.nesting) {
       state.expected($0, 'expression', $1, state.position);
     }
-    state.nesting == $7;
+    state.nesting = $7;
     state.failure = state.failure < $8 ? $8 : state.failure;
     return $0;
   }

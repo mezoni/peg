@@ -751,7 +751,7 @@ class PegParser {
     if (state.failure == $1 && $2 < state.nesting) {
       state.expected($0, 'expression', $1, state.position);
     }
-    state.nesting == $2;
+    state.nesting = $2;
     state.failure = state.failure < $3 ? $3 : state.failure;
     return $0;
   }
@@ -881,7 +881,7 @@ class PegParser {
     if (state.failure == $1 && $5 < state.nesting) {
       state.expected($0, 'hex number', $1, state.position);
     }
-    state.nesting == $5;
+    state.nesting = $5;
     state.failure = state.failure < $6 ? $6 : state.failure;
     return $0;
   }
@@ -929,7 +929,7 @@ class PegParser {
     if (state.failure == $1 && $6 < state.nesting) {
       state.expected($0, 'identifier', $1, state.position);
     }
-    state.nesting == $6;
+    state.nesting = $6;
     state.failure = state.failure < $7 ? $7 : state.failure;
     return $0;
   }
@@ -1308,7 +1308,7 @@ class PegParser {
     if (state.failure == $1 && $2 < state.nesting) {
       state.expected($0, 'expression', $1, state.position);
     }
-    state.nesting == $2;
+    state.nesting = $2;
     state.failure = state.failure < $3 ? $3 : state.failure;
     return $0;
   }
@@ -1509,7 +1509,7 @@ class PegParser {
     if (state.failure == $1 && $18 < state.nesting) {
       state.expected($0, 'range', $1, state.position);
     }
-    state.nesting == $18;
+    state.nesting = $18;
     state.failure = state.failure < $19 ? $19 : state.failure;
     return $0;
   }
@@ -1788,7 +1788,7 @@ class PegParser {
     if (state.failure == $1 && $6 < state.nesting) {
       state.expected($0, 'production rule name', $1, state.position);
     }
-    state.nesting == $6;
+    state.nesting = $6;
     state.failure = state.failure < $7 ? $7 : state.failure;
     return $0;
   }
@@ -2090,7 +2090,7 @@ class PegParser {
     if (state.failure == $1 && $2 < state.nesting) {
       state.expected($0, 'string', $1, state.position);
     }
-    state.nesting == $2;
+    state.nesting = $2;
     state.failure = state.failure < $3 ? $3 : state.failure;
     return $0;
   }
@@ -2231,7 +2231,7 @@ class PegParser {
     if (state.failure == $1 && $12 < state.nesting) {
       state.expected($0, 'type', $1, state.position);
     }
-    state.nesting == $12;
+    state.nesting = $12;
     state.failure = state.failure < $13 ? $13 : state.failure;
     return $0;
   }

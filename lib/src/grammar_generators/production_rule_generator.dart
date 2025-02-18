@@ -60,7 +60,7 @@ ${enterLeave.enter}''';
 if (state.failure == $position && $nesting < state.nesting) {
   state.expected($variable, $escaped, $position, state.position);
 }
-state.nesting == $nesting;
+state.nesting = $nesting;
 ${enterLeave.leave}
 $epilogue''';
     }

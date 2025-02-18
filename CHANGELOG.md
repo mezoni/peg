@@ -1,3 +1,7 @@
+## 8.1.1
+
+- Fixed bugs.
+
 ## 8.1.0
 
 - Internal breaking changes that do not affect parser generation.

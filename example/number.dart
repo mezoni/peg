@@ -133,7 +133,7 @@ class NumberParser {
     if (state.failure == $1 && $15 < state.nesting) {
       state.expected($0, 'number', $1, state.position);
     }
-    state.nesting == $15;
+    state.nesting = $15;
     state.failure = state.failure < $16 ? $16 : state.failure;
     return $0;
   }
