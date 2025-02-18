@@ -205,13 +205,24 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
     if (expressions.length == 1) {
       node.visitChildren(this);
     } else {
-      for (var i = 0; i < expressions.length; i++) {
-        final expression = expressions[i];
-        expression.accept(this);
-        if (i != expressions.length - 1) {
-          _buffer.writeln();
-          _buffer.write(_indent);
-          _buffer.writeln('----');
+      final multiline = _multiline[node]!;
+      if (!multiline) {
+        for (var i = 0; i < expressions.length; i++) {
+          final expression = expressions[i];
+          expression.accept(this);
+          if (i != expressions.length - 1) {
+            _buffer.write(' / ');
+          }
+        }
+      } else {
+        for (var i = 0; i < expressions.length; i++) {
+          final expression = expressions[i];
+          expression.accept(this);
+          if (i != expressions.length - 1) {
+            _buffer.writeln();
+            _buffer.write(_indent);
+            _buffer.writeln('----');
+          }
         }
       }
     }

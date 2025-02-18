@@ -93,7 +93,8 @@ class SequenceExpression extends MultiExpression {
     }
 
     var numberOfBlocks = expressions.length;
-    if (expressions.length > 1 || expressions.last is VariableExpression) {
+    if ((expressions.length > 1 && variable != null) ||
+        expressions.last is VariableExpression) {
       numberOfBlocks++;
     }
 

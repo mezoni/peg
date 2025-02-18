@@ -12,10 +12,11 @@ void main(List<String> args) {
       ),
     ),
     (
-      'example/realtime_calc.peg',
-      'example/realtime_calc.dart',
+      'example/json.peg',
+      'example/json_example.dart',
       ParserGeneratorOptions(
-        name: 'CalcParser',
+        name: 'JsonParser',
+        parseFunction: 'parse',
       ),
     ),
     (
@@ -31,6 +32,13 @@ void main(List<String> args) {
       ParserGeneratorOptions(
         name: 'NumberParser',
         parseFunction: 'parse',
+      ),
+    ),
+    (
+      'example/realtime_calc.peg',
+      'example/realtime_calc.dart',
+      ParserGeneratorOptions(
+        name: 'CalcParser',
       ),
     ),
   ];

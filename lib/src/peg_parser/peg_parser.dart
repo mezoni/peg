@@ -1,4 +1,4 @@
-//ignore_for_file: curly_braces_in_flow_control_structures, empty_statements, prefer_conditional_assignment, prefer_final_locals
+//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
 
 import 'package:source_span/source_span.dart';
 
@@ -357,9 +357,7 @@ class PegParser {
   ///   $ = [ -!#-\[{5d-10ffff}]
   ///   ----
   ///   "\\"
-  ///   $ = (EscapedValue
-  ///   ----
-  ///   EscapedHexValue)
+  ///   $ = (EscapedValue / EscapedHexValue)
   ///```
   (int,)? parseDQChar(State state) {
     final $3 = state.position;
@@ -468,9 +466,7 @@ class PegParser {
   ///```text
   /// `void`
   /// EndOfLine =>
-  ///   "\r\n"
-  ///   ----
-  ///   [{a}{d}]
+  ///   "\r\n" / [{a}{d}]
   ///```
   (void,)? parseEndOfLine(State state) {
     (void,)? $0;
@@ -496,24 +492,18 @@ class PegParser {
   ///     S
   ///     $ = { $$ = (k, v); }
   ///     ----
-  ///     k = ('start'
-  ///   ----
-  ///   'end')
+  ///     k = ('start' / 'end')
   ///     S
   ///     '='
   ///     S
-  ///     v = ('start'
-  ///   ----
-  ///   'end')
+  ///     v = ('start' / 'end')
   ///     S
   ///     $ = { $$ = (k, v); }
   ///     ----
   ///     k = 'origin'
   ///     S
   ///     `String` v = (
-  ///       n = ('=='
-  ///   ----
-  ///   '!=')
+  ///       n = ('==' / '!=')
   ///       S
   ///       s = 'start'
   ///       S
@@ -1120,9 +1110,7 @@ class PegParser {
   ///   n = Sequence
   ///   { final l = [n]; }
   ///   @while (*) (
-  ///     ('/'
-  ///   ----
-  ///   '-'+)
+  ///     ('/' / '-'+)
   ///     S
   ///     n = Sequence
   ///     { l.add(n); }
@@ -1798,9 +1786,7 @@ class PegParser {
   ///```text
   /// `List<void>`
   /// S =>
-  ///   @while (*) (Space
-  ///   ----
-  ///   Comment)
+  ///   @while (*) (Space / Comment)
   ///```
   (List<void>,)? parseS(State state) {
     final $list = <void>[];
@@ -1826,9 +1812,7 @@ class PegParser {
   ///   $ = [ -&(-\[{5d-10ffff}]
   ///   ----
   ///   "\\"
-  ///   $ = (EscapedValue
-  ///   ----
-  ///   EscapedHexValue)
+  ///   $ = (EscapedValue / EscapedHexValue)
   ///```
   (int,)? parseSQChar(State state) {
     final $3 = state.position;
@@ -2008,9 +1992,7 @@ class PegParser {
   ///```text
   /// `void`
   /// Space =>
-  ///   [ {9}]
-  ///   ----
-  ///   EndOfLine
+  ///   [ {9}] / EndOfLine
   ///```
   (void,)? parseSpace(State state) {
     (void,)? $0;
@@ -2073,9 +2055,7 @@ class PegParser {
   ///```text
   /// `String`
   /// String('string') =>
-  ///   DQString
-  ///   ----
-  ///   SQString
+  ///   DQString / SQString
   ///```
   (String,)? parseString(State state) {
     final $2 = state.nesting;
@@ -2458,7 +2438,7 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (String,)? match(String string) {
-    if (_input.startsWith(string, position)) {
+    if (startsWith(string, position)) {
       position += string.length;
       return (string,);
     }
@@ -2524,6 +2504,9 @@ class State {
       return _ch = 0;
     }
   }
+
+  bool startsWith(String string, int position) =>
+      _input.startsWith(string, position);
 
   /// Returns a substring of the input data, starting at position [start] and
   /// ending at position [end].

@@ -1,5 +1,5 @@
 %{
-//ignore_for_file: curly_braces_in_flow_control_structures, empty_statements, prefer_conditional_assignment, prefer_final_locals
+//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
 
 import 'package:source_span/source_span.dart';
 

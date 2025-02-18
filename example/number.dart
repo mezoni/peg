@@ -1,4 +1,4 @@
-//ignore_for_file: curly_braces_in_flow_control_structures, empty_statements, prefer_conditional_assignment, prefer_final_locals
+//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
 
 import 'dart:math' as math;
 
@@ -116,7 +116,6 @@ class NumberParser {
               'Expected decimal digit', state.position, state.failure, 3);
         }
         state.failure = state.failure < $11 ? $11 : state.failure;
-        if ($10 != null) {}
       }
       final $5 = ok ? (null,) : state.fail<void>();
       if ($5 != null) {
@@ -330,7 +329,7 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (String,)? match(String string) {
-    if (_input.startsWith(string, position)) {
+    if (startsWith(string, position)) {
       position += string.length;
       return (string,);
     }
@@ -396,6 +395,9 @@ class State {
       return _ch = 0;
     }
   }
+
+  bool startsWith(String string, int position) =>
+      _input.startsWith(string, position);
 
   /// Returns a substring of the input data, starting at position [start] and
   /// ending at position [end].

@@ -1,3 +1,8 @@
+## 8.1.2
+
+- Fixed bugs.
+- Added example file `example/json.peg`.
+
 ## 8.1.1
 
 - Fixed bugs.

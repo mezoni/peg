@@ -547,7 +547,7 @@ class State {
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   (String,)? match(String string) {
-    if (_input.startsWith(string, position)) {
+    if (startsWith(string, position)) {
       position += string.length;
       return (string,);
     }
@@ -613,6 +613,9 @@ class State {
       return _ch = 0;
     }
   }
+
+  bool startsWith(String string, int position) =>
+      _input.startsWith(string, position);
 
   /// Returns a substring of the input data, starting at position [start] and
   /// ending at position [end].
