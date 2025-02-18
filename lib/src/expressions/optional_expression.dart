@@ -18,6 +18,7 @@ class OptionalExpression extends SingleExpression {
       }
     }
 
+    context.shareValues(this, expression, [Expression.position]);
     sink.writeln(expression.generate(context, variable, isFast));
     if (variable != null) {
       sink.statement('$variable ??= (null,)');

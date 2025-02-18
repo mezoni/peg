@@ -2,7 +2,6 @@ import '../expressions/expression.dart';
 import '../grammar/grammar.dart';
 import '../parser_generator_diagnostics.dart';
 import 'result_type_resolver.dart';
-import 'shared_values_collector.dart';
 
 class ExpressionInitializer1 {
   final ParserGeneratorDiagnostics diagnostics;
@@ -26,8 +25,6 @@ class ExpressionInitializer1 {
 
     final resultTypesResolver = ResultTypesResolver();
     resultTypesResolver.resolve(grammar.rules);
-    final sharedValuesCollector = SharedValuesCollector(grammar: grammar);
-    sharedValuesCollector.collect();
   }
 }
 

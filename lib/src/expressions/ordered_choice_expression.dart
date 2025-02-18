@@ -27,11 +27,13 @@ class OrderedChoiceExpression extends MultiExpression {
       }
     }
 
+    context.addSharedValues(this, [Expression.position]);
     final blocks = <StringBuffer>[];
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
       final block = StringBuffer();
       blocks.add(block);
+      context.shareValues(this, expression, [Expression.position]);
       block.writeln(expression.generate(context, variable, isFast));
     }
 

@@ -12,6 +12,10 @@ String conditional(String condition, String ifTrue, String ifFalse) {
     return ifFalse;
   }
 
+  if (condition.contains('?')) {
+    condition = '($condition)';
+  }
+
   return '$condition ? $ifTrue : $ifFalse';
 }
 

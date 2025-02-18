@@ -51,21 +51,15 @@ class ZeroOrMoreExpression extends SingleExpression {
       if (expression case final CharacterClassExpression child) {
         final sink = preprocess(context);
         final ranges = child.ranges;
-        final bitDepth = calculateBitDepth(ranges);
         final predicate =
             MatcherGenerator().generate('c', ranges, negate: child.negate);
         sink.writeln('''
-while (state.position < state.length) {
-  final position = state.position;
-  final c = state.nextChar$bitDepth();
-  final ok = $predicate;
-  if (!ok) {
-    state.position = position;
-    break;
-  }
+for (var c = state.peek(); $predicate;) {
+  state.advance();
+  c = state.peek();
 }''');
         if (variable != null) {
-          const value = 'const (<int>[],)';
+          const value = '(null,)';
           variable.assign(sink, value);
         }
 

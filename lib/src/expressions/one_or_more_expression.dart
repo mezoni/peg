@@ -20,15 +20,11 @@ class OneOrMoreExpression extends SingleExpression {
     final sink = preprocess(context);
     isFast = isFastOrVoid(isFast);
     var list = '';
-    var ok = '';
     final childVariable = context.allocateVariable();
     final elementType = expression.getResultType();
     if (!isFast) {
       list = context.allocate('list');
       sink.statement('final $list = <$elementType>[]');
-    } else {
-      ok = context.allocate('ok');
-      sink.statement('var $ok = false');
     }
 
     sink.writeln('while (true) {');
@@ -39,16 +35,27 @@ class OneOrMoreExpression extends SingleExpression {
     });
     if (!isFast) {
       sink.statement('$list.add($childVariable.\$1)');
-    } else {
-      sink.statement('$ok = true');
     }
 
     sink.writeln('}');
-    final value = !isFast
-        ? conditional('$list.isNotEmpty', '($list,)', 'null')
-        : conditional(ok, 'const ([],)', 'null');
+    var test = '';
+    var result = '';
+    if (isFast) {
+      final position = context.getSharedValue(this, Expression.position);
+      test = 'state.position != $position';
+      result = variable != null ? '(null,)' : 'null';
+    } else {
+      test = '$list.isNotEmpty';
+      result = variable != null ? '($list,)' : 'null';
+    }
+
     if (variable != null) {
+      final parameter = getGenericParameter(variable);
+      final value = conditional(test, result, 'state.fail$parameter()');
       variable.assign(sink, value);
+    } else {
+      final statement = conditional(test, result, 'state.fail()');
+      sink.statement(statement);
     }
 
     return postprocess(context, sink);
@@ -59,23 +66,18 @@ class OneOrMoreExpression extends SingleExpression {
       if (expression case final CharacterClassExpression child) {
         final sink = preprocess(context);
         final ranges = child.ranges;
-        final bitDepth = calculateBitDepth(ranges);
         final predicate =
             MatcherGenerator().generate('c', ranges, negate: child.negate);
-        final position = getSharedValue(context, 'state.position');
+        final position = context.getSharedValue(this, Expression.position);
         sink.writeln('''
-while (state.position < state.length) {
-  final position = state.position;
-  final c = state.nextChar$bitDepth();
-  final ok = $predicate;
-  if (!ok) {
-    state.position = position;
-    break;
-  }
+for (var c = state.peek(); $predicate;) {
+  state.advance();
+  c = state.peek();
 }''');
         if (variable != null) {
-          final value = conditional('state.position != $position',
-              'const (<int>[],)', 'state.fail<List<int>>()');
+          final type = getGenericParameter(variable);
+          final value = conditional(
+              'state.position != $position', '(null,)', 'state.fail$type()');
           variable.assign(sink, value);
         }
 

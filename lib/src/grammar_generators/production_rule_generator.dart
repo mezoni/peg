@@ -34,8 +34,10 @@ class ProductionRuleGenerator {
     final isFast = resultType == 'void' ? true : false;
     final variable = context.allocateVariable();
     final expected = rule.expected;
+    context.addSharedValues(expression, [Expression.position]);
+    SharedValue? position;
     if (expected != null) {
-      expression.getSharedValue(context, 'state.position');
+      position = context.getSharedValue(expression, Expression.position);
     }
 
     final code = expression.generate(context, variable, isFast);
@@ -46,14 +48,19 @@ class ProductionRuleGenerator {
     var prologue = '';
     var epilogue = '';
     if (expected != null) {
-      final position = expression.getSharedValue(context, 'state.position');
+      final nesting = context.allocate();
       final escaped = escapeString(expected, "'");
       final enterLeave = expression.generateEnterLeave(context);
       prologue = '''
 $prologue
- ${enterLeave.enter}''';
+final $nesting = state.nesting;
+state.nesting = state.nesting < state.position ? state.position : state.nesting;
+${enterLeave.enter}''';
       epilogue = '''
-state.expected($variable, $escaped, $position, false);
+if (state.failure == $position && $nesting < state.nesting) {
+  state.expected($variable, $escaped, $position, state.position);
+}
+state.nesting == $nesting;
 ${enterLeave.leave}
 $epilogue''';
     }

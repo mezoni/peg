@@ -113,6 +113,10 @@ class SequenceExpression extends MultiExpression {
       final expression = expressions[i];
       final variable = variables[i];
       final block = blocks[i];
+      if (i == 0) {
+        context.shareValues(this, expression, [Expression.position]);
+      }
+
       block.writeln(
           expression.generate(context, variable, isFast || variable == null));
     }
@@ -174,9 +178,9 @@ class SequenceExpression extends MultiExpression {
 
       if (i == 1) {
         if (_isPositionRequired()) {
-          final position = getSharedValue(context, 'state.position');
           final isFailure = getStateTest(variable, false);
           buffer.ifStatement(isFailure, (b) {
+            final position = context.getSharedValue(this, Expression.position);
             b.statement('state.position = $position');
           });
         }

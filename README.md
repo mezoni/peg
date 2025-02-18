@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 8.0.4
+Version: 8.1.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -768,10 +768,12 @@ void main(List<String> args) {
 Yes, it is possible.  
 The generated parser does not use direct access to the input data.  
 Access to data is provided through members of class `State`.  
-List of these methods:
+List of these members:
 
-- `nextChar16`
-- `nextChar32`
+- `advance`
+- `match`
+- `peek`
+- `startsWith`
 - `substring`
 
 Thus, by creating a new class that extends the `State` class and overwriting these methods, it is possible to perform the parsing from the file.

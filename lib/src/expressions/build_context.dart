@@ -12,11 +12,22 @@ class BuildContext {
 
   final ParserGeneratorOptions options;
 
+  final Map<Expression, Map<String, SharedValue>> sharedValues = {};
+
   BuildContext({
     required this.allocator,
     required this.diagnostics,
     required this.options,
   });
+
+  void addSharedValues(Expression expression, List<String> values) {
+    final map = sharedValues[expression] ??= {};
+    for (final value in values) {
+      if (!map.containsKey(value)) {
+        map[value] = SharedValue(expression);
+      }
+    }
+  }
 
   String allocate([String name = '']) => allocator.allocate(name);
 
@@ -28,5 +39,48 @@ class BuildContext {
     final variable =
         Variable(name: allocate(), needDeclare: needDeclare, type: type);
     return variable;
+  }
+
+  SharedValue getSharedValue(Expression expression, String value) {
+    final values = sharedValues[expression] ??= {};
+    var sharedValue = values[value];
+    if (sharedValue == null) {
+      sharedValue = SharedValue(expression);
+      values[value] = sharedValue;
+    }
+
+    if (sharedValue.name.isEmpty) {
+      sharedValue.name = allocate();
+    }
+
+    return sharedValue;
+  }
+
+  void shareValues(Expression parent, Expression child, List<String> values) {
+    final parentValues = sharedValues[parent];
+    if (parentValues == null) {
+      return;
+    }
+
+    for (final value in values) {
+      final sharedValue = parentValues[value];
+      if (sharedValue != null) {
+        final childValues = sharedValues[child] ??= {};
+        childValues[value] = sharedValue;
+      }
+    }
+  }
+}
+
+class SharedValue {
+  final Expression expression;
+
+  String name = '';
+
+  SharedValue(this.expression);
+
+  @override
+  String toString() {
+    return name.isNotEmpty ? name : 'UNNAMED_SHARED_VALUE';
   }
 }

@@ -1,3 +1,9 @@
+## 8.1.0
+
+- Internal breaking changes that do not affect parser generation.
+- Improved quality of generated code. Generated code became smaller in size.
+- Fixed bugs.
+
 ## 8.0.4
 
 - Fixed bugs.

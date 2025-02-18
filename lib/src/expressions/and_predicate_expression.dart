@@ -16,8 +16,9 @@ class AndPredicateExpression extends SingleExpression {
         ? context.allocateVariable()
         : null;
     final isSuccess = expression.getStateTest(childVariable, true);
+    final position = context.getSharedValue(this, Expression.position);
+    context.shareValues(this, expression, [Expression.position]);
     sink.write(expression.generate(context, childVariable, true));
-    final position = getSharedValue(context, 'state.position');
     sink.statement(conditional(isSuccess, 'null', 'state.fail<void>()'));
     sink.statement('state.position = $position');
     final value = conditional(isSuccess, '(null,)', 'null');

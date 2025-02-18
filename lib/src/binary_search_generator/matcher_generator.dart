@@ -19,9 +19,12 @@ class MatcherGenerator {
       final end = range.$2;
       if (start == end) {
         return '$name != $start';
-      } else {
-        return '$name < $start || $name > $end';
       }
+    }
+
+    if (negate) {
+      ranges.add((0, 0));
+      ranges = normalizeRanges(ranges);
     }
 
     final code = _generate(name, 0, ranges.length - 1, ranges);

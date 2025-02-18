@@ -100,7 +100,8 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
 
   @override
   void visitCharacterClass(CharacterClassExpression node) {
-    _buffer.write('[');
+    final negate = node.negate;
+    negate ? _buffer.write('[^') : _buffer.write('[');
     final ranges = node.ranges;
     String escape(int char) {
       return switch (char) {

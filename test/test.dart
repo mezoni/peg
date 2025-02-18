@@ -471,7 +471,7 @@ void _testNot() {
         expect(r, isNull, reason: 'Input $input');
         expect(state.position, 0, reason: 'Input $input');
         expect(state.getErrors(),
-            [(start: 0, end: 3, message: "Unexpected 'abc'")],
+            [(start: 0, end: 3, message: "Unexpected: 'abc'")],
             reason: 'Input $input');
       }
     });

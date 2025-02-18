@@ -12,7 +12,8 @@ class AnyCharacterExpression extends Expression {
   @override
   String generate(BuildContext context, Variable? variable, bool isFast) {
     final sink = preprocess(context);
-    const value = 'state.matchAny()';
+    final value = conditional(
+        'state.peek() != 0', '(state.advance(),)', 'state.fail<int>()');
     if (variable == null) {
       sink.statement(value);
     } else {

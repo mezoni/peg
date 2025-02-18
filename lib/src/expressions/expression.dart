@@ -6,6 +6,8 @@ import 'expression_printer.dart';
 export 'expression_visitors.dart';
 
 abstract class Expression {
+  static const position = 'state.position';
+
   int? id;
 
   int? index;
@@ -26,8 +28,6 @@ abstract class Expression {
 
   ProductionRule? rule;
 
-  Map<String, SharedValue> sharedValues = {};
-
   T accept<T>(ExpressionVisitor<T> visitor);
 
   String generate(BuildContext context, Variable? variable, bool isFast);
@@ -39,8 +39,24 @@ abstract class Expression {
     buffer.statement('state.failure = state.position');
     final test =
         conditional('state.failure < $failure', failure, 'state.failure');
-    final leave = 'state.failure = $test;';
+    final leave = '''
+state.failure = $test;''';
     return (enter: '$buffer', leave: leave);
+  }
+
+  String getGenericParameter(Variable? variable) {
+    var parameter = '';
+    if (variable != null) {
+      final resultType = getResultType();
+      final type = variable.type;
+      if (type.isEmpty || type == 'void') {
+        return '<$resultType>';
+      }
+    } else {
+      parameter = '<void>';
+    }
+
+    return parameter;
   }
 
   String getResultType() {
@@ -54,19 +70,6 @@ abstract class Expression {
   String getReturnType() {
     final type = getResultType();
     return '($type,)?';
-  }
-
-  String getSharedValue(BuildContext context, String value) {
-    var sharedValue = sharedValues[value];
-    if (sharedValue == null) {
-      sharedValue = SharedValue(declarator: this, value: value);
-      sharedValue.name = context.allocate();
-      sharedValues[value] = sharedValue;
-    } else if (sharedValue.name.isEmpty) {
-      sharedValue.name = context.allocate();
-    }
-
-    return sharedValue.name;
   }
 
   String getStateTest(Variable? variable, bool isSuccess) {
@@ -84,11 +87,13 @@ abstract class Expression {
   }
 
   String postprocess(BuildContext context, StringSink sink) {
-    for (final sharedValue in sharedValues.values) {
+    final sharedValues = context.sharedValues[this] ?? const {};
+    for (final entry in sharedValues.entries) {
+      final value = entry.key;
+      final sharedValue = entry.value;
       final name = sharedValue.name;
       if (name.isNotEmpty) {
-        if (sharedValue.declarator == this) {
-          final value = sharedValue.value;
+        if (sharedValue.expression == this) {
           final temp = '$sink';
           sink = StringBuffer();
           sink.statement('final $name = $value');
@@ -131,28 +136,6 @@ abstract class MultiExpression extends Expression {
       final expression = expressions[i];
       expression.accept(visitor);
     }
-  }
-}
-
-class SharedValue {
-  final Expression declarator;
-
-  String name = '';
-
-  final String value;
-
-  SharedValue({
-    required this.declarator,
-    required this.value,
-  });
-
-  @override
-  String toString() {
-    if (name.isNotEmpty) {
-      return name;
-    }
-
-    return super.toString();
   }
 }
 

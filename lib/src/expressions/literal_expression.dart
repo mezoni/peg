@@ -23,15 +23,14 @@ class LiteralExpression extends Expression {
     if (silent) {
       if (length == 0) {
         return _generateEmpty(context, variable, sink);
-      } else if (literal.length <= 5) {
-        return _generateMatchN(context, variable, sink);
       } else {
         return _generateMatch(context, variable, sink);
       }
     }
 
-    if (length > 0 && length <= 5) {
-      return _generateLiteralN(context, variable, sink);
+    final runes = literal.runes.toList();
+    if (runes.length == 1) {
+      return _generateLiteral1(context, variable, sink, runes[0]);
     } else {
       return _generateLiteral(context, variable, sink);
     }
@@ -49,7 +48,7 @@ class LiteralExpression extends Expression {
   String _generateLiteral(
       BuildContext context, Variable? variable, StringSink sink) {
     final escaped = escapeString(literal);
-    final value = 'state.matchLiteral(($escaped,), $escaped)';
+    final value = 'state.matchLiteral($escaped)';
     if (variable != null) {
       variable.assign(sink, value);
     } else {
@@ -59,13 +58,10 @@ class LiteralExpression extends Expression {
     return postprocess(context, sink);
   }
 
-  String _generateLiteralN(
-      BuildContext context, Variable? variable, StringSink sink) {
+  String _generateLiteral1(
+      BuildContext context, Variable? variable, StringSink sink, int char) {
     final escaped = escapeString(literal);
-    final codeUnits = literal.codeUnits;
-    final length = codeUnits.length;
-    final sequence = codeUnits.join(', ');
-    final value = 'state.matchLiteral$length(($escaped,), $escaped, $sequence)';
+    final value = 'state.matchLiteral1($escaped, $char)';
     if (variable != null) {
       variable.assign(sink, value);
     } else {
@@ -78,23 +74,7 @@ class LiteralExpression extends Expression {
   String _generateMatch(
       BuildContext context, Variable? variable, StringSink sink) {
     final escaped = escapeString(literal);
-    final value = 'state.match(($escaped,), $escaped)';
-    if (variable != null) {
-      variable.assign(sink, value);
-    } else {
-      sink.statement(value);
-    }
-
-    return postprocess(context, sink);
-  }
-
-  String _generateMatchN(
-      BuildContext context, Variable? variable, StringSink sink) {
-    final escaped = escapeString(literal);
-    final codeUnits = literal.codeUnits;
-    final length = codeUnits.length;
-    final sequence = codeUnits.join(', ');
-    final value = 'state.match$length(($escaped,), $sequence)';
+    final value = 'state.match($escaped)';
     if (variable != null) {
       variable.assign(sink, value);
     } else {

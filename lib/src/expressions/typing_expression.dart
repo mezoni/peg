@@ -16,6 +16,7 @@ class TypingExpression extends SingleExpression {
   @override
   String generate(BuildContext context, Variable? variable, bool isFast) {
     final sink = preprocess(context);
+    context.shareValues(this, expression, [Expression.position]);
     sink.writeln(expression.generate(context, variable, isFast));
     return postprocess(context, sink);
   }

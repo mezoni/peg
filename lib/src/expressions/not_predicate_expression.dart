@@ -17,7 +17,7 @@ class NotPredicateExpression extends SingleExpression {
     }
 
     final sink = preprocess(context);
-    final position = getSharedValue(context, 'state.position');
+    final position = context.getSharedValue(this, Expression.position);
     final predicate = context.allocate('predicate');
     final childVariable = expression.isVariableNeedForTestState()
         ? context.allocateVariable()
@@ -25,6 +25,7 @@ class NotPredicateExpression extends SingleExpression {
     final isFailure = expression.getStateTest(childVariable, false);
     sink.statement('final $predicate = state.predicate');
     sink.statement('state.predicate = true');
+    context.shareValues(this, expression, [Expression.position]);
     sink.writeln(expression.generate(context, childVariable, true));
     sink.statement('state.predicate = $predicate');
     final value = conditional(
@@ -40,7 +41,7 @@ class NotPredicateExpression extends SingleExpression {
     if (isFastOrVoid(isFast)) {
       if (expression is AnyCharacterExpression) {
         final sink = preprocess(context);
-        const value = 'state.matchEof()';
+        const value = 'state.peek() == 0 ? (null,) : null ';
         if (variable != null) {
           variable.assign(sink, value);
         } else {

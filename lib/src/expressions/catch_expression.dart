@@ -54,13 +54,15 @@ class CatchExpression extends SingleExpression {
       _ => throw invalidArgument('origin', origin),
     };
 
+    const flagUseStart = 1;
+    const flagUseEnd = 2;
     start == 'start' || start == 'end' ? null : invalidArgument('start', start);
     end == 'start' || end == 'end' ? null : invalidArgument('end', end);
-    final span = switch ((start, end)) {
-      ('end', 'end') => ', true',
-      ('start', 'end') => '',
-      ('start', 'start') => ', false',
-      _ => '',
+    final flag = switch ((start, end)) {
+      ('end', 'end') => flagUseEnd,
+      ('start', 'end') => flagUseStart | flagUseEnd,
+      ('start', 'start') => flagUseStart,
+      _ => flagUseStart | flagUseEnd,
     };
 
     final enterLeave = expression.generateEnterLeave(context);
@@ -71,12 +73,14 @@ class CatchExpression extends SingleExpression {
       }
     }
 
+    context.shareValues(this, expression, [Expression.position]);
     sink.writeln(expression.generate(context, variable, isFast));
     final isFailure = expression.getStateTest(variable, false);
     sink.ifStatement(isFailure, (block) {
       final escapedMessage = escapeString(message, "'");
       block.ifStatement(originTest, (block) {
-        block.statement('state.error($escapedMessage$span)');
+        block.statement(
+            'state.error($escapedMessage, state.position, state.failure, $flag)');
       });
     });
     sink.writeln(enterLeave.leave);

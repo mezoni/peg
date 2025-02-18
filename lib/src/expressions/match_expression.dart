@@ -10,9 +10,10 @@ class MatchExpression extends SingleExpression {
     final childVariable = expression.isVariableNeedForTestState()
         ? context.allocateVariable()
         : null;
+    final position = context.getSharedValue(this, Expression.position);
+    context.shareValues(this, expression, [Expression.position]);
     sink.writeln(expression.generate(context, childVariable, true));
     if (variable != null) {
-      final position = getSharedValue(context, 'state.position');
       final isSuccess = expression.getStateTest(childVariable, true);
       final value = conditional(
           isSuccess, '(state.substring($position, state.position),)', 'null');
