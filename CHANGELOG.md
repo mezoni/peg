@@ -1,3 +1,8 @@
+## 9.0.0
+
+- Breaking change. Changed behavior of the `:` operator. Now when using it with the `Action` expression, it assumes that the code in the `Action` expression is an `expression` and not a `block of statements`.
+- A new value-based code generator has been implemented. Theoretically, the new generator should generate quite good quality and maximally optimal code, practically not subject to further optimization.
+
 ## 8.1.2
 
 - Fixed bugs.

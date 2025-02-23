@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../allocator.dart';
 import '../expressions/build_context.dart';
+import '../expressions/code_gen.dart';
 import '../expressions/expression_printer2.dart';
 import '../grammar/production_rule.dart';
 import '../helper.dart';
@@ -22,7 +23,6 @@ class ProductionRuleGenerator {
   });
 
   String generate() {
-    final expression = rule.expression;
     final name = 'parse${rule.name}';
     final resultType = rule.getResultType();
     final context = BuildContext(
@@ -31,55 +31,59 @@ class ProductionRuleGenerator {
       options: options,
     );
 
-    final isFast = resultType == 'void' ? true : false;
-    final variable = context.allocateVariable();
+    final isUsed = resultType != 'void';
     final expected = rule.expected;
-    context.addSharedValues(expression, [Expression.position]);
-    SharedValue? position;
+    var expression = rule.expression;
     if (expected != null) {
-      position = context.getSharedValue(expression, Expression.position);
+      expression = ExpectedExpression(expression: expression, name: expected);
     }
 
-    final code = expression.generate(context, variable, isFast);
+    context.addSharedValues(expression, [Expression.position]);
+    final result = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: isUsed,
+    );
+
+    expression.generate(context, result);
     if (diagnostics.hasErrors) {
       return '';
     }
 
-    var prologue = '';
-    var epilogue = '';
-    if (expected != null) {
-      final nesting = context.allocate();
-      final escaped = escapeString(expected, "'");
-      final enterLeave = expression.generateEnterLeave(context);
-      prologue = '''
-$prologue
-final $nesting = state.nesting;
-state.nesting = state.nesting < state.position ? state.position : state.nesting;
-${enterLeave.enter}''';
-      epilogue = '''
-if (state.failure == $position && $nesting < state.nesting) {
-  state.expected($variable, $escaped, $position, state.position);
-}
-state.nesting = $nesting;
-${enterLeave.leave}
-$epilogue''';
+    final code = CodeGen();
+    code.add(result.code);
+    final branch = result.branch();
+    branch.truth.block((b) {
+      if (result.isUsed) {
+        final value = result.value;
+        final boxed = value.boxed ?? '($value,)';
+        if (value.isConst) {
+          b.statement('return const $boxed');
+        } else {
+          b.statement('return $boxed');
+        }
+      } else {
+        b.statement('return const (null,)');
+      }
+    });
+
+    if (branch.ok.trim() != 'true') {
+      branch.falsity.block((b) {
+        b.statement('return null');
+      });
     }
 
+    final sink = StringBuffer();
+    code.generate(sink);
     final values = {
-      'code': code,
-      'epilogue': epilogue,
+      'code': '$sink',
       'name': name,
-      'prologue': prologue,
       'return_type': rule.getReturnType(),
-      'variable': variable.name,
     };
     var template = '';
     template = '''
 {{return_type}} {{name}}(State state) {
-  {{prologue}}
   {{code}}
-  {{epilogue}}
-  return {{variable}};
 }''';
 
     final rendered = render(template, values);

@@ -2,7 +2,7 @@
 
 Command line tool for generating a PEG (with some syntactic sugar) parsers
 
-Version: 8.1.2
+Version: 9.0.0
 
 [![Pub Package](https://img.shields.io/pub/v/peg.svg)](https://pub.dev/packages/peg)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/peg.svg)](https://github.com/mezoni/peg/issues)
@@ -83,10 +83,9 @@ Main characteristics:
 
 - Small size of runtime source code
 - Small size of the source code of generated parsers
-- Efficient built-in runtime parsing methods
-- Performance optimized source code of generated parsers
+- Generating quite good quality and optimal parser code
 - Automatic generation of standard errors
-- Declarative way of describing additional errors
+- Possibility of a declarative way of describing additional errors
 - Additional useful features, including the use of syntactic sugar
 
 Creating a parser using PEG is very simple.  
@@ -117,6 +116,23 @@ Generated code: [number.dart](https://github.com/mezoni/peg/blob/main/example/nu
 A fully functional example of a JSON parser.  
 Grammar definition:  [json.peg](https://github.com/mezoni/peg/blob/main/example/json.peg)  
 Generated code: [json_example.dart](https://github.com/mezoni/peg/blob/main/example/json_example.dart)
+
+## A few words about code generation
+
+This software uses value-based code generation. Similar to placing values ​​in `virtual registers`, but with an unlimited number of registers.  
+This means that variables are practically not required for code generation, except in cases where transient storage of a value is required.  
+
+The term `value` refers to the result of some computation that is needed for something.  
+This could be, for example, the result of a parse expression or the state of a parse operation, and so on.  
+This makes it possible to generate very optimal code, but perhaps not the shortest code.  
+This means that performance is traded off against code size.  
+
+It should also be noted that the generator of such code is uncompromising.  
+Branching operations can generate `dead code` if the algorithms is illogical.  
+Such generated code does not mean that it is a bug in the code generator or a bug in the parser generator.  
+This may well and most often be a mistake in the logic of grammar (for example, an incorrect algorithm for performing a parsing operation).  
+For example, in the expression `OrderedChoice`, any optional expression, unless it is the last expression, will cause all subsequent expressions to never be executed, because the given expression always succeeds.  
+In this case, dead code will be generated uncompromisingly, that is, by itself, according to the logic of the code generator, which knows nothing about the parser generator and the grammar itself.
 
 ## Automatic error generation
 
@@ -338,25 +354,67 @@ Syntax: sequence expression `~ {` error parameters `}`
 Example:
 
 ```text
-A B C ~ { message = 'foo' } D E ~ { message = 'baz' } F
+A B C ~ { message = 'foo' }
 ```
 
-This expression will be executed as follows:
+The `Catch`expression can only be used at the end of the expression `Sequence`, as the last expression of the sequence.
+
+`GOOD`
 
 ```text
-(((A B C ~ { message = 'foo' }) D E ~ { message = 'baz' }) F)
+A B C ~ { message = 'foo' }
+```
+
+`WRONG`
+
+```text
+A B C ~ { message = 'foo' } C
 ```
 
 ### Sematic variables
 
 Semantic variables allow to assign the results of expressions to variables for later use.  
-Syntax: `n:`Expression or `n =` Expression
+Syntax: `n :` Expression or `n =` Expression
+
+Example:
 
 ```text
-`Expression`
-Action =>
-  b = Block
-  $ = { $$ = ActionExpression(code: b); }
+n = { $$ = true; var x = 5; }
+
+n  = { true }
+```
+
+**Convention**.  
+When a semantic variable is used with the `Action` expression (that is, with a code block), then the following rule applies.  
+If a code block contains the character sequence `$$` (in any form), it is assumed that the intermediate variable `$$` is used, in which case this variable should be assigned the value.  
+
+Examples:
+
+`GOOD`
+
+```text
+n = { $$ = true; }
+
+n = { $$ = r'$$'; }
+
+n = { true }
+```
+
+`WRONG`
+
+```text
+n = { r'$$' }
+```
+
+Assignment without using the intermediate variable `$$` will not perform any other computations.  
+Below are examples of generated code.  
+
+```dart
+final String $$;
+$$ = String.fromCharCode(int.parse(s, radix: 16));
+String $ = $$;
+
+String $ = String.fromCharCode(int.parse(s, radix: 16));
 ```
 
 ### Special semantic result variable `$`
@@ -774,10 +832,10 @@ The generated parser does not use direct access to the input data.
 Access to data is provided through members of class `State`.  
 List of these members:
 
-- `advance`
-- `match`
+- `charSize`
 - `peek`
 - `startsWith`
+- `strlen`
 - `substring`
 
 Thus, by creating a new class that extends the `State` class and overwriting these methods, it is possible to perform the parsing from the file.

@@ -1,5 +1,4 @@
 import '../binary_search_generator/matcher_generator.dart';
-import '../helper.dart';
 import 'build_context.dart';
 
 class CharacterClassExpression extends Expression {
@@ -22,43 +21,71 @@ class CharacterClassExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
     if (ranges.length == 1) {
-      final range = ranges[0];
+      final range = ranges.first;
       if (range.$1 == range.$2) {
-        return generate1(context, variable, isFast, range.$1);
+        _generate1(context, result, range.$1);
+        return;
       }
     }
 
-    final sink = preprocess(context);
-    final c = context.allocate();
-    final predicate =
-        const MatcherGenerator().generate(c, ranges, negate: negate);
-    final value =
-        conditional(predicate, '(state.advance(),)', 'state.fail<int>()');
-    sink.statement('final $c = state.peek()');
-    if (variable != null) {
-      variable.assign(sink, value);
-    } else {
-      sink.statement(value);
-    }
-
-    return postprocess(context, sink);
+    _generate(context, result);
   }
 
-  String generate1(
-      BuildContext context, Variable? variable, bool isFast, int char) {
-    final sink = preprocess(context);
-    final condition =
-        negate ? 'state.peek() != $char' : 'state.peek() == $char';
-    final value =
-        conditional(condition, '(state.advance(),)', 'state.fail<int>()');
-    if (variable != null) {
-      variable.assign(sink, value);
-    } else {
-      sink.statement(value);
+  void _generate(BuildContext context, BuildResult result) {
+    final code = result.code;
+    final c = context.allocate();
+    code.assign(c, 'state.peek()', 'final');
+    final predicate =
+        const MatcherGenerator().generate(c, ranges, negate: negate);
+    final branch = code.branch(predicate, '!($predicate)');
+    branch.truth.block((code) {
+      code.statement('state.position += state.charSize($c)');
+    });
+
+    branch.falsity.block((code) {
+      code.statement('state.fail()');
+    });
+
+    if (result.isUsed) {
+      result.value = Value(c);
     }
 
-    return postprocess(context, sink);
+    result.postprocess(this);
+  }
+
+  void _generate1(BuildContext context, BuildResult result, int char) {
+    final code = result.code;
+    final adjustPosition = 'state.position += state.charSize($char)';
+    if (negate) {
+      final c = context.allocate();
+      code.assign(c, 'state.peek()', 'final');
+      final branch = code.branch('$c != $char', '$c == $char');
+      branch.truth.block((b) {
+        b.statement(adjustPosition);
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.fail()');
+      });
+    } else {
+      final branch =
+          code.branch('state.peek() == $char', 'state.peek() != $char');
+      branch.truth.block((b) {
+        b.statement(adjustPosition);
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.fail()');
+      });
+    }
+
+    if (result.isUsed) {
+      result.value = Value('$char', isConst: true);
+    }
+
+    result.postprocess(this);
   }
 }

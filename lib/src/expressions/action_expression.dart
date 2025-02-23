@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class ActionExpression extends Expression {
@@ -12,22 +11,33 @@ class ActionExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final code = result.code;
     if (parent is VariableExpression) {
-      final type = getResultType();
-      sink.statement('final $type \$\$');
-      sink.writeln(code);
-      if (variable != null) {
-        variable.assign(sink, '(\$\$,)');
+      const dollars = r'$$';
+      if (this.code.contains(dollars)) {
+        final type = getResultType();
+        code.statement('final $type $dollars');
+        code.writeln(this.code);
+        if (result.isUsed) {
+          result.value = Value(dollars);
+        }
+      } else {
+        if (result.isUsed) {
+          result.value = Value(this.code);
+        } else {
+          code.writeln(this.code);
+        }
       }
     } else {
-      sink.writeln(code);
-      if (variable != null) {
-        variable.assign(sink, '(null,)');
+      code.writeln(this.code);
+      if (result.isUsed) {
+        result.value = Value('null', isConst: true);
       }
     }
 
-    return postprocess(context, sink);
+    code.branch('true', 'false');
+    result.postprocess(this);
   }
 }

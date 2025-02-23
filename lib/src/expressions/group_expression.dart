@@ -9,10 +9,15 @@ class GroupExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
+  void generate(BuildContext context, BuildResult result) {
     context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, variable, isFast));
-    return postprocess(context, sink);
+    final childResult = result.copy(expression);
+
+    expression.generate(context, childResult);
+
+    final code = result.code;
+    code.add(childResult.code);
+    childResult.copyValueTo(result);
+    result.postprocess(this);
   }
 }

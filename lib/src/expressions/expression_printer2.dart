@@ -30,10 +30,10 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
     final lines = const LineSplitter().convert(code);
     _buffer.write('{');
     if (lines.length == 1) {
-      _buffer.write(lines[0]);
+      _buffer.write(lines.first);
       _buffer.write('}');
     } else {
-      _buffer.writeln(lines[0]);
+      _buffer.writeln(lines.first);
       final indents = <int>[];
       for (var i = 1; i < lines.length; i++) {
         final line = lines[i];
@@ -45,7 +45,7 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
       }
 
       indents.sort();
-      final minIndent = indents[0];
+      final minIndent = indents.first;
       final indent = _indent;
       _indent += '  ';
       for (var i = 1; i < lines.length; i++) {
@@ -148,6 +148,21 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
     }
 
     _buffer.write(']');
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
+    final name = node.name;
+    final escapedName = escapeString(name, "'");
+    final child = node.expression;
+    if (child is GroupExpression) {
+      _buffer.write('@expected($escapedName) ');
+      node.visitChildren(this);
+    } else {
+      _buffer.write('@expected($escapedName) { ');
+      node.visitChildren(this);
+      _buffer.write(' }');
+    }
   }
 
   @override
@@ -341,6 +356,11 @@ class _DimensionCollector extends ExpressionVisitor<void> {
   @override
   void visitCharacterClass(CharacterClassExpression node) {
     _init(node);
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
+    _visitChild(node);
   }
 
   @override

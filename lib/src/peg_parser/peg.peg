@@ -103,9 +103,10 @@ Typing =>
 `Expression`
 Assignment =>
   v = (Identifier / $ = '$' S)
-  ('=' S / ':' S)
+  o = ('=' / ':')
+  S
   e = Prefix
-  $ = { $$ = VariableExpression(expression: e, name: v); }
+  $ = { $$ = VariableExpression(expression: e, name: v, operator: o); }
   ----
   Prefix
 
@@ -391,6 +392,7 @@ RuleName('production rule name') =>
   S
 ;
 
+`void`
 S => @while (*) {
   Space
   ----

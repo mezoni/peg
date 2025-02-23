@@ -14,7 +14,7 @@ class MatcherGenerator {
 
     ranges = normalizeRanges(ranges);
     if (negate && ranges.length == 1) {
-      final range = ranges[0];
+      final range = ranges.first;
       final start = range.$1;
       final end = range.$2;
       if (start == end) {

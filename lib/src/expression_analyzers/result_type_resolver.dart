@@ -67,6 +67,14 @@ class ResultTypesResolver extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitExpected(ExpectedExpression node) {
+    final child = node.expression;
+    _setResultType(child, node.resultType);
+    node.visitChildren(this);
+    _setResultType(node, child.resultType);
+  }
+
+  @override
   void visitGroup(GroupExpression node) {
     final child = node.expression;
     _setResultType(child, node.resultType);
@@ -290,6 +298,13 @@ class _PredefinedResultTypesResolver extends ExpressionVisitor<void> {
   void visitCharacterClass(CharacterClassExpression node) {
     _visitChildren(node);
     _setResultType(node, 'int');
+  }
+
+  @override
+  void visitExpected(ExpectedExpression node) {
+    _visitChildren(node);
+    final child = node.expression;
+    _setResultType(node, child.resultType);
   }
 
   @override

@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class SequenceExpression extends MultiExpression {
@@ -33,179 +32,119 @@ class SequenceExpression extends MultiExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final expressions = List.of(this.expressions);
-    for (var i = 0; i < expressions.length; i++) {
-      final expression = expressions[i];
-      if (expression is TypingExpression) {
-        expressions[i] = expression.expression;
-      }
-    }
-
-    final sink = preprocess(context);
-    if (expressions.length > 1) {
-      if (variable != null) {
-        if (variable.needDeclare) {
-          if (variable.type.isEmpty) {
-            variable.type = getReturnType();
-          }
-
-          variable.assign(sink, '');
-        }
-      }
-    } else {
-      if (variable != null) {
-        final expression = expressions[0];
-        if (expression is VariableExpression) {
-          if (variable.needDeclare) {
-            if (variable.type.isEmpty) {
-              variable.type = getReturnType();
-            }
-
-            variable.assign(sink, '');
-          }
-        }
-      }
-    }
-
-    final variables = <Variable?>[];
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
     if (expressions.length == 1) {
-      final expression = expressions[0];
-      if (expression is VariableExpression) {
-        variables.add(context.allocateVariable());
-      } else {
-        variables.add(variable);
-      }
-    } else {
-      for (var i = 0; i < expressions.length; i++) {
-        final expression = expressions[i];
-        Variable? childVariable;
-        if (expression is VariableExpression) {
-          childVariable = context.allocateVariable();
-        }
-
-        if (childVariable == null && expression.isVariableNeedForTestState()) {
-          childVariable = context.allocateVariable();
-        }
-
-        variables.add(childVariable);
-      }
+      return _generate1(context, result);
     }
 
-    var numberOfBlocks = expressions.length;
-    if ((expressions.length > 1 && variable != null) ||
-        expressions.last is VariableExpression) {
-      numberOfBlocks++;
+    return _generate(context, result);
+  }
+
+  void _generate(BuildContext context, BuildResult result) {
+    SharedValue? position;
+    String? variable;
+    if (!isAlwaysSuccessful) {
+      variable = context.allocate();
     }
 
-    final blocks = List.generate(numberOfBlocks, (i) => StringBuffer());
-    for (var i = 1; i < blocks.length; i++) {
-      final block = blocks[i];
-      final expression = expressions[i - 1];
-      if (expression is VariableExpression) {
-        final name = expression.name;
-        final type = expression.getResultType();
-        final variable = variables[i - 1];
-        block.statement('$type $name = $variable.\$1');
-      }
+    if (expressions.skip(1).any((e) => !e.isAlwaysSuccessful)) {
+      position = context.getSharedValue(this, Expression.position);
     }
 
+    final results = <BuildResult>[];
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
-      final variable = variables[i];
-      final block = blocks[i];
+      final childResult = BuildResult(
+        context: context,
+        expression: expression,
+        isUsed: expression is VariableExpression,
+      );
+
       if (i == 0) {
         context.shareValues(this, expression, [Expression.position]);
       }
 
-      block.writeln(
-          expression.generate(context, variable, isFast || variable == null));
+      expression.generate(context, childResult);
+
+      results.add(childResult);
     }
 
-    final resultIndex = findResultIndex();
-    if (variable != null) {
-      final block = blocks.last;
-      String? value;
-      if (resultIndex != -1) {
-        final variable = variables[resultIndex];
-        final expression = expressions[resultIndex];
-        if (expression is VariableExpression) {
-          final name = expression.name;
-          value = '($name,)';
+    BuildResult? previous;
+    for (var i = 0; i < results.length; i++) {
+      final current = results[i];
+      if (previous != null) {
+        final branch = previous.branch();
+        branch.truth.block((b) {
+          b.add(current.code);
+        });
+      }
+
+      previous = current;
+    }
+
+    final last = results.last;
+    final lastBranch = last.branch();
+    lastBranch.truth.block((b) {
+      if (variable != null) {
+        if (result.isUsed) {
+          b.assign(variable, r'$');
         } else {
-          value = '$variable';
-        }
-      } else {
-        value = '(null,)';
-      }
-
-      if (value != variable.name) {
-        variable.assign(block, value);
-      }
-    }
-
-    String getStateTestAtIndex(int index) {
-      if (index < 0) {
-        return 'true';
-      }
-
-      final expression = expressions[index];
-      final variable = variables[index];
-      return expression.getStateTest(variable, true);
-    }
-
-    var buffer = StringBuffer();
-    for (var i = blocks.length - 1; i >= 0; i--) {
-      final block = blocks[i];
-      if (i == 0) {
-        final inner = '$buffer';
-        buffer = StringBuffer();
-        buffer.writeln(block);
-        buffer.writeln(inner);
-      } else if (i < blocks.length - 1) {
-        final isSuccess = getStateTestAtIndex(i - 1);
-        final inner = '$buffer';
-        buffer = StringBuffer();
-        buffer.ifStatement(isSuccess, (b) {
-          b.writeln(block);
-          b.writeln(inner);
-        });
-      } else {
-        final isSuccess = getStateTestAtIndex(i - 1);
-        buffer.ifStatement(isSuccess, (b) {
-          b.writeln(block);
-        });
-      }
-
-      if (i == 1) {
-        if (_isPositionRequired()) {
-          final isFailure = getStateTest(variable, false);
-          buffer.ifStatement(isFailure, (b) {
-            final position = context.getSharedValue(this, Expression.position);
-            b.statement('state.position = $position');
-          });
+          b.assign(variable, 'true');
         }
       }
+    });
+
+    final code = result.code;
+    if (variable != null) {
+      if (result.isUsed) {
+        final type = result.getIntermediateType();
+        code.statement('$type $variable');
+      } else {
+        code.assign(variable, 'false', 'var');
+      }
     }
 
-    sink.writeln(buffer);
-    return postprocess(context, sink);
+    final first = results.first;
+    code.add(first.code);
+    if (variable != null) {
+      if (result.isUsed) {
+        code.branch('$variable != null', '$variable == null');
+      } else {
+        code.branch(variable, '!$variable');
+      }
+    } else {
+      code.branch('true', 'false');
+    }
+
+    if (position != null) {
+      final branch = result.branch();
+      branch.falsity.block((b) {
+        b.assign('state.position', position!.name);
+      });
+    }
+
+    if (result.isUsed) {
+      if (variable != null) {
+        result.value = Value(variable);
+      } else {
+        result.value = Value(r'$');
+      }
+    }
+
+    result.postprocess(this);
   }
 
-  bool _isPositionRequired() {
-    if (expressions.length == 1) {
-      return false;
-    }
+  void _generate1(BuildContext context, BuildResult result) {
+    final expression = expressions.first;
+    context.shareValues(this, expression, [Expression.position]);
+    final childResult = result.copy(expression);
 
-    if (isAlwaysSuccessful) {
-      return false;
-    }
+    expression.generate(context, childResult);
 
-    if (expressions.length == 2) {
-      final last = expressions.last;
-      return !last.isAlwaysSuccessful;
-    }
-
-    return true;
+    final code = result.code;
+    code.add(childResult.code);
+    childResult.copyValueTo(result);
+    result.postprocess(this);
   }
 }

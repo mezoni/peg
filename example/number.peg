@@ -33,7 +33,7 @@ void _testErrors() {
 Number('number') =>
   negative = [-]?
   integer = <[0-9]+>
-  `num` result = { $$ = num.parse(integer); }
+  `num` result = { num.parse(integer) }
   { var ok = true; } (
     [.]
     { ok = false; } (
@@ -44,4 +44,4 @@ Number('number') =>
     )
   )?
   & { ok }
-  $ = { $$ = negative == null ? result  : -result; }
+  $ = { negative == null ? result : -result }

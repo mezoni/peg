@@ -46,8 +46,8 @@ A =>
     ----
     $ = TakeWhile1 TakeWhile1Void
     ----
-#    $ = Verify
-#    ----
+#   $ = Verify
+#   ----
     $ = ZeroOrMore ZeroOrMoreVoid
     )
 
@@ -55,7 +55,7 @@ AndAbc => &'abc'
 
 AnyChar => $ = .
 
-AnyCharVoid =>  $ = .
+AnyCharVoid => $ = .
 
 Char16 => $ = [a]
 
@@ -75,19 +75,19 @@ Chars32Void =>[\u{1f800}-\u{1f803}]
 
 Literal0 => $ = ''
 
-Literal0Void =>''
+Literal0Void => ''
 
 Literal1 => $ = 'a'
 
-Literal1Void =>'a'
+Literal1Void => 'a'
 
 Literal2 => $ = 'ab'
 
-Literal2Void =>'ab'
+Literal2Void => 'ab'
 
-Match => $ = < [a]+ >
+Match => $ = <[a]+>
 
-MatchVoid => < [a]+ >
+MatchVoid => <[a]+>
 
 NotAbc => !'abc'
 

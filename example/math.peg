@@ -137,7 +137,7 @@ Product =>
 Unary =>
   n = [-]?
   e = Pow
-  $ = { $$ = n == null ? e : -e; };
+  $ = { n == null ? e : -e };
 
 `num`
 Pow =>
@@ -196,13 +196,12 @@ Function =>
 Number('number') =>
   { var ok = true; }
   n = <
-    [-]?
-    <[0-9]+>
+    [0-9]+
     (
       [.]
       { ok = false; }
       (
-        <[0-9]+>
+        [0-9]+
         { ok = true; }
         ~ { message = 'Expected decimal digit' }
       )
@@ -212,7 +211,7 @@ Number('number') =>
       { ok = false; }
       (
         [-+]?
-        <[0-9]+>
+        [0-9]+
         { ok = true; }
         ~ { message = 'Expected decimal digit' }
       )
@@ -220,7 +219,7 @@ Number('number') =>
   >
   & { ok }
   S
-  $ = { $$ = num.parse(n); }
+  $ = { num.parse(n) }
 
 `String`
 Identifier =>

@@ -66,6 +66,11 @@ class ExpressionInitializer0 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitExpected(ExpectedExpression node) {
+    _initializeNode(node);
+  }
+
+  @override
   void visitGroup(GroupExpression node) {
     _initializeNode(node);
   }

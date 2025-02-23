@@ -97,6 +97,15 @@ class ExpressionPrinter implements ExpressionVisitor<void> {
   }
 
   @override
+  void visitExpected(ExpectedExpression node) {
+    final name = node.name;
+    final escapedName = escapeString(name, "'");
+    _buffer.write('@expected($escapedName) { ');
+    node.visitChildren(this);
+    _buffer.write(' }');
+  }
+
+  @override
   void visitGroup(GroupExpression node) {
     _buffer.write('(');
     node.visitChildren(this);

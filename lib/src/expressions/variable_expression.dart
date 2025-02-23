@@ -3,9 +3,12 @@ import 'build_context.dart';
 class VariableExpression extends SingleExpression {
   final String name;
 
+  final String operator;
+
   VariableExpression({
     required super.expression,
     required this.name,
+    required this.operator,
   });
 
   @override
@@ -14,10 +17,34 @@ class VariableExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
     context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, variable, isFast));
-    return postprocess(context, sink);
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: true,
+    );
+
+    expression.generate(context, childResult);
+
+    final branch = childResult.branch();
+    branch.truth.block((b) {
+      final type = getResultType();
+      final value = childResult.value.code.trim();
+      if (value == 'null') {
+        b.statement('$type $name');
+      } else {
+        b.assign(name, value, type);
+      }
+    });
+
+    final code = result.code;
+    code.add(childResult.code);
+    if (result.isUsed) {
+      result.value = Value(name);
+    }
+
+    result.postprocess(this);
   }
 }

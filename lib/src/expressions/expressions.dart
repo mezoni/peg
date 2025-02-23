@@ -3,6 +3,7 @@ export 'and_predicate_expression.dart';
 export 'any_character_expression.dart';
 export 'catch_expression.dart';
 export 'character_class_expression.dart';
+export 'expected_expression.dart';
 export 'expression.dart';
 export 'group_expression.dart';
 export 'literal_expression.dart';

@@ -1,12 +1,16 @@
 class RuntimeGenerator {
   static const _template = r'''
 class State {
+  /// Intended for internal use only.
   static const flagUseStart = 1;
 
+  /// Intended for internal use only.
   static const flagUseEnd = 2;
 
+  /// Intended for internal use only.
   static const flagExpected = 4;
 
+  /// Intended for internal use only.
   static const flagUnexpected = 8;
 
   /// The position of the parsing failure.
@@ -15,14 +19,17 @@ class State {
   /// The length of the input data.
   final int length;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   int nesting = -1;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
+
+  /// Current parsing position.
+  Object? unused;
 
   int _ch = 0;
 
@@ -50,19 +57,22 @@ class State {
     peek();
   }
 
-  /// Advances the current [position] to the next character position and
-  /// returns the character from the current position.
-  ///
-  /// A call to this method must be preceded by a call to the [peek] method,
-  /// otherwise the behavior of this method is undefined.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int advance() {
-    position += _ch > 0xffff ? 2 : 1;
-    return _ch;
+  int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void consume(String literal, int start) {
+    position += strlen(literal);
+    if (predicate && nesting < position) {
+      error(literal, start, position, flagUnexpected);
+    }
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, int start, int end, int flag) {
@@ -86,42 +96,37 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void expected(Object? result, String string, int start, int end) {
-    if (result != null) {
-      predicate ? error(string, start, end, flagUnexpected) : null;
-    } else {
-      predicate ? null : error(string, start, end, flagExpected);
+  void expected(String literal) {
+    if (nesting < position && !predicate) {
+      error(literal, position, position, flagExpected);
     }
+
+    fail();
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? fail<T>([int length = 0]) {
+  void fail([String? name]) {
     failure < position ? failure = position : null;
-    if (_farthestFailure > position) {
-      return null;
-    }
-
     if (_farthestFailure < position) {
       _farthestFailure = position;
+      _farthestFailureLength = 0;
     }
 
-    if (length != 0) {
-      _farthestFailureLength =
-          _farthestFailureLength < length ? length : _farthestFailureLength;
+    if (name != null && nesting < position) {
+      error(name, position, position, flagExpected);
     }
-
-    return null;
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? failAndBacktrack<T>(int position) {
-    fail<void>(this.position - position);
+  void failAndBacktrack(int position) {
+    fail();
+    final length = this.position - position;
+    _farthestFailureLength < length ? _farthestFailureLength = length : null;
     this.position = position;
-    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -183,53 +188,30 @@ class State {
     return errors.toSet().toList();
   }
 
-  /// Matches the input data at the current [position] with the string [string].
-  ///
-  /// If successful, advances the [position] by the length of the [string] (in
-  /// input data units) and returns the specified [string], otherwise calls the
-  /// [fails] method and returns `null`.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string) {
-    if (startsWith(string, position)) {
-      position += string.length;
-      return (string,);
+  void onFailure(String name, int start, int nesting, int failure) {
+    if (failure == position && nesting < position && !predicate) {
+      error(name, position, position, flagExpected);
     }
 
-    fail<void>();
-    return null;
+    this.nesting = nesting;
+    this.failure < failure ? this.failure = failure : null;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? matchLiteral(String string) {
-    final start = position;
-    final result = match(string);
-    if (nesting < position) {
-      expected(result, string, start, position);
+  void onSuccess(String name, int start, int nesting) {
+    if (predicate && nesting < start) {
+      error(name, start, position, flagUnexpected);
     }
 
-    return result;
+    this.nesting = nesting;
   }
 
   /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (String,)? matchLiteral1(String string, int char) {
-    final start = position;
-    final result = peek() == char ? (string,) : null;
-    result != null ? advance() : fail<void>();
-    if (nesting < position) {
-      expected(result, string, start, position);
-    }
-
-    return result;
-  }
-
-  /// Reads and returns the character at the current [position].
-  ///
-  /// If the end of the input data is reached, the return value is `0`.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   int peek() {
@@ -258,11 +240,18 @@ class State {
     }
   }
 
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool startsWith(String string, int position) =>
       _input.startsWith(string, position);
 
-  /// Returns a substring of the input data, starting at position [start] and
-  /// ending at position [end].
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int strlen(String string) => string.length;
+
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String substring(int start, int end) => _input.substring(start, end);
@@ -278,9 +267,8 @@ class State {
       rest = 80;
     }
 
-    // Need to create the equivalent of 'substring'
     var line = substring(position, position + rest);
-    line = line.replaceAll('\n', '\n');
+    line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
   }
 }

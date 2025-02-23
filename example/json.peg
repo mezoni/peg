@@ -23,17 +23,7 @@ Array =>
   n = Values?
   ']'
   S
-  $ = { $$ = n ?? const []; }
-
-`bool`
-Boolean('boolean') =>
-  'false'
-  S
-  $ = { $$ = false; }
-  ----
-  'true'
-  S
-  $ = { $$ = true; }
+  $ = { n ?? const [] }
 
 `String`
 Chars =>
@@ -43,14 +33,14 @@ Chars =>
     [\\]
     $ = Escaped
   )+
-  $ = { $$ = n.join(); }
+  $ = { n.join() }
 
 `String`
 Escaped('Malformed escape sequence') =>
   [u] $ = Hex
   ----
   c = ["/\\bfnrt]
-  $ = { $$ = switch(c) {
+  $ = { switch(c) {
         0x22 => '"',
         0x5C => '\\',
         0x2F => '/',
@@ -60,7 +50,7 @@ Escaped('Malformed escape sequence') =>
         0x72 => '\r',
         0x74 => '\t',
         _ => String.fromCharCode(c),
-    };
+    }
   }
 
 `void`
@@ -79,7 +69,7 @@ Hex('4 hex digits') =>
   >
   # Check the counter
   & { n == 4 }
-  $ = { $$ = String.fromCharCode(int.parse(s, radix: 16)); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
 
 `MapEntry<String, Object?>`
 Member =>
@@ -87,7 +77,7 @@ Member =>
   ':'
   S
   v = Value
-  $ = { $$ = MapEntry(k, v); }
+  $ = { MapEntry(k, v) }
 
 `List<MapEntry<String, Object?>>`
 Members =>
@@ -99,7 +89,7 @@ Members =>
     m = Member
     { l.add(m); }
   }
-  $ = { $$ = l; }
+  $ = { l }
 
 `num`
 Number('number') =>
@@ -132,13 +122,7 @@ Number('number') =>
   >
   & { ok }
   S
-  $ = { $$ = num.parse(n); }
-
-`Object?`
-Null =>
-  'null'
-  S
-  $ = { $$ = null; }
+  $ = { num.parse(n) }
 
 `Map<String, Object?>`
 Object =>
@@ -147,7 +131,7 @@ Object =>
   m = Members?
   '}'
   S
-  $ = { $$ = Map.fromEntries(m ?? const []); }
+  $ = { Map.fromEntries(m ?? const []) }
 
 `String`
 String =>
@@ -155,7 +139,7 @@ String =>
   c = Chars?
   '"'
   S
-  $ = { $$ = c ?? ''; }
+  $ = { c ?? '' }
 
 Unescaped =>
   <[^{0-1F}"\\]+>
@@ -170,7 +154,7 @@ v = Value
   v = Value
   { l.add(v); }
 }
-$ = { $$ = l; }
+$ = { l }
 
 `Object?`
 Value =>
@@ -180,9 +164,11 @@ Value =>
   ----
   Number
   ----
-  Boolean
+  'true' S $ = { true }
   ----
-  Null
+  'false' S $ = { false }
+  ----
+  'null' S $ = { null }
   ----
   Object
 

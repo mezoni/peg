@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class OptionalExpression extends SingleExpression {
@@ -10,20 +9,38 @@ class OptionalExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    if (variable != null) {
-      if (variable.type.isEmpty) {
-        variable.type = getReturnType();
-      }
-    }
-
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
     context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, variable, isFast));
-    if (variable != null) {
-      sink.statement('$variable ??= (null,)');
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: result.isUsed,
+    );
+
+    expression.generate(context, childResult);
+
+    final code = result.code;
+    if (result.isUsed) {
+      final variable = context.allocate();
+      final type = result.getIntermediateType();
+      code.statement('$type $variable');
+      final branch = childResult.branch();
+      branch.truth.block((b) {
+        final value = childResult.value;
+        b.assign(variable, value.code);
+      });
+
+      result.value = Value(variable);
     }
 
-    return postprocess(context, sink);
+    code.add(childResult.code);
+    if (!result.isUsed) {
+      final branch = childResult.branch();
+      code.assign('state.unused', branch.ok);
+    }
+
+    code.branch('true', 'false');
+    result.postprocess(this);
   }
 }

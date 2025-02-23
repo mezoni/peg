@@ -46,9 +46,9 @@ class NumberParser {
   ///```text
   /// `num`
   /// Number('number') =>
-  ///   negative = [\-]?
+  ///   @expected('number') { negative = [\-]?
   ///   integer = <[0-9]+>
-  ///   `num` result = { $$ = num.parse(integer); }
+  ///   `num` result = { num.parse(integer) }
   ///   { var ok = true; }
   ///   (
   ///     [.]
@@ -61,90 +61,102 @@ class NumberParser {
   ///     )
   ///   )?
   ///   &{ ok }
-  ///   $ = { $$ = negative == null ? result  : -result; }
+  ///   $ = { negative == null ? result : -result } }
   ///```
   (num,)? parseNumber(State state) {
-    final $15 = state.nesting;
-    state.nesting =
-        state.nesting < state.position ? state.position : state.nesting;
-    final $16 = state.failure;
-    state.failure = state.position;
-    final $1 = state.position;
-    (num,)? $0;
-    (int?,)? $2 = state.peek() == 45 ? (state.advance(),) : state.fail<int>();
-    $2 ??= (null,);
-    int? negative = $2.$1;
-    final $8 = state.position;
+    final $0 = state.position;
+    const $11 = 'number';
+    final $12 = state.failure;
+    final $13 = state.nesting;
+    state.failure = $0;
+    state.nesting = $0;
+    num? $1;
+    int? $2;
+    if (state.peek() == 45) {
+      state.position += state.charSize(45);
+      $2 = 45;
+    } else {
+      state.fail();
+    }
+    int? negative = $2;
+    final $3 = state.position;
+    String? $4;
     for (var c = state.peek(); c >= 48 && c <= 57;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $7 = state.position != $8 ? (null,) : state.fail<List<int>>();
-    final $3 = $7 != null ? (state.substring($8, state.position),) : null;
-    if ($3 != null) {
-      String integer = $3.$1;
-      final num $$;
-      $$ = num.parse(integer);
-      final $4 = ($$,);
-      num result = $4.$1;
+    if ($3 != state.position) {
+      $4 = state.substring($3, state.position);
+      String integer = $4;
+      num result = num.parse(integer);
       var ok = true;
-      final $9 = state.peek() == 46 ? (state.advance(),) : state.fail<int>();
-      if ($9 != null) {
+      final $6 = state.position;
+      var $5 = false;
+      if (state.peek() == 46) {
+        state.position += state.charSize(46);
         ok = false;
-        final $14 = state.position;
-        final $11 = state.failure;
+        final $10 = state.failure;
         state.failure = state.position;
-        (void,)? $10;
+        var $7 = false;
+        final $8 = state.position;
+        String? $9;
         for (var c = state.peek(); c >= 48 && c <= 57;) {
-          state.advance();
+          state.position += state.charSize(c);
           c = state.peek();
         }
-        final $13 = state.position != $14 ? (null,) : state.fail<List<int>>();
-        final $12 =
-            $13 != null ? (state.substring($14, state.position),) : null;
-        if ($12 != null) {
-          String decimal = $12.$1;
+        if ($8 != state.position) {
+          $9 = state.substring($8, state.position);
+          String decimal = $9;
           ok = true;
           result += int.parse(decimal) / math.pow(10, decimal.length);
-          $10 = (null,);
+          $7 = true;
+        } else {
+          state.fail();
         }
-        if ($10 == null) {
-          state.position = $14;
-        }
-        if ($10 == null) {
+        if ($7) {
+          state.failure < $10 ? state.failure = $10 : null;
+          $5 = true;
+        } else {
           state.error(
               'Expected decimal digit', state.position, state.failure, 3);
+          state.failure < $10 ? state.failure = $10 : null;
         }
-        state.failure = state.failure < $11 ? $11 : state.failure;
+      } else {
+        state.fail();
       }
-      final $5 = ok ? (null,) : state.fail<void>();
-      if ($5 != null) {
-        final num $$;
-        $$ = negative == null ? result : -result;
-        final $6 = ($$,);
-        num $ = $6.$1;
-        $0 = ($,);
+      if (!$5) {
+        state.position = $6;
       }
+      state.unused = $5;
+      if (ok) {
+        num $ = negative == null ? result : -result;
+        $1 = $;
+      }
+    } else {
+      state.fail();
     }
-    if ($0 == null) {
-      state.position = $1;
+    if ($1 != null) {
+      state.onSuccess($11, $0, $13);
+      return ($1,);
+    } else {
+      state.position = $0;
+      state.onFailure($11, $0, $13, $12);
+      return null;
     }
-    if (state.failure == $1 && $15 < state.nesting) {
-      state.expected($0, 'number', $1, state.position);
-    }
-    state.nesting = $15;
-    state.failure = state.failure < $16 ? $16 : state.failure;
-    return $0;
   }
 }
 
 class State {
+  /// Intended for internal use only.
   static const flagUseStart = 1;
 
+  /// Intended for internal use only.
   static const flagUseEnd = 2;
 
+  /// Intended for internal use only.
   static const flagExpected = 4;
 
+  /// Intended for internal use only.
   static const flagUnexpected = 8;
 
   /// The position of the parsing failure.
@@ -153,14 +165,17 @@ class State {
   /// The length of the input data.
   final int length;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   int nesting = -1;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
+
+  /// Current parsing position.
+  Object? unused;
 
   int _ch = 0;
 
@@ -188,19 +203,22 @@ class State {
     peek();
   }
 
-  /// Advances the current [position] to the next character position and
-  /// returns the character from the current position.
-  ///
-  /// A call to this method must be preceded by a call to the [peek] method,
-  /// otherwise the behavior of this method is undefined.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int advance() {
-    position += _ch > 0xffff ? 2 : 1;
-    return _ch;
+  int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void consume(String literal, int start) {
+    position += strlen(literal);
+    if (predicate && nesting < position) {
+      error(literal, start, position, flagUnexpected);
+    }
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, int start, int end, int flag) {
@@ -224,42 +242,37 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void expected(Object? result, String string, int start, int end) {
-    if (result != null) {
-      predicate ? error(string, start, end, flagUnexpected) : null;
-    } else {
-      predicate ? null : error(string, start, end, flagExpected);
+  void expected(String literal) {
+    if (nesting < position && !predicate) {
+      error(literal, position, position, flagExpected);
     }
+
+    fail();
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? fail<T>([int length = 0]) {
+  void fail([String? name]) {
     failure < position ? failure = position : null;
-    if (_farthestFailure > position) {
-      return null;
-    }
-
     if (_farthestFailure < position) {
       _farthestFailure = position;
+      _farthestFailureLength = 0;
     }
 
-    if (length != 0) {
-      _farthestFailureLength =
-          _farthestFailureLength < length ? length : _farthestFailureLength;
+    if (name != null && nesting < position) {
+      error(name, position, position, flagExpected);
     }
-
-    return null;
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? failAndBacktrack<T>(int position) {
-    fail<void>(this.position - position);
+  void failAndBacktrack(int position) {
+    fail();
+    final length = this.position - position;
+    _farthestFailureLength < length ? _farthestFailureLength = length : null;
     this.position = position;
-    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -321,53 +334,30 @@ class State {
     return errors.toSet().toList();
   }
 
-  /// Matches the input data at the current [position] with the string [string].
-  ///
-  /// If successful, advances the [position] by the length of the [string] (in
-  /// input data units) and returns the specified [string], otherwise calls the
-  /// [fails] method and returns `null`.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string) {
-    if (startsWith(string, position)) {
-      position += string.length;
-      return (string,);
+  void onFailure(String name, int start, int nesting, int failure) {
+    if (failure == position && nesting < position && !predicate) {
+      error(name, position, position, flagExpected);
     }
 
-    fail<void>();
-    return null;
+    this.nesting = nesting;
+    this.failure < failure ? this.failure = failure : null;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? matchLiteral(String string) {
-    final start = position;
-    final result = match(string);
-    if (nesting < position) {
-      expected(result, string, start, position);
+  void onSuccess(String name, int start, int nesting) {
+    if (predicate && nesting < start) {
+      error(name, start, position, flagUnexpected);
     }
 
-    return result;
+    this.nesting = nesting;
   }
 
   /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (String,)? matchLiteral1(String string, int char) {
-    final start = position;
-    final result = peek() == char ? (string,) : null;
-    result != null ? advance() : fail<void>();
-    if (nesting < position) {
-      expected(result, string, start, position);
-    }
-
-    return result;
-  }
-
-  /// Reads and returns the character at the current [position].
-  ///
-  /// If the end of the input data is reached, the return value is `0`.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   int peek() {
@@ -396,11 +386,18 @@ class State {
     }
   }
 
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool startsWith(String string, int position) =>
       _input.startsWith(string, position);
 
-  /// Returns a substring of the input data, starting at position [start] and
-  /// ending at position [end].
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int strlen(String string) => string.length;
+
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String substring(int start, int end) => _input.substring(start, end);
@@ -416,9 +413,8 @@ class State {
       rest = 80;
     }
 
-    // Need to create the equivalent of 'substring'
     var line = substring(position, position + rest);
-    line = line.replaceAll('\n', '\n');
+    line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
   }
 }

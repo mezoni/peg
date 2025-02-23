@@ -75,7 +75,7 @@ Value('expression') => (
   NUMBER
   ----
   i = ID
-  $ = { $$ = vars[i]!; }
+  $ = { vars[i]! }
   ----
   '(' S
   $ = Expr
@@ -86,7 +86,7 @@ Value('expression') => (
 NUMBER =>
   n = <[0-9]+>
   S
-  $ = { $$ = int.parse(n); }
+  $ = { int.parse(n) }
 
 `String`
 ID =>

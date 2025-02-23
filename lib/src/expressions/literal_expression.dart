@@ -17,70 +17,98 @@ class LiteralExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    final length = literal.length;
-    if (silent) {
-      if (length == 0) {
-        return _generateEmpty(context, variable, sink);
-      } else {
-        return _generateMatch(context, variable, sink);
-      }
+  void generate(BuildContext context, BuildResult result) {
+    if (literal.isEmpty) {
+      _generateEmpty(context, result);
+      return;
     }
 
-    final runes = literal.runes.toList();
+    final runes = literal.runes;
     if (runes.length == 1) {
-      return _generateLiteral1(context, variable, sink, runes[0]);
+      final char = runes.first;
+      _generate1(context, result, char);
     } else {
-      return _generateLiteral(context, variable, sink);
+      _generate(context, result);
     }
   }
 
-  String _generateEmpty(
-      BuildContext context, Variable? variable, StringSink sink) {
-    if (variable != null) {
-      variable.assign(sink, "('',)");
+  void _generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final runes = literal.runes.toList();
+    final char = runes.first;
+    final escaped = escapeString(literal, "'");
+    final code = result.code;
+    final test =
+        'state.peek() == $char && state.startsWith($escaped, state.position)';
+    if (silent) {
+      final branch = code.branch(test, '!($test)');
+      branch.truth.block((b) {
+        b.statement('state.position += state.strlen($escaped)');
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.fail()');
+      });
+    } else {
+      final position = context.getSharedValue(this, Expression.position);
+      final branch = code.branch(test, '!($test)');
+      branch.truth.block((b) {
+        b.statement('state.consume($escaped, $position)');
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.expected($escaped)');
+      });
     }
 
-    return postprocess(context, sink);
+    if (result.isUsed) {
+      result.value = Value(escaped, isConst: true);
+    }
+
+    result.postprocess(this);
   }
 
-  String _generateLiteral(
-      BuildContext context, Variable? variable, StringSink sink) {
-    final escaped = escapeString(literal);
-    final value = 'state.matchLiteral($escaped)';
-    if (variable != null) {
-      variable.assign(sink, value);
+  void _generate1(BuildContext context, BuildResult result, int char) {
+    result.preprocess(this);
+    final escaped = escapeString(literal, "'");
+    final code = result.code;
+    final branch =
+        code.branch('state.peek() == $char', 'state.peek() != $char');
+
+    if (silent) {
+      branch.truth.block((b) {
+        b.statement('state.position += state.charSize($char)');
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.fail()');
+      });
     } else {
-      sink.statement(value);
+      final position = context.getSharedValue(this, Expression.position);
+      branch.truth.block((b) {
+        b.statement('state.consume($escaped, $position)');
+      });
+
+      branch.falsity.block((b) {
+        b.statement('state.expected($escaped)');
+      });
     }
 
-    return postprocess(context, sink);
+    if (result.isUsed) {
+      result.value = Value(escaped, isConst: true);
+    }
+
+    result.postprocess(this);
   }
 
-  String _generateLiteral1(
-      BuildContext context, Variable? variable, StringSink sink, int char) {
-    final escaped = escapeString(literal);
-    final value = 'state.matchLiteral1($escaped, $char)';
-    if (variable != null) {
-      variable.assign(sink, value);
-    } else {
-      sink.statement(value);
+  void _generateEmpty(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final code = result.code;
+    code.branch('true', 'false');
+    if (result.isUsed) {
+      result.value = Value("''", isConst: true);
     }
 
-    return postprocess(context, sink);
-  }
-
-  String _generateMatch(
-      BuildContext context, Variable? variable, StringSink sink) {
-    final escaped = escapeString(literal);
-    final value = 'state.match($escaped)';
-    if (variable != null) {
-      variable.assign(sink, value);
-    } else {
-      sink.statement(value);
-    }
-
-    return postprocess(context, sink);
+    result.postprocess(this);
   }
 }

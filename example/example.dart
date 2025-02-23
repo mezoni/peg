@@ -33,22 +33,23 @@ class CalcParser {
   ///```text
   /// `void`
   /// EOF('end of file') =>
-  ///   !.
+  ///   @expected('end of file') { !. }
   ///```
   (void,)? parseEOF(State state) {
-    final $2 = state.nesting;
-    state.nesting =
-        state.nesting < state.position ? state.position : state.nesting;
-    final $3 = state.failure;
-    state.failure = state.position;
-    final $1 = state.position;
-    final $0 = state.peek() == 0 ? (null,) : null;
-    if (state.failure == $1 && $2 < state.nesting) {
-      state.expected($0, 'end of file', $1, state.position);
+    final $0 = state.position;
+    const $1 = 'end of file';
+    final $2 = state.failure;
+    final $3 = state.nesting;
+    state.failure = $0;
+    state.nesting = $0;
+    if (state.peek() == 0) {
+      state.onSuccess($1, $0, $3);
+      return const (null,);
+    } else {
+      state.fail();
+      state.onFailure($1, $0, $3, $2);
+      return null;
     }
-    state.nesting = $2;
-    state.failure = state.failure < $3 ? $3 : state.failure;
-    return $0;
   }
 
   /// **Expr** ('expression')
@@ -56,22 +57,23 @@ class CalcParser {
   ///```text
   /// `int`
   /// Expr('expression') =>
-  ///   Sum
+  ///   @expected('expression') { Sum }
   ///```
   (int,)? parseExpr(State state) {
-    final $2 = state.nesting;
-    state.nesting =
-        state.nesting < state.position ? state.position : state.nesting;
+    final $0 = state.position;
+    const $2 = 'expression';
     final $3 = state.failure;
-    state.failure = state.position;
-    final $1 = state.position;
-    final $0 = parseSum(state);
-    if (state.failure == $1 && $2 < state.nesting) {
-      state.expected($0, 'expression', $1, state.position);
+    final $4 = state.nesting;
+    state.failure = $0;
+    state.nesting = $0;
+    final $1 = parseSum(state);
+    if ($1 != null) {
+      state.onSuccess($2, $0, $4);
+      return $1;
+    } else {
+      state.onFailure($2, $0, $4, $3);
+      return null;
     }
-    state.nesting = $2;
-    state.failure = state.failure < $3 ? $3 : state.failure;
-    return $0;
   }
 
   /// **ID**
@@ -83,19 +85,24 @@ class CalcParser {
   ///   S
   ///```
   (String,)? parseID(State state) {
-    final $3 = state.position;
-    (String,)? $0;
-    final $4 = state.peek();
-    final $2 = ($4 >= 97 ? $4 <= 122 : $4 >= 65 && $4 <= 90)
-        ? (state.advance(),)
-        : state.fail<int>();
-    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
-    if ($1 != null) {
-      String $ = $1.$1;
+    final $1 = state.position;
+    String? $0;
+    String? $3;
+    final $2 = state.peek();
+    if ($2 >= 97 ? $2 <= 122 : $2 >= 65 && $2 <= 90) {
+      state.position += state.charSize($2);
+      $3 = state.substring($1, state.position);
+      String $ = $3;
       parseS(state);
-      $0 = ($,);
+      $0 = $;
+    } else {
+      state.fail();
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **NUMBER**
@@ -105,30 +112,30 @@ class CalcParser {
   /// NUMBER =>
   ///   n = <[0-9]+>
   ///   S
-  ///   $ = { $$ = int.parse(n); }
+  ///   $ = { int.parse(n) }
   ///```
   (int,)? parseNUMBER(State state) {
-    final $4 = state.position;
-    (int,)? $0;
+    final $1 = state.position;
+    int? $0;
+    String? $2;
     for (var c = state.peek(); c >= 48 && c <= 57;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $3 = state.position != $4 ? (null,) : state.fail<List<int>>();
-    final $1 = $3 != null ? (state.substring($4, state.position),) : null;
-    if ($1 != null) {
-      String n = $1.$1;
+    if ($1 != state.position) {
+      $2 = state.substring($1, state.position);
+      String n = $2;
       parseS(state);
-      final int $$;
-      $$ = int.parse(n);
-      final $2 = ($$,);
-      int $ = $2.$1;
-      $0 = ($,);
+      int $ = int.parse(n);
+      $0 = $;
+    } else {
+      state.fail();
     }
-    if ($0 == null) {
-      state.position = $4;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
     }
-    return $0;
   }
 
   /// **Product**
@@ -150,49 +157,58 @@ class CalcParser {
   ///   )
   ///```
   (int,)? parseProduct(State state) {
-    (int,)? $0;
+    int? $0;
     final $1 = parseValue(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
-        final $5 = state.position;
-        (void,)? $2;
-        final $3 = state.peek() == 42 ? (state.advance(),) : state.fail<int>();
-        if ($3 != null) {
+        var $2 = true;
+        final $4 = state.position;
+        var $3 = false;
+        if (state.peek() == 42) {
+          state.position += state.charSize(42);
           parseS(state);
-          final $4 = parseValue(state);
-          if ($4 != null) {
-            int r = $4.$1;
+          final $5 = parseValue(state);
+          if ($5 != null) {
+            int r = $5.$1;
             $ *= r;
-            $2 = (null,);
+            $3 = true;
           }
+        } else {
+          state.fail();
         }
-        if ($2 == null) {
-          state.position = $5;
-        }
-        if ($2 == null) {
-          final $6 =
-              state.peek() == 47 ? (state.advance(),) : state.fail<int>();
-          if ($6 != null) {
+        if (!$3) {
+          state.position = $4;
+          final $7 = state.position;
+          var $6 = false;
+          if (state.peek() == 47) {
+            state.position += state.charSize(47);
             parseS(state);
-            final $7 = parseValue(state);
-            if ($7 != null) {
-              int r = $7.$1;
+            final $8 = parseValue(state);
+            if ($8 != null) {
+              int r = $8.$1;
               $ ~/= r;
-              $2 = (null,);
+              $6 = true;
             }
+          } else {
+            state.fail();
           }
-          if ($2 == null) {
-            state.position = $5;
+          if (!$6) {
+            state.position = $7;
+            $2 = false;
           }
         }
-        if ($2 == null) {
+        if (!$2) {
           break;
         }
       }
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **S**
@@ -205,11 +221,10 @@ class CalcParser {
   (void,)? parseS(State state) {
     for (var c = state.peek();
         c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    const $0 = (null,);
-    return $0;
+    return const (null,);
   }
 
   /// **Start**
@@ -222,21 +237,23 @@ class CalcParser {
   ///   EOF
   ///```
   (int,)? parseStart(State state) {
-    final $3 = state.position;
-    (int,)? $0;
+    final $1 = state.position;
+    int? $0;
     parseS(state);
-    final $1 = parseExpr(state);
-    if ($1 != null) {
-      int $ = $1.$1;
-      final $2 = parseEOF(state);
-      if ($2 != null) {
-        $0 = ($,);
+    final $2 = parseExpr(state);
+    if ($2 != null) {
+      int $ = $2.$1;
+      final $3 = parseEOF(state);
+      if ($3 != null) {
+        $0 = $;
       }
     }
-    if ($0 == null) {
-      state.position = $3;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      state.position = $1;
+      return null;
     }
-    return $0;
   }
 
   /// **Sum**
@@ -258,49 +275,58 @@ class CalcParser {
   ///   )
   ///```
   (int,)? parseSum(State state) {
-    (int,)? $0;
+    int? $0;
     final $1 = parseProduct(state);
     if ($1 != null) {
       int $ = $1.$1;
       while (true) {
-        final $5 = state.position;
-        (void,)? $2;
-        final $3 = state.peek() == 43 ? (state.advance(),) : state.fail<int>();
-        if ($3 != null) {
+        var $2 = true;
+        final $4 = state.position;
+        var $3 = false;
+        if (state.peek() == 43) {
+          state.position += state.charSize(43);
           parseS(state);
-          final $4 = parseProduct(state);
-          if ($4 != null) {
-            int r = $4.$1;
+          final $5 = parseProduct(state);
+          if ($5 != null) {
+            int r = $5.$1;
             $ += r;
-            $2 = (null,);
+            $3 = true;
           }
+        } else {
+          state.fail();
         }
-        if ($2 == null) {
-          state.position = $5;
-        }
-        if ($2 == null) {
-          final $6 =
-              state.peek() == 45 ? (state.advance(),) : state.fail<int>();
-          if ($6 != null) {
+        if (!$3) {
+          state.position = $4;
+          final $7 = state.position;
+          var $6 = false;
+          if (state.peek() == 45) {
+            state.position += state.charSize(45);
             parseS(state);
-            final $7 = parseProduct(state);
-            if ($7 != null) {
-              int r = $7.$1;
+            final $8 = parseProduct(state);
+            if ($8 != null) {
+              int r = $8.$1;
               $ -= r;
-              $2 = (null,);
+              $6 = true;
             }
+          } else {
+            state.fail();
           }
-          if ($2 == null) {
-            state.position = $5;
+          if (!$6) {
+            state.position = $7;
+            $2 = false;
           }
         }
-        if ($2 == null) {
+        if (!$2) {
           break;
         }
       }
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Value** ('expression')
@@ -308,73 +334,88 @@ class CalcParser {
   ///```text
   /// `int`
   /// Value('expression') =>
-  ///   (
+  ///   @expected('expression') { (
   ///     NUMBER
   ///     ----
   ///     i = ID
-  ///     $ = { $$ = vars[i]!; }
+  ///     $ = { vars[i]! }
   ///     ----
   ///     '('
   ///     S
   ///     $ = Expr
   ///     ')'
   ///     S
-  ///   )
+  ///   ) }
   ///```
   (int,)? parseValue(State state) {
-    final $7 = state.nesting;
-    state.nesting =
-        state.nesting < state.position ? state.position : state.nesting;
-    final $8 = state.failure;
-    state.failure = state.position;
-    final $1 = state.position;
-    (int,)? $0;
-    $0 = parseNUMBER(state);
-    if ($0 == null) {
-      final $2 = parseID(state);
-      if ($2 != null) {
-        String i = $2.$1;
-        final int $$;
-        $$ = vars[i]!;
-        final $3 = ($$,);
-        int $ = $3.$1;
-        $0 = ($,);
+    final $0 = state.position;
+    const $8 = 'expression';
+    final $9 = state.failure;
+    final $10 = state.nesting;
+    state.failure = $0;
+    state.nesting = $0;
+    int? $1;
+    final $2 = parseNUMBER(state);
+    if ($2 != null) {
+      $1 = $2.$1;
+    } else {
+      int? $3;
+      final $4 = parseID(state);
+      if ($4 != null) {
+        String i = $4.$1;
+        int $ = vars[i]!;
+        $3 = $;
       }
-      if ($0 == null) {
-        final $4 = state.matchLiteral1('(', 40);
-        if ($4 != null) {
+      if ($3 != null) {
+        $1 = $3;
+      } else {
+        int? $5;
+        if (state.peek() == 40) {
+          state.consume('(', $0);
           parseS(state);
-          final $5 = parseExpr(state);
-          if ($5 != null) {
-            int $ = $5.$1;
-            final $6 = state.matchLiteral1(')', 41);
-            if ($6 != null) {
+          final $6 = parseExpr(state);
+          if ($6 != null) {
+            int $ = $6.$1;
+            final $7 = state.position;
+            if (state.peek() == 41) {
+              state.consume(')', $7);
               parseS(state);
-              $0 = ($,);
+              $5 = $;
+            } else {
+              state.expected(')');
             }
           }
+        } else {
+          state.expected('(');
         }
-        if ($0 == null) {
-          state.position = $1;
+        if ($5 != null) {
+          $1 = $5;
+        } else {
+          state.position = $0;
         }
       }
     }
-    if (state.failure == $1 && $7 < state.nesting) {
-      state.expected($0, 'expression', $1, state.position);
+    if ($1 != null) {
+      state.onSuccess($8, $0, $10);
+      return ($1,);
+    } else {
+      state.onFailure($8, $0, $10, $9);
+      return null;
     }
-    state.nesting = $7;
-    state.failure = state.failure < $8 ? $8 : state.failure;
-    return $0;
   }
 }
 
 class State {
+  /// Intended for internal use only.
   static const flagUseStart = 1;
 
+  /// Intended for internal use only.
   static const flagUseEnd = 2;
 
+  /// Intended for internal use only.
   static const flagExpected = 4;
 
+  /// Intended for internal use only.
   static const flagUnexpected = 8;
 
   /// The position of the parsing failure.
@@ -383,14 +424,17 @@ class State {
   /// The length of the input data.
   final int length;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   int nesting = -1;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
+
+  /// Current parsing position.
+  Object? unused;
 
   int _ch = 0;
 
@@ -418,19 +462,22 @@ class State {
     peek();
   }
 
-  /// Advances the current [position] to the next character position and
-  /// returns the character from the current position.
-  ///
-  /// A call to this method must be preceded by a call to the [peek] method,
-  /// otherwise the behavior of this method is undefined.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int advance() {
-    position += _ch > 0xffff ? 2 : 1;
-    return _ch;
+  int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void consume(String literal, int start) {
+    position += strlen(literal);
+    if (predicate && nesting < position) {
+      error(literal, start, position, flagUnexpected);
+    }
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, int start, int end, int flag) {
@@ -454,42 +501,37 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void expected(Object? result, String string, int start, int end) {
-    if (result != null) {
-      predicate ? error(string, start, end, flagUnexpected) : null;
-    } else {
-      predicate ? null : error(string, start, end, flagExpected);
+  void expected(String literal) {
+    if (nesting < position && !predicate) {
+      error(literal, position, position, flagExpected);
     }
+
+    fail();
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? fail<T>([int length = 0]) {
+  void fail([String? name]) {
     failure < position ? failure = position : null;
-    if (_farthestFailure > position) {
-      return null;
-    }
-
     if (_farthestFailure < position) {
       _farthestFailure = position;
+      _farthestFailureLength = 0;
     }
 
-    if (length != 0) {
-      _farthestFailureLength =
-          _farthestFailureLength < length ? length : _farthestFailureLength;
+    if (name != null && nesting < position) {
+      error(name, position, position, flagExpected);
     }
-
-    return null;
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? failAndBacktrack<T>(int position) {
-    fail<void>(this.position - position);
+  void failAndBacktrack(int position) {
+    fail();
+    final length = this.position - position;
+    _farthestFailureLength < length ? _farthestFailureLength = length : null;
     this.position = position;
-    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -551,53 +593,30 @@ class State {
     return errors.toSet().toList();
   }
 
-  /// Matches the input data at the current [position] with the string [string].
-  ///
-  /// If successful, advances the [position] by the length of the [string] (in
-  /// input data units) and returns the specified [string], otherwise calls the
-  /// [fails] method and returns `null`.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string) {
-    if (startsWith(string, position)) {
-      position += string.length;
-      return (string,);
+  void onFailure(String name, int start, int nesting, int failure) {
+    if (failure == position && nesting < position && !predicate) {
+      error(name, position, position, flagExpected);
     }
 
-    fail<void>();
-    return null;
+    this.nesting = nesting;
+    this.failure < failure ? this.failure = failure : null;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? matchLiteral(String string) {
-    final start = position;
-    final result = match(string);
-    if (nesting < position) {
-      expected(result, string, start, position);
+  void onSuccess(String name, int start, int nesting) {
+    if (predicate && nesting < start) {
+      error(name, start, position, flagUnexpected);
     }
 
-    return result;
+    this.nesting = nesting;
   }
 
   /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (String,)? matchLiteral1(String string, int char) {
-    final start = position;
-    final result = peek() == char ? (string,) : null;
-    result != null ? advance() : fail<void>();
-    if (nesting < position) {
-      expected(result, string, start, position);
-    }
-
-    return result;
-  }
-
-  /// Reads and returns the character at the current [position].
-  ///
-  /// If the end of the input data is reached, the return value is `0`.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   int peek() {
@@ -626,11 +645,18 @@ class State {
     }
   }
 
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool startsWith(String string, int position) =>
       _input.startsWith(string, position);
 
-  /// Returns a substring of the input data, starting at position [start] and
-  /// ending at position [end].
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int strlen(String string) => string.length;
+
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String substring(int start, int end) => _input.substring(start, end);
@@ -646,9 +672,8 @@ class State {
       rest = 80;
     }
 
-    // Need to create the equivalent of 'substring'
     var line = substring(position, position + rest);
-    line = line.replaceAll('\n', '\n');
+    line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
   }
 }

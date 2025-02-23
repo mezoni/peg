@@ -107,6 +107,15 @@ class _ExpressionInitializer1 extends ExpressionVisitor<void> {
   }
 
   @override
+  void visitExpected(ExpectedExpression node) {
+    final child = node.expression;
+    child.accept(this);
+    _setIsNulled(node, child.isNulled);
+    _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
+    _setMayNotConsume(node, child.mayNotConsume);
+  }
+
+  @override
   void visitGroup(GroupExpression node) {
     final child = node.expression;
     child.accept(this);
@@ -189,7 +198,7 @@ class _ExpressionInitializer1 extends ExpressionVisitor<void> {
   void visitOrderedChoice(OrderedChoiceExpression node) {
     final children = node.expressions;
     if (children.length == 1) {
-      final child = children[0];
+      final child = children.first;
       child.accept(this);
       _setIsNulled(node, child.isNulled);
       _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
@@ -256,7 +265,7 @@ class _ExpressionInitializer1 extends ExpressionVisitor<void> {
     final children = node.expressions;
     final variables = <String>{};
     if (children.length == 1) {
-      final child = children[0];
+      final child = children.first;
       child.accept(this);
       _setIsNulled(node, child.isNulled);
       _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);

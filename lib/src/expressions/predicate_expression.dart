@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class PredicateExpression extends Expression {
@@ -17,31 +16,21 @@ class PredicateExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    var value = '';
-    switch (code.trim()) {
-      case 'false':
-        value = !negate ? 'state.fail<void>()' : '(null,)';
-        break;
-      case 'true':
-        value = !negate ? '(null,)' : 'state.fail<void>()';
-        break;
-      default:
-        value = !negate
-            ? conditional(code, '(null,)', 'state.fail<void>()')
-            : conditional(code, 'state.fail<void>()', '(null,)');
-    }
-
-    if (variable != null) {
-      variable.assign(sink, value);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final code = result.code;
+    if (!negate) {
+      code.branch(this.code, '!($this.code)');
     } else {
-      final hasCalculation = value != '(null,)';
-      if (hasCalculation) {
-        sink.statement(value);
-      }
+      final variable = context.allocate();
+      code.assign(variable, this.code, 'final');
+      code.branch('!$variable', variable);
     }
 
-    return postprocess(context, sink);
+    if (result.isUsed) {
+      result.value = Value('null', isConst: true);
+    }
+
+    result.postprocess(this);
   }
 }

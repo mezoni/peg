@@ -15,8 +15,9 @@ class CatchExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    context.shareValues(this, expression, [Expression.position]);
     var message = 'UNKNOWN_ERROR';
     var origin = '';
     var start = 'start';
@@ -65,25 +66,31 @@ class CatchExpression extends SingleExpression {
       _ => flagUseStart | flagUseEnd,
     };
 
-    final enterLeave = expression.generateEnterLeave(context);
-    sink.writeln(enterLeave.enter);
-    if (variable == null) {
-      if (expression.isVariableNeedForTestState()) {
-        variable = context.allocateVariable();
-      }
-    }
+    final childResult = result.copy(expression);
 
-    context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, variable, isFast));
-    final isFailure = expression.getStateTest(variable, false);
-    sink.ifStatement(isFailure, (block) {
+    expression.generate(context, childResult);
+
+    final failure = context.allocate();
+    final branch = childResult.branch();
+    branch.falsity.block((b) {
       final escapedMessage = escapeString(message, "'");
-      block.ifStatement(originTest, (block) {
-        block.statement(
+      final control = b.branch(originTest, '!($originTest)');
+      control.truth.block((b) {
+        b.statement(
             'state.error($escapedMessage, state.position, state.failure, $flag)');
       });
+      b.statement('state.failure < $failure ? state.failure = $failure : null');
     });
-    sink.writeln(enterLeave.leave);
-    return postprocess(context, sink);
+
+    branch.truth.block((b) {
+      b.statement('state.failure < $failure ? state.failure = $failure : null');
+    });
+
+    final code = result.code;
+    code.statement('final $failure = state.failure');
+    code.statement('state.failure = state.position');
+    code.add(childResult.code);
+    childResult.copyValueTo(result);
+    result.postprocess(this);
   }
 }

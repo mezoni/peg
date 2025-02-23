@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class OrderedChoiceExpression extends MultiExpression {
@@ -10,74 +9,88 @@ class OrderedChoiceExpression extends MultiExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    if (expressions.length > 1) {
-      if (variable != null) {
-        if (variable.needDeclare) {
-          if (variable.type.isEmpty) {
-            variable.type = getReturnType();
-          }
-
-          variable.assign(sink, '');
-        }
-      } else {
-        variable = context.allocateVariable(type: getReturnType());
-        variable.assign(sink, '');
-      }
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    if (expressions.length == 1) {
+      return _generate1(context, result);
     }
 
-    context.addSharedValues(this, [Expression.position]);
-    final blocks = <StringBuffer>[];
+    return _generate(context, result);
+  }
+
+  void _generate(BuildContext context, BuildResult result) {
+    final variable = context.allocate();
+    final results = <BuildResult>[];
     for (var i = 0; i < expressions.length; i++) {
       final expression = expressions[i];
-      final block = StringBuffer();
-      blocks.add(block);
       context.shareValues(this, expression, [Expression.position]);
-      block.writeln(expression.generate(context, variable, isFast));
+      final childResult = result.copy(expression);
+
+      expression.generate(context, childResult);
+
+      results.add(childResult);
+      final branch = childResult.branch();
+      branch.truth.block((b) {
+        if (result.isUsed) {
+          final value = childResult.value;
+          b.assign(variable, value.code);
+        }
+      });
     }
 
-    var buffer = StringBuffer();
-    for (var i = expressions.length - 1; i >= 0; i--) {
-      final isFailure = getStateTest(variable, false);
-      final block = blocks[i];
-      if (i == expressions.length - 1) {
-        buffer.write(block);
-      } else {
-        final inner = '$buffer';
-        buffer = StringBuffer();
-        buffer.writeln(block);
-        var optimized = false;
-        if (isFailure == '$variable == null') {
-          if (i == expressions.length - 2) {
-            var temp = inner.trim();
-            if (temp.endsWith(';')) {
-              if (inner.codeUnits.where((e) => e == 59).length == 1) {
-                temp = temp.replaceAll(' ', '');
-                temp = temp.replaceAll('\n', '');
-                temp = temp.replaceAll('\r', '');
-                temp = temp.replaceAll('\t', '');
-                if (temp.startsWith('$variable=')) {
-                  optimized = true;
-                  final index = inner.indexOf('=');
-                  buffer.writeln('$variable ??= ${inner.substring(index + 1)}');
-                }
-              }
-            }
-          }
-        }
-
-        if (optimized) {
-          continue;
-        }
-
-        buffer.ifStatement(isFailure, (b) {
-          b.writeln(inner);
+    BuildResult? previous;
+    for (var i = 0; i < results.length; i++) {
+      final current = results[i];
+      if (previous != null) {
+        final branch = previous.branch();
+        branch.falsity.block((b) {
+          b.add(current.code);
         });
       }
+
+      previous = current;
     }
 
-    sink.writeln(buffer);
-    return postprocess(context, sink);
+    final code = result.code;
+    if (result.isUsed) {
+      final type = result.getIntermediateType();
+      code.statement('$type $variable');
+    } else {
+      code.assign(variable, 'true', 'var');
+    }
+
+    final first = results.first;
+    code.add(first.code);
+    if (result.isUsed) {
+      code.branch('$variable != null', '$variable == null');
+    } else {
+      code.branch(variable, '!$variable');
+    }
+
+    if (!result.isUsed) {
+      final last = results.last;
+      final branch = last.branch();
+      branch.falsity.block((b) {
+        b.assign(variable, 'false');
+      });
+    }
+
+    if (result.isUsed) {
+      result.value = Value(variable);
+    }
+
+    result.postprocess(this);
+  }
+
+  void _generate1(BuildContext context, BuildResult result) {
+    final expression = expressions.first;
+    context.shareValues(this, expression, [Expression.position]);
+    final childResult = result.copy(expression);
+
+    expression.generate(context, childResult);
+
+    childResult.copyValueTo(result);
+    result.code.add(childResult.code);
+    result.postprocess(this);
   }
 }

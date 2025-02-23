@@ -1,5 +1,4 @@
 import '../grammar/production_rule.dart';
-import '../helper.dart';
 import 'build_context.dart';
 
 class NonterminalExpression extends Expression {
@@ -18,15 +17,27 @@ class NonterminalExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    final value = 'parse$name(state)';
-    if (variable != null) {
-      variable.assign(sink, value);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final invocation = 'parse$name(state)';
+    final code = result.code;
+    if (result.isUsed) {
+      final variable = context.allocate();
+      code.assign(variable, invocation, 'final');
+      code.branch('$variable != null', '$variable == null');
+      result.value = Value('$variable.\$1', boxed: variable);
     } else {
-      sink.statement(value);
+      final expression = reference!.expression;
+      if (!expression.isAlwaysSuccessful) {
+        final variable = context.allocate();
+        code.assign(variable, invocation, 'final');
+        code.branch('$variable != null', '$variable == null');
+      } else {
+        code.statement(invocation);
+        code.branch('true', 'false');
+      }
     }
 
-    return postprocess(context, sink);
+    result.postprocess(this);
   }
 }

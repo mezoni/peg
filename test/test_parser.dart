@@ -66,216 +66,227 @@ class TestParser {
   ///   )
   ///```
   (Object?,)? parseA(State state) {
-    final $4 = state.position;
-    (Object?,)? $0;
-    (Object?,)? $1;
-    final $2 = state.matchLiteral('');
-    if ($2 != null) {
-      Object? $ = $2.$1;
-      final $3 = parseAndAbc(state);
-      if ($3 != null) {
-        $1 = ($,);
-      }
+    final $2 = state.position;
+    Object? $0;
+    Object? $1;
+    Object? $ = '';
+    final $3 = parseAndAbc(state);
+    if ($3 != null) {
+      $1 = $;
     }
-    if ($1 == null) {
-      state.position = $4;
-    }
-    if ($1 == null) {
+    if ($1 != null) {
+      $0 = $1;
+    } else {
+      state.position = $2;
+      Object? $4;
       final $5 = parseAnyChar(state);
       if ($5 != null) {
         Object? $ = $5.$1;
         final $6 = parseAnyCharVoid(state);
         if ($6 != null) {
-          $1 = ($,);
+          $4 = $;
         }
       }
-      if ($1 == null) {
-        state.position = $4;
-      }
-      if ($1 == null) {
-        final $7 = parseChar16(state);
-        if ($7 != null) {
-          Object? $ = $7.$1;
-          final $8 = parseChar16Void(state);
-          if ($8 != null) {
-            $1 = ($,);
-          }
-        }
-        if ($1 == null) {
-          state.position = $4;
-        }
-        if ($1 == null) {
-          final $9 = parseChars16(state);
+      if ($4 != null) {
+        $0 = $4;
+      } else {
+        state.position = $2;
+        Object? $7;
+        final $8 = parseChar16(state);
+        if ($8 != null) {
+          Object? $ = $8.$1;
+          final $9 = parseChar16Void(state);
           if ($9 != null) {
-            Object? $ = $9.$1;
-            final $10 = parseChars16Void(state);
-            if ($10 != null) {
-              $1 = ($,);
+            $7 = $;
+          }
+        }
+        if ($7 != null) {
+          $0 = $7;
+        } else {
+          state.position = $2;
+          Object? $10;
+          final $11 = parseChars16(state);
+          if ($11 != null) {
+            Object? $ = $11.$1;
+            final $12 = parseChars16Void(state);
+            if ($12 != null) {
+              $10 = $;
             }
           }
-          if ($1 == null) {
-            state.position = $4;
-          }
-          if ($1 == null) {
-            final $11 = parseChar32(state);
-            if ($11 != null) {
-              Object? $ = $11.$1;
-              final $12 = parseChar32Void(state);
-              if ($12 != null) {
-                $1 = ($,);
+          if ($10 != null) {
+            $0 = $10;
+          } else {
+            state.position = $2;
+            Object? $13;
+            final $14 = parseChar32(state);
+            if ($14 != null) {
+              Object? $ = $14.$1;
+              final $15 = parseChar32Void(state);
+              if ($15 != null) {
+                $13 = $;
               }
             }
-            if ($1 == null) {
-              state.position = $4;
-            }
-            if ($1 == null) {
-              final $13 = parseChars32(state);
-              if ($13 != null) {
-                Object? $ = $13.$1;
-                final $14 = parseChars32Void(state);
-                if ($14 != null) {
-                  $1 = ($,);
+            if ($13 != null) {
+              $0 = $13;
+            } else {
+              state.position = $2;
+              Object? $16;
+              final $17 = parseChars32(state);
+              if ($17 != null) {
+                Object? $ = $17.$1;
+                final $18 = parseChars32Void(state);
+                if ($18 != null) {
+                  $16 = $;
                 }
               }
-              if ($1 == null) {
-                state.position = $4;
-              }
-              if ($1 == null) {
-                final $15 = parseLiteral0(state);
-                if ($15 != null) {
-                  Object? $ = $15.$1;
+              if ($16 != null) {
+                $0 = $16;
+              } else {
+                state.position = $2;
+                final $19 = parseLiteral0(state);
+                if ($19 != null) {
+                  Object? $ = $19.$1;
                   parseLiteral0Void(state);
-                  $1 = ($,);
                 }
-                if ($1 == null) {
-                  final $16 = parseLiteral1(state);
-                  if ($16 != null) {
-                    Object? $ = $16.$1;
-                    final $17 = parseLiteral1Void(state);
-                    if ($17 != null) {
-                      $1 = ($,);
+                if (true) {
+                  $0 = $;
+                } else {
+                  Object? $20;
+                  final $21 = parseLiteral1(state);
+                  if ($21 != null) {
+                    Object? $ = $21.$1;
+                    final $22 = parseLiteral1Void(state);
+                    if ($22 != null) {
+                      $20 = $;
                     }
                   }
-                  if ($1 == null) {
-                    state.position = $4;
-                  }
-                  if ($1 == null) {
-                    final $18 = parseLiteral2(state);
-                    if ($18 != null) {
-                      Object? $ = $18.$1;
-                      final $19 = parseLiteral2Void(state);
-                      if ($19 != null) {
-                        $1 = ($,);
+                  if ($20 != null) {
+                    $0 = $20;
+                  } else {
+                    state.position = $2;
+                    Object? $23;
+                    final $24 = parseLiteral2(state);
+                    if ($24 != null) {
+                      Object? $ = $24.$1;
+                      final $25 = parseLiteral2Void(state);
+                      if ($25 != null) {
+                        $23 = $;
                       }
                     }
-                    if ($1 == null) {
-                      state.position = $4;
-                    }
-                    if ($1 == null) {
-                      final $20 = parseMatch(state);
-                      if ($20 != null) {
-                        Object? $ = $20.$1;
-                        final $21 = parseMatchVoid(state);
-                        if ($21 != null) {
-                          $1 = ($,);
+                    if ($23 != null) {
+                      $0 = $23;
+                    } else {
+                      state.position = $2;
+                      Object? $26;
+                      final $27 = parseMatch(state);
+                      if ($27 != null) {
+                        Object? $ = $27.$1;
+                        final $28 = parseMatchVoid(state);
+                        if ($28 != null) {
+                          $26 = $;
                         }
                       }
-                      if ($1 == null) {
-                        state.position = $4;
-                      }
-                      if ($1 == null) {
-                        final $22 = parseNotDigits(state);
-                        if ($22 != null) {
-                          Object? $ = $22.$1;
-                          final $23 = parseNotDigitsVoid(state);
-                          if ($23 != null) {
-                            $1 = ($,);
+                      if ($26 != null) {
+                        $0 = $26;
+                      } else {
+                        state.position = $2;
+                        Object? $29;
+                        final $30 = parseNotDigits(state);
+                        if ($30 != null) {
+                          Object? $ = $30.$1;
+                          final $31 = parseNotDigitsVoid(state);
+                          if ($31 != null) {
+                            $29 = $;
                           }
                         }
-                        if ($1 == null) {
-                          state.position = $4;
-                        }
-                        if ($1 == null) {
-                          final $24 = state.matchLiteral('');
-                          if ($24 != null) {
-                            Object? $ = $24.$1;
-                            final $25 = parseNotAbc(state);
-                            if ($25 != null) {
-                              $1 = ($,);
-                            }
+                        if ($29 != null) {
+                          $0 = $29;
+                        } else {
+                          state.position = $2;
+                          Object? $32;
+                          Object? $ = '';
+                          final $33 = parseNotAbc(state);
+                          if ($33 != null) {
+                            $32 = $;
                           }
-                          if ($1 == null) {
-                            state.position = $4;
-                          }
-                          if ($1 == null) {
-                            final $26 = parseOneOrMore(state);
-                            if ($26 != null) {
-                              Object? $ = $26.$1;
-                              final $27 = parseOneOrMoreVoid(state);
-                              if ($27 != null) {
-                                $1 = ($,);
+                          if ($32 != null) {
+                            $0 = $32;
+                          } else {
+                            state.position = $2;
+                            Object? $34;
+                            final $35 = parseOneOrMore(state);
+                            if ($35 != null) {
+                              Object? $ = $35.$1;
+                              final $36 = parseOneOrMoreVoid(state);
+                              if ($36 != null) {
+                                $34 = $;
                               }
                             }
-                            if ($1 == null) {
-                              state.position = $4;
-                            }
-                            if ($1 == null) {
-                              final $28 = parseOptional(state);
-                              if ($28 != null) {
-                                Object? $ = $28.$1;
+                            if ($34 != null) {
+                              $0 = $34;
+                            } else {
+                              state.position = $2;
+                              final $37 = parseOptional(state);
+                              if ($37 != null) {
+                                Object? $ = $37.$1;
                                 parseOptionalVoid(state);
-                                $1 = ($,);
                               }
-                              if ($1 == null) {
-                                final $29 = parseOrderedChoice(state);
-                                if ($29 != null) {
-                                  Object? $ = $29.$1;
-                                  final $30 = parseOrderedChoiceVoid(state);
-                                  if ($30 != null) {
-                                    $1 = ($,);
+                              if (true) {
+                                $0 = $;
+                              } else {
+                                Object? $38;
+                                final $39 = parseOrderedChoice(state);
+                                if ($39 != null) {
+                                  Object? $ = $39.$1;
+                                  final $40 = parseOrderedChoiceVoid(state);
+                                  if ($40 != null) {
+                                    $38 = $;
                                   }
                                 }
-                                if ($1 == null) {
-                                  state.position = $4;
-                                }
-                                if ($1 == null) {
-                                  final $31 = parseRanges(state);
-                                  if ($31 != null) {
-                                    Object? $ = $31.$1;
-                                    final $32 = parseRangesVoid(state);
-                                    if ($32 != null) {
-                                      $1 = ($,);
+                                if ($38 != null) {
+                                  $0 = $38;
+                                } else {
+                                  state.position = $2;
+                                  Object? $41;
+                                  final $42 = parseRanges(state);
+                                  if ($42 != null) {
+                                    Object? $ = $42.$1;
+                                    final $43 = parseRangesVoid(state);
+                                    if ($43 != null) {
+                                      $41 = $;
                                     }
                                   }
-                                  if ($1 == null) {
-                                    state.position = $4;
-                                  }
-                                  if ($1 == null) {
-                                    final $33 = parseTakeWhile(state);
-                                    if ($33 != null) {
-                                      Object? $ = $33.$1;
+                                  if ($41 != null) {
+                                    $0 = $41;
+                                  } else {
+                                    state.position = $2;
+                                    final $44 = parseTakeWhile(state);
+                                    if ($44 != null) {
+                                      Object? $ = $44.$1;
                                       parseTakeWhileVoid(state);
-                                      $1 = ($,);
                                     }
-                                    if ($1 == null) {
-                                      final $34 = parseTakeWhile1(state);
-                                      if ($34 != null) {
-                                        Object? $ = $34.$1;
-                                        final $35 = parseTakeWhile1Void(state);
-                                        if ($35 != null) {
-                                          $1 = ($,);
+                                    if (true) {
+                                      $0 = $;
+                                    } else {
+                                      Object? $45;
+                                      final $46 = parseTakeWhile1(state);
+                                      if ($46 != null) {
+                                        Object? $ = $46.$1;
+                                        final $47 = parseTakeWhile1Void(state);
+                                        if ($47 != null) {
+                                          $45 = $;
                                         }
                                       }
-                                      if ($1 == null) {
-                                        state.position = $4;
-                                      }
-                                      if ($1 == null) {
-                                        final $36 = parseZeroOrMore(state);
-                                        if ($36 != null) {
-                                          Object? $ = $36.$1;
+                                      if ($45 != null) {
+                                        $0 = $45;
+                                      } else {
+                                        state.position = $2;
+                                        final $48 = parseZeroOrMore(state);
+                                        if ($48 != null) {
+                                          Object? $ = $48.$1;
                                           parseZeroOrMoreVoid(state);
-                                          $1 = ($,);
                                         }
+                                        $0 = $;
                                       }
                                     }
                                   }
@@ -294,11 +305,12 @@ class TestParser {
         }
       }
     }
-    if ($1 != null) {
-      Object? $ = $1.$1;
-      $0 = ($,);
+    if ($0 != null) {
+      Object? $ = $0;
+      return ($,);
+    } else {
+      return null;
     }
-    return $0;
   }
 
   /// **AndAbc**
@@ -309,12 +321,15 @@ class TestParser {
   ///   &'abc'
   ///```
   (void,)? parseAndAbc(State state) {
-    final $2 = state.position;
-    final $1 = state.matchLiteral('abc');
-    $1 != null ? null : state.fail<void>();
-    state.position = $2;
-    final $0 = $1 != null ? (null,) : null;
-    return $0;
+    final $0 = state.position;
+    if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+      state.consume('abc', $0);
+      state.position = $0;
+      return const (null,);
+    } else {
+      state.expected('abc');
+      return null;
+    }
   }
 
   /// **AnyChar**
@@ -325,13 +340,15 @@ class TestParser {
   ///   $ = .
   ///```
   (int,)? parseAnyChar(State state) {
-    (int,)? $0;
-    final $1 = state.peek() != 0 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.peek();
+    if ($0 != 0) {
+      state.position += state.charSize($0);
+      int $ = $0;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **AnyCharVoid**
@@ -342,13 +359,15 @@ class TestParser {
   ///   $ = .
   ///```
   (int,)? parseAnyCharVoid(State state) {
-    (int,)? $0;
-    final $1 = state.peek() != 0 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.peek();
+    if ($0 != 0) {
+      state.position += state.charSize($0);
+      int $ = $0;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Char16**
@@ -359,13 +378,14 @@ class TestParser {
   ///   $ = [a]
   ///```
   (int,)? parseChar16(State state) {
-    (int,)? $0;
-    final $1 = state.peek() == 97 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    if (state.peek() == 97) {
+      state.position += state.charSize(97);
+      int $ = 97;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Char16Void**
@@ -376,8 +396,13 @@ class TestParser {
   ///   [a]
   ///```
   (int,)? parseChar16Void(State state) {
-    final $0 = state.peek() == 97 ? (state.advance(),) : state.fail<int>();
-    return $0;
+    if (state.peek() == 97) {
+      state.position += state.charSize(97);
+      return const (97,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **Char32**
@@ -388,13 +413,14 @@ class TestParser {
   ///   $ = [{1f800}]
   ///```
   (int,)? parseChar32(State state) {
-    (int,)? $0;
-    final $1 = state.peek() == 129024 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    if (state.peek() == 129024) {
+      state.position += state.charSize(129024);
+      int $ = 129024;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Char32Void**
@@ -405,13 +431,14 @@ class TestParser {
   ///   $ = [{1f800}]
   ///```
   (int,)? parseChar32Void(State state) {
-    (int,)? $0;
-    final $1 = state.peek() == 129024 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    if (state.peek() == 129024) {
+      state.position += state.charSize(129024);
+      int $ = 129024;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Chars16**
@@ -422,16 +449,15 @@ class TestParser {
   ///   $ = [a-zA-Z]
   ///```
   (int,)? parseChars16(State state) {
-    (int,)? $0;
-    final $2 = state.peek();
-    final $1 = ($2 >= 97 ? $2 <= 122 : $2 >= 65 && $2 <= 90)
-        ? (state.advance(),)
-        : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.peek();
+    if ($0 >= 97 ? $0 <= 122 : $0 >= 65 && $0 <= 90) {
+      state.position += state.charSize($0);
+      int $ = $0;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Chars16Void**
@@ -442,11 +468,14 @@ class TestParser {
   ///   [a-zA-Z]
   ///```
   (int,)? parseChars16Void(State state) {
-    final $1 = state.peek();
-    final $0 = ($1 >= 97 ? $1 <= 122 : $1 >= 65 && $1 <= 90)
-        ? (state.advance(),)
-        : state.fail<int>();
-    return $0;
+    final $0 = state.peek();
+    if ($0 >= 97 ? $0 <= 122 : $0 >= 65 && $0 <= 90) {
+      state.position += state.charSize($0);
+      return ($0,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **Chars32**
@@ -457,15 +486,15 @@ class TestParser {
   ///   $ = [{1f800-1f803}]
   ///```
   (int,)? parseChars32(State state) {
-    (int,)? $0;
-    final $2 = state.peek();
-    final $1 =
-        $2 >= 129024 && $2 <= 129027 ? (state.advance(),) : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.peek();
+    if ($0 >= 129024 && $0 <= 129027) {
+      state.position += state.charSize($0);
+      int $ = $0;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **Chars32Void**
@@ -476,10 +505,14 @@ class TestParser {
   ///   [{1f800-1f803}]
   ///```
   (int,)? parseChars32Void(State state) {
-    final $1 = state.peek();
-    final $0 =
-        $1 >= 129024 && $1 <= 129027 ? (state.advance(),) : state.fail<int>();
-    return $0;
+    final $0 = state.peek();
+    if ($0 >= 129024 && $0 <= 129027) {
+      state.position += state.charSize($0);
+      return ($0,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **Literal0**
@@ -490,13 +523,8 @@ class TestParser {
   ///   $ = ''
   ///```
   (String,)? parseLiteral0(State state) {
-    (String,)? $0;
-    final $1 = state.matchLiteral('');
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
-    }
-    return $0;
+    String $ = '';
+    return ($,);
   }
 
   /// **Literal0Void**
@@ -507,8 +535,7 @@ class TestParser {
   ///   ''
   ///```
   (String,)? parseLiteral0Void(State state) {
-    final $0 = state.matchLiteral('');
-    return $0;
+    return const ('',);
   }
 
   /// **Literal1**
@@ -519,13 +546,15 @@ class TestParser {
   ///   $ = 'a'
   ///```
   (String,)? parseLiteral1(State state) {
-    (String,)? $0;
-    final $1 = state.matchLiteral1('a', 97);
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.position;
+    if (state.peek() == 97) {
+      state.consume('a', $0);
+      String $ = 'a';
+      return ($,);
+    } else {
+      state.expected('a');
+      return null;
     }
-    return $0;
   }
 
   /// **Literal1Void**
@@ -536,8 +565,14 @@ class TestParser {
   ///   'a'
   ///```
   (String,)? parseLiteral1Void(State state) {
-    final $0 = state.matchLiteral1('a', 97);
-    return $0;
+    final $0 = state.position;
+    if (state.peek() == 97) {
+      state.consume('a', $0);
+      return const ('a',);
+    } else {
+      state.expected('a');
+      return null;
+    }
   }
 
   /// **Literal2**
@@ -548,13 +583,15 @@ class TestParser {
   ///   $ = 'ab'
   ///```
   (String,)? parseLiteral2(State state) {
-    (String,)? $0;
-    final $1 = state.matchLiteral('ab');
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.position;
+    if (state.peek() == 97 && state.startsWith('ab', state.position)) {
+      state.consume('ab', $0);
+      String $ = 'ab';
+      return ($,);
+    } else {
+      state.expected('ab');
+      return null;
     }
-    return $0;
   }
 
   /// **Literal2Void**
@@ -565,8 +602,14 @@ class TestParser {
   ///   'ab'
   ///```
   (String,)? parseLiteral2Void(State state) {
-    final $0 = state.matchLiteral('ab');
-    return $0;
+    final $0 = state.position;
+    if (state.peek() == 97 && state.startsWith('ab', state.position)) {
+      state.consume('ab', $0);
+      return const ('ab',);
+    } else {
+      state.expected('ab');
+      return null;
+    }
   }
 
   /// **Match**
@@ -577,19 +620,20 @@ class TestParser {
   ///   $ = <[a]+>
   ///```
   (String,)? parseMatch(State state) {
-    final $3 = state.position;
-    (String,)? $0;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $2 = state.position != $3 ? (null,) : state.fail<List<int>>();
-    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    if ($0 != state.position) {
+      $1 = state.substring($0, state.position);
+      String $ = $1;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **MatchVoid**
@@ -600,14 +644,19 @@ class TestParser {
   ///   <[a]+>
   ///```
   (String,)? parseMatchVoid(State state) {
-    final $2 = state.position;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $1 = state.position != $2 ? (null,) : state.fail<List<int>>();
-    final $0 = $1 != null ? (state.substring($2, state.position),) : null;
-    return $0;
+    if ($0 != state.position) {
+      $1 = state.substring($0, state.position);
+      return ($1,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **NotAbc**
@@ -618,13 +667,23 @@ class TestParser {
   ///   !'abc'
   ///```
   (void,)? parseNotAbc(State state) {
-    final $1 = state.position;
-    final $predicate = state.predicate;
+    final $0 = state.position;
+    final $1 = state.predicate;
     state.predicate = true;
-    final $2 = state.matchLiteral('abc');
-    state.predicate = $predicate;
-    final $0 = $2 == null ? (null,) : state.failAndBacktrack<void>($1);
-    return $0;
+    var $2 = true;
+    if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+      state.consume('abc', $0);
+      state.failAndBacktrack($0);
+      $2 = false;
+    } else {
+      state.expected('abc');
+    }
+    state.predicate = $1;
+    if ($2) {
+      return const (null,);
+    } else {
+      return null;
+    }
   }
 
   /// **NotDigits**
@@ -635,16 +694,15 @@ class TestParser {
   ///   $ = [^0-9]
   ///```
   (int,)? parseNotDigits(State state) {
-    (int,)? $0;
-    final $2 = state.peek();
-    final $1 = !($2 == 0 || $2 >= 48 && $2 <= 57)
-        ? (state.advance(),)
-        : state.fail<int>();
-    if ($1 != null) {
-      int $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.peek();
+    if (!($0 == 0 || $0 >= 48 && $0 <= 57)) {
+      state.position += state.charSize($0);
+      int $ = $0;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **NotDigitsVoid**
@@ -655,11 +713,14 @@ class TestParser {
   ///   [^0-9]
   ///```
   (int,)? parseNotDigitsVoid(State state) {
-    final $1 = state.peek();
-    final $0 = !($1 == 0 || $1 >= 48 && $1 <= 57)
-        ? (state.advance(),)
-        : state.fail<int>();
-    return $0;
+    final $0 = state.peek();
+    if (!($0 == 0 || $0 >= 48 && $0 <= 57)) {
+      state.position += state.charSize($0);
+      return ($0,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **OneOrMore**
@@ -670,21 +731,23 @@ class TestParser {
   ///   $ = 'abc'+
   ///```
   (List<String>,)? parseOneOrMore(State state) {
-    (List<String>,)? $0;
-    final $list = <String>[];
+    final $1 = <String>[];
     while (true) {
-      final $2 = state.matchLiteral('abc');
-      if ($2 == null) {
+      final $0 = state.position;
+      if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+        state.consume('abc', $0);
+        $1.add('abc');
+      } else {
+        state.expected('abc');
         break;
       }
-      $list.add($2.$1);
     }
-    final $1 = $list.isNotEmpty ? ($list,) : state.fail<List<String>>();
-    if ($1 != null) {
-      List<String> $ = $1.$1;
-      $0 = ($,);
+    if ($1.isNotEmpty) {
+      List<String> $ = $1;
+      return ($,);
+    } else {
+      return null;
     }
-    return $0;
   }
 
   /// **OneOrMoreVoid**
@@ -695,16 +758,22 @@ class TestParser {
   ///   'abc'+
   ///```
   (List<String>,)? parseOneOrMoreVoid(State state) {
-    final $list = <String>[];
+    final $1 = <String>[];
     while (true) {
-      final $1 = state.matchLiteral('abc');
-      if ($1 == null) {
+      final $0 = state.position;
+      if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+        state.consume('abc', $0);
+        $1.add('abc');
+      } else {
+        state.expected('abc');
         break;
       }
-      $list.add($1.$1);
     }
-    final $0 = $list.isNotEmpty ? ($list,) : state.fail<List<String>>();
-    return $0;
+    if ($1.isNotEmpty) {
+      return ($1,);
+    } else {
+      return null;
+    }
   }
 
   /// **Optional**
@@ -715,12 +784,16 @@ class TestParser {
   ///   $ = 'abc'?
   ///```
   (String?,)? parseOptional(State state) {
-    (String?,)? $0;
-    (String?,)? $1 = state.matchLiteral('abc');
-    $1 ??= (null,);
-    String? $ = $1.$1;
-    $0 = ($,);
-    return $0;
+    final $0 = state.position;
+    String? $1;
+    if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+      state.consume('abc', $0);
+      $1 = 'abc';
+    } else {
+      state.expected('abc');
+    }
+    String? $ = $1;
+    return ($,);
   }
 
   /// **OptionalVoid**
@@ -731,9 +804,15 @@ class TestParser {
   ///   'abc'?
   ///```
   (String?,)? parseOptionalVoid(State state) {
-    (String?,)? $0 = state.matchLiteral('abc');
-    $0 ??= (null,);
-    return $0;
+    final $0 = state.position;
+    String? $1;
+    if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+      state.consume('abc', $0);
+      $1 = 'abc';
+    } else {
+      state.expected('abc');
+    }
+    return ($1,);
   }
 
   /// **OrderedChoice**
@@ -750,32 +829,35 @@ class TestParser {
   ///   )
   ///```
   (String,)? parseOrderedChoice(State state) {
-    (String,)? $0;
-    (String,)? $1;
-    final $2 = state.matchLiteral1('a', 97);
-    if ($2 != null) {
-      String $ = $2.$1;
-      $1 = ($,);
-    }
-    if ($1 == null) {
-      final $3 = state.matchLiteral1('b', 98);
-      if ($3 != null) {
-        String $ = $3.$1;
-        $1 = ($,);
-      }
-      if ($1 == null) {
-        final $4 = state.matchLiteral1('c', 99);
-        if ($4 != null) {
-          String $ = $4.$1;
-          $1 = ($,);
+    final $1 = state.position;
+    String? $0;
+    if (state.peek() == 97) {
+      state.consume('a', $1);
+      String $ = 'a';
+      $0 = $;
+    } else {
+      state.expected('a');
+      if (state.peek() == 98) {
+        state.consume('b', $1);
+        String $ = 'b';
+        $0 = $;
+      } else {
+        state.expected('b');
+        if (state.peek() == 99) {
+          state.consume('c', $1);
+          String $ = 'c';
+          $0 = $;
+        } else {
+          state.expected('c');
         }
       }
     }
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    if ($0 != null) {
+      String $ = $0;
+      return ($,);
+    } else {
+      return null;
     }
-    return $0;
   }
 
   /// **OrderedChoiceVoid**
@@ -792,27 +874,34 @@ class TestParser {
   ///   )
   ///```
   (String,)? parseOrderedChoiceVoid(State state) {
-    (String,)? $0;
-    final $1 = state.matchLiteral1('a', 97);
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
-    }
-    if ($0 == null) {
-      final $2 = state.matchLiteral1('b', 98);
-      if ($2 != null) {
-        String $ = $2.$1;
-        $0 = ($,);
-      }
-      if ($0 == null) {
-        final $3 = state.matchLiteral1('c', 99);
-        if ($3 != null) {
-          String $ = $3.$1;
-          $0 = ($,);
+    final $1 = state.position;
+    String? $0;
+    if (state.peek() == 97) {
+      state.consume('a', $1);
+      String $ = 'a';
+      $0 = $;
+    } else {
+      state.expected('a');
+      if (state.peek() == 98) {
+        state.consume('b', $1);
+        String $ = 'b';
+        $0 = $;
+      } else {
+        state.expected('b');
+        if (state.peek() == 99) {
+          state.consume('c', $1);
+          String $ = 'c';
+          $0 = $;
+        } else {
+          state.expected('c');
         }
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Ranges**
@@ -823,19 +912,18 @@ class TestParser {
   ///   $ = <[0-9A-Za-z]>
   ///```
   (String,)? parseRanges(State state) {
-    final $3 = state.position;
-    (String,)? $0;
-    final $4 = state.peek();
-    final $2 =
-        ($4 >= 65 ? $4 <= 90 || $4 >= 97 && $4 <= 122 : $4 >= 48 && $4 <= 57)
-            ? (state.advance(),)
-            : state.fail<int>();
-    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    final $0 = state.position;
+    String? $2;
+    final $1 = state.peek();
+    if ($1 >= 65 ? $1 <= 90 || $1 >= 97 && $1 <= 122 : $1 >= 48 && $1 <= 57) {
+      state.position += state.charSize($1);
+      $2 = state.substring($0, state.position);
+      String $ = $2;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **RangesVoid**
@@ -846,14 +934,17 @@ class TestParser {
   ///   <[0-9A-Za-z]>
   ///```
   (String,)? parseRangesVoid(State state) {
-    final $2 = state.position;
-    final $3 = state.peek();
-    final $1 =
-        ($3 >= 65 ? $3 <= 90 || $3 >= 97 && $3 <= 122 : $3 >= 48 && $3 <= 57)
-            ? (state.advance(),)
-            : state.fail<int>();
-    final $0 = $1 != null ? (state.substring($2, state.position),) : null;
-    return $0;
+    final $0 = state.position;
+    String? $2;
+    final $1 = state.peek();
+    if ($1 >= 65 ? $1 <= 90 || $1 >= 97 && $1 <= 122 : $1 >= 48 && $1 <= 57) {
+      state.position += state.charSize($1);
+      $2 = state.substring($0, state.position);
+      return ($2,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **TakeWhile**
@@ -864,16 +955,15 @@ class TestParser {
   ///   $ = <[a]*>
   ///```
   (String,)? parseTakeWhile(State state) {
-    final $2 = state.position;
-    (String,)? $0;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $1 = (state.substring($2, state.position),);
-    String $ = $1.$1;
-    $0 = ($,);
-    return $0;
+    $1 = state.substring($0, state.position);
+    String $ = $1;
+    return ($,);
   }
 
   /// **TakeWhile1**
@@ -884,19 +974,20 @@ class TestParser {
   ///   $ = <[a]+>
   ///```
   (String,)? parseTakeWhile1(State state) {
-    final $3 = state.position;
-    (String,)? $0;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $2 = state.position != $3 ? (null,) : state.fail<List<int>>();
-    final $1 = $2 != null ? (state.substring($3, state.position),) : null;
-    if ($1 != null) {
-      String $ = $1.$1;
-      $0 = ($,);
+    if ($0 != state.position) {
+      $1 = state.substring($0, state.position);
+      String $ = $1;
+      return ($,);
+    } else {
+      state.fail();
+      return null;
     }
-    return $0;
   }
 
   /// **TakeWhile1Void**
@@ -907,14 +998,19 @@ class TestParser {
   ///   <[a]+>
   ///```
   (String,)? parseTakeWhile1Void(State state) {
-    final $2 = state.position;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $1 = state.position != $2 ? (null,) : state.fail<List<int>>();
-    final $0 = $1 != null ? (state.substring($2, state.position),) : null;
-    return $0;
+    if ($0 != state.position) {
+      $1 = state.substring($0, state.position);
+      return ($1,);
+    } else {
+      state.fail();
+      return null;
+    }
   }
 
   /// **TakeWhileVoid**
@@ -925,13 +1021,14 @@ class TestParser {
   ///   <[a]*>
   ///```
   (String,)? parseTakeWhileVoid(State state) {
-    final $1 = state.position;
+    final $0 = state.position;
+    String? $1;
     for (var c = state.peek(); c == 97;) {
-      state.advance();
+      state.position += state.charSize(c);
       c = state.peek();
     }
-    final $0 = (state.substring($1, state.position),);
-    return $0;
+    $1 = state.substring($0, state.position);
+    return ($1,);
   }
 
   /// **ZeroOrMore**
@@ -942,19 +1039,19 @@ class TestParser {
   ///   $ = 'abc'*
   ///```
   (List<String>,)? parseZeroOrMore(State state) {
-    (List<String>,)? $0;
-    final $list = <String>[];
+    final $1 = <String>[];
     while (true) {
-      final $2 = state.matchLiteral('abc');
-      if ($2 == null) {
+      final $0 = state.position;
+      if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+        state.consume('abc', $0);
+        $1.add('abc');
+      } else {
+        state.expected('abc');
         break;
       }
-      $list.add($2.$1);
     }
-    final $1 = ($list,);
-    List<String> $ = $1.$1;
-    $0 = ($,);
-    return $0;
+    List<String> $ = $1;
+    return ($,);
   }
 
   /// **ZeroOrMoreVoid**
@@ -965,26 +1062,32 @@ class TestParser {
   ///   'abc'*
   ///```
   (List<String>,)? parseZeroOrMoreVoid(State state) {
-    final $list = <String>[];
+    final $1 = <String>[];
     while (true) {
-      final $1 = state.matchLiteral('abc');
-      if ($1 == null) {
+      final $0 = state.position;
+      if (state.peek() == 97 && state.startsWith('abc', state.position)) {
+        state.consume('abc', $0);
+        $1.add('abc');
+      } else {
+        state.expected('abc');
         break;
       }
-      $list.add($1.$1);
     }
-    final $0 = ($list,);
-    return $0;
+    return ($1,);
   }
 }
 
 class State {
+  /// Intended for internal use only.
   static const flagUseStart = 1;
 
+  /// Intended for internal use only.
   static const flagUseEnd = 2;
 
+  /// Intended for internal use only.
   static const flagExpected = 4;
 
+  /// Intended for internal use only.
   static const flagUnexpected = 8;
 
   /// The position of the parsing failure.
@@ -993,14 +1096,17 @@ class State {
   /// The length of the input data.
   final int length;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   int nesting = -1;
 
-  /// This field is for internal use only.
+  /// Intended for internal use only.
   bool predicate = false;
 
   /// Current parsing position.
   int position = 0;
+
+  /// Current parsing position.
+  Object? unused;
 
   int _ch = 0;
 
@@ -1028,19 +1134,22 @@ class State {
     peek();
   }
 
-  /// Advances the current [position] to the next character position and
-  /// returns the character from the current position.
-  ///
-  /// A call to this method must be preceded by a call to the [peek] method,
-  /// otherwise the behavior of this method is undefined.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int advance() {
-    position += _ch > 0xffff ? 2 : 1;
-    return _ch;
+  int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void consume(String literal, int start) {
+    position += strlen(literal);
+    if (predicate && nesting < position) {
+      error(literal, start, position, flagUnexpected);
+    }
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   void error(String message, int start, int end, int flag) {
@@ -1064,42 +1173,37 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void expected(Object? result, String string, int start, int end) {
-    if (result != null) {
-      predicate ? error(string, start, end, flagUnexpected) : null;
-    } else {
-      predicate ? null : error(string, start, end, flagExpected);
+  void expected(String literal) {
+    if (nesting < position && !predicate) {
+      error(literal, position, position, flagExpected);
     }
+
+    fail();
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? fail<T>([int length = 0]) {
+  void fail([String? name]) {
     failure < position ? failure = position : null;
-    if (_farthestFailure > position) {
-      return null;
-    }
-
     if (_farthestFailure < position) {
       _farthestFailure = position;
+      _farthestFailureLength = 0;
     }
 
-    if (length != 0) {
-      _farthestFailureLength =
-          _farthestFailureLength < length ? length : _farthestFailureLength;
+    if (name != null && nesting < position) {
+      error(name, position, position, flagExpected);
     }
-
-    return null;
   }
 
-  /// This method is for internal use only.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (T,)? failAndBacktrack<T>(int position) {
-    fail<void>(this.position - position);
+  void failAndBacktrack(int position) {
+    fail();
+    final length = this.position - position;
+    _farthestFailureLength < length ? _farthestFailureLength = length : null;
     this.position = position;
-    return null;
   }
 
   /// Converts error messages to errors and returns them as an error list.
@@ -1161,53 +1265,30 @@ class State {
     return errors.toSet().toList();
   }
 
-  /// Matches the input data at the current [position] with the string [string].
-  ///
-  /// If successful, advances the [position] by the length of the [string] (in
-  /// input data units) and returns the specified [string], otherwise calls the
-  /// [fails] method and returns `null`.
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? match(String string) {
-    if (startsWith(string, position)) {
-      position += string.length;
-      return (string,);
+  void onFailure(String name, int start, int nesting, int failure) {
+    if (failure == position && nesting < position && !predicate) {
+      error(name, position, position, flagExpected);
     }
 
-    fail<void>();
-    return null;
+    this.nesting = nesting;
+    this.failure < failure ? this.failure = failure : null;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  (String,)? matchLiteral(String string) {
-    final start = position;
-    final result = match(string);
-    if (nesting < position) {
-      expected(result, string, start, position);
+  void onSuccess(String name, int start, int nesting) {
+    if (predicate && nesting < start) {
+      error(name, start, position, flagUnexpected);
     }
 
-    return result;
+    this.nesting = nesting;
   }
 
   /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  (String,)? matchLiteral1(String string, int char) {
-    final start = position;
-    final result = peek() == char ? (string,) : null;
-    result != null ? advance() : fail<void>();
-    if (nesting < position) {
-      expected(result, string, start, position);
-    }
-
-    return result;
-  }
-
-  /// Reads and returns the character at the current [position].
-  ///
-  /// If the end of the input data is reached, the return value is `0`.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   int peek() {
@@ -1236,11 +1317,18 @@ class State {
     }
   }
 
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
   bool startsWith(String string, int position) =>
       _input.startsWith(string, position);
 
-  /// Returns a substring of the input data, starting at position [start] and
-  /// ending at position [end].
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int strlen(String string) => string.length;
+
+  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   String substring(int start, int end) => _input.substring(start, end);
@@ -1256,9 +1344,8 @@ class State {
       rest = 80;
     }
 
-    // Need to create the equivalent of 'substring'
     var line = substring(position, position + rest);
-    line = line.replaceAll('\n', '\n');
+    line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
   }
 }

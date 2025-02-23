@@ -1,5 +1,4 @@
 import '../binary_search_generator/matcher_generator.dart';
-import '../helper.dart';
 import 'build_context.dart';
 
 class OneOrMoreExpression extends SingleExpression {
@@ -11,80 +10,100 @@ class OneOrMoreExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final optimized = _optimize(context, variable, isFast);
-    if (optimized != null) {
-      return optimized;
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    if (_optimize(context, result)) {
+      return;
     }
 
-    final sink = preprocess(context);
-    isFast = isFastOrVoid(isFast);
-    var list = '';
-    final childVariable = context.allocateVariable();
-    final elementType = expression.getResultType();
-    if (!isFast) {
-      list = context.allocate('list');
-      sink.statement('final $list = <$elementType>[]');
-    }
-
-    sink.writeln('while (true) {');
-    sink.writeln(expression.generate(context, childVariable, isFast));
-    final isFailure = expression.getStateTest(childVariable, false);
-    sink.ifStatement(isFailure, (block) {
-      block.statement('break');
-    });
-    if (!isFast) {
-      sink.statement('$list.add($childVariable.\$1)');
-    }
-
-    sink.writeln('}');
-    var test = '';
-    var result = '';
-    if (isFast) {
-      final position = context.getSharedValue(this, Expression.position);
-      test = 'state.position != $position';
-      result = variable != null ? '(null,)' : 'null';
+    if (!result.isUsed) {
+      _generateUnused(context, result);
     } else {
-      test = '$list.isNotEmpty';
-      result = variable != null ? '($list,)' : 'null';
+      _generate(context, result);
     }
-
-    if (variable != null) {
-      final parameter = getGenericParameter(variable);
-      final value = conditional(test, result, 'state.fail$parameter()');
-      variable.assign(sink, value);
-    } else {
-      final statement = conditional(test, result, 'state.fail()');
-      sink.statement(statement);
-    }
-
-    return postprocess(context, sink);
   }
 
-  String? _optimize(BuildContext context, Variable? variable, bool isFast) {
-    if (isFast) {
+  void _generate(BuildContext context, BuildResult result) {
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: true,
+    );
+
+    expression.generate(context, childResult);
+
+    final list = context.allocate();
+    final elementType = expression.getResultType();
+    final code = result.code;
+    code.assign(list, '<$elementType>[]', 'final');
+    code.writeln('while (true) {');
+    code.add(childResult.code);
+    code.writeln('}');
+
+    final branch = childResult.branch();
+    branch.truth.block((b) {
+      final value = childResult.value;
+      b.statement('$list.add($value)');
+    });
+
+    branch.falsity.block((b) {
+      b.statement('break');
+    });
+
+    code.branch('$list.isNotEmpty', '$list.isEmpty');
+    result.value = Value(list);
+    result.postprocess(this);
+  }
+
+  void _generateUnused(BuildContext context, BuildResult result) {
+    final position = context.getSharedValue(this, Expression.position);
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: false,
+    );
+
+    expression.generate(context, childResult);
+
+    final code = result.code;
+    code.writeln('while (true) {');
+    code.add(childResult.code);
+    code.writeln('}');
+
+    final branch = childResult.branch();
+    branch.falsity.block((b) {
+      b.statement('break');
+    });
+
+    code.branch('$position != state.position', '$position == state.position');
+    result.postprocess(this);
+  }
+
+  bool _optimize(BuildContext context, BuildResult result) {
+    if (!result.isUsed) {
       if (expression case final CharacterClassExpression child) {
-        final sink = preprocess(context);
         final ranges = child.ranges;
         final predicate =
             MatcherGenerator().generate('c', ranges, negate: child.negate);
         final position = context.getSharedValue(this, Expression.position);
-        sink.writeln('''
+        final code = result.code;
+        code.writeln('''
 for (var c = state.peek(); $predicate;) {
-  state.advance();
+  state.position += state.charSize(c);
   c = state.peek();
 }''');
-        if (variable != null) {
-          final type = getGenericParameter(variable);
-          final value = conditional(
-              'state.position != $position', '(null,)', 'state.fail$type()');
-          variable.assign(sink, value);
-        }
 
-        return postprocess(context, sink);
+        final branch = code.branch(
+            '$position != state.position', '$position == state.position');
+        branch.falsity.block((b) {
+          b.statement('state.fail()');
+        });
+
+        result.postprocess(this);
+        return true;
       }
     }
 
-    return null;
+    return false;
   }
 }

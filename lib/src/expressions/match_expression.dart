@@ -1,30 +1,40 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class MatchExpression extends SingleExpression {
   MatchExpression({required super.expression});
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    final childVariable = expression.isVariableNeedForTestState()
-        ? context.allocateVariable()
-        : null;
-    final position = context.getSharedValue(this, Expression.position);
-    context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, childVariable, true));
-    if (variable != null) {
-      final isSuccess = expression.getStateTest(childVariable, true);
-      final value = conditional(
-          isSuccess, '(state.substring($position, state.position),)', 'null');
-      variable.assign(sink, value);
-    }
-
-    return postprocess(context, sink);
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitMatch(this);
   }
 
   @override
-  T accept<T>(ExpressionVisitor<T> visitor) {
-    return visitor.visitMatch(this);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final position = context.getSharedValue(this, Expression.position);
+    context.shareValues(this, expression, [Expression.position]);
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: false,
+    );
+
+    expression.generate(context, childResult);
+
+    final code = result.code;
+    if (result.isUsed) {
+      final variable = context.allocate();
+      final type = result.getIntermediateType();
+      code.statement('$type $variable');
+      final branch = childResult.branch();
+      branch.truth.block((b) {
+        final value = 'state.substring($position, state.position)';
+        b.assign(variable, value);
+        result.value = Value(variable);
+      });
+    }
+
+    code.add(childResult.code);
+    result.postprocess(this);
   }
 }

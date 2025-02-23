@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class AndPredicateExpression extends SingleExpression {
@@ -10,22 +9,29 @@ class AndPredicateExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    final childVariable = expression.isVariableNeedForTestState()
-        ? context.allocateVariable()
-        : null;
-    final isSuccess = expression.getStateTest(childVariable, true);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
     final position = context.getSharedValue(this, Expression.position);
     context.shareValues(this, expression, [Expression.position]);
-    sink.write(expression.generate(context, childVariable, true));
-    sink.statement(conditional(isSuccess, 'null', 'state.fail<void>()'));
-    sink.statement('state.position = $position');
-    final value = conditional(isSuccess, '(null,)', 'null');
-    if (variable != null) {
-      variable.assign(sink, value);
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: false,
+    );
+
+    expression.generate(context, childResult);
+
+    final branch = childResult.branch();
+    branch.truth.block((b) {
+      b.assign('state.position', position.name);
+    });
+
+    final code = result.code;
+    code.add(childResult.code);
+    if (result.isUsed) {
+      result.value = Value('null', isConst: true);
     }
 
-    return postprocess(context, sink);
+    result.postprocess(this);
   }
 }

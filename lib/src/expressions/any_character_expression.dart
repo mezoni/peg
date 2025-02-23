@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class AnyCharacterExpression extends Expression {
@@ -10,16 +9,24 @@ class AnyCharacterExpression extends Expression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final sink = preprocess(context);
-    final value = conditional(
-        'state.peek() != 0', '(state.advance(),)', 'state.fail<int>()');
-    if (variable == null) {
-      sink.statement(value);
-    } else {
-      variable.assign(sink, value);
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    final c = context.allocate();
+    final code = result.code;
+    code.assign('final $c', 'state.peek()');
+    final branch = code.branch('$c != 0', '$c == 0');
+    branch.truth.block((b) {
+      b.statement('state.position += state.charSize($c)');
+    });
+
+    branch.falsity.block((b) {
+      b.statement('state.fail()');
+    });
+
+    if (result.isUsed) {
+      result.value = Value(c);
     }
 
-    return postprocess(context, sink);
+    result.postprocess(this);
   }
 }

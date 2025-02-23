@@ -43,7 +43,7 @@ This function requires importing the `source_span` package.''',
 
   final comment = argResults['comment'] as bool;
 
-  final inputFilename = rest[0];
+  final inputFilename = rest.first;
   final basename = path.basenameWithoutExtension(inputFilename);
   final outputDir = path.dirname(inputFilename);
   final parserFilename = '${basename}_parser.dart';

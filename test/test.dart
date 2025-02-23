@@ -822,9 +822,9 @@ void _testSuccess<T>(
     (T,)? Function(State state) parse, String input, T expected, int position) {
   final state = State(input);
   final result = parse(state);
-  expect(result, isNotNull, reason: 'Input $input');
-  expect(state.position, position, reason: 'Input $input');
-  expect(result!.$1, expected, reason: 'Input $input');
+  expect(result, isNotNull, reason: 'Result, input $input');
+  expect(state.position, position, reason: 'Position, input $input');
+  expect(result!.$1, expected, reason: 'Result values, input $input');
 }
 
 void _testZeroOrMore() {

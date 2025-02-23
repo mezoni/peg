@@ -1,4 +1,3 @@
-import '../helper.dart';
 import 'build_context.dart';
 
 class NotPredicateExpression extends SingleExpression {
@@ -10,48 +9,60 @@ class NotPredicateExpression extends SingleExpression {
   }
 
   @override
-  String generate(BuildContext context, Variable? variable, bool isFast) {
-    final optimized = _optimize(context, variable, isFast);
-    if (optimized != null) {
-      return optimized;
+  void generate(BuildContext context, BuildResult result) {
+    result.preprocess(this);
+    if (_optimize(context, result)) {
+      return;
     }
 
-    final sink = preprocess(context);
     final position = context.getSharedValue(this, Expression.position);
-    final predicate = context.allocate('predicate');
-    final childVariable = expression.isVariableNeedForTestState()
-        ? context.allocateVariable()
-        : null;
-    final isFailure = expression.getStateTest(childVariable, false);
-    sink.statement('final $predicate = state.predicate');
-    sink.statement('state.predicate = true');
     context.shareValues(this, expression, [Expression.position]);
-    sink.writeln(expression.generate(context, childVariable, true));
-    sink.statement('state.predicate = $predicate');
-    final value = conditional(
-        isFailure, '(null,)', 'state.failAndBacktrack<void>($position)');
-    if (variable != null) {
-      variable.assign(sink, value);
+    final predicate = context.allocate();
+    final childResult = BuildResult(
+      context: context,
+      expression: expression,
+      isUsed: false,
+    );
+
+    expression.generate(context, childResult);
+
+    final ok = context.allocate();
+    final branch = childResult.branch();
+    branch.truth.block((b) {
+      b.statement('state.failAndBacktrack($position)');
+      b.assign(ok, 'false');
+    });
+
+    final code = result.code;
+    code.assign(predicate, 'state.predicate', 'final');
+    code.assign('state.predicate', 'true');
+    code.assign(ok, 'true', 'var');
+    code.add(childResult.code);
+    code.assign('state.predicate', predicate);
+    code.branch(ok, '!$ok');
+    if (result.isUsed) {
+      result.value = Value('null', isConst: true);
     }
 
-    return postprocess(context, sink);
+    result.postprocess(this);
   }
 
-  String? _optimize(BuildContext context, Variable? variable, bool isFast) {
-    if (isFastOrVoid(isFast)) {
-      if (expression is AnyCharacterExpression) {
-        final sink = preprocess(context);
-        const value = 'state.peek() == 0 ? (null,) : null ';
-        if (variable != null) {
-          variable.assign(sink, value);
-        } else {
-          sink.statement(value);
-        }
+  bool _optimize(BuildContext context, BuildResult result) {
+    if (expression is AnyCharacterExpression) {
+      final code = result.code;
+      final branch = code.branch('state.peek() == 0', 'state.peek() != 0');
+      branch.falsity.block((b) {
+        b.statement('state.fail()');
+      });
 
-        return postprocess(context, sink);
+      if (result.isUsed) {
+        result.value = Value('null', isConst: true);
       }
+
+      result.postprocess(this);
+      return true;
     }
 
-    return null;
+    return false;
   }
 }
