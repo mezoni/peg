@@ -20,11 +20,11 @@ class PredicateExpression extends Expression {
     result.preprocess(this);
     final code = result.code;
     if (!negate) {
-      code.branch(this.code, '!($this.code)');
+      code.branch(this.code);
     } else {
       final variable = context.allocate();
       code.assign(variable, this.code, 'final');
-      code.branch('!$variable', variable);
+      code.branch('!$variable');
     }
 
     if (result.isUsed) {

@@ -33,7 +33,8 @@ class OrderedChoiceExpression extends MultiExpression {
       branch.truth.block((b) {
         if (result.isUsed) {
           final value = childResult.value;
-          b.assign(variable, value.code);
+          final wrapped = value.wrapped ?? '($value,)';
+          b.assign(variable, wrapped);
         }
       });
     }
@@ -53,7 +54,8 @@ class OrderedChoiceExpression extends MultiExpression {
 
     final code = result.code;
     if (result.isUsed) {
-      final type = result.getIntermediateType();
+      final resultType = getResultType();
+      final type = '($resultType,)?';
       code.statement('$type $variable');
     } else {
       code.assign(variable, 'true', 'var');
@@ -62,9 +64,9 @@ class OrderedChoiceExpression extends MultiExpression {
     final first = results.first;
     code.add(first.code);
     if (result.isUsed) {
-      code.branch('$variable != null', '$variable == null');
+      code.branch('$variable != null');
     } else {
-      code.branch(variable, '!$variable');
+      code.branch(variable);
     }
 
     if (!result.isUsed) {
@@ -73,10 +75,12 @@ class OrderedChoiceExpression extends MultiExpression {
       branch.falsity.block((b) {
         b.assign(variable, 'false');
       });
+
+      result.allocated = variable;
     }
 
     if (result.isUsed) {
-      result.value = Value(variable);
+      result.value = Value('$variable.\$1', wrapped: variable);
     }
 
     result.postprocess(this);

@@ -50,7 +50,7 @@ class ZeroOrMoreExpression extends SingleExpression {
       b.statement('break');
     });
 
-    code.branch('true', 'false');
+    code.branch('true');
     result.value = Value(list);
     result.postprocess(this);
   }
@@ -74,7 +74,7 @@ class ZeroOrMoreExpression extends SingleExpression {
       b.statement('break');
     });
 
-    code.branch('true', 'false');
+    code.branch('true');
     result.postprocess(this);
   }
 
@@ -91,7 +91,7 @@ for (var c = state.peek(); $predicate;) {
   c = state.peek();
 }''');
 
-        code.branch('true', 'false');
+        code.branch('true');
         result.postprocess(this);
         return true;
       }

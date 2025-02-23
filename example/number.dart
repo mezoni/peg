@@ -70,7 +70,7 @@ class NumberParser {
     final $13 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    num? $1;
+    (num,)? $1;
     int? $2;
     if (state.peek() == 45) {
       state.position += state.charSize(45);
@@ -127,17 +127,16 @@ class NumberParser {
       if (!$5) {
         state.position = $6;
       }
-      state.unused = $5;
       if (ok) {
         num $ = negative == null ? result : -result;
-        $1 = $;
+        $1 = ($,);
       }
     } else {
       state.fail();
     }
     if ($1 != null) {
       state.onSuccess($11, $0, $13);
-      return ($1,);
+      return $1;
     } else {
       state.position = $0;
       state.onFailure($11, $0, $13, $12);

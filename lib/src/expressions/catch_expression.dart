@@ -74,7 +74,7 @@ class CatchExpression extends SingleExpression {
     final branch = childResult.branch();
     branch.falsity.block((b) {
       final escapedMessage = escapeString(message, "'");
-      final control = b.branch(originTest, '!($originTest)');
+      final control = b.branch(originTest);
       control.truth.block((b) {
         b.statement(
             'state.error($escapedMessage, state.position, state.failure, $flag)');

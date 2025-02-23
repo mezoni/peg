@@ -50,7 +50,7 @@ class OneOrMoreExpression extends SingleExpression {
       b.statement('break');
     });
 
-    code.branch('$list.isNotEmpty', '$list.isEmpty');
+    code.branch('$list.isNotEmpty');
     result.value = Value(list);
     result.postprocess(this);
   }
@@ -75,7 +75,7 @@ class OneOrMoreExpression extends SingleExpression {
       b.statement('break');
     });
 
-    code.branch('$position != state.position', '$position == state.position');
+    code.branch('$position != state.position');
     result.postprocess(this);
   }
 
@@ -93,8 +93,7 @@ for (var c = state.peek(); $predicate;) {
   c = state.peek();
 }''');
 
-        final branch = code.branch(
-            '$position != state.position', '$position == state.position');
+        final branch = code.branch('$position != state.position');
         branch.falsity.block((b) {
           b.statement('state.fail()');
         });

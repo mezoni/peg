@@ -818,13 +818,23 @@ void _testSequence() {
 }
 */
 
-void _testSuccess<T>(
-    (T,)? Function(State state) parse, String input, T expected, int position) {
+void _testSuccess<T, R>(
+    T Function(State state) parse, String input, R expected, int position) {
   final state = State(input);
   final result = parse(state);
-  expect(result, isNotNull, reason: 'Result, input $input');
+  Object? value;
+  if (result != null) {
+    if (result case final (Object?,)? result) {
+      if (result != null) {
+        value = result.$1;
+      }
+    } else {
+      value = result;
+    }
+  }
+
   expect(state.position, position, reason: 'Position, input $input');
-  expect(result!.$1, expected, reason: 'Result values, input $input');
+  expect(value, expected, reason: 'Result values, input $input');
 }
 
 void _testZeroOrMore() {

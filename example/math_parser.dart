@@ -106,7 +106,7 @@ class MathParser {
   ///   )
   ///```
   (List<num>,)? parseArguments(State state) {
-    List<num>? $0;
+    (List<num>,)? $0;
     final $1 = parseExpression(state);
     if ($1 != null) {
       num e = $1.$1;
@@ -134,13 +134,9 @@ class MathParser {
           break;
         }
       }
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **EOF** ('end of file')
@@ -212,7 +208,7 @@ class MathParser {
   ///```
   (num,)? parseFunction(State state) {
     final $1 = state.position;
-    num? $0;
+    (num,)? $0;
     final $2 = parseIdentifier(state);
     if ($2 != null) {
       String i = $2.$1;
@@ -237,7 +233,7 @@ class MathParser {
           }
           $$ = Function.apply(f, a ?? []) as num;
           num $ = $$;
-          $0 = $;
+          $0 = ($,);
         } else {
           state.expected(')');
         }
@@ -246,7 +242,7 @@ class MathParser {
       }
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -263,7 +259,7 @@ class MathParser {
   ///```
   (String,)? parseIdentifier(State state) {
     final $1 = state.position;
-    String? $0;
+    (String,)? $0;
     String? $2;
     for (var c = state.peek(); c >= 97 ? c <= 122 : c >= 65 && c <= 90;) {
       state.position += state.charSize(c);
@@ -273,15 +269,11 @@ class MathParser {
       $2 = state.substring($1, state.position);
       String $ = $2;
       parseS(state);
-      $0 = $;
+      $0 = ($,);
     } else {
       state.fail();
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Number** ('number')
@@ -323,7 +315,7 @@ class MathParser {
     final $20 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    num? $1;
+    (num,)? $1;
     var ok = true;
     final $2 = state.position;
     String? $17;
@@ -366,7 +358,6 @@ class MathParser {
       if (!$4) {
         state.position = $5;
       }
-      state.unused = $4;
       final $10 = state.position;
       var $9 = false;
       final $11 = state.peek();
@@ -383,7 +374,6 @@ class MathParser {
         } else {
           state.fail();
         }
-        state.unused = $14 == 43 || $14 == 45;
         final $15 = state.position;
         for (var c = state.peek(); c >= 48 && c <= 57;) {
           state.position += state.charSize(c);
@@ -410,7 +400,6 @@ class MathParser {
       if (!$9) {
         state.position = $10;
       }
-      state.unused = $9;
       $3 = true;
     } else {
       state.fail();
@@ -421,12 +410,12 @@ class MathParser {
       if (ok) {
         parseS(state);
         num $ = num.parse(n);
-        $1 = $;
+        $1 = ($,);
       }
     }
     if ($1 != null) {
       state.onSuccess($18, $0, $20);
-      return ($1,);
+      return $1;
     } else {
       state.position = $0;
       state.onFailure($18, $0, $20, $19);
@@ -448,7 +437,7 @@ class MathParser {
   ///   )
   ///```
   (num,)? parsePow(State state) {
-    num? $0;
+    (num,)? $0;
     final $1 = parseValue(state);
     if ($1 != null) {
       num $ = $1.$1;
@@ -472,13 +461,9 @@ class MathParser {
           break;
         }
       }
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Product**
@@ -500,7 +485,7 @@ class MathParser {
   ///   )
   ///```
   (num,)? parseProduct(State state) {
-    num? $0;
+    (num,)? $0;
     final $1 = parseUnary(state);
     if ($1 != null) {
       num $ = $1.$1;
@@ -545,13 +530,9 @@ class MathParser {
           break;
         }
       }
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **S**
@@ -561,13 +542,12 @@ class MathParser {
   /// S =>
   ///   [ {9}{d}{a}]*
   ///```
-  (void,)? parseS(State state) {
+  void parseS(State state) {
     for (var c = state.peek();
         c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
-    return const (null,);
   }
 
   /// **Start**
@@ -581,18 +561,18 @@ class MathParser {
   ///```
   (num,)? parseStart(State state) {
     final $1 = state.position;
-    num? $0;
+    (num,)? $0;
     parseS(state);
     final $2 = parseExpression(state);
     if ($2 != null) {
       num $ = $2.$1;
       final $3 = parseEOF(state);
       if ($3 != null) {
-        $0 = $;
+        $0 = ($,);
       }
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -618,7 +598,7 @@ class MathParser {
   ///   )
   ///```
   (num,)? parseSum(State state) {
-    num? $0;
+    (num,)? $0;
     final $1 = parseProduct(state);
     if ($1 != null) {
       num $ = $1.$1;
@@ -663,13 +643,9 @@ class MathParser {
           break;
         }
       }
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Unary**
@@ -683,7 +659,7 @@ class MathParser {
   ///```
   (num,)? parseUnary(State state) {
     final $1 = state.position;
-    num? $0;
+    (num,)? $0;
     int? $2;
     if (state.peek() == 45) {
       state.position += state.charSize(45);
@@ -696,10 +672,10 @@ class MathParser {
     if ($3 != null) {
       num e = $3.$1;
       num $ = n == null ? e : -e;
-      $0 = $;
+      $0 = ($,);
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -739,16 +715,16 @@ class MathParser {
     final $11 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    num? $1;
+    (num,)? $1;
     final $2 = parseFunction(state);
     if ($2 != null) {
-      $1 = $2.$1;
+      $1 = $2;
     } else {
       final $3 = parseNumber(state);
       if ($3 != null) {
-        $1 = $3.$1;
+        $1 = $3;
       } else {
-        num? $4;
+        (num,)? $4;
         final $5 = parseIdentifier(state);
         if ($5 != null) {
           String i = $5.$1;
@@ -759,12 +735,12 @@ class MathParser {
           }
           $$ = v;
           num $ = $$;
-          $4 = $;
+          $4 = ($,);
         }
         if ($4 != null) {
           $1 = $4;
         } else {
-          num? $6;
+          (num,)? $6;
           if (state.peek() == 40) {
             state.consume('(', $0);
             parseS(state);
@@ -775,7 +751,7 @@ class MathParser {
               if (state.peek() == 41) {
                 state.consume(')', $8);
                 parseS(state);
-                $6 = $;
+                $6 = ($,);
               } else {
                 state.expected(')');
               }
@@ -793,7 +769,7 @@ class MathParser {
     }
     if ($1 != null) {
       state.onSuccess($9, $0, $11);
-      return ($1,);
+      return $1;
     } else {
       state.onFailure($9, $0, $11, $10);
       return null;

@@ -119,15 +119,6 @@ Generated code: [json_example.dart](https://github.com/mezoni/peg/blob/main/exam
 
 ## A few words about code generation
 
-This software uses value-based code generation. Similar to placing values ​​in `virtual registers`, but with an unlimited number of registers.  
-This means that variables are practically not required for code generation, except in cases where transient storage of a value is required.  
-
-The term `value` refers to the result of some computation that is needed for something.  
-This could be, for example, the result of a parse expression or the state of a parse operation, and so on.  
-This makes it possible to generate very optimal code, but perhaps not the shortest code.  
-This means that performance is traded off against code size.  
-
-It should also be noted that the generator of such code is uncompromising.  
 Branching operations can generate `dead code` if the algorithms is illogical.  
 Such generated code does not mean that it is a bug in the code generator or a bug in the parser generator.  
 This may well and most often be a mistake in the logic of grammar (for example, an incorrect algorithm for performing a parsing operation).  

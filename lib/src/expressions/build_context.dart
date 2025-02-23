@@ -65,6 +65,8 @@ class BuildContext {
 }
 
 class BuildResult {
+  String? allocated;
+
   final CodeGen code;
 
   final BuildContext context;
@@ -137,6 +139,8 @@ Generator type: ${code.runtimeType}''');
   void copyValueTo(BuildResult result) {
     if (isUsed) {
       result.value = value;
+    } else {
+      result.allocated = allocated;
     }
   }
 
@@ -204,7 +208,7 @@ class SharedValue {
 }
 
 class Value {
-  final String? boxed;
+  final String? wrapped;
 
   final bool isConst;
 
@@ -212,7 +216,7 @@ class Value {
 
   Value(
     this.code, {
-    this.boxed,
+    this.wrapped,
     this.isConst = false,
   });
 

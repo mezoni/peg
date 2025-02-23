@@ -1,22 +1,20 @@
 import 'dart:math';
 
 class Branch implements ICodeGen {
-  String fail;
-
   final CodeGen falsity = CodeGen();
 
   final CodeGen truth = CodeGen();
 
-  String ok;
+  String test;
 
-  Branch(this.ok, this.fail);
+  Branch(this.test);
 
   @override
   void generate(StringSink sink) {
-    final ok = this.ok.trim();
+    final test = this.test.trim();
     final truthHasCode = truth.hasCode;
     final falsityHasCode = falsity.hasCode;
-    if (ok == 'true') {
+    if (test == 'true') {
       if (truthHasCode && falsityHasCode) {
         sink.writeln('if (true) {');
         sink.writeln(truth);
@@ -30,7 +28,7 @@ class Branch implements ICodeGen {
         sink.writeln(falsity);
         sink.writeln('}');
       }
-    } else if (ok == 'false') {
+    } else if (test == 'false') {
       if (truthHasCode && falsityHasCode) {
         sink.writeln('if (true) {');
         sink.writeln(falsity);
@@ -46,19 +44,19 @@ class Branch implements ICodeGen {
       }
     } else {
       if (truthHasCode && falsityHasCode) {
-        sink.writeln('if ($ok) {');
+        sink.writeln('if ($test) {');
         sink.writeln(truth);
         sink.writeln('} else {');
         sink.writeln(falsity);
         sink.writeln('}');
       } else if (truthHasCode) {
-        sink.writeln('if ($ok) {');
+        sink.writeln('if ($test) {');
         sink.writeln(truth);
         sink.writeln('}');
       } else if (falsityHasCode) {
         var i = -1;
-        final i1 = ok.indexOf('!=');
-        final i2 = ok.indexOf('==');
+        final i1 = test.indexOf('!=');
+        final i2 = test.indexOf('==');
         if (i1 != -1 && i2 != -1) {
           i = min(i1, i2);
         } else {
@@ -66,12 +64,12 @@ class Branch implements ICodeGen {
         }
 
         if (i == -1) {
-          var quoted = ok;
-          if (ok.contains('=') ||
-              ok.contains('>') ||
-              ok.contains('<') ||
-              ok.contains('?') ||
-              ok.contains('!')) {
+          var quoted = test;
+          if (test.contains('=') ||
+              test.contains('>') ||
+              test.contains('<') ||
+              test.contains('?') ||
+              test.contains('!')) {
             quoted = '($quoted)';
           }
 
@@ -79,9 +77,9 @@ class Branch implements ICodeGen {
           sink.writeln(falsity);
           sink.writeln('}');
         } else {
-          final left = ok.substring(0, i);
-          var op = ok.substring(i, i + 2);
-          final right = ok.substring(i + 2);
+          final left = test.substring(0, i);
+          var op = test.substring(i, i + 2);
+          final right = test.substring(i + 2);
           switch (op) {
             case '==':
               op = '!=';
@@ -151,8 +149,8 @@ class CodeGen implements ICodeGen {
     f(this);
   }
 
-  Branch branch(String ok, String fail) {
-    final branch = Branch(ok, fail);
+  Branch branch(String ok) {
+    final branch = Branch(ok);
     add(branch);
     return branch;
   }

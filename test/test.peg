@@ -6,49 +6,49 @@
 `Object?`
 A =>
   $ = (
-    $ = '' AndAbc
+    $ = '' AndAbc [0]
     ----
-    $ = AnyChar AnyCharVoid
+    $ = AnyChar AnyCharVoid [0]
     ----
-    $ = Char16 Char16Void
+    $ = Char16 Char16Void [0]
     ----
-    $ = Chars16 Chars16Void
+    $ = Chars16 Chars16Void [0]
     ----
-    $ = Char32 Char32Void
+    $ = Char32 Char32Void [0]
     ----
-    $ = Chars32 Chars32Void
+    $ = Chars32 Chars32Void [0]
     ----
-    $ = Literal0 Literal0Void
+    $ = Literal0 Literal0Void [0]
     ----
-    $ = Literal1 Literal1Void
+    $ = Literal1 Literal1Void [0]
     ----
-    $ = Literal2 Literal2Void
+    $ = Literal2 Literal2Void [0]
     ----
-    $ = Match MatchVoid
+    $ = Match MatchVoid [0]
     ----
-    $ = NotDigits NotDigitsVoid
+    $ = NotDigits NotDigitsVoid [0]
     ----
-    $ = '' NotAbc
+    $ = '' NotAbc [0]
     ----
-    $ = OneOrMore OneOrMoreVoid
+    $ = OneOrMore OneOrMoreVoid [0]
     ----
-    $ = Optional OptionalVoid
+    $ = Optional OptionalVoid [0]
     ----
-    $ = OrderedChoice OrderedChoiceVoid
+    $ = OrderedChoice OrderedChoiceVoid [0]
     ----
-    $ = Ranges RangesVoid
+    $ = Ranges RangesVoid [0]
     #----
-    #$ = Seq2 Seq2Void
+    #$ = Seq2 Seq2Void [0]
     #----
-    #$ = Seq3 Seq3Void
+    #$ = Seq3 Seq3Void [0]
     ----
-    $ = TakeWhile TakeWhileVoid
+    $ = TakeWhile TakeWhileVoid [0]
     ----
-    $ = TakeWhile1 TakeWhile1Void
+    $ = TakeWhile1 TakeWhile1Void [0]
     ----
-#   $ = Verify
+#   $ = Verify [0]
 #   ----
-    $ = ZeroOrMore ZeroOrMoreVoid
+    $ = ZeroOrMore ZeroOrMoreVoid [0]
     )
 
 AndAbc => &'abc'

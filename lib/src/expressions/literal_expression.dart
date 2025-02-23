@@ -41,7 +41,7 @@ class LiteralExpression extends Expression {
     final test =
         'state.peek() == $char && state.startsWith($escaped, state.position)';
     if (silent) {
-      final branch = code.branch(test, '!($test)');
+      final branch = code.branch(test);
       branch.truth.block((b) {
         b.statement('state.position += state.strlen($escaped)');
       });
@@ -51,7 +51,7 @@ class LiteralExpression extends Expression {
       });
     } else {
       final position = context.getSharedValue(this, Expression.position);
-      final branch = code.branch(test, '!($test)');
+      final branch = code.branch(test);
       branch.truth.block((b) {
         b.statement('state.consume($escaped, $position)');
       });
@@ -72,9 +72,7 @@ class LiteralExpression extends Expression {
     result.preprocess(this);
     final escaped = escapeString(literal, "'");
     final code = result.code;
-    final branch =
-        code.branch('state.peek() == $char', 'state.peek() != $char');
-
+    final branch = code.branch('state.peek() == $char');
     if (silent) {
       branch.truth.block((b) {
         b.statement('state.position += state.charSize($char)');
@@ -104,7 +102,7 @@ class LiteralExpression extends Expression {
   void _generateEmpty(BuildContext context, BuildResult result) {
     result.preprocess(this);
     final code = result.code;
-    code.branch('true', 'false');
+    code.branch('true');
     if (result.isUsed) {
       result.value = Value("''", isConst: true);
     }

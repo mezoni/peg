@@ -36,11 +36,12 @@ class OptionalExpression extends SingleExpression {
 
     code.add(childResult.code);
     if (!result.isUsed) {
-      final branch = childResult.branch();
-      code.assign('state.unused', branch.ok);
+      if (childResult.allocated != null) {
+        code.assign('state.unused', childResult.allocated!);
+      }
     }
 
-    code.branch('true', 'false');
+    code.branch('true');
     result.postprocess(this);
   }
 }

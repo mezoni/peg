@@ -30,7 +30,7 @@ class ProductionRule {
     if (resultType.isEmpty) {
       return 'void';
     } else {
-      return resultType;
+      return resultType.trim();
     }
   }
 

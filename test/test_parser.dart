@@ -9,284 +9,406 @@ class TestParser {
   ///   $ = (
   ///     $ = ''
   ///     AndAbc
+  ///     [0]
   ///     ----
   ///     $ = AnyChar
   ///     AnyCharVoid
+  ///     [0]
   ///     ----
   ///     $ = Char16
   ///     Char16Void
+  ///     [0]
   ///     ----
   ///     $ = Chars16
   ///     Chars16Void
+  ///     [0]
   ///     ----
   ///     $ = Char32
   ///     Char32Void
+  ///     [0]
   ///     ----
   ///     $ = Chars32
   ///     Chars32Void
+  ///     [0]
   ///     ----
   ///     $ = Literal0
   ///     Literal0Void
+  ///     [0]
   ///     ----
   ///     $ = Literal1
   ///     Literal1Void
+  ///     [0]
   ///     ----
   ///     $ = Literal2
   ///     Literal2Void
+  ///     [0]
   ///     ----
   ///     $ = Match
   ///     MatchVoid
+  ///     [0]
   ///     ----
   ///     $ = NotDigits
   ///     NotDigitsVoid
+  ///     [0]
   ///     ----
   ///     $ = ''
   ///     NotAbc
+  ///     [0]
   ///     ----
   ///     $ = OneOrMore
   ///     OneOrMoreVoid
+  ///     [0]
   ///     ----
   ///     $ = Optional
   ///     OptionalVoid
+  ///     [0]
   ///     ----
   ///     $ = OrderedChoice
   ///     OrderedChoiceVoid
+  ///     [0]
   ///     ----
   ///     $ = Ranges
   ///     RangesVoid
+  ///     [0]
   ///     ----
   ///     $ = TakeWhile
   ///     TakeWhileVoid
+  ///     [0]
   ///     ----
   ///     $ = TakeWhile1
   ///     TakeWhile1Void
+  ///     [0]
   ///     ----
   ///     $ = ZeroOrMore
   ///     ZeroOrMoreVoid
+  ///     [0]
   ///   )
   ///```
   (Object?,)? parseA(State state) {
     final $2 = state.position;
-    Object? $0;
-    Object? $1;
+    (Object?,)? $0;
+    (Object?,)? $1;
     Object? $ = '';
     final $3 = parseAndAbc(state);
     if ($3 != null) {
-      $1 = $;
+      if (state.peek() == 48) {
+        state.position += state.charSize(48);
+        $1 = ($,);
+      } else {
+        state.fail();
+      }
     }
     if ($1 != null) {
       $0 = $1;
     } else {
       state.position = $2;
-      Object? $4;
+      (Object?,)? $4;
       final $5 = parseAnyChar(state);
       if ($5 != null) {
         Object? $ = $5.$1;
         final $6 = parseAnyCharVoid(state);
         if ($6 != null) {
-          $4 = $;
+          if (state.peek() == 48) {
+            state.position += state.charSize(48);
+            $4 = ($,);
+          } else {
+            state.fail();
+          }
         }
       }
       if ($4 != null) {
         $0 = $4;
       } else {
         state.position = $2;
-        Object? $7;
+        (Object?,)? $7;
         final $8 = parseChar16(state);
         if ($8 != null) {
           Object? $ = $8.$1;
           final $9 = parseChar16Void(state);
           if ($9 != null) {
-            $7 = $;
+            if (state.peek() == 48) {
+              state.position += state.charSize(48);
+              $7 = ($,);
+            } else {
+              state.fail();
+            }
           }
         }
         if ($7 != null) {
           $0 = $7;
         } else {
           state.position = $2;
-          Object? $10;
+          (Object?,)? $10;
           final $11 = parseChars16(state);
           if ($11 != null) {
             Object? $ = $11.$1;
             final $12 = parseChars16Void(state);
             if ($12 != null) {
-              $10 = $;
+              if (state.peek() == 48) {
+                state.position += state.charSize(48);
+                $10 = ($,);
+              } else {
+                state.fail();
+              }
             }
           }
           if ($10 != null) {
             $0 = $10;
           } else {
             state.position = $2;
-            Object? $13;
+            (Object?,)? $13;
             final $14 = parseChar32(state);
             if ($14 != null) {
               Object? $ = $14.$1;
               final $15 = parseChar32Void(state);
               if ($15 != null) {
-                $13 = $;
+                if (state.peek() == 48) {
+                  state.position += state.charSize(48);
+                  $13 = ($,);
+                } else {
+                  state.fail();
+                }
               }
             }
             if ($13 != null) {
               $0 = $13;
             } else {
               state.position = $2;
-              Object? $16;
+              (Object?,)? $16;
               final $17 = parseChars32(state);
               if ($17 != null) {
                 Object? $ = $17.$1;
                 final $18 = parseChars32Void(state);
                 if ($18 != null) {
-                  $16 = $;
+                  if (state.peek() == 48) {
+                    state.position += state.charSize(48);
+                    $16 = ($,);
+                  } else {
+                    state.fail();
+                  }
                 }
               }
               if ($16 != null) {
                 $0 = $16;
               } else {
                 state.position = $2;
-                final $19 = parseLiteral0(state);
-                if ($19 != null) {
-                  Object? $ = $19.$1;
-                  parseLiteral0Void(state);
-                }
-                if (true) {
-                  $0 = $;
+                (Object?,)? $19;
+                final $20 = parseLiteral0(state);
+                Object? $ = $20;
+                parseLiteral0Void(state);
+                if (state.peek() == 48) {
+                  state.position += state.charSize(48);
+                  $19 = ($,);
                 } else {
-                  Object? $20;
-                  final $21 = parseLiteral1(state);
-                  if ($21 != null) {
-                    Object? $ = $21.$1;
-                    final $22 = parseLiteral1Void(state);
-                    if ($22 != null) {
-                      $20 = $;
+                  state.fail();
+                }
+                if ($19 != null) {
+                  $0 = $19;
+                } else {
+                  state.position = $2;
+                  (Object?,)? $21;
+                  final $22 = parseLiteral1(state);
+                  if ($22 != null) {
+                    Object? $ = $22.$1;
+                    final $23 = parseLiteral1Void(state);
+                    if ($23 != null) {
+                      if (state.peek() == 48) {
+                        state.position += state.charSize(48);
+                        $21 = ($,);
+                      } else {
+                        state.fail();
+                      }
                     }
                   }
-                  if ($20 != null) {
-                    $0 = $20;
+                  if ($21 != null) {
+                    $0 = $21;
                   } else {
                     state.position = $2;
-                    Object? $23;
-                    final $24 = parseLiteral2(state);
-                    if ($24 != null) {
-                      Object? $ = $24.$1;
-                      final $25 = parseLiteral2Void(state);
-                      if ($25 != null) {
-                        $23 = $;
+                    (Object?,)? $24;
+                    final $25 = parseLiteral2(state);
+                    if ($25 != null) {
+                      Object? $ = $25.$1;
+                      final $26 = parseLiteral2Void(state);
+                      if ($26 != null) {
+                        if (state.peek() == 48) {
+                          state.position += state.charSize(48);
+                          $24 = ($,);
+                        } else {
+                          state.fail();
+                        }
                       }
                     }
-                    if ($23 != null) {
-                      $0 = $23;
+                    if ($24 != null) {
+                      $0 = $24;
                     } else {
                       state.position = $2;
-                      Object? $26;
-                      final $27 = parseMatch(state);
-                      if ($27 != null) {
-                        Object? $ = $27.$1;
-                        final $28 = parseMatchVoid(state);
-                        if ($28 != null) {
-                          $26 = $;
+                      (Object?,)? $27;
+                      final $28 = parseMatch(state);
+                      if ($28 != null) {
+                        Object? $ = $28.$1;
+                        final $29 = parseMatchVoid(state);
+                        if ($29 != null) {
+                          if (state.peek() == 48) {
+                            state.position += state.charSize(48);
+                            $27 = ($,);
+                          } else {
+                            state.fail();
+                          }
                         }
                       }
-                      if ($26 != null) {
-                        $0 = $26;
+                      if ($27 != null) {
+                        $0 = $27;
                       } else {
                         state.position = $2;
-                        Object? $29;
-                        final $30 = parseNotDigits(state);
-                        if ($30 != null) {
-                          Object? $ = $30.$1;
-                          final $31 = parseNotDigitsVoid(state);
-                          if ($31 != null) {
-                            $29 = $;
+                        (Object?,)? $30;
+                        final $31 = parseNotDigits(state);
+                        if ($31 != null) {
+                          Object? $ = $31.$1;
+                          final $32 = parseNotDigitsVoid(state);
+                          if ($32 != null) {
+                            if (state.peek() == 48) {
+                              state.position += state.charSize(48);
+                              $30 = ($,);
+                            } else {
+                              state.fail();
+                            }
                           }
                         }
-                        if ($29 != null) {
-                          $0 = $29;
+                        if ($30 != null) {
+                          $0 = $30;
                         } else {
                           state.position = $2;
-                          Object? $32;
+                          (Object?,)? $33;
                           Object? $ = '';
-                          final $33 = parseNotAbc(state);
-                          if ($33 != null) {
-                            $32 = $;
+                          final $34 = parseNotAbc(state);
+                          if ($34 != null) {
+                            if (state.peek() == 48) {
+                              state.position += state.charSize(48);
+                              $33 = ($,);
+                            } else {
+                              state.fail();
+                            }
                           }
-                          if ($32 != null) {
-                            $0 = $32;
+                          if ($33 != null) {
+                            $0 = $33;
                           } else {
                             state.position = $2;
-                            Object? $34;
-                            final $35 = parseOneOrMore(state);
-                            if ($35 != null) {
-                              Object? $ = $35.$1;
-                              final $36 = parseOneOrMoreVoid(state);
-                              if ($36 != null) {
-                                $34 = $;
+                            (Object?,)? $35;
+                            final $36 = parseOneOrMore(state);
+                            if ($36 != null) {
+                              Object? $ = $36.$1;
+                              final $37 = parseOneOrMoreVoid(state);
+                              if ($37 != null) {
+                                if (state.peek() == 48) {
+                                  state.position += state.charSize(48);
+                                  $35 = ($,);
+                                } else {
+                                  state.fail();
+                                }
                               }
                             }
-                            if ($34 != null) {
-                              $0 = $34;
+                            if ($35 != null) {
+                              $0 = $35;
                             } else {
                               state.position = $2;
-                              final $37 = parseOptional(state);
-                              if ($37 != null) {
-                                Object? $ = $37.$1;
-                                parseOptionalVoid(state);
-                              }
-                              if (true) {
-                                $0 = $;
+                              (Object?,)? $38;
+                              final $39 = parseOptional(state);
+                              Object? $ = $39;
+                              parseOptionalVoid(state);
+                              if (state.peek() == 48) {
+                                state.position += state.charSize(48);
+                                $38 = ($,);
                               } else {
-                                Object? $38;
-                                final $39 = parseOrderedChoice(state);
-                                if ($39 != null) {
-                                  Object? $ = $39.$1;
-                                  final $40 = parseOrderedChoiceVoid(state);
-                                  if ($40 != null) {
-                                    $38 = $;
+                                state.fail();
+                              }
+                              if ($38 != null) {
+                                $0 = $38;
+                              } else {
+                                state.position = $2;
+                                (Object?,)? $40;
+                                final $41 = parseOrderedChoice(state);
+                                if ($41 != null) {
+                                  Object? $ = $41.$1;
+                                  final $42 = parseOrderedChoiceVoid(state);
+                                  if ($42 != null) {
+                                    if (state.peek() == 48) {
+                                      state.position += state.charSize(48);
+                                      $40 = ($,);
+                                    } else {
+                                      state.fail();
+                                    }
                                   }
                                 }
-                                if ($38 != null) {
-                                  $0 = $38;
+                                if ($40 != null) {
+                                  $0 = $40;
                                 } else {
                                   state.position = $2;
-                                  Object? $41;
-                                  final $42 = parseRanges(state);
-                                  if ($42 != null) {
-                                    Object? $ = $42.$1;
-                                    final $43 = parseRangesVoid(state);
-                                    if ($43 != null) {
-                                      $41 = $;
+                                  (Object?,)? $43;
+                                  final $44 = parseRanges(state);
+                                  if ($44 != null) {
+                                    Object? $ = $44.$1;
+                                    final $45 = parseRangesVoid(state);
+                                    if ($45 != null) {
+                                      if (state.peek() == 48) {
+                                        state.position += state.charSize(48);
+                                        $43 = ($,);
+                                      } else {
+                                        state.fail();
+                                      }
                                     }
                                   }
-                                  if ($41 != null) {
-                                    $0 = $41;
+                                  if ($43 != null) {
+                                    $0 = $43;
                                   } else {
                                     state.position = $2;
-                                    final $44 = parseTakeWhile(state);
-                                    if ($44 != null) {
-                                      Object? $ = $44.$1;
-                                      parseTakeWhileVoid(state);
-                                    }
-                                    if (true) {
-                                      $0 = $;
+                                    (Object?,)? $46;
+                                    final $47 = parseTakeWhile(state);
+                                    Object? $ = $47;
+                                    parseTakeWhileVoid(state);
+                                    if (state.peek() == 48) {
+                                      state.position += state.charSize(48);
+                                      $46 = ($,);
                                     } else {
-                                      Object? $45;
-                                      final $46 = parseTakeWhile1(state);
-                                      if ($46 != null) {
-                                        Object? $ = $46.$1;
-                                        final $47 = parseTakeWhile1Void(state);
-                                        if ($47 != null) {
-                                          $45 = $;
+                                      state.fail();
+                                    }
+                                    if ($46 != null) {
+                                      $0 = $46;
+                                    } else {
+                                      state.position = $2;
+                                      (Object?,)? $48;
+                                      final $49 = parseTakeWhile1(state);
+                                      if ($49 != null) {
+                                        Object? $ = $49.$1;
+                                        final $50 = parseTakeWhile1Void(state);
+                                        if ($50 != null) {
+                                          if (state.peek() == 48) {
+                                            state.position +=
+                                                state.charSize(48);
+                                            $48 = ($,);
+                                          } else {
+                                            state.fail();
+                                          }
                                         }
                                       }
-                                      if ($45 != null) {
-                                        $0 = $45;
+                                      if ($48 != null) {
+                                        $0 = $48;
                                       } else {
                                         state.position = $2;
-                                        final $48 = parseZeroOrMore(state);
-                                        if ($48 != null) {
-                                          Object? $ = $48.$1;
-                                          parseZeroOrMoreVoid(state);
+                                        (Object?,)? $51;
+                                        final $52 = parseZeroOrMore(state);
+                                        Object? $ = $52;
+                                        parseZeroOrMoreVoid(state);
+                                        if (state.peek() == 48) {
+                                          state.position += state.charSize(48);
+                                          $51 = ($,);
+                                        } else {
+                                          state.fail();
                                         }
-                                        $0 = $;
+                                        if ($51 != null) {
+                                          $0 = $51;
+                                        } else {
+                                          state.position = $2;
+                                        }
                                       }
                                     }
                                   }
@@ -306,7 +428,7 @@ class TestParser {
       }
     }
     if ($0 != null) {
-      Object? $ = $0;
+      Object? $ = $0.$1;
       return ($,);
     } else {
       return null;
@@ -522,9 +644,9 @@ class TestParser {
   /// Literal0 =>
   ///   $ = ''
   ///```
-  (String,)? parseLiteral0(State state) {
+  String parseLiteral0(State state) {
     String $ = '';
-    return ($,);
+    return $;
   }
 
   /// **Literal0Void**
@@ -534,8 +656,8 @@ class TestParser {
   /// Literal0Void =>
   ///   ''
   ///```
-  (String,)? parseLiteral0Void(State state) {
-    return const ('',);
+  String parseLiteral0Void(State state) {
+    return '';
   }
 
   /// **Literal1**
@@ -783,7 +905,7 @@ class TestParser {
   /// Optional =>
   ///   $ = 'abc'?
   ///```
-  (String?,)? parseOptional(State state) {
+  String? parseOptional(State state) {
     final $0 = state.position;
     String? $1;
     if (state.peek() == 97 && state.startsWith('abc', state.position)) {
@@ -793,7 +915,7 @@ class TestParser {
       state.expected('abc');
     }
     String? $ = $1;
-    return ($,);
+    return $;
   }
 
   /// **OptionalVoid**
@@ -803,7 +925,7 @@ class TestParser {
   /// OptionalVoid =>
   ///   'abc'?
   ///```
-  (String?,)? parseOptionalVoid(State state) {
+  String? parseOptionalVoid(State state) {
     final $0 = state.position;
     String? $1;
     if (state.peek() == 97 && state.startsWith('abc', state.position)) {
@@ -812,7 +934,7 @@ class TestParser {
     } else {
       state.expected('abc');
     }
-    return ($1,);
+    return $1;
   }
 
   /// **OrderedChoice**
@@ -830,30 +952,30 @@ class TestParser {
   ///```
   (String,)? parseOrderedChoice(State state) {
     final $1 = state.position;
-    String? $0;
+    (String,)? $0;
     if (state.peek() == 97) {
       state.consume('a', $1);
       String $ = 'a';
-      $0 = $;
+      $0 = ($,);
     } else {
       state.expected('a');
       if (state.peek() == 98) {
         state.consume('b', $1);
         String $ = 'b';
-        $0 = $;
+        $0 = ($,);
       } else {
         state.expected('b');
         if (state.peek() == 99) {
           state.consume('c', $1);
           String $ = 'c';
-          $0 = $;
+          $0 = ($,);
         } else {
           state.expected('c');
         }
       }
     }
     if ($0 != null) {
-      String $ = $0;
+      String $ = $0.$1;
       return ($,);
     } else {
       return null;
@@ -875,33 +997,29 @@ class TestParser {
   ///```
   (String,)? parseOrderedChoiceVoid(State state) {
     final $1 = state.position;
-    String? $0;
+    (String,)? $0;
     if (state.peek() == 97) {
       state.consume('a', $1);
       String $ = 'a';
-      $0 = $;
+      $0 = ($,);
     } else {
       state.expected('a');
       if (state.peek() == 98) {
         state.consume('b', $1);
         String $ = 'b';
-        $0 = $;
+        $0 = ($,);
       } else {
         state.expected('b');
         if (state.peek() == 99) {
           state.consume('c', $1);
           String $ = 'c';
-          $0 = $;
+          $0 = ($,);
         } else {
           state.expected('c');
         }
       }
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Ranges**
@@ -954,7 +1072,7 @@ class TestParser {
   /// TakeWhile =>
   ///   $ = <[a]*>
   ///```
-  (String,)? parseTakeWhile(State state) {
+  String parseTakeWhile(State state) {
     final $0 = state.position;
     String? $1;
     for (var c = state.peek(); c == 97;) {
@@ -963,7 +1081,7 @@ class TestParser {
     }
     $1 = state.substring($0, state.position);
     String $ = $1;
-    return ($,);
+    return $;
   }
 
   /// **TakeWhile1**
@@ -1020,7 +1138,7 @@ class TestParser {
   /// TakeWhileVoid =>
   ///   <[a]*>
   ///```
-  (String,)? parseTakeWhileVoid(State state) {
+  String parseTakeWhileVoid(State state) {
     final $0 = state.position;
     String? $1;
     for (var c = state.peek(); c == 97;) {
@@ -1028,7 +1146,7 @@ class TestParser {
       c = state.peek();
     }
     $1 = state.substring($0, state.position);
-    return ($1,);
+    return $1;
   }
 
   /// **ZeroOrMore**
@@ -1038,7 +1156,7 @@ class TestParser {
   /// ZeroOrMore =>
   ///   $ = 'abc'*
   ///```
-  (List<String>,)? parseZeroOrMore(State state) {
+  List<String> parseZeroOrMore(State state) {
     final $1 = <String>[];
     while (true) {
       final $0 = state.position;
@@ -1051,7 +1169,7 @@ class TestParser {
       }
     }
     List<String> $ = $1;
-    return ($,);
+    return $;
   }
 
   /// **ZeroOrMoreVoid**
@@ -1061,7 +1179,7 @@ class TestParser {
   /// ZeroOrMoreVoid =>
   ///   'abc'*
   ///```
-  (List<String>,)? parseZeroOrMoreVoid(State state) {
+  List<String> parseZeroOrMoreVoid(State state) {
     final $1 = <String>[];
     while (true) {
       final $0 = state.position;
@@ -1073,7 +1191,7 @@ class TestParser {
         break;
       }
     }
-    return ($1,);
+    return $1;
   }
 }
 

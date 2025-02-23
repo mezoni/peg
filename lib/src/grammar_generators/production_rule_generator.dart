@@ -24,7 +24,7 @@ class ProductionRuleGenerator {
 
   String generate() {
     final name = 'parse${rule.name}';
-    final resultType = rule.getResultType();
+    final resultType = rule.getResultType().trim();
     final context = BuildContext(
       allocator: Allocator(),
       diagnostics: diagnostics,
@@ -52,33 +52,15 @@ class ProductionRuleGenerator {
 
     final code = CodeGen();
     code.add(result.code);
-    final branch = result.branch();
-    branch.truth.block((b) {
-      if (result.isUsed) {
-        final value = result.value;
-        final boxed = value.boxed ?? '($value,)';
-        if (value.isConst) {
-          b.statement('return const $boxed');
-        } else {
-          b.statement('return $boxed');
-        }
-      } else {
-        b.statement('return const (null,)');
-      }
-    });
-
-    if (branch.ok.trim() != 'true') {
-      branch.falsity.block((b) {
-        b.statement('return null');
-      });
-    }
-
+    _generateReturn(result);
     final sink = StringBuffer();
     code.generate(sink);
     final values = {
       'code': '$sink',
       'name': name,
-      'return_type': rule.getReturnType(),
+      'return_type': expression.isAlwaysSuccessful
+          ? expression.getResultType()
+          : rule.getReturnType(),
     };
     var template = '';
     template = '''
@@ -124,5 +106,69 @@ $rendered''';
     declaration.writeln(code);
     declaration.writeln(' ///```');
     return '$declaration'.trim();
+  }
+
+  void _generateReturn(BuildResult result) {
+    void addReturns(String success, String failure, String value) {
+      final branch = result.branch();
+      final truthHasCode = branch.truth.hasCode;
+      final falsityHasCode = branch.falsity.hasCode;
+      final test = branch.test;
+      if (!truthHasCode && !falsityHasCode) {
+        if (test == '$value != null') {
+          result.code.statement('return $value');
+          return;
+        }
+      }
+
+      if (!falsityHasCode) {
+        if (test == 'true') {
+          result.code.statement('return $value');
+          return;
+        }
+      }
+
+      branch.truth.block((b) {
+        b.statement('return $success');
+      });
+
+      branch.falsity.block((b) {
+        b.statement('return $failure');
+      });
+    }
+
+    final resultType = rule.getResultType();
+    final expression = rule.expression;
+    if (expression.isAlwaysSuccessful) {
+      if (resultType == 'void') {
+        return;
+      }
+
+      if (!result.isUsed) {
+        addReturns('null', 'null', '');
+        return;
+      }
+
+      final code = result.value.code;
+      addReturns(code, 'null', code);
+      return;
+    }
+
+    if (resultType == 'void') {
+      addReturns('const (null,)', 'null', '');
+      return;
+    }
+
+    if (result.isUsed) {
+      final value = result.value;
+      final wrapped = value.wrapped ?? '($value,)';
+      if (value.isConst) {
+        addReturns('const $wrapped', 'null', wrapped);
+      } else {
+        addReturns(wrapped, 'null', wrapped);
+      }
+    } else {
+      addReturns('const (null,)', 'null', '');
+    }
   }
 }

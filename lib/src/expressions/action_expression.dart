@@ -37,7 +37,7 @@ class ActionExpression extends Expression {
       }
     }
 
-    code.branch('true', 'false');
+    code.branch('true');
     result.postprocess(this);
   }
 }

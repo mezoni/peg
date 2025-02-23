@@ -26,20 +26,20 @@ class NotPredicateExpression extends SingleExpression {
 
     expression.generate(context, childResult);
 
-    final ok = context.allocate();
+    final state = context.allocate();
     final branch = childResult.branch();
     branch.truth.block((b) {
       b.statement('state.failAndBacktrack($position)');
-      b.assign(ok, 'false');
+      b.assign(state, 'false');
     });
 
     final code = result.code;
     code.assign(predicate, 'state.predicate', 'final');
     code.assign('state.predicate', 'true');
-    code.assign(ok, 'true', 'var');
+    code.assign(state, 'true', 'var');
     code.add(childResult.code);
     code.assign('state.predicate', predicate);
-    code.branch(ok, '!$ok');
+    code.branch(state);
     if (result.isUsed) {
       result.value = Value('null', isConst: true);
     }
@@ -50,7 +50,7 @@ class NotPredicateExpression extends SingleExpression {
   bool _optimize(BuildContext context, BuildResult result) {
     if (expression is AnyCharacterExpression) {
       final code = result.code;
-      final branch = code.branch('state.peek() == 0', 'state.peek() != 0');
+      final branch = code.branch('state.peek() == 0');
       branch.falsity.block((b) {
         b.statement('state.fail()');
       });

@@ -37,7 +37,7 @@ class JsonParser {
   ///```
   (List<Object?>,)? parseArray(State state) {
     final $1 = state.position;
-    List<Object?>? $0;
+    (List<Object?>,)? $0;
     if (state.peek() == 91) {
       state.consume('[', $1);
       parseS(state);
@@ -52,7 +52,7 @@ class JsonParser {
         state.consume(']', $4);
         parseS(state);
         List<Object?> $ = n ?? const [];
-        $0 = $;
+        $0 = ($,);
       } else {
         state.expected(']');
       }
@@ -60,7 +60,7 @@ class JsonParser {
       state.expected('[');
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -81,22 +81,22 @@ class JsonParser {
   ///   $ = { n.join() }
   ///```
   (String,)? parseChars(State state) {
-    String? $0;
+    (String,)? $0;
     final $6 = <String>[];
     while (true) {
-      String? $1;
+      (String,)? $1;
       final $2 = parseUnescaped(state);
       if ($2 != null) {
-        $1 = $2.$1;
+        $1 = $2;
       } else {
         final $4 = state.position;
-        String? $3;
+        (String,)? $3;
         if (state.peek() == 92) {
           state.position += state.charSize(92);
           final $5 = parseEscaped(state);
           if ($5 != null) {
             String $ = $5.$1;
-            $3 = $;
+            $3 = ($,);
           }
         } else {
           state.fail();
@@ -108,7 +108,7 @@ class JsonParser {
         }
       }
       if ($1 != null) {
-        $6.add($1);
+        $6.add($1.$1);
       } else {
         break;
       }
@@ -116,13 +116,9 @@ class JsonParser {
     if ($6.isNotEmpty) {
       List<String> n = $6;
       String $ = n.join();
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Eof** ('end of file')
@@ -178,14 +174,14 @@ class JsonParser {
     final $8 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    String? $1;
-    String? $2;
+    (String,)? $1;
+    (String,)? $2;
     if (state.peek() == 117) {
       state.position += state.charSize(117);
       final $3 = parseHex(state);
       if ($3 != null) {
         String $ = $3.$1;
-        $2 = $;
+        $2 = ($,);
       }
     } else {
       state.fail();
@@ -194,7 +190,7 @@ class JsonParser {
       $1 = $2;
     } else {
       state.position = $0;
-      String? $4;
+      (String,)? $4;
       final $5 = state.peek();
       if ($5 >= 98
           ? $5 <= 98 || $5 >= 110
@@ -216,7 +212,7 @@ class JsonParser {
           0x74 => '\t',
           _ => String.fromCharCode(c),
         };
-        $4 = $;
+        $4 = ($,);
       } else {
         state.fail();
       }
@@ -226,7 +222,7 @@ class JsonParser {
     }
     if ($1 != null) {
       state.onSuccess($6, $0, $8);
-      return ($1,);
+      return $1;
     } else {
       state.onFailure($6, $0, $8, $7);
       return null;
@@ -255,7 +251,7 @@ class JsonParser {
     final $9 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    String? $1;
+    (String,)? $1;
     var n = 0;
     final $2 = state.position;
     String? $6;
@@ -280,11 +276,11 @@ class JsonParser {
     String s = $6;
     if (n == 4) {
       String $ = String.fromCharCode(int.parse(s, radix: 16));
-      $1 = $;
+      $1 = ($,);
     }
     if ($1 != null) {
       state.onSuccess($7, $0, $9);
-      return ($1,);
+      return $1;
     } else {
       state.position = $0;
       state.onFailure($7, $0, $9, $8);
@@ -305,7 +301,7 @@ class JsonParser {
   ///```
   (MapEntry<String, Object?>,)? parseMember(State state) {
     final $1 = state.position;
-    MapEntry<String, Object?>? $0;
+    (MapEntry<String, Object?>,)? $0;
     final $2 = parseString(state);
     if ($2 != null) {
       String k = $2.$1;
@@ -317,14 +313,14 @@ class JsonParser {
         if ($4 != null) {
           Object? v = $4.$1;
           MapEntry<String, Object?> $ = MapEntry(k, v);
-          $0 = $;
+          $0 = ($,);
         }
       } else {
         state.expected(':');
       }
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -347,7 +343,7 @@ class JsonParser {
   ///   $ = { l }
   ///```
   (List<MapEntry<String, Object?>>,)? parseMembers(State state) {
-    List<MapEntry<String, Object?>>? $0;
+    (List<MapEntry<String, Object?>>,)? $0;
     final $1 = parseMember(state);
     if ($1 != null) {
       MapEntry<String, Object?> m = $1.$1;
@@ -373,13 +369,9 @@ class JsonParser {
         }
       }
       List<MapEntry<String, Object?>> $ = l;
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Number** ('number')
@@ -427,7 +419,7 @@ class JsonParser {
     final $23 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    num? $1;
+    (num,)? $1;
     var ok = true;
     final $2 = state.position;
     String? $20;
@@ -437,7 +429,6 @@ class JsonParser {
     } else {
       state.fail();
     }
-    state.unused = state.peek() == 45;
     var $4 = true;
     if (state.peek() == 48) {
       state.position += state.charSize(48);
@@ -493,7 +484,6 @@ class JsonParser {
       if (!$7) {
         state.position = $8;
       }
-      state.unused = $7;
       final $13 = state.position;
       var $12 = false;
       final $14 = state.peek();
@@ -510,7 +500,6 @@ class JsonParser {
         } else {
           state.fail();
         }
-        state.unused = $17 == 43 || $17 == 45;
         final $18 = state.position;
         for (var c = state.peek(); c >= 48 && c <= 57;) {
           state.position += state.charSize(c);
@@ -537,7 +526,6 @@ class JsonParser {
       if (!$12) {
         state.position = $13;
       }
-      state.unused = $12;
       $3 = true;
     }
     if ($3) {
@@ -546,14 +534,14 @@ class JsonParser {
       if (ok) {
         parseS(state);
         num $ = num.parse(n);
-        $1 = $;
+        $1 = ($,);
       }
     } else {
       state.position = $2;
     }
     if ($1 != null) {
       state.onSuccess($21, $0, $23);
-      return ($1,);
+      return $1;
     } else {
       state.position = $0;
       state.onFailure($21, $0, $23, $22);
@@ -575,7 +563,7 @@ class JsonParser {
   ///```
   (Map<String, Object?>,)? parseObject(State state) {
     final $1 = state.position;
-    Map<String, Object?>? $0;
+    (Map<String, Object?>,)? $0;
     if (state.peek() == 123) {
       state.consume('{', $1);
       parseS(state);
@@ -590,7 +578,7 @@ class JsonParser {
         state.consume('}', $4);
         parseS(state);
         Map<String, Object?> $ = Map.fromEntries(m ?? const []);
-        $0 = $;
+        $0 = ($,);
       } else {
         state.expected('}');
       }
@@ -598,7 +586,7 @@ class JsonParser {
       state.expected('{');
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -612,13 +600,12 @@ class JsonParser {
   /// S =>
   ///   [ {a}{d}{9}]*
   ///```
-  (void,)? parseS(State state) {
+  void parseS(State state) {
     for (var c = state.peek();
         c >= 13 ? c <= 13 || c == 32 : c >= 9 && c <= 10;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
-    return const (null,);
   }
 
   /// **Start**
@@ -632,18 +619,18 @@ class JsonParser {
   ///```
   (Object?,)? parseStart(State state) {
     final $1 = state.position;
-    Object? $0;
+    (Object?,)? $0;
     parseS(state);
     final $2 = parseValue(state);
     if ($2 != null) {
       Object? $ = $2.$1;
       final $3 = parseEof(state);
       if ($3 != null) {
-        $0 = $;
+        $0 = ($,);
       }
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -663,7 +650,7 @@ class JsonParser {
   ///```
   (String,)? parseString(State state) {
     final $1 = state.position;
-    String? $0;
+    (String,)? $0;
     if (state.peek() == 34) {
       state.consume('"', $1);
       String? $3;
@@ -677,7 +664,7 @@ class JsonParser {
         state.consume('"', $4);
         parseS(state);
         String $ = c ?? '';
-        $0 = $;
+        $0 = ($,);
       } else {
         state.expected('"');
       }
@@ -685,7 +672,7 @@ class JsonParser {
       state.expected('"');
     }
     if ($0 != null) {
-      return ($0,);
+      return $0;
     } else {
       state.position = $1;
       return null;
@@ -743,51 +730,51 @@ class JsonParser {
   ///```
   (Object?,)? parseValue(State state) {
     final $5 = state.position;
-    Object? $0;
+    (Object?,)? $0;
     final $1 = parseString(state);
     if ($1 != null) {
-      $0 = $1.$1;
+      $0 = $1;
     } else {
       final $2 = parseArray(state);
       if ($2 != null) {
-        $0 = $2.$1;
+        $0 = $2;
       } else {
         final $3 = parseNumber(state);
         if ($3 != null) {
-          $0 = $3.$1;
+          $0 = $3;
         } else {
-          Object? $4;
+          (Object?,)? $4;
           if (state.peek() == 116 && state.startsWith('true', state.position)) {
             state.consume('true', $5);
             parseS(state);
             Object? $ = true;
-            $4 = $;
+            $4 = ($,);
           } else {
             state.expected('true');
           }
           if ($4 != null) {
             $0 = $4;
           } else {
-            Object? $6;
+            (Object?,)? $6;
             if (state.peek() == 102 &&
                 state.startsWith('false', state.position)) {
               state.consume('false', $5);
               parseS(state);
               Object? $ = false;
-              $6 = $;
+              $6 = ($,);
             } else {
               state.expected('false');
             }
             if ($6 != null) {
               $0 = $6;
             } else {
-              Object? $7;
+              (Object?,)? $7;
               if (state.peek() == 110 &&
                   state.startsWith('null', state.position)) {
                 state.consume('null', $5);
                 parseS(state);
                 Object? $;
-                $7 = $;
+                $7 = ($,);
               } else {
                 state.expected('null');
               }
@@ -796,7 +783,7 @@ class JsonParser {
               } else {
                 final $8 = parseObject(state);
                 if ($8 != null) {
-                  $0 = $8.$1;
+                  $0 = $8;
                 }
               }
             }
@@ -804,11 +791,7 @@ class JsonParser {
         }
       }
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 
   /// **Values**
@@ -827,7 +810,7 @@ class JsonParser {
   ///   $ = { l }
   ///```
   (List<Object?>,)? parseValues(State state) {
-    List<Object?>? $0;
+    (List<Object?>,)? $0;
     final $1 = parseValue(state);
     if ($1 != null) {
       Object? v = $1.$1;
@@ -853,13 +836,9 @@ class JsonParser {
         }
       }
       List<Object?> $ = l;
-      $0 = $;
+      $0 = ($,);
     }
-    if ($0 != null) {
-      return ($0,);
-    } else {
-      return null;
-    }
+    return $0;
   }
 }
 

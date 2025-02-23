@@ -6,24 +6,24 @@ void main() {
     test('true', () {
       const test = 'true';
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         _test(branch, '');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         _test(branch, '1');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.falsity.block((b) => b.write('2'));
         _test(branch, 'if(false){2}');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         branch.falsity.block((b) => b.write('2'));
         _test(branch, 'if(true){1}else{2}');
@@ -33,24 +33,24 @@ void main() {
     test('false', () {
       const test = 'false';
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         _test(branch, '');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         _test(branch, 'if(false){1}');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.falsity.block((b) => b.write('2'));
         _test(branch, '2');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         branch.falsity.block((b) => b.write('2'));
         _test(branch, 'if(true){2}else{1}');
@@ -60,24 +60,24 @@ void main() {
     test('x', () {
       const test = 'x';
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         _test(branch, '');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         _test(branch, 'if(x){1}');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.falsity.block((b) => b.write('2'));
         _test(branch, 'if(!x){2}');
       }
 
       {
-        final branch = Branch(test, '');
+        final branch = Branch(test);
         branch.truth.block((b) => b.write('1'));
         branch.falsity.block((b) => b.write('2'));
         _test(branch, 'if(x){1}else{2}');
@@ -93,24 +93,24 @@ void main() {
         test(op, () {
           final test = '1${op}2';
           {
-            final branch = Branch(test, '');
+            final branch = Branch(test);
             _test(branch, '');
           }
 
           {
-            final branch = Branch(test, '');
+            final branch = Branch(test);
             branch.truth.block((b) => b.write('1'));
             _test(branch, 'if(1${op}2){1}');
           }
 
           {
-            final branch = Branch(test, '');
+            final branch = Branch(test);
             branch.falsity.block((b) => b.write('2'));
             _test(branch, 'if(1${negated}2){2}');
           }
 
           {
-            final branch = Branch(test, '');
+            final branch = Branch(test);
             branch.truth.block((b) => b.write('1'));
             branch.falsity.block((b) => b.write('2'));
             _test(branch, 'if(1${op}2){1}else{2}');
@@ -129,5 +129,5 @@ void _test(Branch branch, String expected) {
   actual = actual.replaceAll('\n', '');
   expect(actual, expected,
       reason:
-          'Test: ${branch.ok}, truth code: ${branch.truth}, falsity code: ${branch.falsity}');
+          'Test: ${branch.test}, truth code: ${branch.truth}, falsity code: ${branch.falsity}');
 }

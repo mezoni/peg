@@ -14,7 +14,7 @@ class AnyCharacterExpression extends Expression {
     final c = context.allocate();
     final code = result.code;
     code.assign('final $c', 'state.peek()');
-    final branch = code.branch('$c != 0', '$c == 0');
+    final branch = code.branch('$c != 0');
     branch.truth.block((b) {
       b.statement('state.position += state.charSize($c)');
     });

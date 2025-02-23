@@ -29,16 +29,20 @@ class PegParser {
   ///   $ = { $$ = ActionExpression(code: b); }
   ///```
   (Expression,)? parseAction(State state) {
-    (Expression,)? $0;
+    Expression? $0;
     final $1 = parseBlock(state);
     if ($1 != null) {
       String b = $1.$1;
       final Expression $$;
       $$ = ActionExpression(code: b);
       Expression $ = $$;
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **AnyCharacter**
@@ -52,18 +56,22 @@ class PegParser {
   ///```
   (Expression,)? parseAnyCharacter(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     if (state.peek() == 46) {
       state.consume('.', $1);
       parseS(state);
       final Expression $$;
       $$ = AnyCharacterExpression();
       Expression $ = $$;
-      $0 = ($,);
+      $0 = $;
     } else {
       state.expected('.');
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Assignment**
@@ -86,19 +94,19 @@ class PegParser {
   ///```
   (Expression,)? parseAssignment(State state) {
     final $2 = state.position;
-    (Expression,)? $0;
-    (Expression,)? $1;
-    (String,)? $3;
+    Expression? $0;
+    Expression? $1;
+    String? $3;
     final $4 = parseIdentifier(state);
     if ($4 != null) {
-      $3 = $4;
+      $3 = $4.$1;
     } else {
-      (String,)? $5;
+      String? $5;
       if (state.peek() == 36) {
         state.consume('\$', $2);
         String $ = '\$';
         parseS(state);
-        $5 = ($,);
+        $5 = $;
       } else {
         state.expected('\$');
       }
@@ -107,24 +115,24 @@ class PegParser {
       }
     }
     if ($3 != null) {
-      String v = $3.$1;
-      (String,)? $6;
+      String v = $3;
+      String? $6;
       final $7 = state.position;
       if (state.peek() == 61) {
         state.consume('=', $7);
-        $6 = ('=',);
+        $6 = '=';
       } else {
         state.expected('=');
         final $8 = state.position;
         if (state.peek() == 58) {
           state.consume(':', $8);
-          $6 = (':',);
+          $6 = ':';
         } else {
           state.expected(':');
         }
       }
       if ($6 != null) {
-        String o = $6.$1;
+        String o = $6;
         parseS(state);
         final $9 = parsePrefix(state);
         if ($9 != null) {
@@ -132,7 +140,7 @@ class PegParser {
           final Expression $$;
           $$ = VariableExpression(expression: e, name: v, operator: o);
           Expression $ = $$;
-          $1 = ($,);
+          $1 = $;
         }
       }
     }
@@ -142,10 +150,14 @@ class PegParser {
       state.position = $2;
       final $10 = parsePrefix(state);
       if ($10 != null) {
-        $0 = $10;
+        $0 = $10.$1;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Block**
@@ -160,7 +172,7 @@ class PegParser {
   ///```
   (String,)? parseBlock(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 123) {
       state.consume('{', $1);
       final $2 = state.position;
@@ -177,7 +189,7 @@ class PegParser {
       if (state.peek() == 125) {
         state.consume('}', $5);
         parseS(state);
-        $0 = ($,);
+        $0 = $;
       } else {
         state.expected('}');
       }
@@ -185,7 +197,7 @@ class PegParser {
       state.expected('{');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -283,7 +295,7 @@ class PegParser {
   ///```
   (Expression,)? parseCharacterClass(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     var negate = false;
     var $2 = true;
     var $3 = false;
@@ -308,7 +320,7 @@ class PegParser {
       final $11 = <(int, int)>[];
       while (true) {
         final $7 = state.position;
-        ((int, int),)? $6;
+        (int, int)? $6;
         final $8 = state.predicate;
         state.predicate = true;
         var $9 = true;
@@ -324,11 +336,11 @@ class PegParser {
           final $10 = parseRange(state);
           if ($10 != null) {
             (int, int) $ = $10.$1;
-            $6 = ($,);
+            $6 = $;
           }
         }
         if ($6 != null) {
-          $11.add($6.$1);
+          $11.add($6);
         } else {
           state.position = $7;
           break;
@@ -343,14 +355,14 @@ class PegParser {
           final Expression $$;
           $$ = CharacterClassExpression(ranges: r, negate: negate);
           Expression $ = $$;
-          $0 = ($,);
+          $0 = $;
         } else {
           state.expected(']');
         }
       }
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -400,7 +412,7 @@ class PegParser {
         }
       }
       final $7 = parseEndOfLine(state);
-      state.unused = $7;
+      state.unused = $7 != null;
       $0 = true;
     } else {
       state.fail();
@@ -425,8 +437,8 @@ class PegParser {
   ///```
   (int,)? parseDQChar(State state) {
     final $2 = state.position;
-    (int,)? $0;
-    (int,)? $1;
+    int? $0;
+    int? $1;
     final $3 = state.predicate;
     state.predicate = true;
     var $4 = true;
@@ -445,7 +457,7 @@ class PegParser {
           : $5 >= 32 && $5 <= 33) {
         state.position += state.charSize($5);
         int $ = $5;
-        $1 = ($,);
+        $1 = $;
       } else {
         state.fail();
       }
@@ -454,22 +466,22 @@ class PegParser {
       $0 = $1;
     } else {
       state.position = $2;
-      (int,)? $6;
+      int? $6;
       if (state.peek() == 92) {
         state.position += state.charSize(92);
-        (int,)? $7;
+        int? $7;
         final $8 = parseEscapedValue(state);
         if ($8 != null) {
-          $7 = $8;
+          $7 = $8.$1;
         } else {
           final $9 = parseEscapedHexValue(state);
           if ($9 != null) {
-            $7 = $9;
+            $7 = $9.$1;
           }
         }
         if ($7 != null) {
-          int $ = $7.$1;
-          $6 = ($,);
+          int $ = $7;
+          $6 = $;
         }
       } else {
         state.fail();
@@ -480,7 +492,11 @@ class PegParser {
         state.position = $2;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **DQString**
@@ -499,13 +515,13 @@ class PegParser {
   ///```
   (String,)? parseDQString(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 34) {
       state.consume('"', $1);
       final $7 = <int>[];
       while (true) {
         final $3 = state.position;
-        (int,)? $2;
+        int? $2;
         final $4 = state.predicate;
         state.predicate = true;
         var $5 = true;
@@ -521,11 +537,11 @@ class PegParser {
           final $6 = parseDQChar(state);
           if ($6 != null) {
             int $ = $6.$1;
-            $2 = ($,);
+            $2 = $;
           }
         }
         if ($2 != null) {
-          $7.add($2.$1);
+          $7.add($2);
         } else {
           state.position = $3;
           break;
@@ -539,7 +555,7 @@ class PegParser {
         final String $$;
         $$ = String.fromCharCodes(n);
         String $ = $$;
-        $0 = ($,);
+        $0 = $;
       } else {
         state.expected('"');
       }
@@ -547,7 +563,7 @@ class PegParser {
       state.expected('"');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -619,9 +635,9 @@ class PegParser {
   (List<(String, String)>,)? parseErrorParameters(State state) {
     final $18 = <(String, String)>[];
     while (true) {
-      ((String, String),)? $0;
+      (String, String)? $0;
       final $2 = state.position;
-      ((String, String),)? $1;
+      (String, String)? $1;
       if (state.peek() == 109 && state.startsWith('message', state.position)) {
         state.consume('message', $2);
         String k = 'message';
@@ -637,7 +653,7 @@ class PegParser {
             final (String, String) $$;
             $$ = (k, v);
             (String, String) $ = $$;
-            $1 = ($,);
+            $1 = $;
           }
         } else {
           state.expected('=');
@@ -650,51 +666,51 @@ class PegParser {
       } else {
         state.position = $2;
         final $6 = state.position;
-        ((String, String),)? $5;
-        (String,)? $7;
+        (String, String)? $5;
+        String? $7;
         if (state.peek() == 115 && state.startsWith('start', state.position)) {
           state.consume('start', $6);
-          $7 = ('start',);
+          $7 = 'start';
         } else {
           state.expected('start');
           if (state.peek() == 101 && state.startsWith('end', state.position)) {
             state.consume('end', $6);
-            $7 = ('end',);
+            $7 = 'end';
           } else {
             state.expected('end');
           }
         }
         if ($7 != null) {
-          String k = $7.$1;
+          String k = $7;
           parseS(state);
           final $8 = state.position;
           if (state.peek() == 61) {
             state.consume('=', $8);
             parseS(state);
-            (String,)? $9;
+            String? $9;
             final $10 = state.position;
             if (state.peek() == 115 &&
                 state.startsWith('start', state.position)) {
               state.consume('start', $10);
-              $9 = ('start',);
+              $9 = 'start';
             } else {
               state.expected('start');
               final $11 = state.position;
               if (state.peek() == 101 &&
                   state.startsWith('end', state.position)) {
                 state.consume('end', $11);
-                $9 = ('end',);
+                $9 = 'end';
               } else {
                 state.expected('end');
               }
             }
             if ($9 != null) {
-              String v = $9.$1;
+              String v = $9;
               parseS(state);
               final (String, String) $$;
               $$ = (k, v);
               (String, String) $ = $$;
-              $5 = ($,);
+              $5 = $;
             }
           } else {
             state.expected('=');
@@ -705,30 +721,30 @@ class PegParser {
         } else {
           state.position = $6;
           final $13 = state.position;
-          ((String, String),)? $12;
+          (String, String)? $12;
           if (state.peek() == 111 &&
               state.startsWith('origin', state.position)) {
             state.consume('origin', $13);
             String k = 'origin';
             parseS(state);
             final $15 = state.position;
-            (String,)? $14;
-            (String,)? $16;
+            String? $14;
+            String? $16;
             if (state.peek() == 61 && state.startsWith('==', state.position)) {
               state.consume('==', $15);
-              $16 = ('==',);
+              $16 = '==';
             } else {
               state.expected('==');
               if (state.peek() == 33 &&
                   state.startsWith('!=', state.position)) {
                 state.consume('!=', $15);
-                $16 = ('!=',);
+                $16 = '!=';
               } else {
                 state.expected('!=');
               }
             }
             if ($16 != null) {
-              String n = $16.$1;
+              String n = $16;
               parseS(state);
               final $17 = state.position;
               if (state.peek() == 115 &&
@@ -739,17 +755,17 @@ class PegParser {
                 final String $$;
                 $$ = '$n $s';
                 String $ = $$;
-                $14 = ($,);
+                $14 = $;
               } else {
                 state.expected('start');
               }
             }
             if ($14 != null) {
-              String v = $14.$1;
+              String v = $14;
               final (String, String) $$;
               $$ = (k, v);
               (String, String) $ = $$;
-              $12 = ($,);
+              $12 = $;
             } else {
               state.position = $15;
             }
@@ -764,7 +780,7 @@ class PegParser {
         }
       }
       if ($0 != null) {
-        $18.add($0.$1);
+        $18.add($0);
       } else {
         break;
       }
@@ -792,7 +808,7 @@ class PegParser {
     final $1 = state.position;
     final $5 = state.failure;
     state.failure = state.position;
-    (int,)? $0;
+    int? $0;
     if (state.peek() == 117) {
       state.position += state.charSize(117);
       final $2 = state.position;
@@ -804,7 +820,7 @@ class PegParser {
           final $4 = state.position;
           if (state.peek() == 125) {
             state.consume('}', $4);
-            $0 = ($,);
+            $0 = $;
           } else {
             state.expected('}');
           }
@@ -817,7 +833,7 @@ class PegParser {
     }
     if ($0 != null) {
       state.failure < $5 ? state.failure = $5 : null;
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       if (state.failure != state.position) {
@@ -853,7 +869,7 @@ class PegParser {
   (int,)? parseEscapedValue(State state) {
     final $2 = state.failure;
     state.failure = state.position;
-    (int,)? $0;
+    int? $0;
     final $1 = state.peek();
     if ($1 >= 101
         ? $1 <= 102 || $1 >= 114
@@ -875,13 +891,13 @@ class PegParser {
         118 => 0x0B, // v
         _ => $,
       };
-      $0 = ($,);
+      $0 = $;
     } else {
       state.fail();
     }
     if ($0 != null) {
       state.failure < $2 ? state.failure = $2 : null;
-      return $0;
+      return ($0,);
     } else {
       state.error(
           'Unexpected escape character', state.position, state.failure, 3);
@@ -931,7 +947,7 @@ class PegParser {
   ///```
   (String,)? parseGlobals(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 37 && state.startsWith('%{', state.position)) {
       state.consume('%{', $1);
       final $2 = state.position;
@@ -970,7 +986,7 @@ class PegParser {
       if (state.peek() == 125 && state.startsWith('}%', state.position)) {
         state.consume('}%', $9);
         parseS(state);
-        $0 = ($,);
+        $0 = $;
       } else {
         state.expected('}%');
       }
@@ -978,7 +994,7 @@ class PegParser {
       state.expected('%{');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -999,7 +1015,7 @@ class PegParser {
   ///```
   (Expression,)? parseGroup(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     if (state.peek() == 40) {
       state.consume('(', $1);
       parseS(state);
@@ -1011,7 +1027,7 @@ class PegParser {
           state.consume(')', $3);
           parseS(state);
           $ = GroupExpression(expression: $);
-          $0 = ($,);
+          $0 = $;
         } else {
           state.expected(')');
         }
@@ -1020,7 +1036,7 @@ class PegParser {
       state.expected('(');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1042,7 +1058,7 @@ class PegParser {
     final $5 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (int,)? $1;
+    int? $1;
     String? $2;
     for (var c = state.peek();
         c >= 65 ? c <= 70 || c >= 97 && c <= 102 : c >= 48 && c <= 57;) {
@@ -1055,13 +1071,13 @@ class PegParser {
       final int $$;
       $$ = int.parse(n, radix: 16);
       int $ = $$;
-      $1 = ($,);
+      $1 = $;
     } else {
       state.fail();
     }
     if ($1 != null) {
       state.onSuccess($3, $0, $5);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($3, $0, $5, $4);
       return null;
@@ -1086,7 +1102,7 @@ class PegParser {
     final $7 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (String,)? $1;
+    String? $1;
     String? $4;
     var $2 = false;
     final $3 = state.peek();
@@ -1107,11 +1123,11 @@ class PegParser {
       $4 = state.substring($0, state.position);
       String $ = $4;
       parseS(state);
-      $1 = ($,);
+      $1 = $;
     }
     if ($1 != null) {
       state.onSuccess($5, $0, $7);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($5, $0, $7, $6);
       return null;
@@ -1130,33 +1146,37 @@ class PegParser {
   ///   $ = { $$ = LiteralExpression(literal: s, silent: true); }
   ///```
   (Expression,)? parseLiteral(State state) {
-    (Expression,)? $0;
-    (Expression,)? $1;
+    Expression? $0;
+    Expression? $1;
     final $2 = parseSQString(state);
     if ($2 != null) {
       String s = $2.$1;
       final Expression $$;
       $$ = LiteralExpression(literal: s);
       Expression $ = $$;
-      $1 = ($,);
+      $1 = $;
     }
     if ($1 != null) {
       $0 = $1;
     } else {
-      (Expression,)? $3;
+      Expression? $3;
       final $4 = parseDQString(state);
       if ($4 != null) {
         String s = $4.$1;
         final Expression $$;
         $$ = LiteralExpression(literal: s, silent: true);
         Expression $ = $$;
-        $3 = ($,);
+        $3 = $;
       }
       if ($3 != null) {
         $0 = $3;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Match**
@@ -1173,7 +1193,7 @@ class PegParser {
   ///```
   (Expression,)? parseMatch(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     if (state.peek() == 60) {
       state.consume('<', $1);
       parseS(state);
@@ -1187,7 +1207,7 @@ class PegParser {
           final Expression $$;
           $$ = MatchExpression(expression: e);
           Expression $ = $$;
-          $0 = ($,);
+          $0 = $;
         } else {
           state.expected('>');
         }
@@ -1196,7 +1216,7 @@ class PegParser {
       state.expected('<');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1220,7 +1240,7 @@ class PegParser {
   ///```
   (String,)? parseMembers(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 37 && state.startsWith('%%', state.position)) {
       state.consume('%%', $1);
       final $2 = state.position;
@@ -1259,7 +1279,7 @@ class PegParser {
       if (state.peek() == 37 && state.startsWith('%%', state.position)) {
         state.consume('%%', $9);
         parseS(state);
-        $0 = ($,);
+        $0 = $;
       } else {
         state.expected('%%');
       }
@@ -1267,7 +1287,7 @@ class PegParser {
       state.expected('%%');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1289,7 +1309,7 @@ class PegParser {
   ///```
   (Expression,)? parseNonterminal(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     final $2 = parseRuleName(state);
     if ($2 != null) {
       String i = $2.$1;
@@ -1299,7 +1319,7 @@ class PegParser {
       var $8 = true;
       var $5 = false;
       final $6 = parseProductionRuleArguments(state);
-      state.unused = $6;
+      state.unused = $6 != null;
       final $7 = state.position;
       if (state.peek() == 61 && state.startsWith('=>', state.position)) {
         state.consume('=>', $7);
@@ -1319,11 +1339,11 @@ class PegParser {
         final Expression $$;
         $$ = NonterminalExpression(name: i);
         Expression $ = $$;
-        $0 = ($,);
+        $0 = $;
       }
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1346,7 +1366,7 @@ class PegParser {
   ///   $ = { $$ = OrderedChoiceExpression(expressions: l); }
   ///```
   (Expression,)? parseOrderedChoice(State state) {
-    (Expression,)? $0;
+    Expression? $0;
     final $1 = parseSequence(state);
     if ($1 != null) {
       Expression n = $1.$1;
@@ -1389,9 +1409,13 @@ class PegParser {
       final Expression $$;
       $$ = OrderedChoiceExpression(expressions: l);
       Expression $ = $$;
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Prefix**
@@ -1427,27 +1451,27 @@ class PegParser {
   ///```
   (Expression,)? parsePrefix(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     String? $5;
-    (String,)? $2;
-    (String,)? $3;
+    String? $2;
+    String? $3;
     if (state.peek() == 33) {
       state.consume('!', $1);
       String $ = '!';
       parseS(state);
-      $3 = ($,);
+      $3 = $;
     } else {
       state.expected('!');
     }
     if ($3 != null) {
       $2 = $3;
     } else {
-      (String,)? $4;
+      String? $4;
       if (state.peek() == 38) {
         state.consume('&', $1);
         String $ = '&';
         parseS(state);
-        $4 = ($,);
+        $4 = $;
       } else {
         state.expected('&');
       }
@@ -1456,7 +1480,7 @@ class PegParser {
       }
     }
     if ($2 != null) {
-      $5 = $2.$1;
+      $5 = $2;
     }
     String? p = $5;
     final $6 = parseSuffix(state);
@@ -1478,10 +1502,10 @@ class PegParser {
           }
           break;
       }
-      $0 = ($,);
+      $0 = $;
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1516,38 +1540,38 @@ class PegParser {
     final $12 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (Expression,)? $1;
+    Expression? $1;
     final $2 = parseCharacterClass(state);
     if ($2 != null) {
-      $1 = $2;
+      $1 = $2.$1;
     } else {
       final $3 = parseLiteral(state);
       if ($3 != null) {
-        $1 = $3;
+        $1 = $3.$1;
       } else {
         final $4 = parseGroup(state);
         if ($4 != null) {
-          $1 = $4;
+          $1 = $4.$1;
         } else {
           final $5 = parseRepeater(state);
           if ($5 != null) {
-            $1 = $5;
+            $1 = $5.$1;
           } else {
             final $6 = parseNonterminal(state);
             if ($6 != null) {
-              $1 = $6;
+              $1 = $6.$1;
             } else {
               final $7 = parseAction(state);
               if ($7 != null) {
-                $1 = $7;
+                $1 = $7.$1;
               } else {
                 final $8 = parseAnyCharacter(state);
                 if ($8 != null) {
-                  $1 = $8;
+                  $1 = $8.$1;
                 } else {
                   final $9 = parseMatch(state);
                   if ($9 != null) {
-                    $1 = $9;
+                    $1 = $9.$1;
                   }
                 }
               }
@@ -1558,7 +1582,7 @@ class PegParser {
     }
     if ($1 != null) {
       state.onSuccess($10, $0, $12);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($10, $0, $12, $11);
       return null;
@@ -1582,7 +1606,7 @@ class PegParser {
   ///```
   (ProductionRule,)? parseProductionRule(State state) {
     final $1 = state.position;
-    (ProductionRule,)? $0;
+    ProductionRule? $0;
     String? $3;
     final $2 = parseType(state);
     if ($2 != null) {
@@ -1610,19 +1634,20 @@ class PegParser {
           } else {
             state.fail();
           }
+          state.unused = state.peek() == 59;
           parseS(state);
           final ProductionRule $$;
           $$ = ProductionRule(
               expression: e, expected: a, name: i, resultType: t ?? '');
           ProductionRule $ = $$;
-          $0 = ($,);
+          $0 = $;
         }
       } else {
         state.expected('=>');
       }
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1642,7 +1667,7 @@ class PegParser {
   ///```
   (String,)? parseProductionRuleArguments(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 40) {
       state.consume('(', $1);
       parseS(state);
@@ -1653,7 +1678,7 @@ class PegParser {
         if (state.peek() == 41) {
           state.consume(')', $3);
           parseS(state);
-          $0 = ($,);
+          $0 = $;
         } else {
           state.expected(')');
         }
@@ -1662,7 +1687,7 @@ class PegParser {
       state.expected('(');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -1701,8 +1726,8 @@ class PegParser {
     final $16 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    ((int, int),)? $1;
-    ((int, int),)? $2;
+    (int, int)? $1;
+    (int, int)? $2;
     if (state.peek() == 123) {
       state.position += state.charSize(123);
       final $3 = parseHexValue(state);
@@ -1719,7 +1744,7 @@ class PegParser {
               final (int, int) $$;
               $$ = (s, e);
               (int, int) $ = $$;
-              $2 = ($,);
+              $2 = $;
             } else {
               state.expected('}');
             }
@@ -1735,7 +1760,7 @@ class PegParser {
       $1 = $2;
     } else {
       state.position = $0;
-      ((int, int),)? $6;
+      (int, int)? $6;
       if (state.peek() == 123) {
         state.position += state.charSize(123);
         final $7 = parseHexValue(state);
@@ -1747,7 +1772,7 @@ class PegParser {
             final (int, int) $$;
             $$ = (n, n);
             (int, int) $ = $$;
-            $6 = ($,);
+            $6 = $;
           } else {
             state.expected('}');
           }
@@ -1759,7 +1784,7 @@ class PegParser {
         $1 = $6;
       } else {
         state.position = $0;
-        ((int, int),)? $9;
+        (int, int)? $9;
         final $10 = parseRangeChar(state);
         if ($10 != null) {
           int s = $10.$1;
@@ -1771,7 +1796,7 @@ class PegParser {
               final (int, int) $$;
               $$ = (s, e);
               (int, int) $ = $$;
-              $9 = ($,);
+              $9 = $;
             }
           } else {
             state.fail();
@@ -1781,14 +1806,14 @@ class PegParser {
           $1 = $9;
         } else {
           state.position = $0;
-          ((int, int),)? $12;
+          (int, int)? $12;
           final $13 = parseRangeChar(state);
           if ($13 != null) {
             int n = $13.$1;
             final (int, int) $$;
             $$ = (n, n);
             (int, int) $ = $$;
-            $12 = ($,);
+            $12 = $;
           }
           if ($12 != null) {
             $1 = $12;
@@ -1798,7 +1823,7 @@ class PegParser {
     }
     if ($1 != null) {
       state.onSuccess($14, $0, $16);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($14, $0, $16, $15);
       return null;
@@ -1838,8 +1863,8 @@ class PegParser {
   ///```
   (int,)? parseRangeChar(State state) {
     final $2 = state.position;
-    (int,)? $0;
-    (int,)? $1;
+    int? $0;
+    int? $1;
     final $3 = state.predicate;
     state.predicate = true;
     var $4 = true;
@@ -1858,7 +1883,7 @@ class PegParser {
           : $5 >= 0 && $5 <= 31)) {
         state.position += state.charSize($5);
         int $ = $5;
-        $1 = ($,);
+        $1 = $;
       } else {
         state.fail();
       }
@@ -1867,12 +1892,12 @@ class PegParser {
       $0 = $1;
     } else {
       state.position = $2;
-      (int,)? $6;
+      int? $6;
       if (state.peek() == 92) {
         state.position += state.charSize(92);
-        (int,)? $7;
+        int? $7;
         final $9 = state.position;
-        (int,)? $8;
+        int? $8;
         if (state.peek() == 117) {
           state.position += state.charSize(117);
           final $10 = state.position;
@@ -1884,7 +1909,7 @@ class PegParser {
               final $12 = state.position;
               if (state.peek() == 125) {
                 state.consume('}', $12);
-                $8 = ($,);
+                $8 = $;
               } else {
                 state.expected('}');
               }
@@ -1899,7 +1924,7 @@ class PegParser {
           $7 = $8;
         } else {
           state.position = $9;
-          (int,)? $13;
+          int? $13;
           final $14 = state.peek();
           if ($14 >= 110
               ? $14 <= 110 || $14 >= 118
@@ -1922,7 +1947,7 @@ class PegParser {
               118 => 0x0B, // v
               _ => $,
             };
-            $13 = ($,);
+            $13 = $;
           } else {
             state.fail();
           }
@@ -1931,8 +1956,8 @@ class PegParser {
           }
         }
         if ($7 != null) {
-          int $ = $7.$1;
-          $6 = ($,);
+          int $ = $7;
+          $6 = $;
         }
       } else {
         state.fail();
@@ -1943,7 +1968,11 @@ class PegParser {
         state.position = $2;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Repeater**
@@ -1983,8 +2012,8 @@ class PegParser {
   ///```
   (Expression,)? parseRepeater(State state) {
     final $2 = state.position;
-    (Expression,)? $0;
-    (Expression,)? $1;
+    Expression? $0;
+    Expression? $1;
     if (state.peek() == 64 && state.startsWith('@while', state.position)) {
       state.consume('@while', $2);
       parseS(state);
@@ -2015,7 +2044,7 @@ class PegParser {
                   $$ = ZeroOrMoreExpression(
                       expression: GroupExpression(expression: e));
                   Expression $ = $$;
-                  $1 = ($,);
+                  $1 = $;
                 } else {
                   state.expected('}');
                 }
@@ -2039,7 +2068,7 @@ class PegParser {
       $0 = $1;
     } else {
       state.position = $2;
-      (Expression,)? $9;
+      Expression? $9;
       if (state.peek() == 64 && state.startsWith('@while', state.position)) {
         state.consume('@while', $2);
         parseS(state);
@@ -2070,7 +2099,7 @@ class PegParser {
                     $$ = OneOrMoreExpression(
                         expression: GroupExpression(expression: e));
                     Expression $ = $$;
-                    $9 = ($,);
+                    $9 = $;
                   } else {
                     state.expected('}');
                   }
@@ -2096,7 +2125,11 @@ class PegParser {
         state.position = $2;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **RuleName** ('production rule name')
@@ -2117,7 +2150,7 @@ class PegParser {
     final $7 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (String,)? $1;
+    String? $1;
     String? $4;
     var $2 = false;
     final $3 = state.peek();
@@ -2138,11 +2171,11 @@ class PegParser {
       $4 = state.substring($0, state.position);
       String $ = $4;
       parseS(state);
-      $1 = ($,);
+      $1 = $;
     }
     if ($1 != null) {
       state.onSuccess($5, $0, $7);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($5, $0, $7, $6);
       return null;
@@ -2156,7 +2189,7 @@ class PegParser {
   /// S =>
   ///   @while (*) (Space / Comment)
   ///```
-  void parseS(State state) {
+  (void,)? parseS(State state) {
     while (true) {
       var $0 = true;
       final $1 = parseSpace(state);
@@ -2170,6 +2203,7 @@ class PegParser {
         break;
       }
     }
+    return const (null,);
   }
 
   /// **SQChar**
@@ -2185,8 +2219,8 @@ class PegParser {
   ///```
   (int,)? parseSQChar(State state) {
     final $2 = state.position;
-    (int,)? $0;
-    (int,)? $1;
+    int? $0;
+    int? $1;
     final $3 = state.predicate;
     state.predicate = true;
     var $4 = true;
@@ -2205,7 +2239,7 @@ class PegParser {
           : $5 >= 32 && $5 <= 38) {
         state.position += state.charSize($5);
         int $ = $5;
-        $1 = ($,);
+        $1 = $;
       } else {
         state.fail();
       }
@@ -2214,22 +2248,22 @@ class PegParser {
       $0 = $1;
     } else {
       state.position = $2;
-      (int,)? $6;
+      int? $6;
       if (state.peek() == 92) {
         state.position += state.charSize(92);
-        (int,)? $7;
+        int? $7;
         final $8 = parseEscapedValue(state);
         if ($8 != null) {
-          $7 = $8;
+          $7 = $8.$1;
         } else {
           final $9 = parseEscapedHexValue(state);
           if ($9 != null) {
-            $7 = $9;
+            $7 = $9.$1;
           }
         }
         if ($7 != null) {
-          int $ = $7.$1;
-          $6 = ($,);
+          int $ = $7;
+          $6 = $;
         }
       } else {
         state.fail();
@@ -2240,7 +2274,11 @@ class PegParser {
         state.position = $2;
       }
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **SQString**
@@ -2259,13 +2297,13 @@ class PegParser {
   ///```
   (String,)? parseSQString(State state) {
     final $1 = state.position;
-    (String,)? $0;
+    String? $0;
     if (state.peek() == 39) {
       state.consume('\'', $1);
       final $7 = <int>[];
       while (true) {
         final $3 = state.position;
-        (int,)? $2;
+        int? $2;
         final $4 = state.predicate;
         state.predicate = true;
         var $5 = true;
@@ -2281,11 +2319,11 @@ class PegParser {
           final $6 = parseSQChar(state);
           if ($6 != null) {
             int $ = $6.$1;
-            $2 = ($,);
+            $2 = $;
           }
         }
         if ($2 != null) {
-          $7.add($2.$1);
+          $7.add($2);
         } else {
           state.position = $3;
           break;
@@ -2299,7 +2337,7 @@ class PegParser {
         final String $$;
         $$ = String.fromCharCodes(n);
         String $ = $$;
-        $0 = ($,);
+        $0 = $;
       } else {
         state.expected('\'');
       }
@@ -2307,7 +2345,7 @@ class PegParser {
       state.expected('\'');
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -2335,7 +2373,7 @@ class PegParser {
   ///   }
   ///```
   (Expression,)? parseSequence(State state) {
-    (Expression,)? $0;
+    Expression? $0;
     final $2 = <Expression>[];
     while (true) {
       final $1 = parseTyping(state);
@@ -2349,7 +2387,7 @@ class PegParser {
       List<Expression> n = $2;
       List<(String, String)>? $8;
       final $4 = state.position;
-      (List<(String, String)>,)? $3;
+      List<(String, String)>? $3;
       if (state.peek() == 126) {
         state.consume('~', $4);
         parseS(state);
@@ -2364,7 +2402,7 @@ class PegParser {
             if (state.peek() == 125) {
               state.consume('}', $7);
               parseS(state);
-              $3 = ($,);
+              $3 = $;
             } else {
               state.expected('}');
             }
@@ -2376,7 +2414,7 @@ class PegParser {
         state.expected('~');
       }
       if ($3 != null) {
-        $8 = $3.$1;
+        $8 = $3;
       } else {
         state.position = $4;
       }
@@ -2385,9 +2423,13 @@ class PegParser {
       final e = SequenceExpression(expressions: n);
       $$ = p == null ? e : CatchExpression(expression: e, parameters: p);
       Expression $ = $$;
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Space**
@@ -2430,7 +2472,7 @@ class PegParser {
   ///```
   (Grammar,)? parseStart(State state) {
     final $1 = state.position;
-    (Grammar,)? $0;
+    Grammar? $0;
     parseS(state);
     String? $3;
     final $2 = parseGlobals(state);
@@ -2459,13 +2501,13 @@ class PegParser {
         final Grammar $$;
         $$ = Grammar(globals: g, members: m, rules: r);
         Grammar $ = $$;
-        $0 = ($,);
+        $0 = $;
       } else {
         state.fail();
       }
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;
@@ -2486,19 +2528,19 @@ class PegParser {
     final $6 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (String,)? $1;
+    String? $1;
     final $2 = parseDQString(state);
     if ($2 != null) {
-      $1 = $2;
+      $1 = $2.$1;
     } else {
       final $3 = parseSQString(state);
       if ($3 != null) {
-        $1 = $3;
+        $1 = $3.$1;
       }
     }
     if ($1 != null) {
       state.onSuccess($4, $0, $6);
-      return $1;
+      return ($1,);
     } else {
       state.onFailure($4, $0, $6, $5);
       return null;
@@ -2526,7 +2568,7 @@ class PegParser {
   ///   )?
   ///```
   (Expression,)? parseSuffix(State state) {
-    (Expression,)? $0;
+    Expression? $0;
     final $1 = parsePrimary(state);
     if ($1 != null) {
       Expression $ = $1.$1;
@@ -2569,9 +2611,13 @@ class PegParser {
         }
       }
       state.unused = $2;
-      $0 = ($,);
+      $0 = $;
     }
-    return $0;
+    if ($0 != null) {
+      return ($0,);
+    } else {
+      return null;
+    }
   }
 
   /// **Type** ('type')
@@ -2596,7 +2642,7 @@ class PegParser {
     final $12 = state.nesting;
     state.failure = $0;
     state.nesting = $0;
-    (String,)? $1;
+    String? $1;
     if (state.peek() == 96) {
       state.consume('`', $0);
       final $2 = state.position;
@@ -2643,7 +2689,7 @@ class PegParser {
       if (state.peek() == 96) {
         state.consume('`', $9);
         parseS(state);
-        $1 = ($,);
+        $1 = $;
       } else {
         state.expected('`');
       }
@@ -2652,7 +2698,7 @@ class PegParser {
     }
     if ($1 != null) {
       state.onSuccess($10, $0, $12);
-      return $1;
+      return ($1,);
     } else {
       state.position = $0;
       state.onFailure($10, $0, $12, $11);
@@ -2671,7 +2717,7 @@ class PegParser {
   ///```
   (Expression,)? parseTyping(State state) {
     final $1 = state.position;
-    (Expression,)? $0;
+    Expression? $0;
     String? $3;
     final $2 = parseType(state);
     if ($2 != null) {
@@ -2684,10 +2730,10 @@ class PegParser {
       final Expression $$;
       $$ = t == null ? e : TypingExpression(expression: e, type: t);
       Expression $ = $$;
-      $0 = ($,);
+      $0 = $;
     }
     if ($0 != null) {
-      return $0;
+      return ($0,);
     } else {
       state.position = $1;
       return null;

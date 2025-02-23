@@ -43,9 +43,9 @@ class SequenceExpression extends MultiExpression {
 
   void _generate(BuildContext context, BuildResult result) {
     SharedValue? position;
-    String? variable;
+    String? wrapper;
     if (!isAlwaysSuccessful) {
-      variable = context.allocate();
+      wrapper = context.allocate();
     }
 
     if (expressions.skip(1).any((e) => !e.isAlwaysSuccessful)) {
@@ -86,35 +86,38 @@ class SequenceExpression extends MultiExpression {
     final last = results.last;
     final lastBranch = last.branch();
     lastBranch.truth.block((b) {
-      if (variable != null) {
-        if (result.isUsed) {
-          b.assign(variable, r'$');
-        } else {
-          b.assign(variable, 'true');
+      if (result.isUsed) {
+        if (wrapper != null) {
+          b.assign(wrapper, r'($,)');
+        }
+      } else {
+        if (wrapper != null) {
+          b.assign(wrapper, 'true');
         }
       }
     });
 
     final code = result.code;
-    if (variable != null) {
+    if (wrapper != null) {
       if (result.isUsed) {
-        final type = result.getIntermediateType();
-        code.statement('$type $variable');
+        final resultType = getResultType();
+        final type = '($resultType,)?';
+        code.statement('$type $wrapper');
       } else {
-        code.assign(variable, 'false', 'var');
+        code.assign(wrapper, 'false', 'var');
       }
     }
 
     final first = results.first;
     code.add(first.code);
-    if (variable != null) {
+    if (wrapper != null) {
       if (result.isUsed) {
-        code.branch('$variable != null', '$variable == null');
+        code.branch('$wrapper != null');
       } else {
-        code.branch(variable, '!$variable');
+        code.branch(wrapper);
       }
     } else {
-      code.branch('true', 'false');
+      code.branch('true');
     }
 
     if (position != null) {
@@ -125,8 +128,8 @@ class SequenceExpression extends MultiExpression {
     }
 
     if (result.isUsed) {
-      if (variable != null) {
-        result.value = Value(variable);
+      if (wrapper != null) {
+        result.value = Value('$wrapper.\$1', wrapped: wrapper);
       } else {
         result.value = Value(r'$');
       }

@@ -40,7 +40,7 @@ class CharacterClassExpression extends Expression {
     code.assign(c, 'state.peek()', 'final');
     final predicate =
         const MatcherGenerator().generate(c, ranges, negate: negate);
-    final branch = code.branch(predicate, '!($predicate)');
+    final branch = code.branch(predicate);
     branch.truth.block((code) {
       code.statement('state.position += state.charSize($c)');
     });
@@ -62,7 +62,7 @@ class CharacterClassExpression extends Expression {
     if (negate) {
       final c = context.allocate();
       code.assign(c, 'state.peek()', 'final');
-      final branch = code.branch('$c != $char', '$c == $char');
+      final branch = code.branch('$c != $char');
       branch.truth.block((b) {
         b.statement(adjustPosition);
       });
@@ -71,8 +71,7 @@ class CharacterClassExpression extends Expression {
         b.statement('state.fail()');
       });
     } else {
-      final branch =
-          code.branch('state.peek() == $char', 'state.peek() != $char');
+      final branch = code.branch('state.peek() == $char');
       branch.truth.block((b) {
         b.statement(adjustPosition);
       });

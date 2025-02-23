@@ -23,18 +23,25 @@ class NonterminalExpression extends Expression {
     final code = result.code;
     if (result.isUsed) {
       final variable = context.allocate();
-      code.assign(variable, invocation, 'final');
-      code.branch('$variable != null', '$variable == null');
-      result.value = Value('$variable.\$1', boxed: variable);
+      if (!isAlwaysSuccessful) {
+        code.assign(variable, invocation, 'final');
+        code.branch('$variable != null');
+        result.value = Value('$variable.\$1', wrapped: variable);
+      } else {
+        code.assign(variable, invocation, 'final');
+        code.branch('true');
+        result.value = Value(variable);
+      }
     } else {
       final expression = reference!.expression;
       if (!expression.isAlwaysSuccessful) {
         final variable = context.allocate();
         code.assign(variable, invocation, 'final');
-        code.branch('$variable != null', '$variable == null');
+        code.branch('$variable != null');
+        result.allocated = variable;
       } else {
         code.statement(invocation);
-        code.branch('true', 'false');
+        code.branch('true');
       }
     }
 
