@@ -260,13 +260,12 @@ class MathParser {
   (String,)? parseIdentifier(State state) {
     final $1 = state.position;
     (String,)? $0;
-    String? $2;
     for (var c = state.peek(); c >= 97 ? c <= 122 : c >= 65 && c <= 90;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($1 != state.position) {
-      $2 = state.substring($1, state.position);
+      final $2 = state.substring($1, state.position);
       String $ = $2;
       parseS(state);
       $0 = ($,);
@@ -318,7 +317,6 @@ class MathParser {
     (num,)? $1;
     var ok = true;
     final $2 = state.position;
-    String? $17;
     var $3 = false;
     for (var c = state.peek(); c >= 48 && c <= 57;) {
       state.position += state.charSize(c);
@@ -405,7 +403,7 @@ class MathParser {
       state.fail();
     }
     if ($3) {
-      $17 = state.substring($2, state.position);
+      final $17 = state.substring($2, state.position);
       String n = $17;
       if (ok) {
         parseS(state);

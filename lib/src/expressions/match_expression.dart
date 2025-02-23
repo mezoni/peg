@@ -23,13 +23,11 @@ class MatchExpression extends SingleExpression {
 
     final code = result.code;
     if (result.isUsed) {
-      final variable = context.allocate();
-      final type = result.getIntermediateType();
-      code.statement('$type $variable');
       final branch = childResult.branch();
       branch.truth.block((b) {
+        final variable = context.allocate();
         final value = 'state.substring($position, state.position)';
-        b.assign(variable, value);
+        b.assign(variable, value, 'final');
         result.value = Value(variable);
       });
     }

@@ -1,0 +1,5 @@
+`int`
+Start =>
+  n = <[0-9]+>
+  'S'
+  $ = { int.parse(n) }

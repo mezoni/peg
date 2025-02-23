@@ -1,143 +1,38 @@
-//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
-
-import 'dart:math' as math;
-
-import 'package:source_span/source_span.dart';
-
-void main() {
-  _testErrors();
-  print(parse('0'));
-  print(parse('-0'));
-  print(parse('1'));
-  print(parse('-1'));
-  print(parse('123.456'));
-  print(parse('-123.456'));
-}
-
-void _testErrors() {
-  const patterns = ['1.', '`'];
-  for (final pattern in patterns) {
-    try {
-      parse(pattern);
-    } catch (e) {
-      print(pattern);
-      print(e);
-    }
-  }
-}
-
-num parse(String source) {
-  final state = State(source);
-  final parser = NumberParser();
-  final result = parser.parseNumber(state);
-  if (result == null) {
-    final file = SourceFile.fromString(source);
-    throw FormatException(state
-        .getErrors()
-        .map((e) => file.span(e.start, e.end).message(e.message))
-        .join('\n'));
-  }
-  return result.$1;
-}
-
-class NumberParser {
-  /// **Number** ('number')
+class TestParser {
+  /// **Start**
   ///
   ///```text
-  /// `num`
-  /// Number('number') =>
-  ///   @expected('number') { negative = [\-]?
-  ///   integer = <[0-9]+>
-  ///   `num` result = { num.parse(integer) }
-  ///   { var ok = true; }
-  ///   (
-  ///     [.]
-  ///     { ok = false; }
-  ///     (
-  ///       decimal = <[0-9]+>
-  ///       { ok = true; }
-  ///       { result += int.parse(decimal) / math.pow(10, decimal.length); }
-  ///        ~ { message = 'Expected decimal digit' }
-  ///     )
-  ///   )?
-  ///   &{ ok }
-  ///   $ = { negative == null ? result : -result } }
+  /// `int`
+  /// Start =>
+  ///   n = <[0-9]+>
+  ///   'S'
+  ///   $ = { int.parse(n) }
   ///```
-  (num,)? parseNumber(State state) {
-    final $0 = state.position;
-    const $11 = 'number';
-    final $12 = state.failure;
-    final $13 = state.nesting;
-    state.failure = $0;
-    state.nesting = $0;
-    (num,)? $1;
-    int? $2;
-    if (state.peek() == 45) {
-      state.position += state.charSize(45);
-      $2 = 45;
-    } else {
-      state.fail();
-    }
-    int? negative = $2;
-    final $3 = state.position;
+  (int,)? parseStart(State state) {
+    final $1 = state.position;
+    (int,)? $0;
     for (var c = state.peek(); c >= 48 && c <= 57;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
-    if ($3 != state.position) {
-      final $4 = state.substring($3, state.position);
-      String integer = $4;
-      num result = num.parse(integer);
-      var ok = true;
-      final $6 = state.position;
-      var $5 = false;
-      if (state.peek() == 46) {
-        state.position += state.charSize(46);
-        ok = false;
-        final $10 = state.failure;
-        state.failure = state.position;
-        var $7 = false;
-        final $8 = state.position;
-        for (var c = state.peek(); c >= 48 && c <= 57;) {
-          state.position += state.charSize(c);
-          c = state.peek();
-        }
-        if ($8 != state.position) {
-          final $9 = state.substring($8, state.position);
-          String decimal = $9;
-          ok = true;
-          result += int.parse(decimal) / math.pow(10, decimal.length);
-          $7 = true;
-        } else {
-          state.fail();
-        }
-        if ($7) {
-          state.failure < $10 ? state.failure = $10 : null;
-          $5 = true;
-        } else {
-          state.error(
-              'Expected decimal digit', state.position, state.failure, 3);
-          state.failure < $10 ? state.failure = $10 : null;
-        }
+    if ($1 != state.position) {
+      final $2 = state.substring($1, state.position);
+      String n = $2;
+      final $3 = state.position;
+      if (state.peek() == 83) {
+        state.consume('S', $3);
+        int $ = int.parse(n);
+        $0 = ($,);
       } else {
-        state.fail();
-      }
-      if (!$5) {
-        state.position = $6;
-      }
-      if (ok) {
-        num $ = negative == null ? result : -result;
-        $1 = ($,);
+        state.expected('S');
       }
     } else {
       state.fail();
     }
-    if ($1 != null) {
-      state.onSuccess($11, $0, $13);
-      return $1;
+    if ($0 != null) {
+      return $0;
     } else {
-      state.position = $0;
-      state.onFailure($11, $0, $13, $12);
+      state.position = $1;
       return null;
     }
   }

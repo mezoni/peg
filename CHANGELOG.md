@@ -1,3 +1,7 @@
+## 9.0.1
+
+- The algorithm for generating the expression `Match` has been optimized.
+
 ## 9.0.0
 
 - Breaking change. Changed behavior of the `:` operator. Now when using it with the `Action` expression, it assumes that the code in the `Action` expression is an `expression` and not a `block of statements`.

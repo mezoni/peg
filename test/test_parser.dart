@@ -743,13 +743,12 @@ class TestParser {
   ///```
   (String,)? parseMatch(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $1 = state.substring($0, state.position);
+      final $1 = state.substring($0, state.position);
       String $ = $1;
       return ($,);
     } else {
@@ -767,13 +766,12 @@ class TestParser {
   ///```
   (String,)? parseMatchVoid(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $1 = state.substring($0, state.position);
+      final $1 = state.substring($0, state.position);
       return ($1,);
     } else {
       state.fail();
@@ -1031,11 +1029,10 @@ class TestParser {
   ///```
   (String,)? parseRanges(State state) {
     final $0 = state.position;
-    String? $2;
     final $1 = state.peek();
     if ($1 >= 65 ? $1 <= 90 || $1 >= 97 && $1 <= 122 : $1 >= 48 && $1 <= 57) {
       state.position += state.charSize($1);
-      $2 = state.substring($0, state.position);
+      final $2 = state.substring($0, state.position);
       String $ = $2;
       return ($,);
     } else {
@@ -1053,11 +1050,10 @@ class TestParser {
   ///```
   (String,)? parseRangesVoid(State state) {
     final $0 = state.position;
-    String? $2;
     final $1 = state.peek();
     if ($1 >= 65 ? $1 <= 90 || $1 >= 97 && $1 <= 122 : $1 >= 48 && $1 <= 57) {
       state.position += state.charSize($1);
-      $2 = state.substring($0, state.position);
+      final $2 = state.substring($0, state.position);
       return ($2,);
     } else {
       state.fail();
@@ -1074,12 +1070,11 @@ class TestParser {
   ///```
   String parseTakeWhile(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
-    $1 = state.substring($0, state.position);
+    final $1 = state.substring($0, state.position);
     String $ = $1;
     return $;
   }
@@ -1093,13 +1088,12 @@ class TestParser {
   ///```
   (String,)? parseTakeWhile1(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $1 = state.substring($0, state.position);
+      final $1 = state.substring($0, state.position);
       String $ = $1;
       return ($,);
     } else {
@@ -1117,13 +1111,12 @@ class TestParser {
   ///```
   (String,)? parseTakeWhile1Void(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $1 = state.substring($0, state.position);
+      final $1 = state.substring($0, state.position);
       return ($1,);
     } else {
       state.fail();
@@ -1140,12 +1133,11 @@ class TestParser {
   ///```
   String parseTakeWhileVoid(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek(); c == 97;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
-    $1 = state.substring($0, state.position);
+    final $1 = state.substring($0, state.position);
     return $1;
   }
 

@@ -254,7 +254,6 @@ class JsonParser {
     (String,)? $1;
     var n = 0;
     final $2 = state.position;
-    String? $6;
     while (true) {
       final $4 = state.position;
       var $3 = false;
@@ -272,7 +271,7 @@ class JsonParser {
         break;
       }
     }
-    $6 = state.substring($2, state.position);
+    final $6 = state.substring($2, state.position);
     String s = $6;
     if (n == 4) {
       String $ = String.fromCharCode(int.parse(s, radix: 16));
@@ -422,7 +421,6 @@ class JsonParser {
     (num,)? $1;
     var ok = true;
     final $2 = state.position;
-    String? $20;
     var $3 = false;
     if (state.peek() == 45) {
       state.position += state.charSize(45);
@@ -529,7 +527,7 @@ class JsonParser {
       $3 = true;
     }
     if ($3) {
-      $20 = state.substring($2, state.position);
+      final $20 = state.substring($2, state.position);
       String n = $20;
       if (ok) {
         parseS(state);
@@ -688,14 +686,13 @@ class JsonParser {
   ///```
   (String,)? parseUnescaped(State state) {
     final $0 = state.position;
-    String? $1;
     for (var c = state.peek();
         !(c >= 34 ? c <= 34 || c == 92 : c >= 0 && c <= 31);) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $1 = state.substring($0, state.position);
+      final $1 = state.substring($0, state.position);
       return ($1,);
     } else {
       state.fail();

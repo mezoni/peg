@@ -87,11 +87,10 @@ class CalcParser {
   (String,)? parseID(State state) {
     final $1 = state.position;
     (String,)? $0;
-    String? $3;
     final $2 = state.peek();
     if ($2 >= 97 ? $2 <= 122 : $2 >= 65 && $2 <= 90) {
       state.position += state.charSize($2);
-      $3 = state.substring($1, state.position);
+      final $3 = state.substring($1, state.position);
       String $ = $3;
       parseS(state);
       $0 = ($,);
@@ -113,13 +112,12 @@ class CalcParser {
   (int,)? parseNUMBER(State state) {
     final $1 = state.position;
     (int,)? $0;
-    String? $2;
     for (var c = state.peek(); c >= 48 && c <= 57;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($1 != state.position) {
-      $2 = state.substring($1, state.position);
+      final $2 = state.substring($1, state.position);
       String n = $2;
       parseS(state);
       final int $$;

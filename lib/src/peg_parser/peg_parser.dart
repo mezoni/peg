@@ -164,14 +164,13 @@ class PegParser {
     if (state.peek() == 123) {
       state.consume('{', $1);
       final $2 = state.position;
-      String? $4;
       while (true) {
         final $3 = parseBlockBody(state);
         if ($3 == null) {
           break;
         }
       }
-      $4 = state.substring($2, state.position);
+      final $4 = state.substring($2, state.position);
       String $ = $4;
       final $5 = state.position;
       if (state.peek() == 125) {
@@ -935,7 +934,6 @@ class PegParser {
     if (state.peek() == 37 && state.startsWith('%{', state.position)) {
       state.consume('%{', $1);
       final $2 = state.position;
-      String? $8;
       while (true) {
         final $4 = state.position;
         var $3 = false;
@@ -964,7 +962,7 @@ class PegParser {
           break;
         }
       }
-      $8 = state.substring($2, state.position);
+      final $8 = state.substring($2, state.position);
       String $ = $8;
       final $9 = state.position;
       if (state.peek() == 125 && state.startsWith('}%', state.position)) {
@@ -1043,14 +1041,13 @@ class PegParser {
     state.failure = $0;
     state.nesting = $0;
     (int,)? $1;
-    String? $2;
     for (var c = state.peek();
         c >= 65 ? c <= 70 || c >= 97 && c <= 102 : c >= 48 && c <= 57;) {
       state.position += state.charSize(c);
       c = state.peek();
     }
     if ($0 != state.position) {
-      $2 = state.substring($0, state.position);
+      final $2 = state.substring($0, state.position);
       String n = $2;
       final int $$;
       $$ = int.parse(n, radix: 16);
@@ -1087,7 +1084,6 @@ class PegParser {
     state.failure = $0;
     state.nesting = $0;
     (String,)? $1;
-    String? $4;
     var $2 = false;
     final $3 = state.peek();
     if ($3 >= 97 ? $3 <= 122 : $3 >= 65 && $3 <= 90) {
@@ -1104,7 +1100,7 @@ class PegParser {
       state.fail();
     }
     if ($2) {
-      $4 = state.substring($0, state.position);
+      final $4 = state.substring($0, state.position);
       String $ = $4;
       parseS(state);
       $1 = ($,);
@@ -1224,7 +1220,6 @@ class PegParser {
     if (state.peek() == 37 && state.startsWith('%%', state.position)) {
       state.consume('%%', $1);
       final $2 = state.position;
-      String? $8;
       while (true) {
         final $4 = state.position;
         var $3 = false;
@@ -1253,7 +1248,7 @@ class PegParser {
           break;
         }
       }
-      $8 = state.substring($2, state.position);
+      final $8 = state.substring($2, state.position);
       String $ = $8;
       final $9 = state.position;
       if (state.peek() == 37 && state.startsWith('%%', state.position)) {
@@ -2118,7 +2113,6 @@ class PegParser {
     state.failure = $0;
     state.nesting = $0;
     (String,)? $1;
-    String? $4;
     var $2 = false;
     final $3 = state.peek();
     if ($3 >= 65 && $3 <= 90) {
@@ -2135,7 +2129,7 @@ class PegParser {
       state.fail();
     }
     if ($2) {
-      $4 = state.substring($0, state.position);
+      final $4 = state.substring($0, state.position);
       String $ = $4;
       parseS(state);
       $1 = ($,);
@@ -2600,7 +2594,6 @@ class PegParser {
     if (state.peek() == 96) {
       state.consume('`', $0);
       final $2 = state.position;
-      String? $8;
       while (true) {
         final $4 = state.position;
         var $3 = false;
@@ -2637,7 +2630,7 @@ class PegParser {
           break;
         }
       }
-      $8 = state.substring($2, state.position);
+      final $8 = state.substring($2, state.position);
       String $ = $8;
       final $9 = state.position;
       if (state.peek() == 96) {
