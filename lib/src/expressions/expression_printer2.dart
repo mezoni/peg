@@ -45,7 +45,7 @@ class ExpressionPrinter2 implements ExpressionVisitor<void> {
       }
 
       indents.sort();
-      final minIndent = indents.first;
+      final minIndent = indents.isEmpty ? 0 : indents.first;
       final indent = _indent;
       _indent += '  ';
       for (var i = 1; i < lines.length; i++) {
